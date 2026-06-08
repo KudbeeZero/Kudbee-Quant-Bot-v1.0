@@ -1,0 +1,47 @@
+//@version=5
+// =============================================================================
+// Kudbee Quant — PVSRA Vector Candles
+// Traders Reality (Tino) methodology, faithful re-implementation.
+//
+// Climax (vector) bar:  volume >= climaxMult * sma(volume, lookback)
+//                       OR  volume*spread >= highest(volume*spread, lookback)
+// Rising bar (not climax): volume >= risingMult * sma(volume, lookback)
+//
+// Colours:  bull climax = lime   | bear climax = red
+//           bull rising = blue   | bear rising = violet
+//           otherwise            = chart default (dimmed)
+//
+// This is a discretionary read of where volume showed up — a hypothesis,
+// not a signal. Validate edge before risking capital.
+// =============================================================================
+indicator("Kudbee PVSRA Vector Candles", overlay=true)
+
+lookback   = input.int(10, "Volume lookback", minval=1)
+climaxMult = input.float(2.0, "Climax volume multiple", minval=0.1, step=0.1)
+risingMult = input.float(1.5, "Rising volume multiple", minval=0.1, step=0.1)
+
+cBullClimax = input.color(color.lime,   "Bull climax")
+cBearClimax = input.color(color.red,    "Bear climax")
+cBullRising = input.color(color.blue,   "Bull rising")
+cBearRising = input.color(color.fuchsia,"Bear rising")
+
+spread     = high - low
+av         = ta.sma(volume, lookback)
+volSpread  = volume * spread
+climaxProd = ta.highest(volSpread, lookback)
+
+isClimax = volume >= climaxMult * av or volSpread >= climaxProd
+isRising = not isClimax and volume >= risingMult * av
+isBull   = close > open
+
+barColour = isClimax and isBull  ? cBullClimax :
+            isClimax and not isBull ? cBearClimax :
+            isRising and isBull  ? cBullRising :
+            isRising and not isBull ? cBearRising :
+            na
+
+barcolor(barColour)
+
+// Expose booleans so other scripts / strategies can consume the read.
+plotchar(isClimax and isBull,     "bull_climax", "", location.bottom, color.new(cBullClimax, 100))
+plotchar(isClimax and not isBull, "bear_climax", "", location.top,    color.new(cBearClimax, 100))
