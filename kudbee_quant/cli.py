@@ -18,10 +18,12 @@ from .backtest import (
     walk_forward,
 )
 from .context import add_mm_context
+from .confluence import confluence_reaction_study, range_exhaustion_study
 from .events import build_features, conditional_table, detect_level_tests, recovery_curve
 from .events.outcomes import add_forward_outcomes
 from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
+from .levels import build_levels, range_stats
 from .signals import pvsra_vector_candles
 from .validation import validate_universe
 
@@ -201,6 +203,47 @@ def _study_open(args) -> None:
           "expected.\nNot financial advice.")
 
 
+def _range_stats(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    s = range_stats(df)
+    print(f"Range statistics — {args.symbol} {args.interval}")
+    print(f"  ADR (avg daily range, 14d):   {s['adr']:.2f}   over {s['n_days']} days")
+    print(f"  AWR (avg weekly range, 8w):   {s['awr']:.2f}   over {s['n_weeks']} weeks")
+    print(f"  AMR (avg monthly range, 6m):  {s['amr']:.2f}   over {s['n_months']} months")
+
+    feats = build_levels(df)
+    table = range_exhaustion_study(feats, horizon=args.horizon)
+    print(f"\nRange exhaustion — forward {args.horizon}-bar range (ATR units) by % of ADR used today:")
+    print(table.to_string(index=False, formatters={
+        "mean_fwd_range_atr": "{:.2f}".format, "median_fwd_range_atr": "{:.2f}".format}))
+    print("\nHonest read: if mean forward range FALLS as % ADR used rises, that supports "
+          "range\nexhaustion. Watch the 'sufficient' flag and ATR-normalization. Not financial advice.")
+
+
+def _confluence(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    feats = build_levels(df)
+    table = confluence_reaction_study(feats, horizon=args.horizon, tol_atr=args.tol_atr)
+    print(f"Confluence reaction study — {args.symbol} {args.interval} "
+          f"(tol={args.tol_atr} ATR, horizon={args.horizon} bars)")
+    print("Does stacking more levels at a zone raise the reaction / reversal rate?\n")
+    print(table.to_string(index=False, formatters={
+        "mean_reaction_atr": "{:.2f}".format, "reversal_rate": "{:.1%}".format,
+        "rev_ci_low": "{:.0%}".format, "rev_ci_high": "{:.0%}".format}))
+    print("\nHonest read: confluence carries edge ONLY if reaction/reversal rises with score "
+          "AND\nthe high-score buckets are 'sufficient'. A flat or noisy column = no edge. "
+          "Not financial advice.")
+
+
+def _levels(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    feats = build_levels(df)
+    cols = ["timestamp", "close", "daily_open", "adr_high", "adr_low",
+            "pct_adr_used", "asian_high", "asian_low", "round_below", "round_above"]
+    cols = [c for c in cols if c in feats.columns]
+    print(feats[cols].tail(args.rows).to_string(index=False))
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -267,6 +310,28 @@ def main() -> None:
     so.add_argument("--min-n", type=int, default=30)
     so.add_argument("--rows", type=int, default=20)
     so.set_defaults(func=_study_open)
+
+    rs = sub.add_parser("range-stats", help="ADR/AWR/AMR + range-exhaustion study")
+    rs.add_argument("symbol")
+    rs.add_argument("--interval", default="1h")
+    rs.add_argument("--limit", type=int, default=4000)
+    rs.add_argument("--horizon", type=int, default=12)
+    rs.set_defaults(func=_range_stats)
+
+    cf = sub.add_parser("confluence", help="does confluence raise the reaction? (tested)")
+    cf.add_argument("symbol")
+    cf.add_argument("--interval", default="1h")
+    cf.add_argument("--limit", type=int, default=4000)
+    cf.add_argument("--horizon", type=int, default=8)
+    cf.add_argument("--tol-atr", type=float, default=0.25)
+    cf.set_defaults(func=_confluence)
+
+    lv = sub.add_parser("levels", help="show reference levels for recent bars")
+    lv.add_argument("symbol")
+    lv.add_argument("--interval", default="1h")
+    lv.add_argument("--limit", type=int, default=2000)
+    lv.add_argument("--rows", type=int, default=15)
+    lv.set_defaults(func=_levels)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

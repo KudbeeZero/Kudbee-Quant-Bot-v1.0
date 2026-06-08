@@ -172,3 +172,53 @@ Honest answer: **with 4000 hours we cannot answer this — far too few events.**
 Resolving it needs years of data (and likely a more liquid, less 24/7
 instrument). This is the engine working: it refuses to manufacture an edge
 from noise.
+
+### Range exhaustion — the first real regularity
+
+Bucketing bars by the % of the 14-day average daily range (ADR) already
+consumed today, then measuring forward 12-bar range (in ATR units), BTCUSDT
+1h shows a **clean, monotonic decline** on large samples:
+
+| % ADR used | forward range (ATR) | n |
+|---|---|---|
+| 0–25% | 4.86 | 647 |
+| 25–50% | 5.03 | 1084 |
+| 50–75% | 4.02 | 896 |
+| 75–100% | 3.26 | 619 |
+| 100–150% | 2.91 | 478 |
+| >150% | 2.80 | 254 |
+
+Once price has used most of its average daily range, further expansion
+shrinks. This is the range-exhaustion thesis, and it is **actually present**.
+Honest caveats: (1) this is largely the well-known *volatility mean-reversion*
+/ range-clustering effect, not unique alpha; (2) there is a possible
+time-of-day confound (more % used ≈ more of the day elapsed) to disentangle;
+(3) "smaller forward range" is not directly tradeable without a direction.
+Still — it is the first relationship here that survives a large sample and is
+monotonic. Worth pursuing (e.g. as a volatility/position-sizing input, or
+mean-reversion setups near ADR-high/ADR-low projections).
+
+### Confluence — the "stacking levels" thesis fails this test
+
+The hypothesis: the more reference levels cluster at a zone, the higher the
+reaction/reversal probability. Tested by scoring distinct levels within a
+tolerance band of price and measuring reversal rate by score:
+
+| confluence score | reversal rate | mean reaction (ATR) | n |
+|---|---|---|---|
+| 0 | 47–53% | 2.5 | 135–968 |
+| 1 | 52–54% | 1.5–1.7 | 2042–2513 |
+| 2 | 49–51% | 1.4 | 511–1815 |
+
+Reversal rate sits at ~50% (coin-flip) **regardless** of confluence, at both
+0.25 and 0.6 ATR tolerance; reaction magnitude actually *declines* with more
+confluence (clustered levels occur in congested, low-volatility zones). On
+BTC 1h with this level catalog, **confluence does not predict turning points
+better than chance.** Caveat: scores rarely exceeded 2, so very-high-confluence
+zones are rare at this timeframe; a different instrument/timeframe could
+differ — but the thesis is not supported here, and we will not pretend it is.
+
+**Net:** of everything tested, only range exhaustion shows a robust effect,
+and it is a known volatility phenomenon rather than directional alpha. Staying
+humble: the honest scoreboard so far is mostly nulls, which is the normal and
+expected result of testing retail trading lore rigorously.
