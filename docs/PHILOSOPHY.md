@@ -53,7 +53,7 @@ the product.
 - [x] Event-driven backtester (fees, slippage, no lookahead)
 - [x] Risk engine: Monte Carlo, VaR/CVaR, risk-of-ruin, fractional Kelly
 - [x] Walk-forward / out-of-sample validation harness
-- [ ] Market-maker cycle context (weekly templates, session highs/lows)
+- [x] Market-maker cycle context (sessions, PDH/PDL/PWH/PWL, sweeps, cycle)
 - [ ] Cross-asset correlation / catalyst graph (the "Mirofish" view)
 - [ ] Orchestrator: Scan -> Detect -> Validate -> Size -> Fill -> Settle
 - [ ] Paper-trading execution; live opt-in with guards
@@ -68,3 +68,31 @@ working: it reported a losing strategy honestly instead of cherry-picking an
 equity screenshot. The raw vector-candle read is *not* a strategy on its own
 — it needs regime filtering and the MM-cycle context layer. Finding that out
 in a backtest, not with real money, is the whole value proposition.
+
+### Adding MM-cycle context (the hybrid step) — and staying skeptical
+
+Filtering PVSRA climaxes by market-maker context (liquidity sweeps,
+prev-day levels, London/NY sessions) flipped the same 1000h BTC sample:
+
+| | naive PVSRA | PVSRA + MM context |
+|---|---|---|
+| total return | -13.3% | +11.3% |
+| Sharpe | -2.88 | +2.53 |
+| max drawdown | -18.8% | -11.1% |
+| MC prob. profit | 10.5% | 79.7% |
+| walk-forward OOS Sharpe | n/a | +3.90 |
+
+Encouraging — but the honesty layer requires naming the caveats louder than
+the result:
+
+1. **Small sample.** 1000h ≈ 42 days, one asset, one market regime. Not
+   enough to trust.
+2. **Researcher bias.** The MM filter was designed *knowing* the naive
+   version failed. That is a form of overfitting walk-forward can't fully
+   detect.
+3. **The IS/OOS inversion is a warning, not a win.** In-sample Sharpe was
+   **-0.59** while OOS was **+3.90**. A strategy that does far better
+   out-of-sample than in-sample is usually exhibiting noise, not robustness.
+
+Conclusion: a hypothesis that survived a first check, **not** a proven edge.
+Before any capital, it needs multi-asset, multi-year, truly-unseen testing.

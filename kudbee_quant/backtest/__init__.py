@@ -16,7 +16,7 @@ from .engine import BacktestConfig, BacktestResult, run_backtest
 from .metrics import performance_metrics
 from .montecarlo import MonteCarloResult, monte_carlo
 from .sizing import fractional_kelly
-from .strategy import pvsra_positions
+from .strategy import pvsra_mm_positions, pvsra_positions
 from .walkforward import WalkForwardResult, walk_forward
 
 __all__ = [
@@ -28,6 +28,7 @@ __all__ = [
     "monte_carlo",
     "fractional_kelly",
     "pvsra_positions",
+    "pvsra_mm_positions",
     "WalkForwardResult",
     "walk_forward",
 ]

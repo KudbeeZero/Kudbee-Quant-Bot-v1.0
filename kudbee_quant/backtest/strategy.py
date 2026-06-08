@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import pandas as pd
 
+from ..context import SessionWindows, add_mm_context
 from ..signals import VectorCandleConfig, pvsra_vector_candles
 
 
@@ -40,6 +41,45 @@ def pvsra_positions(
         return raw
 
     # Carry the regime forward: stay long until a bear climax, vice versa.
+    position = raw.replace(0.0, pd.NA).ffill().fillna(0.0).astype(float)
+    if not allow_short:
+        position = position.clip(lower=0.0)
+    return position
+
+
+def pvsra_mm_positions(
+    df: pd.DataFrame,
+    config: VectorCandleConfig | None = None,
+    windows: SessionWindows | None = None,
+    allow_short: bool = True,
+    require_session: bool = True,
+) -> pd.Series:
+    """Hybrid strategy: PVSRA climax confirmed by MM-cycle context.
+
+    The naive PVSRA strategy loses because it trades every climax regardless
+    of structure. This version only acts when the climax aligns with a
+    market-maker read:
+
+      LONG  : bull climax AND (a liquidity sweep of a low just occurred
+              OR price is above the previous-day high — a bullish regime)
+      SHORT : bear climax AND (sweep of a high OR price below prev-day low)
+
+    and, when ``require_session`` is set, only during the London/NY windows
+    where MM activity concentrates. This is a *hypothesis* — backtest it.
+    """
+    ctx = add_mm_context(df, windows)
+    ctx = pvsra_vector_candles(ctx, config)
+    vec = ctx["vector"]
+
+    bullish_regime = (ctx["sweep_bias"] > 0) | (ctx["close"] > ctx["pdh"])
+    bearish_regime = (ctx["sweep_bias"] < 0) | (ctx["close"] < ctx["pdl"])
+    active = (ctx["in_london"] | ctx["in_ny"]) if require_session else True
+
+    raw = pd.Series(0.0, index=ctx.index)
+    raw[(vec == "bull_climax") & bullish_regime & active] = 1.0
+    if allow_short:
+        raw[(vec == "bear_climax") & bearish_regime & active] = -1.0
+
     position = raw.replace(0.0, pd.NA).ffill().fillna(0.0).astype(float)
     if not allow_short:
         position = position.clip(lower=0.0)
