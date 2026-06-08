@@ -50,11 +50,21 @@ the product.
 
 - [x] Ingestion: Binance OHLCV, Polymarket (crypto + prediction markets)
 - [x] Signal: PVSRA vector candles (Pine + Python port)
+- [x] Event-driven backtester (fees, slippage, no lookahead)
+- [x] Risk engine: Monte Carlo, VaR/CVaR, risk-of-ruin, fractional Kelly
+- [x] Walk-forward / out-of-sample validation harness
 - [ ] Market-maker cycle context (weekly templates, session highs/lows)
 - [ ] Cross-asset correlation / catalyst graph (the "Mirofish" view)
-- [ ] Event-driven backtester (fees, slippage, latency)
-- [ ] Risk engine: Monte Carlo, VaR/CVaR, risk-of-ruin, fractional Kelly
-- [ ] Walk-forward / out-of-sample validation harness
 - [ ] Orchestrator: Scan -> Detect -> Validate -> Size -> Fill -> Settle
 - [ ] Paper-trading execution; live opt-in with guards
 - [ ] Dashboard UI with confidence intervals on every number
+
+## Reality check from the first backtest
+
+The naive PVSRA strategy (long bull-climax / short bear-climax, held as a
+regime) on 1000h of BTCUSDT returned **-12.9%**, Sharpe **-2.79**, with only
+**~12% probability of profit** in the Monte Carlo band. That is the engine
+working: it reported a losing strategy honestly instead of cherry-picking an
+equity screenshot. The raw vector-candle read is *not* a strategy on its own
+— it needs regime filtering and the MM-cycle context layer. Finding that out
+in a backtest, not with real money, is the whole value proposition.

@@ -18,6 +18,13 @@ return. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
   - `pvsra_vector_candles` — Traders Reality (Tino) PVSRA vector candles,
     Python port. Pine Script version in
     [`pinescript/pvsra_vector_candles.pine`](pinescript/pvsra_vector_candles.pine).
+- **Backtest + risk engine** (`kudbee_quant.backtest`)
+  - `run_backtest` — event-driven, fees + slippage, no lookahead.
+  - `performance_metrics` — Sharpe, Sortino, max drawdown, VaR/CVaR, Calmar.
+  - `monte_carlo` — bootstrap outcome distribution + risk-of-ruin.
+  - `fractional_kelly` — capped position sizing.
+  - `walk_forward` — in-sample vs out-of-sample overfitting check.
+  - `pvsra_positions` — the worked-example strategy (hybrid system).
 
 ## Quick start
 
@@ -26,6 +33,7 @@ pip install -r requirements.txt
 
 python -m kudbee_quant.cli klines BTCUSDT --interval 5m --limit 300
 python -m kudbee_quant.cli vectors BTCUSDT --interval 1h --limit 500
+python -m kudbee_quant.cli backtest BTCUSDT --interval 1h --limit 1000 --walkforward
 python -m kudbee_quant.cli polymarkets --limit 20
 ```
 
