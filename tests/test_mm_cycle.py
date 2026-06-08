@@ -36,10 +36,13 @@ def test_session_labels_cover_all_hours():
 
 def test_asian_box_present_during_later_sessions():
     out = label_sessions(_hourly(72))
-    # Some London/NY bars should have a defined Asian range from earlier.
+    # No lookahead: the Asian range is NaN *during* the forming session and
+    # only the completed range appears afterward (London/NY).
+    assert out.loc[out["in_asian"], "asian_high"].isna().all()
     later = out[out["session"].isin(["london", "new_york"])]
     assert later["asian_high"].notna().any()
-    assert (out["asian_high"] >= out["asian_low"]).dropna().all()
+    both = out["asian_high"].notna() & out["asian_low"].notna()
+    assert (out.loc[both, "asian_high"] >= out.loc[both, "asian_low"]).all()
 
 
 def test_reference_levels_have_no_lookahead():

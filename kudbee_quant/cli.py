@@ -24,6 +24,7 @@ from .events.outcomes import add_forward_outcomes
 from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
 from .levels import build_levels, range_stats
+from .scenarios import SCENARIOS, run_sweep
 from .signals import pvsra_vector_candles
 from .validation import validate_universe
 
@@ -244,6 +245,24 @@ def _levels(args) -> None:
     print(feats[cols].tail(args.rows).to_string(index=False))
 
 
+def _sweep(args) -> None:
+    table = run_sweep(args.symbols, interval=args.interval, limit=args.limit, hold_n=args.hold)
+    print(f"Scenario sweep — {len(SCENARIOS)} scenarios x {len(args.symbols)} assets "
+          f"({args.interval}, hold {args.hold} bars)")
+    print("Ranked by median OUT-OF-SAMPLE Sharpe across assets.\n")
+    print(table.to_string(index=False, formatters={
+        "median_oos_sharpe": "{:+.2f}".format,
+        "frac_profitable_oos": "{:.0%}".format,
+        "mean_oos_return": "{:+.1%}".format}))
+    best = table.iloc[0]
+    print(f"\nBest: {best['scenario']} (median OOS Sharpe {best['median_oos_sharpe']:+.2f}, "
+          f"profitable OOS on {best['frac_profitable_oos']:.0%} of assets)")
+    print("\nHonest read: a scenario is only interesting if median OOS Sharpe is clearly "
+          ">0 AND\nit's profitable OOS on most assets. Crypto majors are correlated, so "
+          "'most assets'\nis weak evidence — confirm survivors on uncorrelated data before "
+          "any capital.\nNot financial advice.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -332,6 +351,13 @@ def main() -> None:
     lv.add_argument("--limit", type=int, default=2000)
     lv.add_argument("--rows", type=int, default=15)
     lv.set_defaults(func=_levels)
+
+    sw = sub.add_parser("sweep", help="test the scenario battery across assets (OOS-ranked)")
+    sw.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT yahoo:SPY")
+    sw.add_argument("--interval", default="1h")
+    sw.add_argument("--limit", type=int, default=4000)
+    sw.add_argument("--hold", type=int, default=12, help="bars to hold each trigger")
+    sw.set_defaults(func=_sweep)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

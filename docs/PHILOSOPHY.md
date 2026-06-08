@@ -114,6 +114,28 @@ tide. We added that adjustment, and the verdict correctly flipped to **"Edge
 NOT established."** XRP also lost 20% OOS, and drawdowns ran **-20% to -41%**
 even on the winners — so "low risk" is false regardless of return.
 
+### The lookahead bug we caught — the project's most important moment
+
+While sweeping a battery of vector-candle / hybrid scenarios, three setups
+(Asian-range fade, two liquidity-sweep reversals) showed **out-of-sample
+Sharpe of +9.56, +5.20, +4.78 — profitable on 100% of assets.** A Sharpe of
+9.56 is *higher than the fantasy dashboards this project was built to debunk.*
+
+That is the tell. Too-good-to-be-true is a bug, not a discovery. The cause: the
+Asian-range high/low was computed as the **full session** max/min and mapped
+onto every bar of the day — so an intraday bar "knew" the final Asian range
+before it formed. Classic lookahead. Fixing it (expose only the *completed*
+range, NaN during the forming session) collapsed all three: **+9.56 → -0.47,
++5.20 → -0.56, +4.78 → -0.57.** Nothing survived.
+
+The same Asian-range leak had inflated the earlier `pvsra_mm` result: its
+multi-asset median OOS Sharpe fell from the **1.14 first reported to 0.23**
+once corrected — confirming, more strongly, that it is not a real edge.
+
+This is the single most valuable thing the tool has done. The viral dashboards
+*are* the uncaught version of this bug. We caught ours before a dollar was at
+risk — which is the entire reason the honesty layer exists.
+
 The lesson, and the whole point of this project: *a validation tool that can
 fool itself is worse than none.* The honest answer right now is **promising
 but unproven**. To actually establish an edge we need genuinely uncorrelated

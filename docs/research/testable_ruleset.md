@@ -222,3 +222,27 @@ differ — but the thesis is not supported here, and we will not pretend it is.
 and it is a known volatility phenomenon rather than directional alpha. Staying
 humble: the honest scoreboard so far is mostly nulls, which is the normal and
 expected result of testing retail trading lore rigorously.
+
+## Scenario sweep (15 directional setups) — and a caught lookahead bug
+
+We built a battery of 15 mechanical, directional scenarios from vector candles
+and the hybrid theory (vector momentum/fade, sweep reversals, ADR-band/
+exhaustion fades, daily/weekly-open, Asian-range break/fade, Brinks breakout,
+round-number rejection) and an OOS-ranked sweep across BTC/ETH/SOL/BNB.
+
+First run looked like hope: `asian_break_fade` +9.56, `sweep_reversal_premium`
++5.20, `sweep_reversal` +4.78 median OOS Sharpe — 100% of assets profitable.
+**Those Sharpes are higher than the fantasy dashboards we set out to debunk —
+the tell of a bug, not an edge.** Root cause: the Asian-range high/low leaked
+future info (full-session extreme mapped onto intraday bars). After the fix
+(expose only the completed range), the same three collapsed to -0.47, -0.56,
+-0.57. The full corrected board has **no scenario with a meaningful positive
+edge** (best: vector_at_daily_open +0.27, ~noise on correlated assets).
+
+Honest standing: across PVSRA-MM, vector recovery, daily-open retests,
+confluence, and now 15 directional scenarios, the only survivor is range
+exhaustion (a known volatility effect). The research agents surfaced many more
+precise BTMM setups still worth coding (M/W second-leg + 13/50 EMA cross,
+Asian stop-hunt with a <40-pip-range filter and 25-30-pip breach, railroad-
+track reversals, the 5/13/50/200/800 EMA stack) — these are the next batch to
+test, with the same null-first discipline that just caught a Sharpe-9.56 lie.

@@ -64,17 +64,19 @@ def label_sessions(df: pd.DataFrame, windows: SessionWindows | None = None) -> p
         default="off",
     )
 
-    # Asian-range box per calendar day (UTC). Bars wrapping past midnight are
-    # attributed to the day the session *ends* so the box precedes London/NY.
-    session_day = (ts - pd.Timedelta(hours=windows.asian[0])).dt.date if windows.asian[0] > windows.asian[1] else ts.dt.date
-    out["_day"] = ts.dt.date
-    asian_bars = out[out["in_asian"]].copy()
-    asian_bars["_adate"] = pd.Series(session_day, index=out.index)[out["in_asian"]]
-    box = asian_bars.groupby("_adate").agg(asian_high=("high", "max"), asian_low=("low", "min"))
-    day_to_box = box.to_dict("index")
-    out["asian_high"] = out["_day"].map(lambda d: day_to_box.get(d, {}).get("asian_high", np.nan))
-    out["asian_low"] = out["_day"].map(lambda d: day_to_box.get(d, {}).get("asian_low", np.nan))
-    return out.drop(columns="_day")
+    # Asian-range box — NO LOOKAHEAD. The completed session high/low is exposed
+    # only AFTER the session ends (forward-filled through London/NY until the
+    # next Asian session begins); it is NaN *during* the forming session, so a
+    # bar can never see the final range before it exists. (A prior version
+    # mapped the full-session max/min onto every bar of the day, which leaked
+    # future info and produced absurd backtest Sharpes.)
+    in_a = out["in_asian"].fillna(False).astype(bool)
+    sess_id = (in_a & ~in_a.shift(fill_value=False)).cumsum()
+    run_hi = out["high"].where(in_a).groupby(sess_id).cummax().ffill()
+    run_lo = out["low"].where(in_a).groupby(sess_id).cummin().ffill()
+    out["asian_high"] = run_hi.where(~in_a)
+    out["asian_low"] = run_lo.where(~in_a)
+    return out
 
 
 def reference_levels(df: pd.DataFrame) -> pd.DataFrame:
