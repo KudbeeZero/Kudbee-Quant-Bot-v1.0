@@ -128,3 +128,47 @@ out-of-sample number so we never mistake noise for a clue.
 **Stay humble:** the prior from everything we've measured so far is that most
 of these buckets will *not* beat the null. That's the expected, healthy
 outcome. The win is finding the few that do — and knowing the difference.
+
+---
+
+## First measured results (BTCUSDT, 1h, 4000 bars)
+
+The engine is built and the two flagship studies have run. Both returned the
+honest verdict, not the hoped-for one.
+
+### Vector-candle recovery — the magnet thesis fails the null
+
+First pass used a loose definition (price re-enters the candle box) and showed
+**100% recovery within 1 bar** — but that is an **artifact**: adjacent crypto
+candles overlap, so the next bar is trivially "in the box." Price continuity,
+not a magnet.
+
+Corrected to the meaningful definition (price must **leave** the zone, then
+**return**), with a random equal-width zone as the null:
+
+| horizon (bars) | vector recovered | random-zone null | edge |
+|---|---|---|---|
+| 5 | 13.9% | 23.2% | **-9.3%** |
+| 15 | 46.3% | 51.4% | -5.1% |
+| 60 | 77.5% | 75.1% | +2.4% |
+| 240 | 87.6% | 87.4% | +0.2% |
+| 1440 | 92.1% | 93.1% | -0.9% |
+
+**Vectors are NOT special magnets.** Price returns to a vector zone at almost
+exactly the rate it returns to any random nearby zone (~92% vs ~93% over 60
+days). "Always gets recovered" is true only in the trivial sense that price
+wanders back to most nearby levels eventually — the vector adds **no edge over
+a coin-flip level**, and is actually *slower* to recover at short horizons.
+
+### Daily-open "second test" — the Tuesday/NY question
+
+The exact bucket requested (2nd test of daily open, Tuesday, NY session):
+**n = 6, win rate 50%, 95% CI [19%, 81%] → noise.** Across all buckets,
+**none** reached the minimum sample, none survived Benjamini–Hochberg FDR, and
+win rates swung 14%–78% purely from small-sample variance. Cherry-picking
+"Monday London 2nd test = 77.8%!" (n = 9) would be self-deception.
+
+Honest answer: **with 4000 hours we cannot answer this — far too few events.**
+Resolving it needs years of data (and likely a more liquid, less 24/7
+instrument). This is the engine working: it refuses to manufacture an edge
+from noise.

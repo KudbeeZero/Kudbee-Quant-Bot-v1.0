@@ -18,6 +18,9 @@ from .backtest import (
     walk_forward,
 )
 from .context import add_mm_context
+from .events import build_features, conditional_table, detect_level_tests, recovery_curve
+from .events.outcomes import add_forward_outcomes
+from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
 from .signals import pvsra_vector_candles
 from .validation import validate_universe
@@ -139,6 +142,65 @@ def _validate(args) -> None:
           "whole-sample numbers flatter every strategy.")
 
 
+def _recovery(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    feats = build_features(df)
+    res = recovery_curve(feats)
+    print(f"Vector-candle recovery — {args.symbol} {args.interval} "
+          f"({res.n_vectors} vectors, {len(feats)} bars)")
+    print("-" * 60)
+    print(f"{'horizon(bars)':>14}{'vector%':>10}{'null%':>10}{'edge':>10}")
+    for _, row in res.to_frame().iterrows():
+        print(f"{int(row['horizon']):>14}{row['vector_recovered']:>9.1%}"
+              f"{row['null_recovered']:>10.1%}{row['edge_vs_null']:>+10.1%}")
+    print(f"\nmedian bars to recovery: {res.median_bars_to_recover:.0f}")
+    print("\nHonest read: 'vector%' is how often a vector box is re-entered within N "
+          "bars;\n'null%' is a random equal-width zone. Edge exists only where vector "
+          "clearly\nbeats null. 'Always recovered' is unfalsifiable; this measures the "
+          "bounded\nversion. Not financial advice.")
+
+
+def _study_open(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    feats = build_features(df)
+    feats = detect_level_tests(feats, "daily_open")
+    feats = add_forward_outcomes(feats, horizons=(args.horizon,))
+    tests = feats[feats["daily_open_test"]].copy()
+
+    table = conditional_table(
+        tests, outcome_col=f"fwd_up_{args.horizon}",
+        group_cols=["day_of_week", "session", "daily_open_nth_test"],
+        config=StudyConfig(min_n=args.min_n),
+    )
+    print(f"Daily-open test study — {args.symbol} {args.interval} "
+          f"({len(tests)} test events of {len(feats)} bars)")
+    print(f"outcome: price up {args.horizon} bars after the test\n")
+    if table.empty:
+        print("No test events found.")
+        return
+    show = table.head(args.rows)
+    cols = ["day_of_week", "session", "daily_open_nth_test", "n", "win_rate",
+            "ci_low", "ci_high", "sufficient", "significant_fdr"]
+    print(show[cols].to_string(index=False,
+          formatters={"win_rate": "{:.1%}".format, "ci_low": "{:.0%}".format,
+                      "ci_high": "{:.0%}".format}))
+    # Highlight the user's exact bucket: Tuesday (dow=1), NY session, 2nd test.
+    target = table[(table["day_of_week"] == 1) & (table["session"] == "ny")
+                   & (table["daily_open_nth_test"] == 2)]
+    print("\nYour bucket (Tue, NY session, 2nd test of daily open):")
+    if target.empty:
+        print("  no events matched.")
+    else:
+        r = target.iloc[0]
+        verdict = ("SIGNIFICANT after FDR" if r["significant_fdr"]
+                   else "not significant / insufficient — treat as noise")
+        print(f"  n={int(r['n'])}  win_rate={r['win_rate']:.1%}  "
+              f"95% CI=[{r['ci_low']:.0%}, {r['ci_high']:.0%}]  -> {verdict}")
+    print("\nHonest read: buckets below min-n are 'insufficient'; 'significant_fdr' "
+          "survives\nmultiple-comparisons control. Most thin slices will NOT — that is "
+          "expected.\nNot financial advice.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -190,6 +252,21 @@ def main() -> None:
     v2.add_argument("--paths", type=int, default=2000)
     v2.add_argument("--long-only", action="store_true")
     v2.set_defaults(func=_validate)
+
+    rc = sub.add_parser("recovery", help="vector-candle recovery curve vs. null")
+    rc.add_argument("symbol")
+    rc.add_argument("--interval", default="1h")
+    rc.add_argument("--limit", type=int, default=4000)
+    rc.set_defaults(func=_recovery)
+
+    so = sub.add_parser("study-open", help="daily-open test study (the 2nd-test/Tue/NY question)")
+    so.add_argument("symbol")
+    so.add_argument("--interval", default="1h")
+    so.add_argument("--limit", type=int, default=4000)
+    so.add_argument("--horizon", type=int, default=4, help="forward bars for the outcome")
+    so.add_argument("--min-n", type=int, default=30)
+    so.add_argument("--rows", type=int, default=20)
+    so.set_defaults(func=_study_open)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

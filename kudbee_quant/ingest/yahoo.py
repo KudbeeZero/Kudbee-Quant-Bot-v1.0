@@ -18,6 +18,7 @@ import pandas as pd
 import requests
 
 from .cache import DataCache
+from .validation import validate_ohlcv
 
 _BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
 _HEADERS = {"User-Agent": "Mozilla/5.0"}
@@ -52,7 +53,7 @@ class YahooClient:
                 timeout=20,
             )
             resp.raise_for_status()
-            cached = self._parse(resp.json(), symbol)
+            cached = validate_ohlcv(self._parse(resp.json(), symbol), symbol=symbol)
             self.cache.put(key, cached)
         return cached.tail(limit).reset_index(drop=True) if limit else cached
 

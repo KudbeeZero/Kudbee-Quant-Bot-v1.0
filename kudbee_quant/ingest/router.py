@@ -7,10 +7,27 @@ assets.
 """
 from __future__ import annotations
 
+import re
+
 import pandas as pd
 
 from .binance import BinanceClient
 from .yahoo import YahooClient
+
+# Security: only these sources are allowed, and a symbol must match this
+# conservative charset. Symbols are interpolated into outbound request URLs,
+# so an unvalidated symbol is an SSRF / query-injection vector (e.g.
+# "../../evil" or "BTC&endpoint=..."). Whitelist + regex closes that door.
+_ALLOWED_SOURCES = {"binance", "yahoo"}
+_SYMBOL_RE = re.compile(r"^[A-Za-z0-9._=^-]{1,20}$")
+
+
+def _validate_symbol(symbol: str) -> str:
+    if not _SYMBOL_RE.match(symbol):
+        raise ValueError(
+            f"invalid symbol {symbol!r}: must be 1-20 chars of [A-Za-z0-9._=^-]"
+        )
+    return symbol
 
 
 def parse_spec(spec: str) -> tuple[str, str]:
@@ -18,13 +35,14 @@ def parse_spec(spec: str) -> tuple[str, str]:
 
     Symbols may legitimately contain a colon (e.g. Yahoo ``GC=F``) but not a
     source prefix collision, so we split only on the first colon and only
-    treat a known source name as a prefix.
+    treat a known source name as a prefix. The symbol is validated against a
+    strict charset to prevent URL injection / SSRF.
     """
     if ":" in spec:
         head, rest = spec.split(":", 1)
-        if head.strip().lower() in {"binance", "yahoo"}:
-            return head.strip().lower(), rest.strip()
-    return "binance", spec.strip()
+        if head.strip().lower() in _ALLOWED_SOURCES:
+            return head.strip().lower(), _validate_symbol(rest.strip())
+    return "binance", _validate_symbol(spec.strip())
 
 
 def load_ohlcv(

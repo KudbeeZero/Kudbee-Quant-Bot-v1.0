@@ -11,6 +11,7 @@ import pandas as pd
 import requests
 
 from .cache import DataCache
+from .validation import validate_ohlcv
 
 # Primary endpoint, then fallbacks. api.binance.com is geo-blocked (HTTP 451)
 # from many cloud regions; data-api.binance.vision is the public data mirror
@@ -101,7 +102,7 @@ class BinanceClient:
                 break  # ran out of history
             time.sleep(0.2)  # be polite to the public endpoint
 
-        df = self._to_frame(rows)
+        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)
         self.cache.put(key, df)
         return df
 
