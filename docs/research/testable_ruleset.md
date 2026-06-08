@@ -246,3 +246,45 @@ precise BTMM setups still worth coding (M/W second-leg + 13/50 EMA cross,
 Asian stop-hunt with a <40-pip-range filter and 25-30-pip breach, railroad-
 track reversals, the 5/13/50/200/800 EMA stack) — these are the next batch to
 test, with the same null-first discipline that just caught a Sharpe-9.56 lie.
+
+## BTMM/PVSRA precise-setup batch (10 more) + a permanent lookahead guard
+
+We implemented the precise setups (docs/research/btmm_pvsra_setups.md): EMA
+13/50 cross + close filter, 50/800 trend filter, trend-pullback, the REAL
+Asian stop-hunt (smooth-range + breach-and-reclaim, no-lookahead), Brinks/
+shadow-box ORB, railroad-track, M/W second-leg (swing-pivot neckline),
+vector-zone retest, sweep+opposing-vector, and `vector_at_monthly_open`
+(recorded from @KudbeeX's M0 call). We also added a **lookahead self-audit**
+(`scenarios/audit.py`): it recomputes the full pipeline on data truncated at t
+and checks signal[t] is unchanged. All 25 scenarios pass (0% leak) — the guard
+that makes the Sharpe-9.56 bug impossible to ship again.
+
+Sweep result (BTC/ETH/SOL/BNB, 1h, OOS-ranked):
+
+| scenario | median OOS Sharpe | profitable OOS |
+|---|---|---|
+| ema_trend (50/800) | +2.18 | 75% |
+| ema_trend_pullback | +0.59 | 75% |
+| vector_at_daily_open | +0.27 | 75% |
+| ema_cross_13_50 | +0.15 | 50% |
+| vector_at_monthly_open | -0.00 | 50% |
+| asian_stophunt | -0.15 | 50% |
+| brinks_orb | -0.18 | 50% |
+| railroad_track | -2.03 | 0% |
+| mw_second_leg | -3.09 | 0% |
+| (all others) | negative | <=50% |
+
+**Honest read:** the only clearly-positive scenario is `ema_trend` — plain
+50/800 EMA trend-following. That is **crypto beta** (trend-following a rising,
+correlated market), NOT vector/hybrid alpha; it would likely fail on
+uncorrelated assets and in chop, exactly like pvsra_mm did. The *precise
+Traders Reality / BTMM setups* (Asian stop-hunt, Brinks ORB, railroad-track,
+M/W second-leg, vector-zone retest) are flat-to-negative on BTC majors. The
+recorded `vector_at_monthly_open` is dead-noise (0.00). So the mechanical,
+systematic versions of these setups do not show edge here.
+
+Important distinction: this tests the *mechanical* rule. A skilled
+discretionary trader reading live context (as in the DOT imbalance call, which
+is playing out directionally) may outperform the naive mechanical rule — that
+is real discretionary skill, not a systematic edge we can yet encode or trust
+blindly.

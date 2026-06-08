@@ -25,6 +25,7 @@ from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
 from .levels import build_levels, range_stats
 from .scenarios import SCENARIOS, run_sweep
+from .scenarios.audit import audit_all
 from .signals import pvsra_vector_candles
 from .validation import validate_universe
 
@@ -245,6 +246,21 @@ def _levels(args) -> None:
     print(feats[cols].tail(args.rows).to_string(index=False))
 
 
+def _audit(args) -> None:
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    table = audit_all(df, SCENARIOS, n_checks=args.checks)
+    print(f"Lookahead self-audit — {len(SCENARIOS)} scenarios on {args.symbol} "
+          f"{args.interval} ({args.checks} checks each)")
+    print("signal[t] from truncated data must equal signal[t] from full data.\n")
+    print(table.to_string(index=False, formatters={"leak_rate": "{:.1%}".format}))
+    leaks = table[~table["clean"]]
+    if leaks.empty:
+        print("\nAll scenarios CLEAN — no scenario can see the future. Safe to sweep.")
+    else:
+        print(f"\nLOOKAHEAD DETECTED in: {', '.join(leaks['scenario'])} — "
+              "these results would be fake. Fix before trusting any backtest.")
+
+
 def _sweep(args) -> None:
     table = run_sweep(args.symbols, interval=args.interval, limit=args.limit, hold_n=args.hold)
     print(f"Scenario sweep — {len(SCENARIOS)} scenarios x {len(args.symbols)} assets "
@@ -351,6 +367,13 @@ def main() -> None:
     lv.add_argument("--limit", type=int, default=2000)
     lv.add_argument("--rows", type=int, default=15)
     lv.set_defaults(func=_levels)
+
+    au = sub.add_parser("audit", help="lookahead self-audit of every scenario")
+    au.add_argument("symbol")
+    au.add_argument("--interval", default="1h")
+    au.add_argument("--limit", type=int, default=2000)
+    au.add_argument("--checks", type=int, default=60)
+    au.set_defaults(func=_audit)
 
     sw = sub.add_parser("sweep", help="test the scenario battery across assets (OOS-ranked)")
     sw.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT yahoo:SPY")

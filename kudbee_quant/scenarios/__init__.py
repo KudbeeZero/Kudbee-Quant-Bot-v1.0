@@ -7,7 +7,13 @@ then surfacing any survivor. Most will be nulls — that's expected. The job is
 to catch the few that aren't, and not fool ourselves about the rest.
 """
 
-from .library import SCENARIOS, hold
+from .audit import audit_all, lookahead_audit
+from .btmm import BTMM_SCENARIOS
+from .library import SCENARIOS as _BASE_SCENARIOS
+from .library import hold
 from .sweep import run_sweep
 
-__all__ = ["SCENARIOS", "hold", "run_sweep"]
+# Full registry = original battery + the precise BTMM/PVSRA setups.
+SCENARIOS = {**_BASE_SCENARIOS, **BTMM_SCENARIOS}
+
+__all__ = ["SCENARIOS", "BTMM_SCENARIOS", "hold", "run_sweep", "audit_all", "lookahead_audit"]

@@ -17,7 +17,7 @@ from ..backtest import BacktestConfig, run_backtest, walk_forward
 from ..backtest.metrics import infer_periods_per_year
 from ..ingest import load_ohlcv
 from ..levels import build_levels
-from .library import SCENARIOS, hold
+from .library import hold
 
 
 @dataclass(frozen=True)
@@ -44,7 +44,9 @@ def run_sweep(
     slippage_bps: float = 2.0,
 ) -> pd.DataFrame:
     """Backtest every scenario on every asset; return a ranked summary frame."""
-    scenarios = scenarios or SCENARIOS
+    if scenarios is None:
+        from . import SCENARIOS  # full registry (base + BTMM); runtime import avoids cycle
+        scenarios = SCENARIOS
     frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit)) for spec in specs}
 
     results = []
