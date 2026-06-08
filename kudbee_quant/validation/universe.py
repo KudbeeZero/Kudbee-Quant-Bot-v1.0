@@ -1,14 +1,15 @@
 """Universe-level validation (see package docstring)."""
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable
 
 import numpy as np
 import pandas as pd
 
 from ..backtest import BacktestConfig, monte_carlo, run_backtest, walk_forward
-from ..ingest import BinanceClient
+from ..backtest.metrics import infer_periods_per_year
+from ..ingest import load_ohlcv
 
 PositionFn = Callable[[pd.DataFrame], pd.Series]
 
@@ -49,7 +50,12 @@ class UniverseReport:
 
 
 def _assess_asset(symbol: str, df: pd.DataFrame, strategy_fn: PositionFn,
-                  config: BacktestConfig, n_folds: int, mc_paths: int) -> AssetReport:
+                  config: BacktestConfig, n_folds: int, mc_paths: int,
+                  infer_periods: bool = True) -> AssetReport:
+    # Annualize each asset by its own bar spacing so hourly crypto and daily
+    # equities can share one universe without skewing the Sharpe ratios.
+    if infer_periods:
+        config = replace(config, periods_per_year=infer_periods_per_year(df))
     full = run_backtest(df, strategy_fn(df), config)
     wf = walk_forward(df, strategy_fn, n_folds=n_folds, config=config)
     oos_returns = wf.oos_equity.pct_change().dropna()
@@ -194,16 +200,18 @@ def _median_cross_corr(frames: dict[str, pd.DataFrame]) -> float:
 
 
 def validate_universe(
-    symbols: list[str],
+    specs: list[str],
     strategy_fn: PositionFn,
     interval: str = "1h",
     limit: int = 4000,
     config: BacktestConfig | None = None,
     n_folds: int = 5,
     mc_paths: int = 2000,
-    client: BinanceClient | None = None,
 ) -> UniverseReport:
-    """Fetch each symbol's history and validate the strategy across all of them."""
-    client = client or BinanceClient()
-    frames = {sym: client.klines(sym, interval=interval, limit=limit) for sym in symbols}
+    """Fetch each spec's history and validate the strategy across all of them.
+
+    Specs may be bare symbols (``BTCUSDT`` -> Binance) or source-prefixed
+    (``stooq:spy.us``), so a single universe can mix crypto and equities.
+    """
+    frames = {spec: load_ohlcv(spec, interval=interval, limit=limit) for spec in specs}
     return validate_frames(frames, strategy_fn, config, n_folds, mc_paths)

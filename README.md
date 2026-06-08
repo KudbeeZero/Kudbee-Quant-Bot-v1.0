@@ -13,7 +13,9 @@ return. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
 
 - **Ingestion** (`kudbee_quant.ingest`)
   - `BinanceClient` — public spot OHLCV, cached, auto-paging history.
+  - `YahooClient` — equities/ETFs/commodities/FX (uncorrelated assets for validation).
   - `PolymarketClient` — prediction-market metadata + CLOB prices.
+  - `load_ohlcv` — source router: `binance:BTCUSDT` / `yahoo:SPY` / bare symbol.
 - **Signals** (`kudbee_quant.signals`)
   - `pvsra_vector_candles` — Traders Reality (Tino) PVSRA vector candles,
     Python port. Pine Script version in
@@ -45,7 +47,7 @@ python -m kudbee_quant.cli vectors BTCUSDT --interval 1h --limit 500
 python -m kudbee_quant.cli context BTCUSDT --interval 1h --limit 500
 python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra      # naive
 python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra_mm --walkforward
-python -m kudbee_quant.cli validate BTCUSDT ETHUSDT SOLUSDT --strategy pvsra_mm
+python -m kudbee_quant.cli validate BTCUSDT ETHUSDT yahoo:SPY yahoo:GLD --strategy pvsra_mm
 python -m kudbee_quant.cli polymarkets --limit 20
 ```
 

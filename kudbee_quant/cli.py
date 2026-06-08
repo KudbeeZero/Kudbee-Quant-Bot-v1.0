@@ -182,7 +182,8 @@ def main() -> None:
     b.set_defaults(func=_backtest)
 
     v2 = sub.add_parser("validate", help="validate a strategy across many assets (OOS)")
-    v2.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
+    v2.add_argument("symbols", nargs="+",
+                    help="specs, e.g. BTCUSDT ETHUSDT yahoo:SPY yahoo:GLD (mix sources)")
     v2.add_argument("--strategy", choices=["pvsra", "pvsra_mm"], default="pvsra_mm")
     v2.add_argument("--interval", default="1h")
     v2.add_argument("--limit", type=int, default=4000)

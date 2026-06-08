@@ -32,6 +32,24 @@ class PerformanceMetrics:
         return asdict(self)
 
 
+def infer_periods_per_year(df: pd.DataFrame) -> float:
+    """Estimate bars-per-year from actual bar density over the calendar span.
+
+    Uses (n_bars - 1) / (span in years) rather than the median spacing, so
+    assets with regular gaps (equities closed nights/weekends) annualize
+    correctly instead of being inflated as if they traded 24/7. Lets one
+    universe mix continuous hourly crypto (~8766) and gappy hourly equities
+    (~1600) without skewing Sharpe. Falls back to 365 when unusable.
+    """
+    if "timestamp" not in df.columns or len(df) < 3:
+        return 365.0
+    ts = pd.to_datetime(df["timestamp"], utc=True).sort_values()
+    span_years = (ts.iloc[-1] - ts.iloc[0]).total_seconds() / (365.25 * 24 * 3600)
+    if span_years <= 0:
+        return 365.0
+    return float((len(ts) - 1) / span_years)
+
+
 def max_drawdown(equity: pd.Series | np.ndarray) -> float:
     equity = np.asarray(equity, dtype=float)
     if equity.size == 0:

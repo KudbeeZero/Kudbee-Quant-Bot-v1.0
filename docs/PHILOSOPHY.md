@@ -119,3 +119,34 @@ fool itself is worse than none.* The honest answer right now is **promising
 but unproven**. To actually establish an edge we need genuinely uncorrelated
 assets (equities, FX, commodities), multiple market regimes (including bear
 and chop), and out-of-sample windows the strategy has never touched.
+
+### Breaking the correlation wall — and the verdict that followed
+
+We added Yahoo Finance ingestion (equities, ETFs, commodities; Stooq is now
+behind a JS proof-of-work wall and unusable from a server) and ran `pvsra_mm`
+on a genuinely independent universe — BTC, ETH, plus SPY, GLD, TLT, USO —
+all hourly, apples-to-apples, with per-asset annualization corrected for
+market gaps:
+
+| asset | OOS Sharpe | OOS return |
+|---|---|---|
+| BTCUSDT | +1.15 | +12.1% |
+| ETHUSDT | +0.45 | +2.7% |
+| SPY | -1.17 | -23.3% |
+| GLD | -0.26 | -11.9% |
+| TLT | -0.56 | -8.3% |
+| USO | +0.20 | -2.2% |
+
+Cross-asset correlation 0.00 (6 truly independent bets). Profitable OOS on
+**33%**, median OOS Sharpe **-0.03** — indistinguishable from random.
+
+**Conclusion: the PVSRA-MM "edge" is falsified as a generalizable strategy.**
+It worked only on the two crypto assets, which were correlated and riding a
+bull market — that is *beta*, not *alpha*. The moment we tested it on assets
+that don't move with crypto, it produced random-to-negative results.
+
+This is the project delivering exactly what it promised. A real backtest on
+real, independent data told us the truth the viral dashboards are built to
+hide. No money was risked to learn it. The next honest step is not to tune
+this strategy until the numbers look better (that is how you overfit) — it is
+to search for genuinely different signals and hold them to this same bar.
