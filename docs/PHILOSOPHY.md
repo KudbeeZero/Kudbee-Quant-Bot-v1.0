@@ -54,6 +54,7 @@ the product.
 - [x] Risk engine: Monte Carlo, VaR/CVaR, risk-of-ruin, fractional Kelly
 - [x] Walk-forward / out-of-sample validation harness
 - [x] Market-maker cycle context (sessions, PDH/PDL/PWH/PWL, sweeps, cycle)
+- [x] Multi-asset validation harness (correlation-adjusted, OOS-scored)
 - [ ] Cross-asset correlation / catalyst graph (the "Mirofish" view)
 - [ ] Orchestrator: Scan -> Detect -> Validate -> Size -> Fill -> Settle
 - [ ] Paper-trading execution; live opt-in with guards
@@ -96,3 +97,25 @@ the result:
 
 Conclusion: a hypothesis that survived a first check, **not** a proven edge.
 Before any capital, it needs multi-asset, multi-year, truly-unseen testing.
+
+### Multi-asset validation — and the harness catching its own lie
+
+Running `pvsra_mm` across BTC/ETH/SOL/BNB/XRP (4000h each) first looked like
+a win: profitable OOS on **80%** of assets, median OOS Sharpe **1.14**, and
+the IS/OOS gap had shrunk to a stable **0.87**. The harness initially printed
+"Edge looks ROBUST."
+
+That verdict was wrong, and the fix is instructive. Those five assets have a
+median pairwise return correlation of **0.82** — they are not five
+independent tests. Adjusting for correlation, `n_eff = n / (1+(n-1)*rho)`
+gives **~1.2 independent bets**. Five crypto majors rising together is barely
+one real experiment, and a long-biased strategy gets carried by a rising
+tide. We added that adjustment, and the verdict correctly flipped to **"Edge
+NOT established."** XRP also lost 20% OOS, and drawdowns ran **-20% to -41%**
+even on the winners — so "low risk" is false regardless of return.
+
+The lesson, and the whole point of this project: *a validation tool that can
+fool itself is worse than none.* The honest answer right now is **promising
+but unproven**. To actually establish an edge we need genuinely uncorrelated
+assets (equities, FX, commodities), multiple market regimes (including bear
+and chop), and out-of-sample windows the strategy has never touched.

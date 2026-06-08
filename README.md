@@ -29,6 +29,11 @@ return. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
   - `walk_forward` — in-sample vs out-of-sample overfitting check.
   - `pvsra_positions` / `pvsra_mm_positions` — naive vs MM-context-filtered
     strategies (the hybrid system; compare them with the `backtest` CLI).
+- **Validation** (`kudbee_quant.validation`)
+  - `validate_universe` — run a strategy across many assets, score each on
+    out-of-sample results, and render a conservative verdict that is
+    **correlation-adjusted** (correlated assets count as fewer independent
+    tests, so the harness can't fool itself).
 
 ## Quick start
 
@@ -40,6 +45,7 @@ python -m kudbee_quant.cli vectors BTCUSDT --interval 1h --limit 500
 python -m kudbee_quant.cli context BTCUSDT --interval 1h --limit 500
 python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra      # naive
 python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra_mm --walkforward
+python -m kudbee_quant.cli validate BTCUSDT ETHUSDT SOLUSDT --strategy pvsra_mm
 python -m kudbee_quant.cli polymarkets --limit 20
 ```
 

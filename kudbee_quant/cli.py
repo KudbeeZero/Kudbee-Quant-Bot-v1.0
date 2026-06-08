@@ -20,6 +20,7 @@ from .backtest import (
 from .context import add_mm_context
 from .ingest import BinanceClient, PolymarketClient
 from .signals import pvsra_vector_candles
+from .validation import validate_universe
 
 # Bars per year per Binance interval, for honest annualization.
 _PERIODS_PER_YEAR = {
@@ -104,6 +105,40 @@ def _backtest(args) -> None:
     print("OOS column matter more than the headline number. Not financial advice.")
 
 
+def _validate(args) -> None:
+    config = BacktestConfig(
+        periods_per_year=_PERIODS_PER_YEAR.get(args.interval, 8_760),
+        allow_short=not args.long_only,
+    )
+    strat = _strategy_fn(args.strategy, args.long_only)
+    report = validate_universe(
+        args.symbols, strat, interval=args.interval, limit=args.limit,
+        config=config, mc_paths=args.paths,
+    )
+
+    print(f"Universe validation — {args.strategy} on {len(report.assets)} assets "
+          f"({args.interval}, {args.limit} bars each)")
+    print("=" * 78)
+    hdr = f"{'symbol':<10}{'OOS Sharpe':>11}{'OOS ret':>10}{'OOS P(profit)':>15}{'IS-OOS gap':>12}{'maxDD':>9}"
+    print(hdr)
+    print("-" * 78)
+    for a in report.assets:
+        flag = "ok " if a.profitable_oos else "XX "
+        print(f"{a.symbol:<10}{a.oos_sharpe:>11.2f}{a.oos_return:>9.1%}{a.oos_prob_profit:>14.0%}"
+              f"{a.is_oos_gap:>+12.2f}{a.max_drawdown:>9.1%}  {flag}")
+    print("-" * 78)
+    print(f"profitable OOS: {report.frac_profitable_oos:.0%}   "
+          f"median OOS Sharpe: {report.median_oos_sharpe:.2f}   "
+          f"median |IS-OOS gap|: {report.median_abs_is_oos_gap:.2f}")
+    print(f"cross-asset corr: {report.median_cross_corr:.2f}   "
+          f"effective independent assets: {report.effective_n:.1f} of {len(report.assets)}")
+    print(f"\nVERDICT: {report.verdict}")
+    for note in report.notes:
+        print(f"  - {note}")
+    print("\nNot financial advice. OOS results are the honest column; the "
+          "whole-sample numbers flatter every strategy.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -145,6 +180,15 @@ def main() -> None:
     b.add_argument("--long-only", action="store_true", help="disable short positions")
     b.add_argument("--walkforward", action="store_true", help="run walk-forward OOS check")
     b.set_defaults(func=_backtest)
+
+    v2 = sub.add_parser("validate", help="validate a strategy across many assets (OOS)")
+    v2.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
+    v2.add_argument("--strategy", choices=["pvsra", "pvsra_mm"], default="pvsra_mm")
+    v2.add_argument("--interval", default="1h")
+    v2.add_argument("--limit", type=int, default=4000)
+    v2.add_argument("--paths", type=int, default=2000)
+    v2.add_argument("--long-only", action="store_true")
+    v2.set_defaults(func=_validate)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)
