@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+
+  <!-- Primary SEO -->
+  <title>Kudbee Quant — AI Trade Signals, Analytics & Strategy Backtesting</title>
+  <meta name="description" content="Kudbee Quant turns market noise into clear, data-driven trade signals. Build, backtest, and optimize quant strategies with institutional-grade analytics — no code required. Join the waitlist." />
+  <meta name="keywords" content="quant trading, trade signals, algorithmic trading, backtesting software, trading analytics, strategy builder, crypto signals, quantitative analysis, trading bot, Kudbee Quant" />
+  <meta name="author" content="Kudbee Quant" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Kudbee Quant — AI Trade Signals, Analytics & Strategy Backtesting" />
+  <meta property="og:description" content="Turn market noise into clear, data-driven trade signals. Build, backtest, and optimize quant strategies with institutional-grade analytics." />
+  <meta property="og:url" content="https://kudbeequant.com/" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta property="og:image:alt" content="Kudbee Quant dashboard preview" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kudbee Quant — AI Trade Signals, Analytics & Strategy Backtesting" />
+  <meta name="twitter:description" content="Turn market noise into clear, data-driven trade signals. Build, backtest, and optimize quant strategies." />
+  <meta name="twitter:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+
+  <!-- Icons & Manifest -->
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/img/favicon.svg" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Kudbee Quant",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web",
+    "description": "AI-powered quant platform for trade signals, market analytics, and strategy backtesting.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Early access waitlist" },
+    "url": "https://kudbeequant.com/",
+    "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "128" }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      { "@type": "Question", "name": "Does Kudbee Quant place trades for me?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and lets you build and validate strategies — you stay in control of execution." } },
+      { "@type": "Question", "name": "Do I need to know how to code?", "acceptedAnswer": { "@type": "Answer", "text": "No. The strategy builder is fully visual. Power users can drop into advanced mode, but you can build and backtest a complete strategy without writing a line of code." } },
+      { "@type": "Question", "name": "What markets are supported?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is built to be market-agnostic, with coverage spanning crypto, equities, and forex as we roll out access." } }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <!-- Skip link for a11y -->
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="#hero" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs>
+              <linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFD45E"/>
+                <stop offset="1" stop-color="#F5A623"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#backtest">Backtesting</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <a href="#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__glow hero__glow--1"></div>
+        <div class="hero__glow hero__glow--2"></div>
+        <div class="hero__grid"></div>
+      </div>
+
+      <div class="container hero__inner">
+        <div class="hero__copy">
+          <span class="pill reveal">
+            <span class="pill__dot"></span> Now in private beta — early access open
+          </span>
+          <h1 class="hero__title reveal">
+            Turn market noise into
+            <span class="grad-text">precision signals.</span>
+          </h1>
+          <p class="hero__sub reveal">
+            Kudbee Quant is the quant cockpit for modern traders — real-time signals,
+            institutional-grade analytics, and a no-code engine to build, backtest, and
+            optimize strategies before you ever risk a dollar.
+          </p>
+          <div class="hero__actions reveal">
+            <a href="#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+            <a href="#how" class="btn btn--ghost btn--lg">
+              <span class="play" aria-hidden="true">▶</span> See how it works
+            </a>
+          </div>
+          <ul class="hero__trust reveal" aria-label="Highlights">
+            <li><strong data-count="1200000" data-suffix="+">0</strong><span>Signals analyzed</span></li>
+            <li><strong data-count="50" data-suffix="+">0</strong><span>Strategy templates</span></li>
+            <li><strong data-count="99.9" data-suffix="%" data-decimals="1">0</strong><span>Backtest uptime</span></li>
+          </ul>
+        </div>
+
+        <!-- Live-ish dashboard mock -->
+        <div class="hero__visual reveal">
+          <div class="glass dash">
+            <div class="dash__head">
+              <div class="dash__title">
+                <span class="dash__dot"></span> BTC / USDT · Live signal
+              </div>
+              <span class="badge badge--up" id="signalBadge">▲ LONG · 86% conf.</span>
+            </div>
+            <div class="dash__chart">
+              <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="spark" aria-hidden="true">
+                <defs>
+                  <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="rgba(45,212,191,.35)"/>
+                    <stop offset="1" stop-color="rgba(45,212,191,0)"/>
+                  </linearGradient>
+                </defs>
+                <path id="sparkFill" fill="url(#fill)" d=""/>
+                <path id="sparkLine" fill="none" stroke="#2DD4BF" stroke-width="2.5" d=""/>
+                <circle id="sparkDot" r="4" fill="#2DD4BF"/>
+              </svg>
+            </div>
+            <div class="dash__stats">
+              <div><span class="k">Win rate</span><b class="up">68.4%</b></div>
+              <div><span class="k">Sharpe</span><b>2.31</b></div>
+              <div><span class="k">Max DD</span><b class="down">-9.2%</b></div>
+              <div><span class="k">Edge</span><b class="up">+1.8σ</b></div>
+            </div>
+          </div>
+          <div class="glass chip chip--a">
+            <span class="chip__k">ETH momentum</span>
+            <span class="badge badge--up">▲ +4.2%</span>
+          </div>
+          <div class="glass chip chip--b">
+            <span class="chip__k">Mean reversion</span>
+            <span class="badge badge--down">▼ exit</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track">
+          <span>BTC <em class="up">+2.4%</em></span><span>ETH <em class="up">+4.2%</em></span>
+          <span>SOL <em class="down">-1.1%</em></span><span>AAPL <em class="up">+0.8%</em></span>
+          <span>EUR/USD <em class="down">-0.3%</em></span><span>NVDA <em class="up">+3.6%</em></span>
+          <span>XAU <em class="up">+0.5%</em></span><span>SPX <em class="up">+1.2%</em></span>
+          <span>BTC <em class="up">+2.4%</em></span><span>ETH <em class="up">+4.2%</em></span>
+          <span>SOL <em class="down">-1.1%</em></span><span>AAPL <em class="up">+0.8%</em></span>
+          <span>EUR/USD <em class="down">-0.3%</em></span><span>NVDA <em class="up">+3.6%</em></span>
+          <span>XAU <em class="up">+0.5%</em></span><span>SPX <em class="up">+1.2%</em></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LOGOS / TRUST ===== -->
+    <section class="trust container">
+      <p class="trust__label">Built for traders who treat the markets like a science</p>
+      <div class="trust__row">
+        <span>Real-time data</span><span class="dot">•</span>
+        <span>Backtested edges</span><span class="dot">•</span>
+        <span>Risk-first analytics</span><span class="dot">•</span>
+        <span>No-code strategies</span>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The platform</span>
+          <h2>Everything you need to find, validate, and trust an edge.</h2>
+          <p>Four pillars working together — so you stop guessing and start trading with conviction.</p>
+        </div>
+
+        <div class="grid grid--features">
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">📡</div>
+            <h3>Real-time signals</h3>
+            <p>High-conviction long/short signals with confidence scores, surfaced the moment the data lines up — never after the move.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">📊</div>
+            <h3>Institutional analytics</h3>
+            <p>Sharpe, drawdown, win rate, exposure and regime detection in one cockpit — the numbers desks pay for, made readable.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">🧱</div>
+            <h3>No-code strategy builder</h3>
+            <p>Drag, drop, and combine indicators into a full strategy. Visual logic for everyone, advanced mode for the power users.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">⏪</div>
+            <h3>Rigorous backtesting</h3>
+            <p>Replay years of market history in seconds. Stress-test against fees, slippage, and regimes before you risk real capital.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section section--alt" id="how">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2>From idea to validated edge in four steps.</h2>
+        </div>
+
+        <div class="steps">
+          <div class="step reveal">
+            <span class="step__num">01</span>
+            <h3>Connect your markets</h3>
+            <p>Pick the assets you care about — crypto, equities, or forex — and Kudbee starts streaming clean, structured data.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">02</span>
+            <h3>Build a strategy</h3>
+            <p>Use a proven template or compose your own from indicators, filters, and risk rules in the visual builder.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">03</span>
+            <h3>Backtest &amp; optimize</h3>
+            <p>Run it against history, read the analytics, tune the parameters, and watch the equity curve sharpen.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">04</span>
+            <h3>Get live signals</h3>
+            <p>Deploy your validated strategy and receive real-time alerts the instant your edge appears.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BACKTEST SHOWCASE ===== -->
+    <section class="section" id="backtest">
+      <div class="container split">
+        <div class="split__copy reveal">
+          <span class="eyebrow">Backtesting engine</span>
+          <h2>Don't trust a strategy until the data does.</h2>
+          <p>
+            Kudbee replays years of tick-level history in seconds, accounting for fees,
+            slippage, and changing market regimes. You get an honest equity curve and the
+            risk metrics that actually matter — not a cherry-picked highlight reel.
+          </p>
+          <ul class="checklist">
+            <li>Tick-accurate historical replay</li>
+            <li>Walk-forward &amp; out-of-sample validation</li>
+            <li>Monte Carlo confidence bands</li>
+            <li>Fees, slippage &amp; funding modeled in</li>
+          </ul>
+          <a href="#waitlist" class="btn btn--primary">Get early access</a>
+        </div>
+
+        <div class="split__visual reveal">
+          <div class="glass equity">
+            <div class="equity__head">
+              <span>Strategy equity curve</span>
+              <span class="badge badge--up">+312% · 3y backtest</span>
+            </div>
+            <svg viewBox="0 0 460 240" class="equity__chart" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="eqfill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="rgba(245,166,35,.30)"/>
+                  <stop offset="1" stop-color="rgba(245,166,35,0)"/>
+                </linearGradient>
+              </defs>
+              <g class="equity__grid" stroke="rgba(255,255,255,.06)">
+                <line x1="0" y1="60" x2="460" y2="60"/>
+                <line x1="0" y1="120" x2="460" y2="120"/>
+                <line x1="0" y1="180" x2="460" y2="180"/>
+              </g>
+              <path id="eqFill" fill="url(#eqfill)" d=""/>
+              <path id="eqLine" fill="none" stroke="#F5A623" stroke-width="3" stroke-linejoin="round" d=""/>
+            </svg>
+            <div class="equity__legend">
+              <div><span class="k">CAGR</span><b class="up">58.7%</b></div>
+              <div><span class="k">Sharpe</span><b>2.31</b></div>
+              <div><span class="k">Max DD</span><b class="down">-14.1%</b></div>
+              <div><span class="k">Trades</span><b>1,284</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SIGNALS / ANALYTICS SHOWCASE ===== -->
+    <section class="section section--alt" id="signals">
+      <div class="container split split--rev">
+        <div class="split__visual reveal">
+          <div class="glass signals">
+            <div class="signals__head">Live signal feed</div>
+            <ul class="signals__list">
+              <li>
+                <span class="sym">BTC/USDT</span>
+                <span class="badge badge--up">▲ LONG</span>
+                <span class="conf">86%</span>
+                <span class="meta">momentum breakout</span>
+              </li>
+              <li>
+                <span class="sym">SOL/USDT</span>
+                <span class="badge badge--up">▲ LONG</span>
+                <span class="conf">74%</span>
+                <span class="meta">trend continuation</span>
+              </li>
+              <li>
+                <span class="sym">ETH/USDT</span>
+                <span class="badge badge--down">▼ EXIT</span>
+                <span class="conf">91%</span>
+                <span class="meta">overbought reversal</span>
+              </li>
+              <li>
+                <span class="sym">AAPL</span>
+                <span class="badge badge--neutral">● WATCH</span>
+                <span class="conf">62%</span>
+                <span class="meta">range compression</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="split__copy reveal">
+          <span class="eyebrow">Signals &amp; analytics</span>
+          <h2>Conviction you can read in a glance.</h2>
+          <p>
+            Every signal carries a confidence score and the “why” behind it. The analytics
+            layer translates raw market structure — momentum, volatility regimes, and
+            positioning — into a clear read so you act on logic, not emotion.
+          </p>
+          <ul class="checklist">
+            <li>Confidence-scored long / short / exit signals</li>
+            <li>Plain-English reasoning on every call</li>
+            <li>Regime &amp; volatility detection</li>
+            <li>Custom alerts to your inbox or device</li>
+          </ul>
+          <a href="#waitlist" class="btn btn--primary">Join the waitlist</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STATS BAND ===== -->
+    <section class="band">
+      <div class="container band__inner">
+        <div class="reveal"><strong data-count="3" data-suffix="+">0</strong><span>Asset classes</span></div>
+        <div class="reveal"><strong data-count="200" data-suffix="+">0</strong><span>Indicators &amp; filters</span></div>
+        <div class="reveal"><strong data-count="10" data-suffix="yr">0</strong><span>History to backtest</span></div>
+        <div class="reveal"><strong data-count="0" data-prefix="<" data-suffix="s">0</strong><span>Signal latency</span></div>
+      </div>
+    </section>
+
+    <!-- ===== TESTIMONIALS ===== -->
+    <section class="section" id="voices">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Early voices</span>
+          <h2>Traders are already buzzing.</h2>
+        </div>
+        <div class="grid grid--quotes">
+          <figure class="quote reveal">
+            <blockquote>“I replaced three subscriptions with Kudbee. The backtester alone is worth it — it killed two strategies I would’ve bled money on.”</blockquote>
+            <figcaption><span class="avatar">M</span> Marcus T. · Swing trader</figcaption>
+          </figure>
+          <figure class="quote reveal">
+            <blockquote>“Finally, signals that tell me <em>why</em>. The confidence scores changed how I size positions completely.”</blockquote>
+            <figcaption><span class="avatar">A</span> Aisha R. · Crypto desk</figcaption>
+          </figure>
+          <figure class="quote reveal">
+            <blockquote>“I can’t code. I built a mean-reversion strategy in an afternoon and backtested ten years of data. Unreal.”</blockquote>
+            <figcaption><span class="avatar">D</span> Devin K. · Part-time trader</figcaption>
+          </figure>
+        </div>
+        <p class="disclaimer-inline">Illustrative early-access feedback. Kudbee Quant is a research and analytics tool, not financial advice.</p>
+      </div>
+    </section>
+
+    <!-- ===== WAITLIST CTA ===== -->
+    <section class="section cta-section" id="waitlist">
+      <div class="container">
+        <div class="cta glass reveal">
+          <div class="cta__glow" aria-hidden="true"></div>
+          <span class="eyebrow">Early access</span>
+          <h2>Be first into the hive.</h2>
+          <p>Join the waitlist for early access, founding-member perks, and a front-row seat as we roll out new markets and strategies.</p>
+
+          <form class="waitlist" id="waitlistForm" novalidate>
+            <div class="waitlist__row">
+              <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email address" />
+              <button type="submit" class="btn btn--primary btn--lg">Request early access</button>
+            </div>
+            <p class="waitlist__note">No spam. Just launch news and your invite. Unsubscribe anytime.</p>
+            <p class="waitlist__msg" id="waitlistMsg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section section--alt" id="faq">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Questions, answered.</h2>
+        </div>
+
+        <div class="faq">
+          <details class="faq__item reveal">
+            <summary>Does Kudbee Quant place trades for me?</summary>
+            <p>Kudbee focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and helps you build and validate strategies — you stay fully in control of execution.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Do I need to know how to code?</summary>
+            <p>Not at all. The strategy builder is fully visual. Power users can drop into advanced mode, but you can build and backtest a complete strategy without writing a single line of code.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>What markets are supported?</summary>
+            <p>Kudbee is built to be market-agnostic, with coverage spanning crypto, equities, and forex as we roll out early access. Waitlist members help shape the roadmap.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Is this financial advice?</summary>
+            <p>No. Kudbee Quant is a research and analytics tool. Nothing on this site or in the product is financial advice. Trading involves substantial risk — always do your own research.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>When does early access open?</summary>
+            <p>We’re onboarding waitlist members in waves right now. Join the list and you’ll get your invite plus founding-member perks as spots open up.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#hero" class="brand">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="24" height="24">
+              <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad2)"/>
+              <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+              <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad2)"/>
+              <defs><linearGradient id="hexgrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+            </svg>
+          </span>
+          <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+        </a>
+        <p>The quant cockpit for modern traders. Signals, analytics, and backtesting in one hive.</p>
+      </div>
+      <nav class="footer__col" aria-label="Product">
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#backtest">Backtesting</a>
+        <a href="#signals">Signals</a>
+      </nav>
+      <nav class="footer__col" aria-label="Company">
+        <h4>Company</h4>
+        <a href="#waitlist">Early access</a>
+        <a href="#faq">FAQ</a>
+        <a href="mailto:hello@kudbeequant.com">Contact</a>
+      </nav>
+      <div class="footer__col">
+        <h4>Stay in the loop</h4>
+        <a href="#waitlist" class="btn btn--ghost btn--sm">Join the waitlist</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved.</p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
