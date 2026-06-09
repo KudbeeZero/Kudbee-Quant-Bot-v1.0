@@ -626,3 +626,38 @@ vol-targeting's benefit appears in COMPOUNDED equity with position sizing, which
 per-trade-R harness can't fully capture — to test it properly, evaluate on the
 sequenced/compounded equity curve (backtest/money.py simulate_account), not pooled
 per-trade R. That is the honest next build.
+
+## 24. KudbeeX weekly-cycle + NY-reversal market model (recorded) — 2026-06-09
+
+Live read while the NY session opened (SOL ~65.8, −1.5% on the day; his short from
+§20 @66.43 working, grinding toward 64.5). Recording his DISCRETIONARY market model
+(this is the reasoning layer — the project's stated edge, §3):
+
+THE MODEL (his words, distilled):
+- NY session is "picking up the trend" BUT "New York is good for rehearsals — the
+  NY reversal": the NY open often FAKES the prior direction then reverses. Don't
+  assume the first NY move is the real move ("the fast move is the false move", §4).
+- WEEKLY MARKET-MAKER CYCLE (classic Steve Mauro / BTMM, §4): "Mondays are always a
+  false move"; a MIDWEEK REVERSAL is common (down day midweek, up the next); Fridays
+  are often profit-running OR a managed price-increase into the close.
+- Net live thesis: possible down day today, bounce tomorrow, Friday resolves
+  (profit-take or markup).
+
+CROSS-REFERENCE TO WHAT WE'VE MEASURED (honest, so we don't re-chase noise):
+- Day-of-week (§16, edge-lab): SUGGESTIVE — Mon worst (−0.217R), Thu/Tue best
+  (+0.24–0.26R) — but flagged DATA-MINING RISK; needs walk-forward before trusting.
+- NY / Tuesday daily-open slices (§2): came back NOISE (too few events) as raw
+  mechanical filters. The KILLZONE/session filter (§16) DID help (+0.144R, London/
+  NY-brinks/macro) — so SESSION TIMING carries signal even though calendar slices
+  don't.
+- His model is a SEQUENCE/regime (Mon-false → midweek-reversal → Fri-resolve), not a
+  raw day dummy — that's a DIFFERENT, untested framing. The causal features already
+  exist to test it: build_levels computes `week_phase`, `cycle_phase` (MM weekly
+  template), `day_of_week`, `killzone`, `in_ny`, `minutes_into_ny`.
+
+STATUS: recorded as an OPEN HYPOTHESIS (not a believed rule). To test honestly would
+require a walk-forward "week-phase reversal" study (does fading the Mon/early-week
+move, or the first NY thrust, pay OOS?) run through the significance-gated harness
+(§23) — NOT a hard-coded calendar rule (§16/§2 caution). Offered; do on request.
+Meanwhile it stays in the HUMAN read layer: his live calls are scored via
+source='human' (journal), which is the rigorous test of whether the READ has edge.
