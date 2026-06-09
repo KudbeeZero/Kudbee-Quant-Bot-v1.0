@@ -705,3 +705,44 @@ FEE BUDGET (his question — keeping costs low / vouchers):
   bottleneck at current size; SLIPPAGE + taker-vs-maker discipline is. The cheapest
   fee saving is structural: prefer LIMIT (maker) entries — already what the
   validated strategy (§1) does — and avoid market-order exits where possible.
+
+## 26. ZERO-FEE TradFi campaign = a strategic unlock for the validated edge — 2026-06-09
+
+Signed up to BTCC's promo: **0 fees on ALL TradFi perpetual-futures pairs**, start
+**June 1 2026 (UTC+8)**, end date TBD (announced separately). Eligible: metals
+(Gold XAUUSD, Silver, Platinum, Palladium, Aluminum), energy (Brent UKOIL, WTI
+USOIL, NatGas), **global indices (S&P 500, Nasdaq 100, Dow, Nikkei, DAX, FTSE)**,
+forex (EUR/GBP/AUD/NZD-USD), and US stock tokens (NVDA, TSLA, AAPL, MSFT, etc.).
+NOT crypto — SOL/BTC perps still pay the 0.045%/side measured in §25.
+
+WHY THIS IS BIG (not hype — it resolves the project's central fragility):
+- §1's verdict is blunt: the edge IS the execution, and **market-order/taker cost
+  turns the strategy NEGATIVE.** Fees aren't a tax on the edge; near the cost line
+  they ARE the difference between + and −. §25 then measured real taker = 0.09%
+  round-trip on crypto.
+- The validated walk-forward (§1) was run on 6 assets **including GOLD and S&P 500**
+  (corr 0.00 to crypto — genuine diversification). Those are EXACTLY the instruments
+  the campaign zeroes out.
+- So: the campaign offers a venue where the validated strategy runs at **0 cost on
+  assets it's already proven on.** That flips the §1/§25 cost fragility from a
+  liability into a tailwind — and the maker-vs-taker discipline stops mattering on
+  those pairs (even a market exit is free during the promo).
+
+ALREADY-PRESENT ENABLER: the ingest layer has a **`YahooClient`** (ingest/yahoo.py)
+that fetches these instruments TODAY — `GC=F`/`GLD` (gold), `^GSPC`/`SPY` (S&P),
+`USO`/`CL=F` (oil), `EURUSD=X` (forex). No new data vendor needed to forward-test.
+
+HONEST CAVEATS (so we don't over-rotate on a promo):
+- The fee waiver is TEMPORARY (end date unknown). Treat it as a forward-test window
+  and an edge while it lasts, NOT a permanent assumption baked into the model.
+- BTCC's TradFi perp price ≠ the Yahoo underlying exactly (SP500 token vs ^GSPC,
+  XAUUSD vs GC=F): use Yahoo for SIGNAL/LEVELS, execute on BTCC; expect basis.
+- TradFi has SESSION GAPS / RTH hours (unlike 24/7 crypto) — the level/range logic
+  (NY-date ranges, killzones) must be checked against equity/futures sessions before
+  trusting it there.
+
+CONCRETE NEXT STEP (offered, not yet built): add a **zero-fee TradFi forward-scan**
+to the paper loop — gold/S&P/oil/forex via Yahoo, `fee_pct=0`, same confluence-R
+strategy — to start a forward track record on the cost-free venue alongside the
+crypto scan. This is a real build (router crypto-vs-yahoo, session handling, a 2nd
+Action job), so it waits for the go-ahead.
