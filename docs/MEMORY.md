@@ -304,8 +304,28 @@ DOUBLE-TOP/BOTTOM NECKLINE BREAK (scenarios/patterns.py, same limit-retrace exec
   SECONDARY edge (< confluence +0.26R) — confirms §11: trade the BREAK not the
   touch. support_resistance() exposes nearest swing-high/low + equal-level shelves.
 
+## 14. Averaging-down verdict + net-exposure guard — 2026-06-09
+
+20/20/20/40 AVERAGE-DOWN test (2y SOL, $1000, no leverage, same signals):
+  single defined-risk @1x:      $622 (-38%), 34% win, -73% DD
+  avg-down WITH hard stop @1x:  $879 (-12%), 82% win, -36% DD, worst -13.8%
+  avg-down NO stop @1x:        $1185 (+18%), 94% win, -51% DD, worst -24.8%
+  avg-down NO stop @3x lev:      $75 (-93%), 92% win, -94% DD, worst -65.9% *BLOWN*
+VERDICT: the high win-rate is a LIAR — averaging down wins small constantly then
+one trend erases it; survivable ONLY with a hard stop + zero leverage; lethal the
+instant leverage touches it. The real fix for all of them is SIZING (single-entry
+@1% risk made +51%, §13), not the entry style. Don't build it into the system;
+documented as a tested warning.
+
+NET-EXPOSURE GUARD (kudbee_quant/exposure.py): two-sided trading IS supported (open
+trades keyed by symbol+timeframe, so 1h-long + 5m-short coexist as independent
+trades). symbol_exposure/portfolio_exposure tally long/short open+pending brackets;
+gross_risk=(nL+nShort)*risk, net_risk=|nL-nShort|*risk. paper_scan now SKIPS a new
+trade if it would push a coin's GROSS risk over max_symbol_risk (default 2% at 1%/
+trade). CLI `journal-exposure`; also in /api/journal. Tested.
+
 PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
 hourly Action (top-10 majors, 5m/15m/1h/2h/4h). Everything in main: engine +
 website + Live Signals + API + TradingView indicator + alert->journal webhook +
-bias layer + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + research
-Vols 1-10. Ready to archive.
+bias layer + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R +
+net-exposure guard + research Vols 1-10. Ready to archive.

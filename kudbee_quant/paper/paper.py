@@ -38,6 +38,8 @@ def paper_scan(
     require_bias: bool = False,
     tp1_r: float | None = None,    # optional TARGET ONE (partial bank); None = full target only
     tp1_frac: float = 0.5,
+    risk_per_trade: float = 0.01,      # each defined-risk trade ~= 1% of the account
+    max_symbol_risk: float = 0.02,     # cap COMBINED long+short risk per coin (two-sided guard)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
@@ -45,8 +47,13 @@ def paper_scan(
     the human bias layer: if a bias is set for a symbol, only signals that AGREE
     with it are taken (scalp WITH the read, never against). If ``require_bias``
     is True, symbols without an active bias are skipped entirely (pure
-    human-directed mode). One open trade per symbol at a time.
+    human-directed mode). One open trade per symbol+timeframe.
+
+    NET-EXPOSURE GUARD: a new trade is skipped if it would push a coin's COMBINED
+    (long+short, all timeframes) gross risk over ``max_symbol_risk`` — so running
+    both sides at once (1h long + 5m short) can't silently over-expose one coin.
     """
+    from ..exposure import symbol_exposure
     j = journal or TradeJournal()
     client = client or BinanceClient()
     if biases is None:
@@ -79,6 +86,11 @@ def paper_scan(
                 continue            # signal opposes the read -> skip
         elif require_bias:
             continue                # human-directed mode: no read -> no trade
+        # NET-EXPOSURE GUARD: would this new trade push the coin's COMBINED
+        # (long+short, all timeframes) gross risk over the ceiling? If so, skip.
+        ex = symbol_exposure(j.predictions, sym, risk_per_trade)
+        if ex.gross_risk + risk_per_trade > max_symbol_risk + 1e-9:
+            continue
         signal_price = float(last["close"])
         atr = float(last["atr"])
         sd = atr * stop_atr

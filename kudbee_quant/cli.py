@@ -403,6 +403,25 @@ def _journal_score(args) -> None:
           "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
 
 
+def _journal_exposure(args) -> None:
+    from .exposure import portfolio_exposure, total_gross_risk
+    j = TradeJournal()
+    book = portfolio_exposure(j.predictions, risk_per_trade=args.risk)
+    if not book:
+        print("No open/pending risk right now.")
+        return
+    print(f"Open risk by coin (each trade = {args.risk*100:.1f}% of account, "
+          f"cap {args.max_risk*100:.0f}%/coin):\n")
+    print(f"  {'symbol':10} {'long':>4} {'short':>5} {'net':>8} {'gross':>7}")
+    for ex in book:
+        flag = "  ⚠ OVER" if ex.gross_risk > args.max_risk + 1e-9 else ""
+        ndir = {1: "long", -1: "short", 0: "flat"}[ex.net_direction]
+        print(f"  {ex.symbol:10} {ex.n_long:>4} {ex.n_short:>5} "
+              f"{ndir:>4} {ex.net_risk*100:>3.0f}% {ex.gross_risk*100:>5.0f}%{flag}")
+    print(f"\nWhole book gross risk: {total_gross_risk(j.predictions, args.risk)*100:.0f}% "
+          f"of account. Net = directional exposure; gross = worst case if all lose.")
+
+
 def _bias_set(args) -> None:
     from .bias import BiasBook
     b = BiasBook().set(args.symbol, args.side, target=args.target, days=args.days, note=args.note)
@@ -446,7 +465,8 @@ def _tf_survey(args) -> None:
 def _paper_scan(args) -> None:
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
-                        stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r)
+                        stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
+                        risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:
@@ -609,6 +629,10 @@ def main() -> None:
     jl.set_defaults(func=_journal_list)
     js = sub.add_parser("journal-score", help="your measured hit rate + R by setup")
     js.set_defaults(func=_journal_score)
+    je = sub.add_parser("journal-exposure", help="combined long+short risk per coin (two-sided guard)")
+    je.add_argument("--risk", type=float, default=0.01, help="risk per trade as a fraction (0.01 = 1%)")
+    je.add_argument("--max-risk", type=float, default=0.02, help="gross risk cap per coin (0.02 = 2%)")
+    je.set_defaults(func=_journal_exposure)
 
     tfs = sub.add_parser("tf-survey", help="where does the edge live across timeframes?")
     tfs.add_argument("symbol")
@@ -640,6 +664,10 @@ def main() -> None:
                     help="stop distance in ATR (1.5 = validated)")
     ps.add_argument("--tp1-r", type=float, default=None,
                     help="optional TARGET ONE (partial bank), e.g. 1.5; default off (full target)")
+    ps.add_argument("--risk-per-trade", type=float, default=0.01,
+                    help="risk per trade as a fraction of account (0.01 = 1%)")
+    ps.add_argument("--max-symbol-risk", type=float, default=0.02,
+                    help="cap on COMBINED long+short risk per coin (0.02 = 2%)")
     ps.set_defaults(func=_paper_scan)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")

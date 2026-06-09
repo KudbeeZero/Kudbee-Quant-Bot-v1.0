@@ -64,6 +64,7 @@ def signal(symbol: str, interval: str = "1h") -> dict:
 
 @app.get("/api/journal")
 def journal() -> dict:
+    from .exposure import portfolio_exposure, total_gross_risk
     j = TradeJournal()
     by_status: dict[str, int] = {}
     for p in j.predictions:
@@ -76,6 +77,8 @@ def journal() -> dict:
                   "direction": p.direction, "entry": p.entry, "stop": p.stop,
                   "target": p.target, "created_at": p.created_at}
                  for p in j.predictions if p.status in ("open", "pending")],
+        "exposure": [ex.as_dict() for ex in portfolio_exposure(j.predictions)],
+        "total_gross_risk_pct": round(total_gross_risk(j.predictions) * 100, 2),
     }
 
 
