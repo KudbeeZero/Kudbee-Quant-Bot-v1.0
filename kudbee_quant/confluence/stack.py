@@ -46,6 +46,13 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
         out["v_dopen"] = _sign(df["close"] - df["daily_open"])
     if {"close", "pivot_pp"} <= set(df.columns):
         out["v_pivot"] = _sign(df["close"] - df["pivot_pp"])
+    # NOTE: a BOS/CHoCH structure vote (Vol 5) was tested and REMOVED — it
+    # diluted the 1h edge (maker-cost OOS +0.159R -> +0.096R). It is redundant
+    # with the existing trend factors (EMA stack/cloud/pivot all encode the same
+    # directional bias), so it shifts the threshold without adding independent
+    # signal. Third added factor (after Order Blocks, macro) to fail this way:
+    # the 10-factor set is saturated. The structure features (swing_high/low,
+    # bos_dir, structure_dir, eqh/eql) remain available for entry models.
 
     # Mean-reversion / smart-money factors.
     if "dealing_mid" in df:  # ICT: favor longs in discount, shorts in premium

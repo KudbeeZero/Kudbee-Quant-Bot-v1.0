@@ -456,3 +456,29 @@ corrected. 2R slightly beats 3R on the 1h. Practical viable config: 1h, 2R,
 Tooling fix: bracket_backtest now takes ``fee_pct`` (price-fraction round-trip
 cost, converted to R per-trade via the stop size) so costs are realistic and
 timeframe-aware by default. Always validate with fee_pct, not a flat fee_r.
+
+### Factor saturation: 3 new factors tested, all dilute — the set is full
+
+Per the request to "find more confluences," we pulled research Vol 5-7 (ICT
+market structure CHoCH/BOS/MSS, liquidity BSL/SSL/EQH/EQL, perpetuals mechanics,
+macro) and tested the strongest price-only candidate, BOS/CHoCH market-structure
+bias, as an 11th confluence factor on the 1h at realistic maker cost (OOS):
+
+  WITHOUT structure (10 factors): +0.159R, Sharpe 0.109
+  WITH    structure (11 factors): +0.096R, Sharpe 0.067   (worse)
+
+That is the THIRD added factor to dilute the edge (after Order Blocks and
+macro). The reason is consistent: new directional factors (structure, OB, macro)
+are largely REDUNDANT with the existing trend/level votes, so they shift the
+strength threshold without adding INDEPENDENT signal. The 10-factor confluence
+set is saturated — stacking more price-derived factors does not thicken the
+edge, it dilutes it.
+
+Implication: the edge will not improve by adding more price patterns. The only
+two levers left that are genuinely different:
+1. NEW INFORMATION not derived from price: perpetuals/order-flow (funding rates,
+   open interest, liquidation clusters, CVD — Vol 6 sec 3). Independent signal.
+2. BETTER ENTRY EXECUTION at the same signal: the ICT master entry
+   (Sweep -> MSS -> FVG, limit-at-level), which improves fill price / maker
+   costs rather than adding a vote. The structure features (BOS/CHoCH/EQH) feed
+   THIS, not the confluence count.

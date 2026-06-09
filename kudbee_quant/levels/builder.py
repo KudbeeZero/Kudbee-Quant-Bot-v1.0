@@ -134,5 +134,8 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFr
     # ICT/Hybrid microstructure (VWAP, premium/discount, FVGs, macro windows).
     from .microstructure import add_microstructure
     out = add_microstructure(out)
+    # Market structure (BOS / CHoCH bias, equal highs/lows).
+    from .structure import add_structure
+    out = add_structure(out)
 
     return out.drop(columns=["_month_id", "_week_id"], errors="ignore")
