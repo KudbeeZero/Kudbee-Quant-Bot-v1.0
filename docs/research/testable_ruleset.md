@@ -592,3 +592,15 @@ inconsistent per-asset; kept as a configurable option, NOT the default. The
 forward paper test runs the clean config first; A/B confirmation once we have
 live data. Belongs in the ENTRY model (the one lever that helps), not the
 confluence count.
+
+### Multi-timeframe agreement (Vol 10) — does NOT replicate / help
+
+Vol 10 sec 7 reports higher win rates at 2-3 timeframe agreement. Tested: 1h
+confluence + 4h confluence direction (causal, shifted), walk-forward, 3R maker.
+Baseline 1h only +0.243R (83% positive); "drop if 4h opposes" +0.216R (75%);
+"require 1h+4h agreement" +0.233R (79%). Both MTF variants REDUCED edge and
+robustness with fewer trades. Reason: the 1h confluence already encodes the HTF
+trend (EMA-stack/cloud/pivot factors), so 4h agreement is redundant AND it
+filters out the reversal trades that are part of the edge. The MTF win-rate
+claim does not replicate on our setup. mtf module kept as a context/display
+tool (htf_confluence), NOT a strategy filter.
