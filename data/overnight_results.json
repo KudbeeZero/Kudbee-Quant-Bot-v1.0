@@ -46,6 +46,17 @@
       "interval": "1h",
       "baseline_exp": 0.1664,
       "baseline_n": 1577
+    },
+    {
+      "ts": "2026-06-09 07:31 UTC",
+      "tested": [
+        "climax_dir_veto",
+        "pullback_run2",
+        "wider_stop"
+      ],
+      "interval": "1h",
+      "baseline_exp": 0.1664,
+      "baseline_n": 1577
     }
   ],
   "results": [
@@ -438,6 +449,57 @@
       "base_win": 0.38,
       "cand_win": 0.383,
       "verdict": "NEUTRAL",
+      "interval": "1h"
+    },
+    {
+      "name": "climax_dir_veto",
+      "desc": "Veto only climax bars moving with the trade direction",
+      "tested_at": "2026-06-09 07:31 UTC",
+      "n_trades": 1386,
+      "base_n": 1577,
+      "keep_pct": 0.879,
+      "base_exp": 0.1664,
+      "cand_exp": 0.1666,
+      "delta": 0.0002,
+      "h1_delta": -0.0012,
+      "h2_delta": 0.004,
+      "base_win": 0.38,
+      "cand_win": 0.387,
+      "verdict": "NEUTRAL",
+      "interval": "1h"
+    },
+    {
+      "name": "pullback_run2",
+      "desc": "With-trend entry after >=2 counter-trend closes",
+      "tested_at": "2026-06-09 07:31 UTC",
+      "n_trades": 505,
+      "base_n": 1577,
+      "keep_pct": 0.32,
+      "base_exp": 0.1664,
+      "cand_exp": 0.1004,
+      "delta": -0.066,
+      "h1_delta": -0.1339,
+      "h2_delta": 0.0019,
+      "base_win": 0.38,
+      "cand_win": 0.374,
+      "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "wider_stop",
+      "desc": "Execution: 2.0-ATR stop, 3R target",
+      "tested_at": "2026-06-09 07:31 UTC",
+      "n_trades": 1385,
+      "base_n": 1577,
+      "keep_pct": 0.878,
+      "base_exp": 0.1664,
+      "cand_exp": 0.1013,
+      "delta": -0.0651,
+      "h1_delta": -0.0678,
+      "h2_delta": -0.0542,
+      "base_win": 0.38,
+      "cand_win": 0.407,
+      "verdict": "HURTS",
       "interval": "1h"
     }
   ]

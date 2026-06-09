@@ -1,8 +1,5 @@
 {
   "pending": [
-    "climax_dir_veto",
-    "pullback_run2",
-    "wider_stop",
     "tighter_stop",
     "entry_window_long",
     "entry_window_short",
@@ -37,6 +34,9 @@
     "clean_trend_stack",
     "coil_rng_pct",
     "atr_band_3085",
-    "ret_autocorr_pos"
+    "ret_autocorr_pos",
+    "climax_dir_veto",
+    "pullback_run2",
+    "wider_stop"
   ]
 }
