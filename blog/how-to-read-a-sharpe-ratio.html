@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>How to Read a Sharpe Ratio (Without a Math Degree) | Kudbee Quant</title>
+  <meta name="description" content="The Sharpe ratio measures risk-adjusted return — how much reward a strategy earns per unit of risk. Learn what counts as a good Sharpe ratio, how to interpret it, and where the number can mislead you." />
+  <meta name="keywords" content="Sharpe ratio explained, how to read Sharpe ratio, good Sharpe ratio, risk adjusted return, trading risk metrics" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="How to Read a Sharpe Ratio (Without a Math Degree)" />
+  <meta property="og:description" content="What a good Sharpe ratio looks like, how to interpret it, and where the number lies to you." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "How to Read a Sharpe Ratio (Without a Math Degree)",
+        "description": "The Sharpe ratio measures risk-adjusted return. Learn what counts as a good Sharpe ratio, how to interpret it, and where the number can mislead you.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "articleSection": "Risk metrics",
+        "wordCount": 720,
+        "about": [ { "@type": "Thing", "name": "Sharpe ratio" }, { "@type": "Thing", "name": "Risk-adjusted return" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "How to Read a Sharpe Ratio", "item": "https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>How to Read a Sharpe Ratio</span>
+          </nav>
+          <span class="article__tag">Risk metrics</span>
+          <h1>How to Read a Sharpe Ratio (Without a Math Degree)</h1>
+          <p class="article__meta">June 9, 2026 · 5 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>The Sharpe ratio measures risk-adjusted return — how much reward a strategy earns for each unit of risk it takes.</strong> It answers the question every serious trader should ask: "Sure, you made money, but how much stomach-churning volatility did you ride to get it?"</p>
+
+          <p>Two strategies can both return 30% a year. If one did it in a smooth line and the other did it on a rollercoaster of 40% drawdowns, they are not the same strategy. The Sharpe ratio is how we tell them apart with a single number.</p>
+
+          <h2>The idea in one sentence</h2>
+          <blockquote>Return is only impressive relative to the risk you took to earn it.</blockquote>
+          <p>The formula divides your <em>excess</em> return (your return above a risk-free rate, like Treasury bills) by the volatility of those returns. Higher volatility shrinks the ratio; steadier returns grow it. You don't need to compute it by hand — any good analytics tool reports it — but you do need to know how to read it.</p>
+
+          <h2>What counts as a good Sharpe ratio?</h2>
+          <p>As a rough rule of thumb, on an annualized basis:</p>
+          <ul>
+            <li><strong>Below 1.0</strong> — subpar. The returns aren't compensating you well for the risk.</li>
+            <li><strong>1.0 to 2.0</strong> — solid. Most respectable strategies live here.</li>
+            <li><strong>2.0 to 3.0</strong> — very good. You're getting strong reward for the risk.</li>
+            <li><strong>Above 3.0</strong> — excellent — and worth double-checking for <a href="what-is-backtesting.html">overfitting</a> or unrealistic assumptions.</li>
+          </ul>
+
+          <div class="callout"><p><strong>Context matters:</strong> these bands assume a long enough sample. A Sharpe of 4.0 over two weeks is noise. A Sharpe of 1.5 over five years is a business.</p></div>
+
+          <h2>Where the Sharpe ratio lies to you</h2>
+          <p>It's a great metric, not a perfect one. Keep these caveats in mind:</p>
+          <ul>
+            <li><strong>It punishes upside volatility too.</strong> Sharpe treats a big winning month as "risk." That's why some traders prefer the Sortino ratio, which only counts downside.</li>
+            <li><strong>It assumes returns are well-behaved.</strong> Strategies with rare, catastrophic losses (like selling options) can show a beautiful Sharpe right up until they blow up.</li>
+            <li><strong>It's easy to inflate over short windows.</strong> Always ask "over what time period?"</li>
+            <li><strong>It hides drawdown.</strong> Pair it with <a href="../glossary.html">maximum drawdown</a> to understand the worst-case pain.</li>
+          </ul>
+
+          <h2>How to actually use it</h2>
+          <p>Use the Sharpe ratio to <em>compare</em> — one strategy against another, or one set of parameters against the next. Don't chase the highest Sharpe in isolation; chase the best balance of Sharpe, drawdown, and robustness across out-of-sample data.</p>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>The Sharpe ratio is the quickest read on whether a return was worth the risk. Above 1 is decent, above 2 is strong — but always check the time period and pair it with drawdown before you trust it.</p>
+          </div>
+
+          <p>Kudbee Quant reports the Sharpe ratio, drawdown, and win rate on every backtest automatically, so you can compare strategies at a glance. <a href="../index.html#waitlist">Join the waitlist</a> to try it, or brush up on the terms in our <a href="../glossary.html">quant glossary</a>.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="what-is-backtesting.html">← What is backtesting?</a>
+          <a href="signals-vs-strategies.html">Next: Signals vs. strategies →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>See the metrics that matter.</h2>
+          <p>Join the Kudbee Quant waitlist for analytics that read like plain English.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

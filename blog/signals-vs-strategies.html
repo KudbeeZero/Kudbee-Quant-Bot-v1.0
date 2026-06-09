@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Trade Signals vs. Trading Strategies: What's the Difference? | Kudbee Quant</title>
+  <meta name="description" content="A trade signal is a single instruction to buy or sell; a trading strategy is the complete rule set that decides when to act, how much to risk, and when to exit. Here's how they fit together — and why a signal alone is only half the story." />
+  <meta name="keywords" content="trade signals vs strategies, what is a trade signal, trading strategy explained, signal vs system, algorithmic trading basics" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/signals-vs-strategies.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Trade Signals vs. Trading Strategies: What's the Difference?" />
+  <meta property="og:description" content="Why a signal is only half the story, and how signals and strategies work together to form an edge." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/signals-vs-strategies.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "Trade Signals vs. Trading Strategies: What's the Difference?",
+        "description": "A trade signal is a single instruction; a trading strategy is the complete rule set around it. Here's how they fit together.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/signals-vs-strategies.html",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "articleSection": "Getting started",
+        "wordCount": 700,
+        "about": [ { "@type": "Thing", "name": "Trade signal" }, { "@type": "Thing", "name": "Trading strategy" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "Signals vs. Strategies", "item": "https://kudbeequant.com/blog/signals-vs-strategies.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>Signals vs. Strategies</span>
+          </nav>
+          <span class="article__tag">Getting started</span>
+          <h1>Trade Signals vs. Trading Strategies: What's the Difference?</h1>
+          <p class="article__meta">June 9, 2026 · 5 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>A trade signal is a single instruction — buy, sell, or exit — at a specific moment. A trading strategy is the complete set of rules that decides when those signals fire, how much to risk, and when to get out.</strong> A signal is a sentence; a strategy is the whole book.</p>
+
+          <p>Confusing the two is one of the most expensive beginner mistakes. People buy a "signals" subscription, follow the alerts, and lose money — not because the signals were wrong, but because a signal without a strategy around it is missing everything that actually determines whether you profit.</p>
+
+          <h2>What a trade signal actually is</h2>
+          <p>A <a href="../glossary.html">trade signal</a> is a trigger. "Buy BTC now." "Exit your long." Good signals come with two extras: a <strong>confidence score</strong> (how strong is the evidence?) and a <strong>reason</strong> (a momentum breakout, an overbought reversal). But a signal still doesn't tell you:</p>
+          <ul>
+            <li>How much of your account to put into the trade</li>
+            <li>Where your stop-loss goes</li>
+            <li>What to do if the market gaps against you</li>
+            <li>Whether this fits the rest of your positions</li>
+          </ul>
+
+          <h2>What a trading strategy adds</h2>
+          <p>A strategy wraps signals in a full decision system. It typically defines:</p>
+          <ol>
+            <li><strong>Entry rules</strong> — the conditions that generate a signal in the first place.</li>
+            <li><strong>Position sizing</strong> — how much to risk per trade, based on volatility and account size.</li>
+            <li><strong>Exit rules</strong> — profit targets, stop-losses, and time-based exits.</li>
+            <li><strong>Risk limits</strong> — maximum exposure, maximum drawdown, correlation caps.</li>
+          </ol>
+          <p>Crucially, because a strategy is a complete rule set, you can <a href="what-is-backtesting.html">backtest</a> it. You can't really backtest a lone signal — there's nothing to test about position size or exits. The strategy is what turns a hunch into something measurable.</p>
+
+          <blockquote>Signals tell you what. Strategies tell you what, how much, and when to quit.</blockquote>
+
+          <h2>How they work together</h2>
+          <p>Think of it as a relationship: the strategy is the manager, the signal is the trigger it watches for. When your validated strategy detects its conditions, it emits a signal — already sized, already risk-checked. That's the difference between "BTC looks bullish" and "enter a 2% position in BTC with a stop at last week's low because the 20-day momentum just flipped positive with 86% confidence."</p>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>Don't buy signals — build (or validate) a strategy. Signals are the spark; the strategy is the engine that decides whether the spark is worth acting on, how big to go, and when to bail.</p>
+          </div>
+
+          <p>Kudbee Quant lets you build a complete strategy with no code, backtest it, and then receive live signals from that validated logic — so every alert already has a strategy behind it. <a href="../index.html#waitlist">Join the waitlist</a> to get started.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="how-to-read-a-sharpe-ratio.html">← How to read a Sharpe ratio</a>
+          <a href="./">All articles →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>Turn signals into a system.</h2>
+          <p>Join the Kudbee Quant waitlist and build strategies, not just alerts.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

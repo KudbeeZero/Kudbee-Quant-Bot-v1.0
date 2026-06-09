@@ -12,8 +12,13 @@ Zero-dependency **static HTML / CSS / JS** — fast, SEO-friendly, and deployabl
 
 ```
 .
-├── index.html            # Landing page
+├── index.html            # Landing page (hero, features, about, pricing, FAQ…)
 ├── glossary.html         # Quant-terms glossary (AEO / SEO asset)
+├── blog/                 # Blog index + articles (Article/Blog schema)
+│   ├── index.html
+│   ├── what-is-backtesting.html
+│   ├── how-to-read-a-sharpe-ratio.html
+│   └── signals-vs-strategies.html
 ├── 404.html              # Branded not-found page
 ├── robots.txt            # Crawler directives (incl. AI bots)
 ├── sitemap.xml           # Sitemap for search engines
