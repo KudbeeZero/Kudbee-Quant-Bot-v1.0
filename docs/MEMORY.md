@@ -754,11 +754,22 @@ BUILT (2026-06-09) — zero-fee TradFi forward-scan is LIVE:
   session-gap noise on sub-hourly bars), trend-filtered, one commit for both books.
 - Seeded live: first scan logged 4 shorts (GC=F/SI=F/CL=F/BZ=F, ~50% conf, with-trend).
 - Tests: `test_router_client_dispatches_by_spec`, `test_paper_scan_tags_tradfi_venue`.
-STILL OPEN (honest): journal R is GROSS of fees, so the 0-fee edge shows up as
-"net≈gross for TradFi vs crypto loses ~0.09%/trade" only when we score NET — a
-follow-up (subtract per-venue fee in scorecard). And TradFi session/RTH handling in
-build_levels is unverified (NY-range logic assumes 24/7) — watch the `_tradfi` record
-for level-quality artifacts before trusting it.
+NET-OF-FEE SCORING (BUILT 2026-06-09, follow-up now CLOSED): the journal scores
+per-venue NET of fees. `venue_of(p)` routes by symbol spec (`yahoo:` -> tradfi 0-fee,
+else crypto), `fee_r_of(p)` converts the round-trip fee to R via the SAME cost model
+as backtest/bracket.py (`fee_pct * entry / risk`, +½ round-trip if TP1 banked), and
+`net_outcome_r = outcome_r − fee_r`. Fee rates live in config (`VENUE_FEE_PCT`):
+crypto = `TAKER_FEE_PCT` 0.0009 (the MEASURED §25 taker — conservative/honest),
+TradFi = 0. `scorecard()` gained `net_expectancy_r`/`net_total_r`; new `venue_record()`
+splits gross→net by venue; surfaced in `cli journal-score` + `/api/journal` (`by_venue`).
+Tests: 6 in test_journal.py. NOTE: as of build, ALL 14 resolved trades are crypto
+(net −1.015R vs gross −0.846R; fee 0.169R/trade) — the TradFi book is still OPEN, so
+the "TradFi net≈gross" contrast can't be SHOWN until those resolve. The censoring-bias
+caveat below still applies: these resolved crypto trades are fast stop-outs, NOT an edge
+readout.
+STILL OPEN (honest): TradFi session/RTH handling in build_levels is unverified
+(NY-range logic assumes 24/7) — watch the `_tradfi` record for level-quality artifacts
+before trusting it.
 
 ## 27. Session Relay Protocol — one chat = one audited PR, with a handoff baton — 2026-06-09
 

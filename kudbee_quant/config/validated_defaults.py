@@ -22,6 +22,15 @@ FEE_PCT = 0.0004          # round-trip MAKER cost assumption (fraction of price)
 INTERVAL = "1h"           # core timeframe
 TREND_FILTER = True       # HTF 800-EMA trend alignment (tested edge booster, §16)
 
+# Per-VENUE round-trip cost (fraction of price), for NET-of-fee journal scoring
+# (MEMORY §26). Crypto perps still pay the MEASURED §25 taker; the zero-fee TradFi
+# promo venue pays nothing while it lasts. This is the conservative, honest split:
+# crypto net = gross − taker, TradFi net = gross.
+TAKER_FEE_PCT = 0.0009    # crypto round-trip TAKER — MEASURED on live BTCC fills (§25)
+TRADFI_FEE_PCT = 0.0      # zero-fee TradFi promo venue (§26); a forward-test window,
+                          # NOT a permanent assumption — revisit when the promo ends.
+VENUE_FEE_PCT = {"crypto": TAKER_FEE_PCT, "tradfi": TRADFI_FEE_PCT}
+
 # Convenience bundles for the two common call shapes.
 VALIDATED_BASELINE = {
     "min_pct": MIN_PCT, "target_r": TARGET_R, "stop_atr": STOP_ATR,

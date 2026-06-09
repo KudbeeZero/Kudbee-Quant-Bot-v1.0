@@ -99,6 +99,7 @@ def journal() -> dict:
         "exposure": [ex.as_dict() for ex in portfolio_exposure(j.predictions)],
         "total_gross_risk_pct": round(total_gross_risk(j.predictions) * 100, 2),
         "by_source": j.source_record(),
+        "by_venue": j.venue_record(),
         "resolved_series": j.resolved_series(),
     }
 

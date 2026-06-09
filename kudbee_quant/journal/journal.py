@@ -10,7 +10,8 @@ from pathlib import Path
 import pandas as pd
 
 from ..backtest.resolver import resolve_bracket
-from ..ingest import RouterClient
+from ..config.validated_defaults import VENUE_FEE_PCT
+from ..ingest import RouterClient, parse_spec
 
 # Prediction kinds and how each is verified against OHLCV over the window:
 #   touch        : a bar's [low, high] contains the level             -> hit
@@ -68,6 +69,41 @@ class Prediction:
     @property
     def deadline(self) -> datetime:
         return datetime.fromisoformat(self.created_at) + timedelta(days=self.deadline_days)
+
+
+def venue_of(p: Prediction) -> str:
+    """Which fee venue a trade executes on, from its symbol SPEC. ``yahoo:``
+    specs are the zero-fee TradFi promo venue (§26); everything else (bare /
+    ``binance:`` crypto) is the fee-paying crypto book (§25 taker)."""
+    source, _ = parse_spec(p.symbol)
+    return "tradfi" if source == "yahoo" else "crypto"
+
+
+def fee_pct_of(p: Prediction) -> float:
+    """Round-trip cost (fraction of price) for this trade's venue (§26)."""
+    return VENUE_FEE_PCT[venue_of(p)]
+
+
+def fee_r_of(p: Prediction) -> float:
+    """The trade's round-trip fee expressed in R, so it's subtractable from
+    ``outcome_r``. Mirrors the backtest cost model (backtest/bracket.py): a
+    price-fraction fee becomes R via the stop size, ``fee_pct * entry / risk``,
+    plus a half round-trip on the scaled-out fraction if TP1 banked. Non-bracket
+    predictions carry no R, so their fee is 0."""
+    if p.kind != "bracket" or p.entry is None or p.stop is None:
+        return 0.0
+    risk = abs(p.entry - p.stop)
+    if risk <= 0:
+        return 0.0
+    extra_exit = p.tp1_frac if p.tp1_filled_at is not None else 0.0
+    return fee_pct_of(p) * p.entry / risk * (1 + 0.5 * extra_exit)
+
+
+def net_outcome_r(p: Prediction) -> float | None:
+    """``outcome_r`` net of the venue's round-trip fee (None if unresolved)."""
+    if p.outcome_r is None:
+        return None
+    return float(p.outcome_r) - fee_r_of(p)
 
 
 class TradeJournal:
@@ -208,20 +244,53 @@ class TradeJournal:
         return changed
 
     def scorecard(self) -> pd.DataFrame:
-        """Per-setup record over RESOLVED predictions: hit rate + R expectancy."""
+        """Per-setup record over RESOLVED predictions: hit rate + R expectancy,
+        GROSS and NET of the per-venue round-trip fee (§26). For TradFi (0-fee)
+        setups net == gross; crypto setups lose the §25 taker per trade."""
         resolved = [p for p in self.predictions if p.status in ("hit", "miss")]
+        cols = ["setup", "n", "hits", "hit_rate", "expectancy_r", "total_r",
+                "net_expectancy_r", "net_total_r"]
         if not resolved:
-            return pd.DataFrame(columns=["setup", "n", "hits", "hit_rate", "expectancy_r", "total_r"])
+            return pd.DataFrame(columns=cols)
         df = pd.DataFrame([{"setup": p.setup or "(unlabeled)", "hit": p.status == "hit",
-                            "r": p.outcome_r} for p in resolved])
+                            "r": p.outcome_r, "net_r": net_outcome_r(p)} for p in resolved])
         rows = []
         for setup, g in df.groupby("setup"):
-            rs = g["r"].dropna()
+            rs, nrs = g["r"].dropna(), g["net_r"].dropna()
             rows.append({"setup": setup, "n": len(g), "hits": int(g["hit"].sum()),
                          "hit_rate": g["hit"].mean(),
                          "expectancy_r": float(rs.mean()) if len(rs) else float("nan"),
-                         "total_r": float(rs.sum()) if len(rs) else float("nan")})
+                         "total_r": float(rs.sum()) if len(rs) else float("nan"),
+                         "net_expectancy_r": float(nrs.mean()) if len(nrs) else float("nan"),
+                         "net_total_r": float(nrs.sum()) if len(nrs) else float("nan")})
         return pd.DataFrame(rows).sort_values("n", ascending=False).reset_index(drop=True)
+
+    def venue_record(self) -> dict:
+        """Resolved R-bearing record split by fee VENUE — crypto (pays the §25
+        taker) vs tradfi (0-fee promo, §26) — reporting expectancy GROSS and NET
+        of fees. This is the honest read on whether the zero-fee TradFi book
+        actually keeps net≈gross while the crypto book bleeds the taker."""
+        out = {}
+        for venue in ("crypto", "tradfi"):
+            ps = [p for p in self.predictions
+                  if p.status in ("hit", "miss") and p.outcome_r is not None
+                  and venue_of(p) == venue]
+            n = len(ps)
+            gross = [float(p.outcome_r) for p in ps]
+            net = [net_outcome_r(p) for p in ps]
+            fees = [fee_r_of(p) for p in ps]
+            hits = sum(1 for p in ps if p.status == "hit")
+            out[venue] = {
+                "n": n, "hits": hits,
+                "hit_rate": (hits / n) if n else None,
+                "fee_pct_roundtrip": VENUE_FEE_PCT[venue],
+                "avg_fee_r": (sum(fees) / n) if n else None,
+                "expectancy_r": (sum(gross) / n) if n else None,
+                "total_r": float(sum(gross)) if n else 0.0,
+                "net_expectancy_r": (sum(net) / n) if n else None,
+                "net_total_r": float(sum(net)) if n else 0.0,
+            }
+        return out
 
     def source_record(self) -> dict:
         """Resolved record split by provenance: your discretionary reads ('human')
