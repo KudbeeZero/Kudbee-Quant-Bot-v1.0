@@ -284,7 +284,28 @@ but costs ~0.04-0.07R of expectancy. Use TP1 for psychology / "free trade" comfo
 not as an edge enhancer. STOCKS work too (commission-free now): positive but a bit
 lower than crypto (+0.13-0.17R). LOWER FEES improve everything — the user is right.
 
+## 13. Dollar sizing on $100 + double-top/bottom + S/R — 2026-06-09
+
+300-TRADE DOLLAR SIM ($100 start, validated 1h confluence, 0.04% maker, last 300
+trades across top-10; the SAMPLE had +0.264R expectancy, 43% win, 1.45% mean stop):
+  10x FULL notional (~14%/trade): -> $9.90  *** ACCOUNT BLOWN *** (maxDD -99%)
+  10% risk/trade:                 -> $9.81  *** BLOWN ***
+  2%  risk/trade:                 -> $416   (+316%, maxDD -64%)
+  1%  risk/trade:                 -> $212   (+112%, maxDD -40%)
+THE LESSON (biggest of the project): a POSITIVE-edge system still BLOWS UP at 10x
+full notional — variance ruins you before the edge pays. Same trades, only sizing
+differs. RIGHT SIZE: to risk 2% with a ~1.4% stop you use ~1.4x equity, NOT 10x.
+10x leverage is a CAP/tool, never the bet size. Recommend 1% risk/trade on crypto
+(DD still -40% at 1%; crypto is brutal). Code: backtest/money.py (trade_log +
+simulate_account, modes full_notional / fixed_fractional). Tested.
+
+DOUBLE-TOP/BOTTOM NECKLINE BREAK (scenarios/patterns.py, same limit-retrace exec):
+  +0.111R mean, median +0.103R, 80% of top-10 positive, 538 trades. A REAL but
+  SECONDARY edge (< confluence +0.26R) — confirms §11: trade the BREAK not the
+  touch. support_resistance() exposes nearest swing-high/low + equal-level shelves.
+
 PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
-hourly Action. Everything in main: engine + website + Live Signals + API +
-TradingView indicator (pinescript/kudbee_confluence.pine) + alert->journal webhook
-+ bias layer + TP1/TP2 partials + research Vols 1-10. Ready to archive.
+hourly Action (top-10 majors, 5m/15m/1h/2h/4h). Everything in main: engine +
+website + Live Signals + API + TradingView indicator + alert->journal webhook +
+bias layer + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + research
+Vols 1-10. Ready to archive.
