@@ -6,10 +6,13 @@
 
 ## Current baton
 
-- **Protocol status:** `BOOTSTRAP` — this is the chat that introduced the relay.
-- **This chat's branch:** `claude/sol-short-position-0eytax`
-- **This chat's PR:** #2 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/2
-- **Audit status:** `AWAITING_AUDIT` (bootstrap PR — next chat verifies it via the checklist in the PR body, then merges)
+- **Protocol status:** `ACTIVE` — bootstrap merged; protocol hardened for the
+  harness-assigned-branch + already-merged realities (chat `claude/handoff-audit-xtn2bz`).
+- **Last audited branch:** `claude/sol-short-position-0eytax`
+- **Last audited PR:** #2 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/2
+- **Audit status:** `MERGED (post-hoc audit PASS)` — PR #2 was merged from the UI
+  before this chat audited it; the independent post-hoc audit PASSED. Report:
+  `docs/audits/claude-sol-short-position-0eytax.md`.
 - **Prior work note:** everything before this PR (SOL short logging, MEMORY §24–§26,
   zero-fee TradFi forward-scan) was merged **direct to `main` pre-protocol**. From
   this PR forward, the one-PR-per-chat + audit-gate rules apply.
@@ -25,10 +28,12 @@
 
 ## NEXT chat
 
-- **Proposed branch:** `claude/net-of-fee-scoring`
+- **Slug hint (ADVISORY only):** `claude/net-of-fee-scoring` — the harness assigns
+  the real branch name; this is just a label, the *scope* below is what binds.
 - **Scope (one priority):** make the zero-fee edge *measurable* — add per-venue
   net-of-fee scoring to the journal scorecard (crypto −0.09%/trade taker, TradFi
-  0). This is the open follow-up flagged in MEMORY §26.
+  0). This is the open follow-up flagged in MEMORY §26 — still open; the
+  `handoff-audit-xtn2bz` chat spent its turn hardening the relay protocol instead.
 - **Open risks / watch-items for next session:**
   - Resolved-trade scorecard is under **censoring bias** (fast stop-outs resolve;
     3R winners stay open) — do NOT reverse-engineer an "inverse edge" off it
@@ -45,4 +50,7 @@
 
 ## Baton history
 
-- `BOOTSTRAP` — relay protocol introduced.
+- `BOOTSTRAP` — relay protocol introduced (PR #2).
+- `2026-06-09` — PR #2 merged from UI pre-audit; post-hoc audit PASS. Protocol
+  hardened on `claude/handoff-audit-xtn2bz`: baton hands off scope (not a branch
+  name), `/handoff-audit` checks real PR state + post-hoc path, status reconciled.
