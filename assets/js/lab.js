@@ -152,6 +152,112 @@
     host.appendChild(s);
   }
 
+  /* ---- Generic multi-curve line chart (used by long/short + forward) ---- */
+  function lineCurves(host, curves, opts) {
+    opts = opts || {};
+    var W = 720, H = 320, padL = 56, padR = 120, padT = 18, padB = 34;
+    var s = svg(W, H);
+    var allv = [], maxLen = 0;
+    curves.forEach(function (c) { maxLen = Math.max(maxLen, c.data.length); c.data.forEach(function (v) { allv.push(v); }); });
+    var vmax = Math.max.apply(null, allv), vmin = Math.min.apply(null, allv);
+    var base = opts.baseline !== undefined ? opts.baseline : 0;
+    if (opts.log) {
+      var lo = Math.log10(Math.max(1, vmin)), hi = Math.log10(vmax * 1.12);
+    } else {
+      var pad = (vmax - vmin) * 0.1 || 1; vmax += pad; vmin -= pad;
+    }
+    function X(i, len) { return padL + (W - padL - padR) * (i / Math.max(1, len - 1)); }
+    function Y(v) {
+      if (opts.log) return padT + (H - padT - padB) * (1 - (Math.log10(Math.max(v, 1)) - lo) / (hi - lo));
+      return padT + (H - padT - padB) * (1 - (v - vmin) / (vmax - vmin));
+    }
+    var grid = opts.log ? [1, 10, 100, 1000, 10000].filter(function (g) { return g >= Math.max(1, vmin) && g <= vmax * 1.12; })
+                        : [vmin, base, (vmin + vmax) / 2, vmax];
+    grid.forEach(function (g) {
+      var y = Y(g);
+      s.appendChild(el("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: C.grid }));
+      var lbl = opts.log ? "$" + (g >= 1000 ? g / 1000 + "k" : g) : (opts.money ? "$" + Math.round(g) : (g > 0 ? "+" : "") + g.toFixed(1) + "R");
+      s.appendChild(txt(padL - 8, y + 3, lbl, { anchor: "end" }));
+    });
+    if (!opts.log) { var yb = Y(base); s.appendChild(el("line", { x1: padL, y1: yb, x2: W - padR, y2: yb, stroke: C.muted, "stroke-dasharray": "2 4" })); }
+    var ly = padT + 6;
+    curves.forEach(function (c) {
+      var d = "";
+      c.data.forEach(function (v, i) { d += (i ? "L" : "M") + X(i, c.data.length).toFixed(1) + " " + Y(v).toFixed(1) + " "; });
+      s.appendChild(el("path", { d: d, fill: "none", stroke: c.color, "stroke-width": 2.2, "stroke-linejoin": "round" }));
+      s.appendChild(el("circle", { cx: X(c.data.length - 1, c.data.length), cy: Y(c.data[c.data.length - 1]), r: 3, fill: c.color }));
+      s.appendChild(txt(W - padR + 8, ly, c.name, { fill: c.color, size: 11.5 }));
+      if (c.sub) s.appendChild(txt(W - padR + 8, ly + 13, c.sub, { fill: C.text, size: 10.5 }));
+      ly += c.sub ? 32 : 18;
+    });
+    if (opts.xLabel) s.appendChild(txt(padL, H - 8, opts.xLabel, { fill: C.muted }));
+    host.appendChild(s);
+  }
+
+  function longShortChart(host) {
+    var ls = D.longshort, cv = ls.curves;
+    lineCurves(host, [
+      { name: "BOTH", data: cv.both, color: C.honey, sub: "$" + Math.round(cv.both[cv.both.length - 1]) },
+      { name: "SHORT", data: cv.short, color: C.red, sub: "$" + Math.round(cv.short[cv.short.length - 1]) },
+      { name: "LONG", data: cv.long, color: C.mint, sub: "$" + Math.round(cv.long[cv.long.length - 1]) }
+    ], { log: true, xLabel: "trades (chronological, $100 @ 1% risk)" });
+  }
+
+  /* ---- Venue fee widget: interpolate expectancy from the measured fee curve ---- */
+  function expAtFee(group, rt) {
+    var pts = [[0, D.expfee[group]["0%"]], [0.0002, D.expfee[group]["0.02%"]],
+               [0.0004, D.expfee[group]["0.04%"]], [0.0020, D.expfee[group]["0.20%"]]];
+    for (var i = 0; i < pts.length - 1; i++) {
+      if (rt <= pts[i + 1][0]) {
+        var t = (rt - pts[i][0]) / (pts[i + 1][0] - pts[i][0]);
+        return pts[i][1] + t * (pts[i + 1][1] - pts[i][1]);
+      }
+    }
+    return pts[pts.length - 1][1];
+  }
+  function venueWidget() {
+    var sel = document.getElementById("venue-sel"), out = document.getElementById("venue-out");
+    if (!sel || !out || !D.venues) return;
+    sel.innerHTML = D.venues.map(function (v, i) {
+      return '<option value="' + i + '">' + v.name + " — " + (v.rt * 100).toFixed(3) + "% rt</option>";
+    }).join("");
+    function render() {
+      var v = D.venues[parseInt(sel.value, 10) || 0];
+      var ec = expAtFee("crypto", v.rt), es = expAtFee("stocks", v.rt);
+      function box(lbl, val) {
+        var cls = val > 0.05 ? "co--good" : (val > 0 ? "co--warn" : "co--bad");
+        return calcBox(lbl, (val > 0 ? "+" : "") + val.toFixed(3) + "R", cls);
+      }
+      out.innerHTML = box("crypto expectancy / trade", ec) + box("stocks expectancy / trade", es) +
+        calcBox("round-trip maker cost", (v.rt * 100).toFixed(3) + "%", v.rt <= 0.0005 ? "co--good" : "co--warn");
+    }
+    sel.addEventListener("change", render); render();
+  }
+
+  /* ---- Live forward track record (resolved trades) + bot vs human ---- */
+  function loadForward() {
+    var status = document.getElementById("fwd-status"), host = document.getElementById("chart-forward");
+    if (!host) return;
+    var API = (window.KUDBEE_API_BASE || "") + "/api";
+    fetch(API + "/journal").then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(function (j) {
+      var bs = (j.by_source || {});
+      function srcTxt(o) { return (o && o.n) ? ((o.expectancy_r >= 0 ? "+" : "") + o.expectancy_r.toFixed(3) + "R (n=" + o.n + ")") : "no data yet"; }
+      setText("src-bot", srcTxt(bs.bot)); setText("src-human", srcTxt(bs.human));
+      var ser = j.resolved_series || [];
+      if (ser.length < 2) { status.textContent = "Only " + ser.length + " resolved trade(s) so far — the curve fills in as trades close."; host.innerHTML = ""; return; }
+      var eq = [0], cum = 0;
+      ser.forEach(function (t) { cum += t.r; eq.push(cum); });
+      host.innerHTML = "";
+      lineCurves(host, [{ name: "cumulative R", data: eq, color: C.honey, sub: (cum >= 0 ? "+" : "") + cum.toFixed(1) + "R" }],
+        { baseline: 0, xLabel: "resolved trade #" });
+      status.textContent = "Live · " + ser.length + " resolved trades · updated " + new Date().toLocaleTimeString();
+    }).catch(function () {
+      status.textContent = "Engine offline — your live forward record appears when the API is running. The backtests above are the prior; this becomes the posterior.";
+      host.innerHTML = "";
+    });
+  }
+
   function fill(id, fn) { var h = document.getElementById(id); if (h) try { fn(h); } catch (e) { h.textContent = "chart error"; } }
   function setText(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
 
@@ -214,6 +320,15 @@
     fill("chart-equity", equityChart);
     fill("chart-survival", survivalChart);
     fill("chart-fee", feeChart);
+    fill("chart-longshort", longShortChart);
+    if (D.longshort) {
+      var ls = D.longshort;
+      setText("ls-long", "+" + ls.long.exp + "R");
+      setText("ls-short", "+" + ls.short.exp + "R");
+      setText("ls-both", "+" + ls.both.exp + "R");
+    }
+    venueWidget();
+    loadForward();
     var sm = D.equity.sample;
     setText("stat-exp", (sm.exp >= 0 ? "+" : "") + sm.exp + "R");
     setText("stat-win", sm.win + "%");

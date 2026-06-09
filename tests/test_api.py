@@ -36,3 +36,9 @@ class _EmptyJournal:
     def scorecard(self):
         import pandas as pd
         return pd.DataFrame()
+
+    def source_record(self):
+        return {"bot": {"n": 0}, "human": {"n": 0}}
+
+    def resolved_series(self):
+        return []

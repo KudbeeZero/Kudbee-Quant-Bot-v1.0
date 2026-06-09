@@ -98,6 +98,24 @@
     </section>
 
     <section class="panel">
+      <h2>Long AND short — the system trades both sides</h2>
+      <p class="sub">The engine takes longs <em>and</em> shorts (whichever way
+        confluence points). Here's every trade split by direction, each as its own
+        $100 equity curve at 1% risk. Over this window shorts carried it — crypto
+        was weak — but that's the point: a two‑sided system <strong>adapts to the
+        regime</strong> instead of betting the market only goes up.</p>
+      <div class="stats" style="margin:.2rem 0 1rem;">
+        <div class="stat"><div class="stat__v" id="ls-long">—</div><div class="stat__l">LONG trades — expectancy</div></div>
+        <div class="stat"><div class="stat__v" id="ls-short">—</div><div class="stat__l">SHORT trades — expectancy</div></div>
+        <div class="stat"><div class="stat__v" id="ls-both">—</div><div class="stat__l">BOTH combined — expectancy</div></div>
+      </div>
+      <div class="chart-wrap"><div id="chart-longshort"></div></div>
+      <div class="takeaway">Don't assume shorts always win — it's
+        <strong>regime‑dependent</strong>. In a bull window longs carry it. Trading
+        both sides is what kept this green while the assets themselves fell.</div>
+    </section>
+
+    <section class="panel">
       <h2>First target vs full target — TP1 / TP2 hit rates</h2>
       <p class="sub">How often price reaches each reward multiple before the stop.
         This is just counting, so it's rock-solid. The first target (1.5R) prints
@@ -120,6 +138,20 @@
       <div class="takeaway">Trade as a <strong>maker</strong>, or don't trade this
         edge at all. Commission-free stocks and 0%-maker crypto venues are where
         it lives.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Pick your exchange — watch the edge move</h2>
+      <p class="sub">Because the edge lives and dies on fees, the venue matters more
+        than any setting. Choose a venue and see the per‑trade expectancy it leaves
+        you (round‑trip maker cost, interpolated from the measured curve). These are
+        approximate published fees — always confirm and forward‑test.</p>
+      <label style="display:block;font-size:.85rem;color:#9AA6BC;margin-bottom:.6rem;">Exchange / venue
+        <select id="venue-sel" style="display:block;margin-top:.35rem;background:#0a0e17;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.55rem .7rem;color:#EAF0FA;font-family:'JetBrains Mono',monospace;min-width:240px;"></select>
+      </label>
+      <div id="venue-out" class="calc-out"></div>
+      <div class="takeaway">Same strategy, same trades — only the venue changed. A
+        0%‑maker venue keeps the whole edge; a 0.20%+ taker venue erases it.</div>
     </section>
 
     <section class="panel">
@@ -153,6 +185,23 @@
       <div class="takeaway">Rule of thumb from the data: <strong>1% risk</strong>, and if
         the calculator shows leverage above ~1.5× you're either risking too much or
         your stop is too tight — back off, don't borrow.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Your forward track record — live, no cherry‑picking</h2>
+      <p class="sub">This is the honest scoreboard: the actual resolved paper trades
+        from the live journal, plotted as a running equity curve in R. It's empty or
+        thin until enough trades resolve — that's the point. A backtest is a promise;
+        <strong>this</strong> is the receipt.</p>
+      <p id="fwd-status" class="sub" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;">Loading forward record…</p>
+      <div class="chart-wrap"><div id="chart-forward"></div></div>
+      <div class="stats" style="margin-top:1rem;">
+        <div class="stat"><div class="stat__v" id="src-bot">—</div><div class="stat__l">BOT edge (resolved, R)</div></div>
+        <div class="stat"><div class="stat__v" id="src-human">—</div><div class="stat__l">YOUR reads (resolved, R)</div></div>
+      </div>
+      <div class="takeaway">Your discretionary reads (logged with <code>read-add</code>)
+        are scored <strong>separately</strong> from the bot — so we find out whose
+        edge is whose, honestly.</div>
     </section>
 
     <section class="panel">

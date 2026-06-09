@@ -80,7 +80,34 @@ for df in FC.values():
 pattern={"mean":round(float(np.mean(pe)),3),"pos":round(sum(1 for x in pe if x>0)/len(pe)*100,0),
          "n":pn}
 
+# --- LONG vs SHORT vs BOTH (the two-sided backtest scenario) ---
+def stat(d):
+    return {"n":int(len(d)),"exp":round(float(d["net_r"].mean()),3) if len(d) else 0.0,
+            "win":round(float((d["net_r"]>0).mean())*100,0) if len(d) else 0.0,
+            "total":round(float(d["net_r"].sum()),1) if len(d) else 0.0}
+longs=allt[allt["direction"]>0]; shorts=allt[allt["direction"]<0]
+def eq_curve(d):
+    if not len(d): return [100.0]
+    s=simulate_account(d.reset_index(drop=True),100.0,mode="fixed_fractional",risk_frac=0.01,leverage=1.0)
+    return ds(s.equity_curve,120)
+longshort={"long":stat(longs),"short":stat(shorts),"both":stat(allt),
+           "curves":{"long":eq_curve(longs),"short":eq_curve(shorts),"both":eq_curve(allt)}}
+
+# --- Exchange fee comparison (round-trip MAKER cost, the strategy's real cost) ---
+venues=[
+ {"name":"MEXC (futures promo)","rt":0.0000},
+ {"name":"US stocks (commission-free)","rt":0.00020},
+ {"name":"Hyperliquid","rt":0.00030},
+ {"name":"Bybit (perp)","rt":0.00040},
+ {"name":"Binance (futures)","rt":0.00040},
+ {"name":"dYdX","rt":0.00040},
+ {"name":"Coinbase (taker, typical)","rt":0.00120},
+ {"name":"Binance (spot, BNB disc.)","rt":0.00150},
+ {"name":"Kraken","rt":0.00320},
+]
+
 DATA={"equity":equity,"survival":surv,"expfee":expfee,"pattern":pattern,
+      "longshort":longshort,"venues":venues,
       "generated":"2026-06-09","assets":{"crypto":len(FC),"stocks":len(FS)}}
 out="window.KUDBEE_LAB = "+json.dumps(DATA,separators=(",",":"))+";\n"
 open("assets/js/lab-data.js","w").write(out)

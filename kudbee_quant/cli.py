@@ -403,6 +403,27 @@ def _journal_score(args) -> None:
           "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
 
 
+def _read_add(args) -> None:
+    """Log YOUR discretionary directional read as a defined-risk bracket (scored
+    as source='human' so your edge is measured apart from the bot's)."""
+    j = TradeJournal()
+    d = 1.0 if args.side == "long" else -1.0
+    risk = abs(args.entry - args.stop)
+    if risk <= 0:
+        print("Stop must differ from entry."); return
+    target = args.target if args.target is not None else args.entry + d * risk * args.target_r
+    tr = abs(target - args.entry) / risk
+    p = j.add(Prediction(
+        symbol=args.symbol.upper(), kind="bracket", level=args.entry, entry=args.entry,
+        stop=args.stop, target=target, direction=d, target_r=tr, deadline_days=args.days,
+        timeframe=args.tf, source="human", setup="my_read",
+        note=f"Discretionary read: {args.note}" if args.note else "Discretionary read."))
+    side = "LONG" if d > 0 else "SHORT"
+    print(f"Logged YOUR read {p.id}: {p.symbol} [{args.tf}] {side} entry {p.entry:.4g} "
+          f"stop {p.stop:.4g} target {target:.4g} ({tr:.1f}R) by {p.deadline:%Y-%m-%d %H:%M}")
+    print("Scored as source='human'. Run `journal-check` to resolve, `journal-score` for the record.")
+
+
 def _journal_exposure(args) -> None:
     from .exposure import portfolio_exposure, total_gross_risk
     j = TradeJournal()
@@ -629,6 +650,18 @@ def main() -> None:
     jl.set_defaults(func=_journal_list)
     js = sub.add_parser("journal-score", help="your measured hit rate + R by setup")
     js.set_defaults(func=_journal_score)
+    ra = sub.add_parser("read-add", help="log YOUR discretionary read (scored apart from the bot)")
+    ra.add_argument("symbol")
+    ra.add_argument("side", choices=["long", "short"])
+    ra.add_argument("--entry", type=float, required=True)
+    ra.add_argument("--stop", type=float, required=True)
+    ra.add_argument("--target", type=float, default=None, help="explicit target price (else use --target-r)")
+    ra.add_argument("--target-r", type=float, default=3.0, help="reward:risk if no explicit target")
+    ra.add_argument("--tf", default="1h", help="timeframe label, e.g. 1m 5m 1h")
+    ra.add_argument("--days", type=float, default=1.0, help="how long the read has to play out")
+    ra.add_argument("--note", default="", help="the confluences/reasoning you saw")
+    ra.set_defaults(func=_read_add)
+
     je = sub.add_parser("journal-exposure", help="combined long+short risk per coin (two-sided guard)")
     je.add_argument("--risk", type=float, default=0.01, help="risk per trade as a fraction (0.01 = 1%)")
     je.add_argument("--max-risk", type=float, default=0.02, help="gross risk cap per coin (0.02 = 2%)")

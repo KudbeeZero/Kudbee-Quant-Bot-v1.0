@@ -24,7 +24,8 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
   },
   {
     "symbol": "BTCUSDT",
@@ -51,7 +52,8 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
   },
   {
     "symbol": "BNBUSDT",
@@ -78,7 +80,8 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
   },
   {
     "symbol": "SOLUSDT",
@@ -105,7 +108,8 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
   },
   {
     "symbol": "BTCUSDT",
@@ -132,7 +136,8 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
   },
   {
     "symbol": "BNBUSDT",
@@ -159,6 +164,35 @@
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null
+    "tp1_filled_at": null,
+    "source": "bot"
+  },
+  {
+    "symbol": "ZECUSDT",
+    "kind": "bracket",
+    "level": 453.0,
+    "deadline_days": 0.25,
+    "setup": "my_read",
+    "timeframe": "1m",
+    "note": "Discretionary read: daily-open rejection, green vectors recovering",
+    "created_at": "2026-06-09T06:24:28.492241+00:00",
+    "id": "4b5fe48e",
+    "status": "open",
+    "resolved_at": null,
+    "entry": 453.0,
+    "stop": 456.0,
+    "target": 446.0,
+    "direction": -1.0,
+    "target_r": 2.3333333333333335,
+    "outcome_r": null,
+    "pending_limit": false,
+    "signal_price": null,
+    "fill_deadline_days": 0.5,
+    "filled_at": null,
+    "tp1": null,
+    "tp1_frac": 0.5,
+    "be_after_tp1": true,
+    "tp1_filled_at": null,
+    "source": "human"
   }
 ]

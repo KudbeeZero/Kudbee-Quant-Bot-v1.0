@@ -54,6 +54,9 @@ class Prediction:
     tp1_frac: float = 0.5           # fraction banked at TP1 (rest rides to TP2)
     be_after_tp1: bool = True       # move stop to breakeven once TP1 banks
     tp1_filled_at: str | None = None  # when TP1 banked (trade still open on rest)
+    # provenance: "bot" (engine/paper auto signal) vs "human" (your own read).
+    # Lets us score the discretionary track record SEPARATELY from the machine.
+    source: str = "bot"
 
     def __post_init__(self):
         if self.kind not in KINDS:
@@ -258,3 +261,27 @@ class TradeJournal:
                          "expectancy_r": float(rs.mean()) if len(rs) else float("nan"),
                          "total_r": float(rs.sum()) if len(rs) else float("nan")})
         return pd.DataFrame(rows).sort_values("n", ascending=False).reset_index(drop=True)
+
+    def source_record(self) -> dict:
+        """Resolved record split by provenance: your discretionary reads ('human')
+        vs the engine ('bot'). The honest way to know whose edge is whose."""
+        out = {}
+        for src in ("bot", "human"):
+            rs = [p.outcome_r for p in self.predictions
+                  if p.status in ("hit", "miss") and p.source == src and p.outcome_r is not None]
+            hits = sum(1 for p in self.predictions
+                       if p.status == "hit" and p.source == src and p.outcome_r is not None)
+            n = len(rs)
+            out[src] = {"n": n, "hits": hits,
+                        "hit_rate": (hits / n) if n else None,
+                        "expectancy_r": (float(sum(rs) / n)) if n else None,
+                        "total_r": float(sum(rs)) if n else 0.0}
+        return out
+
+    def resolved_series(self) -> list[dict]:
+        """Resolved bracket outcomes in time order — the forward equity curve input."""
+        rows = [{"t": p.resolved_at or p.created_at, "r": p.outcome_r,
+                 "source": p.source, "setup": p.setup or "(unlabeled)"}
+                for p in self.predictions
+                if p.status in ("hit", "miss") and p.outcome_r is not None]
+        return sorted(rows, key=lambda x: x["t"])

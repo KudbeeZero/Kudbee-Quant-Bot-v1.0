@@ -324,8 +324,30 @@ gross_risk=(nL+nShort)*risk, net_risk=|nL-nShort|*risk. paper_scan now SKIPS a n
 trade if it would push a coin's GROSS risk over max_symbol_risk (default 2% at 1%/
 trade). CLI `journal-exposure`; also in /api/journal. Tested.
 
+## 15. Lab build-out + LONG vs SHORT scenario — 2026-06-09
+
+LONG vs SHORT vs BOTH (top-10, 1h, validated, 0.04% maker, full history ~2014 trades):
+  LONG  : 937 trades, +0.048R, 34% win, +45.0R total
+  SHORT : 1077 trades, +0.224R, 41% win, +240.9R total
+  BOTH  : 2014 trades, +0.142R, 37% win, +285.9R total
+Read: this window was crypto-WEAK so SHORTS carried it; the point is the system is
+SYMMETRIC and regime-adaptive (in a bull window longs carry). Two-sided is WHY it
+stayed green while assets fell (cf. §13 SOL: +51% vs buy-hold -61%). Don't assume
+shorts always win — regime-dependent. Lab now plots long/short/both equity curves.
+
+NEW (all in main, tested):
+- journal Prediction.source ("bot" vs "human"); j.source_record() + resolved_series().
+  CLI `read-add` logs YOUR discretionary calls (scored apart from the bot). First
+  human read logged: ZEC 1m short off daily-open rejection (453->446).
+- Lab page additions (assets/js/lab.js, CSP-safe): long/short equity chart, live
+  FORWARD track-record curve + bot-vs-human split (from /api/journal), position-size
+  calculator, live exposure panel, exchange-fee venue picker (interpolates the
+  measured fee curve). /api/journal now returns by_source + resolved_series +
+  exposure + total_gross_risk_pct.
+
 PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
 hourly Action (top-10 majors, 5m/15m/1h/2h/4h). Everything in main: engine +
-website + Live Signals + API + TradingView indicator + alert->journal webhook +
-bias layer + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R +
-net-exposure guard + research Vols 1-10. Ready to archive.
+website + Live Signals + The Lab (interactive charts/calculator/venue/exposure/
+forward-record) + API + TradingView indicator + alert->journal webhook + bias layer
++ TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + net-exposure guard +
+human-read scoring + research Vols 1-10. Ready to archive.
