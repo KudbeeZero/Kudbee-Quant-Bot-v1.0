@@ -10,7 +10,7 @@ have?" is one query, not tribal knowledge.
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 RESULTS_PATH = Path("data/overnight_results.json")

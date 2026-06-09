@@ -22,7 +22,6 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..backtest.bracket import bracket_excursions
 from ..backtest.resolver import resolve_bracket
 from ..confluence.stack import confluence_score, factor_votes
 

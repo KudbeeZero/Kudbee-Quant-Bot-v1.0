@@ -35,8 +35,10 @@ app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET",
 _write_limit = RateLimiter(limit=10, window=60.0, scope="write")
 _read_limit = RateLimiter(limit=120, window=60.0, scope="read")
 
-# Validated default config (see docs/research/testable_ruleset.md).
-CONFIG = {"min_pct": 0.5, "target_r": 3.0, "stop_atr": 1.5, "retrace_atr": 0.25, "interval": "1h"}
+# Validated default config — single source of truth (config/validated_defaults.py).
+from .config.validated_defaults import VALIDATED_BASELINE
+
+CONFIG = dict(VALIDATED_BASELINE)
 _ALLOWED_TF = {"1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d"}
 
 

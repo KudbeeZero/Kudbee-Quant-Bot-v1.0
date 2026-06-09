@@ -50,7 +50,6 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -73,12 +72,13 @@ QUEUE_PATH = DATA / "overnight_queue.json"
 RESULTS_PATH = DATA / "overnight_results.json"
 FINDINGS_PATH = ROOT / "docs" / "research" / "overnight_findings.md"
 
-UNIVERSE = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-            "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "DOTUSDT"]
+from kudbee_quant.config.validated_defaults import BRACKET_KW  # noqa: E402
+from kudbee_quant.universe import TOP_10_CRYPTO  # noqa: E402
+
+UNIVERSE = list(TOP_10_CRYPTO)
 
 # The shipping execution defaults — every candidate is measured against these.
-BASE_KW = dict(stop_atr=1.5, target_r=3.0, max_bars=24,
-               limit_retrace_atr=0.25, entry_window=6, fee_pct=0.0004)
+BASE_KW = dict(BRACKET_KW)
 
 MIN_TRADES = 120          # below this the candidate sample is too thin to trust
 DELTA_GATE = 0.015        # R/trade improvement that counts as real

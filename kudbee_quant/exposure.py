@@ -17,7 +17,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from .journal import Prediction, TradeJournal
+from .journal import Prediction
 
 
 @dataclass(frozen=True)

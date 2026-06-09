@@ -1,0 +1,36 @@
+[project]
+name = "kudbee-quant"
+version = "1.0.0"
+description = "Honest quantitative trading research toolkit (Traders Reality × quant validation)."
+requires-python = ">=3.11"
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.packages.find]
+include = ["kudbee_quant*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+# Start lenient — correctness rules now, tighten over time.
+select = ["E", "F", "W", "B"]
+ignore = ["E501", "E741", "B008"]  # line length handled by formatter; B008 = FastAPI Depends() default
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = ["ignore::DeprecationWarning"]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+check_untyped_defs = true
+disallow_untyped_defs = false   # too strict for the research-stage codebase (yet)

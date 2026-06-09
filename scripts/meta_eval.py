@@ -20,8 +20,9 @@ from pathlib import Path
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-UNIVERSE = ["BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT",
-            "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "DOTUSDT"]
+from kudbee_quant.universe import TOP_10_CRYPTO  # noqa: E402
+
+UNIVERSE = list(TOP_10_CRYPTO)
 
 
 def main() -> None:
