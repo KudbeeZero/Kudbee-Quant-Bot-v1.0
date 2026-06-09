@@ -78,12 +78,12 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
         def klines(self, *a, **k):
             return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
     j = TradeJournal(path=tmp_path / "j.json", client=C())
-    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, journal=j, client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, journal=j, client=C())
     assert len(logged) == 1
     p = logged[0]
     assert p.kind == "bracket" and p.direction == 1.0 and p.target == 102.0 and p.stop == 99.0
     # Re-scan: already open on BTCUSDT -> no duplicate.
-    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, journal=j, client=C()) == []
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, journal=j, client=C()) == []
     # Below-threshold confluence (40%) -> nothing logged on a fresh symbol.
     fake_levels["confluence_pct"] = [0.4]
     j2 = TradeJournal(path=tmp_path / "j2.json", client=C())
