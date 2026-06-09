@@ -54,6 +54,14 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
     # the 10-factor set is saturated. The structure features (swing_high/low,
     # bos_dir, structure_dir, eqh/eql) remain available for entry models.
 
+    # NOTE: a contrarian funding vote (order-flow, Vol 6) was tested and REMOVED
+    # — even this NON-price data diluted the edge (OOS maker +0.158R -> +0.117R)
+    # and had negative standalone edge (-0.117R) in the test window. Reason:
+    # contrarian funding is a counter-trend signal that fails in strong trends
+    # (this OOS was a downtrend). Fourth added factor to dilute (after OB, macro,
+    # structure). The orderflow module (levels/orderflow.py) is kept — funding
+    # data is now accessible for regime filters / future use.
+
     # Mean-reversion / smart-money factors.
     if "dealing_mid" in df:  # ICT: favor longs in discount, shorts in premium
         out["v_pd"] = -_sign(df["close"] - df["dealing_mid"])
