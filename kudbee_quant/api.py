@@ -25,7 +25,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "P
                    allow_headers=["*"])
 
 # Validated default config (see docs/research/testable_ruleset.md).
-CONFIG = {"min_pct": 0.5, "target_r": 3.0, "stop_atr": 1.0, "retrace_atr": 0.25, "interval": "1h"}
+CONFIG = {"min_pct": 0.5, "target_r": 3.0, "stop_atr": 1.5, "retrace_atr": 0.25, "interval": "1h"}
 
 
 @app.get("/api/health")
@@ -77,6 +77,41 @@ def journal() -> dict:
                   "target": p.target, "created_at": p.created_at}
                  for p in j.predictions if p.status in ("open", "pending")],
     }
+
+
+class AlertPayload(BaseModel):
+    symbol: str
+    direction: float
+    entry: float
+    stop: float
+    target: float
+    target_r: float = 3.0
+    conf: float | None = None
+    tf: str = "1h"
+    note: str = ""
+
+
+@app.post("/api/alert")
+def alert_webhook(a: AlertPayload) -> dict:
+    """Receive a TradingView indicator alert (JSON) and log it as a paper trade.
+
+    Closes the loop: chart setup fires -> webhook -> journal -> forward score.
+    """
+    from .journal import Prediction, TradeJournal
+    j = TradeJournal()
+    open_keys = {(p.symbol, p.timeframe) for p in j.predictions
+                 if p.status in ("open", "pending") and p.kind == "bracket"}
+    if (a.symbol.upper(), a.tf) in open_keys:
+        return {"logged": False, "reason": "already in a trade on this symbol+timeframe"}
+    p = j.add(Prediction(
+        symbol=a.symbol.upper(), kind="bracket", level=a.entry, entry=a.entry, stop=a.stop,
+        target=a.target, direction=1.0 if a.direction > 0 else -1.0, target_r=a.target_r,
+        deadline_days=3.0, timeframe=a.tf, pending_limit=True, signal_price=a.entry,
+        setup="tv_alert" + (f"_{int(round(a.conf*100))}pct" if a.conf else ""),
+        note=f"TradingView alert: {a.note}. conf={a.conf}.",
+    ))
+    return {"logged": True, "id": p.id, "symbol": p.symbol, "entry": p.entry,
+            "stop": p.stop, "target": p.target, "status": p.status}
 
 
 class ScanRequest(BaseModel):

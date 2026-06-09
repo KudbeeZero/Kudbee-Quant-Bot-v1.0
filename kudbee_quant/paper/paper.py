@@ -11,7 +11,7 @@ def paper_scan(
     symbols: list[str],
     min_pct: float = 0.5,
     target_r: float = 3.0,   # 3R validated to beat 2R with the limit-retrace entry
-    stop_atr: float = 1.0,
+    stop_atr: float = 1.5,  # validated: wider stop avoids noise stop-outs (keep ~3:1)
     retrace_atr: float = 0.25,  # limit entry pullback (validated execution)
     interval: str = "1h",
     intervals: list[str] | None = None,  # multi-timeframe scan (1h core; 2h/4h also viable)

@@ -1,0 +1,165 @@
+//@version=5
+// =============================================================================
+// Kudbee Confluence Engine — the validated strategy, on your chart.
+//
+// Mirrors kudbee_quant/confluence/stack.py: a 10-factor confluence score
+// (EMA stack/fast/cloud, VWAP, daily open, pivot, premium/discount, sweep,
+// PVSRA vector, FVG), the validated execution (limit entry on a 0.25-ATR
+// retrace, configurable stop, 3R target), PVSRA vector-candle colouring, the
+// key levels, a live confluence dashboard, a direction-bias filter, and
+// phone alerts when a setup fires.
+//
+// HONESTY: this is a directional READ + a disciplined execution template, not
+// advice and not a guarantee. The edge is modest, regime-dependent, and needs
+// maker fills + small size. Validated config: 1h, >=50% confluence, 3R,
+// 0.25-ATR retrace, wider 1.5-ATR stop. Size small. Markets don't offer high
+// return at low risk.
+// =============================================================================
+indicator("Kudbee Confluence Engine", overlay=true, max_lines_count=120, max_labels_count=60)
+
+// ---- Inputs -----------------------------------------------------------------
+minPct      = input.float(0.5, "Confluence threshold (fraction of factors)", minval=0.1, maxval=1.0, step=0.05, group="Strategy")
+stopAtr     = input.float(1.5, "Stop distance (ATR)", minval=0.3, step=0.1, group="Strategy", tooltip="1.5 ATR validated best (wider stop, keep ~3:1)")
+targetR     = input.float(3.0, "Target (reward : risk)", minval=1.0, step=0.5, group="Strategy")
+retraceAtr  = input.float(0.25, "Limit-entry retrace (ATR)", minval=0.0, step=0.05, group="Strategy", tooltip="Enter on a pullback = maker fill + better price")
+biasInput   = input.string("Auto", "Your directional read (bias)", options=["Auto", "Long only", "Short only"], group="Strategy", tooltip="Set this to YOUR high-probability direction; the engine scalps WITH it")
+showLevels  = input.bool(true,  "Show key levels", group="Display")
+showDash    = input.bool(true,  "Show confluence dashboard", group="Display")
+colorVecs   = input.bool(true,  "Colour PVSRA vector candles", group="Display")
+showBracket = input.bool(true,  "Draw entry / stop / target", group="Display")
+
+// ---- Indicators -------------------------------------------------------------
+atr   = ta.atr(14)
+ema13 = ta.ema(close, 13)
+ema50 = ta.ema(close, 50)
+ema800= ta.ema(close, 800)
+vwapv = ta.vwap(hlc3)
+
+dOpen = request.security(syminfo.tickerid, "D", open,      lookahead=barmerge.lookahead_off)
+pdh   = request.security(syminfo.tickerid, "D", high[1],   lookahead=barmerge.lookahead_off)
+pdl   = request.security(syminfo.tickerid, "D", low[1],    lookahead=barmerge.lookahead_off)
+pdc   = request.security(syminfo.tickerid, "D", close[1],  lookahead=barmerge.lookahead_off)
+pp    = (pdh + pdl + pdc) / 3.0
+adr   = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead=barmerge.lookahead_off)
+adrHi = dOpen + adr
+adrLo = dOpen - adr
+
+// Dealing range (premium / discount), prior 48 bars (no lookahead)
+dealHi  = ta.highest(high, 48)[1]
+dealLo  = ta.lowest(low, 48)[1]
+dealMid = (dealHi + dealLo) / 2.0
+
+// PVSRA vector candles
+av     = ta.sma(volume, 10)
+value2 = volume * (high - low)
+hv     = ta.highest(value2, 10)
+climax = volume >= 2 * av or value2 >= hv
+above  = not climax and volume >= 1.5 * av
+isBull = close > open
+bullClimax = climax and isBull
+bearClimax = climax and not isBull
+
+// FVG zones (persist most recent)
+var float bullFvgTop = na
+var float bullFvgBot = na
+var float bearFvgTop = na
+var float bearFvgBot = na
+if low > high[2]
+    bullFvgBot := high[2]
+    bullFvgTop := low
+if high < low[2]
+    bearFvgTop := low[2]
+    bearFvgBot := high
+inBullFvg = not na(bullFvgTop) and low  <= bullFvgTop and high >= bullFvgBot
+inBearFvg = not na(bearFvgTop) and high >= bearFvgBot and low  <= bearFvgTop
+
+// Liquidity sweep of prior day high/low (pierce + reject)
+sweptHigh = high > pdh and close < pdh
+sweptLow  = low  < pdl and close > pdl
+
+// ---- 10 factor votes (mirror confluence/stack.py) ---------------------------
+vEmaStack = close > ema50 and ema50 > ema800 ? 1 : close < ema50 and ema50 < ema800 ? -1 : 0
+vEmaFast  = int(math.sign(ema13 - ema50))
+cloudHi   = math.max(ema13, ema50)
+cloudLo   = math.min(ema13, ema50)
+vCloud    = close > cloudHi ? 1 : close < cloudLo ? -1 : 0
+vVwap     = int(math.sign(close - vwapv))
+vDopen    = int(math.sign(close - dOpen))
+vPivot    = int(math.sign(close - pp))
+vPd       = int(-math.sign(close - dealMid))           // buy discount / sell premium
+vSweep    = sweptLow ? 1 : sweptHigh ? -1 : 0
+vVector   = bullClimax ? 1 : bearClimax ? -1 : 0
+vFvg      = inBullFvg ? 1 : inBearFvg ? -1 : 0
+
+netScore  = vEmaStack + vEmaFast + vCloud + vVwap + vDopen + vPivot + vPd + vSweep + vVector + vFvg
+nFactors  = 10
+strength  = math.abs(netScore)
+confPct   = strength / nFactors
+direction = int(math.sign(netScore))
+
+biasDir   = biasInput == "Long only" ? 1 : biasInput == "Short only" ? -1 : 0
+aligned   = biasDir == 0 or direction == biasDir
+actionable = confPct >= minPct and direction != 0 and aligned
+
+// ---- Bracket (validated execution) ------------------------------------------
+entryLimit = close - direction * retraceAtr * atr
+stopP      = entryLimit - direction * stopAtr * atr
+targetP    = entryLimit + direction * stopAtr * targetR * atr
+
+// ---- Vector candle colouring ------------------------------------------------
+vColor = bullClimax ? color.lime : bearClimax ? color.red : above and isBull ? color.new(color.blue, 0) : above and not isBull ? color.fuchsia : na
+barcolor(colorVecs and not na(vColor) ? vColor : na)
+
+// ---- Key levels -------------------------------------------------------------
+plot(showLevels ? dOpen   : na, "Daily Open",  color.yellow,             1)
+plot(showLevels ? adrHi   : na, "ADR High",    color.new(color.gray, 30),1)
+plot(showLevels ? adrLo   : na, "ADR Low",     color.new(color.gray, 30),1)
+plot(showLevels ? pp      : na, "Pivot PP",    color.new(color.orange,20),1)
+plot(showLevels ? dealMid : na, "Dealing Mid", color.new(color.teal, 40),1)
+plot(showLevels ? vwapv   : na, "VWAP",        color.new(color.purple,10),2)
+
+// ---- Draw entry / stop / target on a fresh actionable signal ----------------
+newSig = actionable and not actionable[1]
+var line lE = na
+var line lS = na
+var line lT = na
+var label lab = na
+if showBracket and newSig
+    line.delete(lE), line.delete(lS), line.delete(lT), label.delete(lab)
+    x2 = bar_index + 24
+    lE := line.new(bar_index, entryLimit, x2, entryLimit, color=color.blue,   width=2, style=line.style_solid)
+    lS := line.new(bar_index, stopP,      x2, stopP,      color=color.red,    width=1, style=line.style_dashed)
+    lT := line.new(bar_index, targetP,    x2, targetP,    color=color.green,  width=1, style=line.style_dashed)
+    side = direction > 0 ? "LONG" : "SHORT"
+    lab := label.new(bar_index, targetP, side + " " + str.tostring(confPct*100, "#") + "% conf · " + str.tostring(targetR, "#.#") + "R", style=direction>0?label.style_label_down:label.style_label_up, color=color.new(direction>0?color.green:color.red,20), textcolor=color.white, size=size.small)
+
+// ---- Alerts (phone notifications) -------------------------------------------
+alertcondition(actionable and direction > 0 and not actionable[1], "Kudbee LONG setup",  "Kudbee: LONG confluence setup — enter LIMIT at retrace, stop/target on chart")
+alertcondition(actionable and direction < 0 and not actionable[1], "Kudbee SHORT setup", "Kudbee: SHORT confluence setup — enter LIMIT at retrace, stop/target on chart")
+
+// JSON webhook -> POST to the Kudbee API /api/alert to auto-log a paper trade
+// (set the alert to "Any alert() function call" + your API webhook URL).
+if newSig
+    msg = '{"symbol":"' + syminfo.ticker + '","direction":' + str.tostring(direction) + ',"entry":' + str.tostring(entryLimit) + ',"stop":' + str.tostring(stopP) + ',"target":' + str.tostring(targetP) + ',"target_r":' + str.tostring(targetR) + ',"conf":' + str.tostring(confPct) + ',"tf":"' + timeframe.period + '","note":"kudbee confluence indicator"}'
+    alert(msg, alert.freq_once_per_bar_close)
+
+// ---- Confluence dashboard ---------------------------------------------------
+f_arrow(v) => v > 0 ? "▲" : v < 0 ? "▼" : "·"
+f_col(v)   => v > 0 ? color.new(color.green, 0) : v < 0 ? color.new(color.red, 0) : color.new(color.gray, 0)
+
+if showDash and barstate.islast
+    var table t = table.new(position.top_right, 2, 14, border_width=1, frame_color=color.new(color.gray,50))
+    table.cell(t, 0, 0, "Kudbee Confluence", text_color=color.white, bgcolor=color.new(color.blue,10), text_size=size.small)
+    table.cell(t, 1, 0, str.tostring(confPct*100,"#")+"% "+(direction>0?"LONG":direction<0?"SHORT":"flat"), text_color=color.white, bgcolor=color.new(direction>0?color.green:direction<0?color.red:color.gray,10), text_size=size.small)
+    rows = array.from("EMA stack","EMA 13/50","EMA cloud","VWAP","Daily open","Pivot","Prem/Disc","Sweep","Vector","FVG")
+    votes= array.from(vEmaStack,vEmaFast,vCloud,vVwap,vDopen,vPivot,vPd,vSweep,vVector,vFvg)
+    for i = 0 to 9
+        v = array.get(votes, i)
+        table.cell(t, 0, i+1, array.get(rows,i), text_color=color.new(color.white,15), text_size=size.tiny)
+        table.cell(t, 1, i+1, f_arrow(v), text_color=f_col(v), text_size=size.tiny)
+    table.cell(t, 0, 11, "Net score", text_color=color.white, text_size=size.tiny)
+    table.cell(t, 1, 11, str.tostring(netScore), text_color=color.white, text_size=size.tiny)
+    table.cell(t, 0, 12, "Actionable", text_color=color.white, text_size=size.tiny)
+    table.cell(t, 1, 12, actionable?"YES":"no", text_color=actionable?color.lime:color.gray, text_size=size.tiny)
+    table.cell(t, 0, 13, actionable?"Limit/Stop/Tgt":"—", text_color=color.new(color.white,30), text_size=size.tiny)
+    table.cell(t, 1, 13, actionable?(str.tostring(entryLimit,format.mintick)+" / "+str.tostring(stopP,format.mintick)+" / "+str.tostring(targetP,format.mintick)):"—", text_color=color.new(color.white,30), text_size=size.tiny)

@@ -207,3 +207,31 @@ trades) -> paper loop now scans 1h+2h+4h. 15m/30m FAIL as standalone strategies;
 trader's real method (1h direction -> drop to 15m/1m to TIME the entry) is NOT
 this -- that's entry refinement, still untested and the next build. Tool:
 `tf-survey SYMBOL`.
+
+## 10. Stop/target geometry + TradingView indicator — 2026-06-09
+
+STOP/TARGET (1h, limit-retrace, maker, walk-forward): lowering R:R by widening
+only the stop (3:1.2=2.5R, 3.2:1.5=2.1R) HURTS per-risk expectancy (+0.147/+0.175
+vs +0.204 at 3:1). The WIN is to widen the stop AND scale the target to keep ~3:1:
+1.5-ATR stop / 4.5-ATR target = +0.235R (vs +0.204 at 1.0/3.0) AND +0.353 ATR
+absolute, higher win rate, lower cost-per-R. -> Adopted 1.5-ATR stop default
+(paper + API + indicator). For a higher win rate (sanity), 1.5/3.2 (2.1R) gives
+41% wins at +0.175R.
+
+VECTOR ENTRY (the cookie-crumb read): green-climax-in-premium / red-in-discount
+lifted naive vector-fade from -0.10R to +0.006R (breakeven, still null); rejection
+wick made it worse. -> Use as the human's contextual READ (bias), not a bot rule.
+
+PROJECT SYNDICATE: real ~69K-follower TradingView SMC vendor; paid "AI algo" MT5
+bots (~5k USDT, anchored "20k value"). Self-described BLACK BOX (no verifiable ML),
+no audited live track record, all win-rates self-reported (some via paid PR). CFTC
+flags "AI predicts price"+"guaranteed returns" as fraud markers; >95% of TV
+"predictive" indicators repaint. His FREE open-source scripts are conventional SMC
+(double-top detector, liquidity zones) -- inspectable, not magic. Verdict: no $10k
+crystal ball; only borrow specific readable mechanisms AFTER they beat our null.
+
+TRADINGVIEW INDICATOR: pinescript/kudbee_confluence.pine -- the 10-factor
+confluence score + dashboard, PVSRA vector colouring, key levels, the limit-
+retrace bracket, bias filter, and phone alerts. alert() fires a JSON webhook ->
+POST /api/alert -> auto-logs a paper trade (chart setup -> journal -> forward
+score). The engine now lives ON the trading screen.

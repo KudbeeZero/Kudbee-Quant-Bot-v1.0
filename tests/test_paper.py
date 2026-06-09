@@ -118,7 +118,7 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
             return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
     j = TradeJournal(path=tmp_path / "j.json", client=C())
     logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
-                           journal=j, client=C())
+                           stop_atr=1.0, journal=j, client=C())
     assert len(logged) == 1
     p = logged[0]
     # Pending LIMIT entry at a 0.25 ATR retrace: 100 - 0.25 = 99.75; stop 98.75;
