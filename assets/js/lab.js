@@ -14,14 +14,17 @@
     return e;
   }
   function svg(w, h) {
-    var s = el("svg", { viewBox: "0 0 " + w + " " + h, width: "100%", height: h,
-      preserveAspectRatio: "xMidYMid meet", role: "img" });
+    // Responsive: viewBox + width:100% + height:auto scales the chart
+    // PROPORTIONALLY to the container (no fixed-height letterboxing on phones).
+    var s = el("svg", { viewBox: "0 0 " + w + " " + h, width: "100%",
+      preserveAspectRatio: "xMidYMid meet", role: "img",
+      style: "width:100%;height:auto;max-width:100%;display:block" });
     return s;
   }
   function txt(x, y, s, opts) {
     opts = opts || {};
     var t = el("text", { x: x, y: y, fill: opts.fill || C.muted,
-      "font-size": opts.size || 11, "font-family": "JetBrains Mono, monospace",
+      "font-size": opts.size || 12, "font-family": "JetBrains Mono, monospace",
       "text-anchor": opts.anchor || "start" });
     t.textContent = s;
     return t;
