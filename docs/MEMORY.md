@@ -661,3 +661,47 @@ move, or the first NY thrust, pay OOS?) run through the significance-gated harne
 (§23) — NOT a hard-coded calendar rule (§16/§2 caution). Offered; do on request.
 Meanwhile it stays in the HUMAN read layer: his live calls are scored via
 source='human' (journal), which is the rigorous test of whether the READ has edge.
+
+## 25. REAL-EXECUTION confirmation of the §20/§24 SOL short + measured FEE rate (cost-model calibration) — 2026-06-09
+
+The §20/§24 SOL short was NOT paper — it was a REAL live position, and we now have
+the broker contract details (BTCC SOLUSD Perp, 9x, all Market Orders = TAKER).
+This closes the loop: the discretionary read (§20 BB-upper rejection short @66.43)
+was executed, scaled out into the 64.50 tap, then FLIPPED LONG at the lows — the
+exact "green-vector reclaim of the low" bounce play discussed live.
+
+LIVE FILLS (broker truth, not the journal estimate):
+- SHORT, position #32007241, opened 06/08 22:10:13 @ avg **66.43** (matches journal
+  84dcb6ce / §20 to the cent). Closed in two green tranches INTO the 64.50 tap:
+    · 1.98 SOL @ 64.98 — 06/09 09:32:58 — P/L +0.04419 SOL — fee 0.000891 — o/n 0
+    · 1.79 SOL @ 65.19 — 06/09 10:21:11 — P/L +0.03406 SOL — fee 0.0008055 — o/n 0
+  Gross realized ≈ **+0.0782 SOL (~$5.1 @ ~$65)**, zero overnight/funding fees.
+- LONG flip, position #32015403 (catching the bounce off Psy-Lo 64.50):
+    · 1.15 SOL @ 65.19 — 06/09 10:19:43 — fee 0.0005175
+    · 1.01 SOL @ 64.70 — 06/09 10:34:16 — fee 0.0004545
+    · 1.03 SOL @ 64.72 — 06/09 10:36:07 — fee 0.0004635
+  (Scaled out of short and into long around the SAME 64.7–65.2 zone — textbook
+  "test the low, reclaim, ride back up". Longs left OPEN at log; not yet a tracked
+  bracket because no stop/target was set — offer stands to log a resolvable one.)
+
+MEASURED FEE RATE (the calibration that matters):
+- **Taker = 0.045% per side (4.5 bps).** Verified on ALL 5 fills: fee(SOL) =
+  amount(SOL) × 0.00045 exactly (e.g. 1.98 × 0.00045 = 0.000891 ✓). Margin(SOL) =
+  amount / 9 (9x), also exact — so these screens are internally consistent.
+- **Round-trip taker ≈ 0.09%.**
+- Code currently assumes `FEE_PCT = 0.0004` (config/validated_defaults.py) =
+  0.04% round-trip MAKER. Real TAKER is **2.25× that**. The strategy's edge depends
+  on MAKER (limit-retrace) fills; any time a leg fills via market/stop (taker), use
+  0.09% round-trip, not 0.04%. This especially threatens the cost-sensitive 5m/15m
+  forward scalps — a market-order stop-out costs more than the model books.
+- OPEN ITEM: we do NOT yet have the exchange's MAKER rate (all 5 fills were Market
+  Orders). Need ONE limit-order fill screenshot to confirm whether FEE_PCT=0.0004
+  is right for the maker leg, or whether it should move. Until then 0.0004 is an
+  ASSUMPTION, 0.00045/side taker is a MEASURED FACT.
+
+FEE BUDGET (his question — keeping costs low / vouchers):
+- These 5 transactions cost **0.003132 SOL total ≈ $0.20** @ ~$65. A **$20 voucher
+  ≈ 100× that batch ≈ hundreds of fills of runway** at this size. Fees are NOT the
+  bottleneck at current size; SLIPPAGE + taker-vs-maker discipline is. The cheapest
+  fee saving is structural: prefer LIMIT (maker) entries — already what the
+  validated strategy (§1) does — and avoid market-order exits where possible.

@@ -15,7 +15,10 @@ STOP_ATR = 1.5            # stop distance = STOP_ATR * ATR (= 1R)
 RETRACE_ATR = 0.25        # limit entry on a 0.25-ATR maker retrace
 MAX_BARS = 24             # time-stop horizon (bars)
 ENTRY_WINDOW = 6          # bars allowed for the limit retrace to fill
-FEE_PCT = 0.0004          # realistic round-trip maker cost (fraction of price)
+FEE_PCT = 0.0004          # round-trip MAKER cost assumption (fraction of price).
+                          # MEASURED on live BTCC fills (MEMORY §25): TAKER = 0.00045
+                          # per side (0.0009 round-trip = 2.25x this). Maker rate not
+                          # yet confirmed from a limit fill; use 0.0009 for taker legs.
 INTERVAL = "1h"           # core timeframe
 TREND_FILTER = True       # HTF 800-EMA trend alignment (tested edge booster, §16)
 
