@@ -759,3 +759,37 @@ STILL OPEN (honest): journal R is GROSS of fees, so the 0-fee edge shows up as
 follow-up (subtract per-venue fee in scorecard). And TradFi session/RTH handling in
 build_levels is unverified (NY-range logic assumes 24/7) — watch the `_tradfi` record
 for level-quality artifacts before trusting it.
+
+## 27. Session Relay Protocol — one chat = one audited PR, with a handoff baton — 2026-06-09
+
+Adopted a development PROCESS spine to match the memory spine. The container is
+ephemeral, so we now treat each chat as ONE reviewed unit of work and make the
+handoff an audited artifact, not trust. Full spec: `docs/SESSION_PROTOCOL.md`.
+
+THE LOOP (human-triggered, auditor-GATED merge):
+- New chat: SessionStart hook surfaces the baton (`docs/HANDOFF.md`) → `/handoff-audit`
+  spawns an INDEPENDENT auditor subagent that reviews the PREVIOUS chat's PR diff
+  vs. its claims (over-claiming, scope creep, untested assertions, security), runs
+  tests, writes `docs/audits/<branch>.md`, and emits PASS/CONCERNS/FAIL.
+- Merge of chat N's PR is GATED on chat N+1's audit (PASS → merge → sync main →
+  start next branch). Nothing lands on `main` unreviewed.
+- Chat end: `/closeout` asks the handoff questions, updates memory, opens exactly
+  ONE PR, and writes the baton for the next chat (next branch + scope + risks).
+
+WHY (the thesis applied to process): the significance gate + multiple-testing
+ledger exist so we never mistake luck for edge. This is the SAME instinct applied
+to CODE — an independent auditor on every handoff is the significance gate for the
+dev process. CI (`ci.yml` tests) is the floor; the audit is the ceiling.
+
+DECISIONS (his calls): auditor-GATED merge; auditor = in-SESSION subagent (no
+API-key secret needed — recommended for the human-triggered, non-autonomous flow);
+codified protocol he triggers (skills + hook), not a fully autonomous worker. A
+CI-based audit Action (needs ANTHROPIC_API_KEY) was deliberately deferred — only
+worth it if we later go autonomous.
+
+INVARIANTS: one open PR at a time (don't start the next branch until the prior PR
+merges + main syncs — prevents conflicting branch stacks); the baton is the single
+source of truth for "what's next"; memory is read first, every session.
+
+BOOTSTRAP NOTE: work BEFORE the introducing PR (§24–§26) was merged direct to
+`main` pre-protocol; the one-PR-per-chat + audit-gate rules apply from that PR on.
