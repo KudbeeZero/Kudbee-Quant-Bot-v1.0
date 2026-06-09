@@ -2,6 +2,8 @@ __pycache__/
 *.pyc
 .cache/
 *.parquet
+# Overnight research runtime cache + loop log (regenerable; not source)
+data/_overnight_cache/
 .venv/
 # Secrets — never commit. Loaded from the environment only.
 .env
