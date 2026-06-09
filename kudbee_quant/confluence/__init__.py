@@ -12,5 +12,15 @@ from .scorer import (
     confluence_reaction_study,
     range_exhaustion_study,
 )
+from .stack import (
+    confluence_directional_study,
+    confluence_position,
+    confluence_score,
+    factor_votes,
+)
 
-__all__ = ["add_confluence", "confluence_reaction_study", "range_exhaustion_study"]
+__all__ = [
+    "add_confluence", "confluence_reaction_study", "range_exhaustion_study",
+    "confluence_directional_study", "confluence_position", "confluence_score",
+    "factor_votes",
+]

@@ -262,6 +262,26 @@ def _audit(args) -> None:
               "these results would be fake. Fix before trusting any backtest.")
 
 
+def _confluence_stack(args) -> None:
+    from .confluence import confluence_directional_study
+    df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
+    feats = build_levels(df)
+    table = confluence_directional_study(feats, horizon=args.horizon, min_n=args.min_n)
+    print(f"Confluence-stack study — {args.symbol} {args.interval} "
+          f"(horizon {args.horizon} bars)")
+    print("Does win-rate (forward move in the voted direction) rise with confluence "
+          "strength?\n")
+    cols = ["strength_bucket", "n", "win_rate", "ci_low", "ci_high",
+            "mean_dir_return", "sufficient", "significant_fdr"]
+    cols = [c for c in cols if c in table.columns]
+    print(table[cols].to_string(index=False, formatters={
+        "win_rate": "{:.1%}".format, "ci_low": "{:.0%}".format,
+        "ci_high": "{:.0%}".format, "mean_dir_return": "{:+.3%}".format}))
+    print("\nHonest read: confluence works ONLY if win_rate climbs monotonically with "
+          "strength\nAND the high-strength buckets are 'sufficient' and 'significant_fdr'. "
+          "A flat\ncolumn at ~50% = confluence stacking adds nothing. Not financial advice.")
+
+
 def _sweep(args) -> None:
     table = run_sweep(args.symbols, interval=args.interval, limit=args.limit, hold_n=args.hold)
     print(f"Scenario sweep — {len(SCENARIOS)} scenarios x {len(args.symbols)} assets "
@@ -410,6 +430,14 @@ def main() -> None:
     lv.add_argument("--limit", type=int, default=2000)
     lv.add_argument("--rows", type=int, default=15)
     lv.set_defaults(func=_levels)
+
+    cs = sub.add_parser("confluence-stack", help="test whether stacked confluence wins (OOS)")
+    cs.add_argument("symbol")
+    cs.add_argument("--interval", default="1h")
+    cs.add_argument("--limit", type=int, default=4000)
+    cs.add_argument("--horizon", type=int, default=8)
+    cs.add_argument("--min-n", type=int, default=50)
+    cs.set_defaults(func=_confluence_stack)
 
     au = sub.add_parser("audit", help="lookahead self-audit of every scenario")
     au.add_argument("symbol")

@@ -83,10 +83,20 @@ def judas_thirds(df, frac=0.33):
     return s
 
 
+def confluence_stack(df, min_strength=4.0):
+    """Trade the stacked-confluence direction when enough factors align.
+
+    The faithful test of the Hybrid System's Tier thesis as a tradeable signal.
+    """
+    from ..confluence.stack import confluence_position
+    return confluence_position(df, min_strength=min_strength)
+
+
 ICT_SCENARIOS = {
     "vwap_reversion": vwap_reversion,
     "turtle_soup": turtle_soup,
     "fvg_fill": fvg_fill,
     "silver_bullet": silver_bullet,
     "judas_thirds": judas_thirds,
+    "confluence_stack": confluence_stack,
 }

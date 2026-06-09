@@ -321,3 +321,34 @@ low-confluence bars, out-of-sample?* That is the next, and most faithful, test
 — and it is the methodology's real hypothesis, still unfalsified either way.
 (Note: full Tier-1 also needs funding/OI/liquidation/CVD data not yet wired,
 and HTF/4h-weekly timeframes where the trader actually applies these.)
+
+### Confluence-stack test — the central thesis, falsified (price-only)
+
+We built it (`confluence/stack.py`): each bar gets a directional vote from
+every causal ICT/Hybrid factor (EMA stack/fast/cloud, VWAP, daily-open, pivot,
+premium/discount, sweep, vector, FVG), summed into a confluence score; then we
+measure whether forward return IN the voted direction wins more as the score
+rises. Result (BTC 1h, BTC 4h, ETH 4h — consistent):
+
+- Win-rate stays at coin-flip (~44-53%) across strength levels — **no
+  monotonic climb.**
+- The FDR-significant buckets are *losers* (BTC-1h strength-3 = 44.2%; ETH-4h
+  strength-4 = 44.5%).
+- High-strength buckets tend to *underperform* (BTC-4h strength-8 = 37.5% with
+  -0.89% mean return; ETH-4h strength-7 = 38.5%) — consistent with "obvious,
+  crowded setups are already priced in."
+
+**Conclusion: stacked confluence, as a price-only mechanical signal, does not
+produce the predicted edge — it is flat-to-slightly-contrarian.** Combined with
+every prior null, the honest scoreboard is: nothing price-based beats the null
+except trend-following beta.
+
+### The one genuinely-different untested frontier
+
+Everything tested so far is PRICE-derived. The Vol-3 Tier-1 factors we have NOT
+wired are a different kind of data entirely: **funding rates, open interest,
+liquidation heatmaps, CVD, order-book imbalance** — derivatives/order-flow
+microstructure. Liquidation cascades and funding extremes are real, documented,
+exploitable phenomena that price-only TA cannot see. That data layer — not more
+price patterns — is the honest next hypothesis worth building. It may also be
+null; but it is genuinely new information, not a recycled price signal.
