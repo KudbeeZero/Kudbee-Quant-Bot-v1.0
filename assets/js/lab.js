@@ -155,6 +155,61 @@
   function fill(id, fn) { var h = document.getElementById(id); if (h) try { fn(h); } catch (e) { h.textContent = "chart error"; } }
   function setText(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
 
+  /* ---- Position-size / risk calculator (pure client-side; always works) ---- */
+  function calcBox(label, value, cls) {
+    return '<div class="co ' + (cls || "") + '"><div class="co__v">' + value +
+      '</div><div class="co__l">' + label + '</div></div>';
+  }
+  function runCalc() {
+    var out = document.getElementById("calc-out");
+    if (!out) return;
+    var acct = parseFloat((document.getElementById("c-acct") || {}).value) || 0;
+    var risk = parseFloat((document.getElementById("c-risk") || {}).value) || 0;
+    var stop = parseFloat((document.getElementById("c-stop") || {}).value) || 0;
+    if (acct <= 0 || risk <= 0 || stop <= 0) { out.innerHTML = "<p class='co__l'>Enter positive numbers.</p>"; return; }
+    var dollarRisk = acct * (risk / 100);
+    var notional = dollarRisk / (stop / 100);
+    var lev = notional / acct;
+    var levCls = lev <= 1.01 ? "co--good" : (lev <= 1.5 ? "co--warn" : "co--bad");
+    var riskCls = risk <= 1.01 ? "co--good" : (risk <= 2.01 ? "co--warn" : "co--bad");
+    var levTxt = lev <= 1.01 ? " (no leverage)" : "";
+    out.innerHTML =
+      calcBox("dollars at risk if stopped", "$" + dollarRisk.toLocaleString(undefined, { maximumFractionDigits: 2 }), riskCls) +
+      calcBox("position size (notional)", "$" + notional.toLocaleString(undefined, { maximumFractionDigits: 0 }), "") +
+      calcBox("leverage needed" + levTxt, lev.toFixed(2) + "×", levCls) +
+      calcBox("a 3R winner makes", "$" + (dollarRisk * 3).toLocaleString(undefined, { maximumFractionDigits: 2 }), "co--good");
+  }
+
+  /* ---- Live book exposure (same-origin API; graceful fallback) ---- */
+  function loadExposure() {
+    var status = document.getElementById("exp-status");
+    var host = document.getElementById("exp-table");
+    if (!host) return;
+    var API = (window.KUDBEE_API_BASE || "") + "/api";
+    fetch(API + "/journal").then(function (r) {
+      if (!r.ok) throw new Error(r.status); return r.json();
+    }).then(function (j) {
+      var ex = j.exposure || [];
+      if (!ex.length) { status.textContent = "No open risk right now — flat book."; host.innerHTML = ""; return; }
+      var cap = 2; // % gross cap per coin (matches the engine default)
+      var rows = ex.map(function (e) {
+        var pctW = Math.min(100, (e.gross_risk_pct / (cap * 1.5)) * 100);
+        var col = e.gross_risk_pct > cap ? C.red : (e.gross_risk_pct >= cap ? C.honey : C.mint);
+        var dir = e.net_direction > 0 ? "net long" : (e.net_direction < 0 ? "net short" : "flat");
+        return '<div class="exp-row"><span class="exp-sym">' + e.symbol + '</span>' +
+          '<span class="exp-bar"><i style="width:' + pctW.toFixed(0) + '%;background:' + col + '"></i></span>' +
+          '<span class="exp-amt">' + e.gross_risk_pct.toFixed(0) + '% <span style="color:#6A7488">' + dir + '</span></span></div>';
+      }).join("");
+      host.innerHTML = rows;
+      status.textContent = "Live · " + (j.total_gross_risk_pct || 0) + "% whole-book gross risk · cap " +
+        cap + "%/coin · updated " + new Date().toLocaleTimeString();
+    }).catch(function (e) {
+      status.textContent = "Engine offline — exposure shows when the API is running " +
+        "(uvicorn kudbee_quant.api:app). Your two-sided risk guard still runs in the bot.";
+      host.innerHTML = "";
+    });
+  }
+
   document.addEventListener("DOMContentLoaded", function () {
     fill("chart-equity", equityChart);
     fill("chart-survival", survivalChart);
@@ -168,5 +223,13 @@
     setText("stat-pattern-pos", D.pattern.pos + "%");
     setText("stat-assets", D.assets.crypto + " crypto + " + D.assets.stocks + " stocks");
     setText("gen-date", D.generated);
+    // Interactive position-size calculator.
+    ["c-acct", "c-risk", "c-stop"].forEach(function (id) {
+      var e = document.getElementById(id);
+      if (e) e.addEventListener("input", runCalc);
+    });
+    runCalc();
+    // Live book exposure (graceful fallback if the engine API is offline).
+    loadExposure();
   });
 })();

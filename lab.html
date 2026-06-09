@@ -31,6 +31,21 @@
     .panel .takeaway { margin-top:1rem; font-size:.88rem; color:#c4d0e6; border-left:3px solid #F5A623;
       padding:.5rem .9rem; background:rgba(245,166,35,.05); border-radius:0 8px 8px 0; }
     .chart-wrap { width:100%; overflow-x:auto; }
+    .calc { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin:.5rem 0 1rem; }
+    .calc label { display:flex; flex-direction:column; gap:.35rem; font-size:.8rem; color:#9AA6BC; }
+    .calc input { background:#0a0e17; border:1px solid rgba(255,255,255,.14); border-radius:10px;
+      padding:.6rem .7rem; color:#EAF0FA; font-family:'JetBrains Mono',monospace; font-size:1rem; }
+    .calc input:focus { outline:none; border-color:#F5A623; }
+    .calc-out { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.9rem; }
+    .calc-out .co { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:.85rem 1rem; }
+    .calc-out .co__v { font-family:'Space Grotesk',sans-serif; font-size:1.35rem; font-weight:700; }
+    .calc-out .co__l { font-size:.74rem; color:#9AA6BC; margin-top:.15rem; }
+    .co--good .co__v { color:#2DD4BF; } .co--warn .co__v { color:#FFD45E; } .co--bad .co__v { color:#F45B69; }
+    .exp-row { display:grid; grid-template-columns:90px 1fr 64px; align-items:center; gap:.8rem; padding:.4rem 0; font-size:.88rem; }
+    .exp-row .exp-sym { font-family:'JetBrains Mono',monospace; color:#EAF0FA; }
+    .exp-bar { height:14px; background:rgba(255,255,255,.06); border-radius:7px; overflow:hidden; position:relative; }
+    .exp-bar > i { display:block; height:100%; border-radius:7px; }
+    .exp-amt { font-family:'JetBrains Mono',monospace; text-align:right; color:#c4d0e6; }
     .lab__disc { margin-top:2rem; font-size:.82rem; color:#7a88aa; border-left:3px solid #F45B69; padding-left:.9rem; line-height:1.6; }
     .lab__foot { margin-top:1.5rem; font-size:.75rem; color:#6A7488; font-family:'JetBrains Mono',monospace; }
   </style>
@@ -120,6 +135,38 @@
       </div>
       <div class="takeaway">Confirms the project's core lesson: trade the
         <strong>break</strong>, not the touch. The confirmation <em>is</em> the edge.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Position‑size calculator — find your "right amount"</h2>
+      <p class="sub">This is the lesson from the $100 test, made usable. Put in your
+        account size, the risk you'll take per trade, and your stop distance — it
+        tells you the exact position, the real dollars at risk, and whether you'd
+        need leverage. Remember: to survive, risk stays small and leverage stays at
+        or below&nbsp;1×.</p>
+      <div class="calc">
+        <label>Account ($)<input id="c-acct" type="number" value="1000" min="1" step="50" /></label>
+        <label>Risk per trade (%)<input id="c-risk" type="number" value="1" min="0.1" max="10" step="0.1" /></label>
+        <label>Stop distance (% of price)<input id="c-stop" type="number" value="1.5" min="0.1" max="20" step="0.1" /></label>
+      </div>
+      <div id="calc-out" class="calc-out"></div>
+      <div class="takeaway">Rule of thumb from the data: <strong>1% risk</strong>, and if
+        the calculator shows leverage above ~1.5× you're either risking too much or
+        your stop is too tight — back off, don't borrow.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Live book exposure — your two‑sided risk guard</h2>
+      <p class="sub">You can hold a 1h long and a 5m short on the same coin at once —
+        but two trades mean two risks. This reads your live journal and shows the
+        <strong>combined</strong> long+short risk per coin, so running both sides
+        can't quietly over‑expose you. Gross = worst case if everything loses; net =
+        your true directional bet.</p>
+      <p id="exp-status" class="sub" style="font-family:'JetBrains Mono',monospace;font-size:.8rem;">Loading live exposure…</p>
+      <div id="exp-table"></div>
+      <div class="takeaway">The engine <strong>blocks</strong> a new trade if it would
+        push a coin's gross risk past your cap (default 2%). This panel is the
+        eyeball version of that seatbelt.</div>
     </section>
 
     <p class="lab__disc">
