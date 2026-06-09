@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Quant Trading Glossary — Plain-English Definitions | Kudbee Quant</title>
+  <meta name="description" content="A plain-English glossary of quantitative and algorithmic trading terms: trade signals, backtesting, Sharpe ratio, drawdown, slippage, walk-forward testing, and more — defined by Kudbee Quant." />
+  <meta name="keywords" content="quant trading glossary, trading terms, backtesting definition, Sharpe ratio, drawdown, slippage, walk-forward, Monte Carlo, trade signals, algorithmic trading dictionary" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/glossary.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Quant Trading Glossary — Plain-English Definitions" />
+  <meta property="og:description" content="Every quant and algorithmic trading term you'll meet, defined in plain English by Kudbee Quant." />
+  <meta property="og:url" content="https://kudbeequant.com/glossary.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Quant Glossary", "item": "https://kudbeequant.com/glossary.html" }
+        ]
+      },
+      {
+        "@type": "DefinedTermSet",
+        "@id": "https://kudbeequant.com/glossary.html#set",
+        "name": "Kudbee Quant Trading Glossary",
+        "description": "Plain-English definitions of quantitative and algorithmic trading terms.",
+        "hasDefinedTerm": [
+          { "@type": "DefinedTerm", "name": "Quantitative trading", "description": "An approach to trading that uses mathematical models, data, and rules — rather than intuition alone — to identify and act on market opportunities." },
+          { "@type": "DefinedTerm", "name": "Trade signal", "description": "A data-driven indication to buy, sell, hold, or exit a position, often accompanied by a confidence score and reasoning." },
+          { "@type": "DefinedTerm", "name": "Backtesting", "description": "Testing a trading strategy against historical market data to estimate how it would have performed before risking real capital." },
+          { "@type": "DefinedTerm", "name": "Sharpe ratio", "description": "A measure of risk-adjusted return: how much excess return a strategy earns per unit of volatility. Higher is generally better." },
+          { "@type": "DefinedTerm", "name": "Maximum drawdown", "description": "The largest peak-to-trough decline in an account or strategy's equity, expressed as a percentage. A key measure of downside risk." },
+          { "@type": "DefinedTerm", "name": "Win rate", "description": "The percentage of trades that close profitably. High win rate does not guarantee profitability without considering position sizing and risk." },
+          { "@type": "DefinedTerm", "name": "Slippage", "description": "The difference between the expected price of a trade and the price at which it actually executes, usually due to market movement or low liquidity." },
+          { "@type": "DefinedTerm", "name": "Walk-forward analysis", "description": "A validation method that repeatedly optimizes a strategy on one period and tests it on the next, unseen period to reduce overfitting." },
+          { "@type": "DefinedTerm", "name": "Monte Carlo simulation", "description": "A technique that runs many randomized scenarios to estimate the range of possible outcomes and the robustness of a strategy." },
+          { "@type": "DefinedTerm", "name": "Overfitting", "description": "When a strategy is tuned so closely to past data that it captures noise instead of a real edge, and fails on new data." },
+          { "@type": "DefinedTerm", "name": "Market regime", "description": "A persistent market environment — such as trending, ranging, or high-volatility — that affects which strategies tend to work." },
+          { "@type": "DefinedTerm", "name": "Momentum", "description": "The tendency of assets that have been rising (or falling) to continue in the same direction over a period of time." },
+          { "@type": "DefinedTerm", "name": "Mean reversion", "description": "The tendency of prices to return toward an average level after moving to an extreme, forming the basis of many counter-trend strategies." },
+          { "@type": "DefinedTerm", "name": "Confidence score", "description": "A numeric estimate, often 0–100%, of how strongly the available data supports a given trade signal." },
+          { "@type": "DefinedTerm", "name": "Position sizing", "description": "Deciding how much capital to allocate to a trade, typically based on risk, volatility, and account size." },
+          { "@type": "DefinedTerm", "name": "Out-of-sample testing", "description": "Evaluating a strategy on data it was not optimized on, to get an honest estimate of real-world performance." }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#backtest">Backtesting</a>
+        <a href="glossary.html" aria-current="page">Glossary</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== HEADER ===== -->
+    <section class="section glossary-hero">
+      <div class="container container--narrow">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Glossary</span>
+        </nav>
+        <span class="eyebrow">Learn</span>
+        <h1>Quant trading glossary</h1>
+        <p class="glossary-hero__sub">Every term on this site, defined in plain English. No jargon, no gatekeeping — just the vocabulary of trading like a scientist.</p>
+        <div class="glossary-search">
+          <input type="search" id="glossarySearch" placeholder="Search terms…" aria-label="Search glossary terms" autocomplete="off" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== TERMS ===== -->
+    <section class="section glossary-section">
+      <div class="container container--narrow">
+        <dl class="glossary" id="glossaryList">
+          <div class="term"><dt>Quantitative trading</dt><dd>An approach to trading that uses mathematical models, data, and rules — rather than intuition alone — to identify and act on market opportunities.</dd></div>
+          <div class="term"><dt>Trade signal</dt><dd>A data-driven indication to buy, sell, hold, or exit a position, often accompanied by a confidence score and the reasoning behind it.</dd></div>
+          <div class="term"><dt>Backtesting</dt><dd>Testing a trading strategy against historical market data to estimate how it would have performed — before risking any real capital.</dd></div>
+          <div class="term"><dt>Sharpe ratio</dt><dd>A measure of risk-adjusted return: how much excess return a strategy earns per unit of volatility. Higher generally means a better reward-for-risk profile.</dd></div>
+          <div class="term"><dt>Maximum drawdown</dt><dd>The largest peak-to-trough decline in equity, expressed as a percentage. One of the clearest measures of how much pain a strategy can put you through.</dd></div>
+          <div class="term"><dt>Win rate</dt><dd>The percentage of trades that close profitably. Note: a high win rate alone doesn't guarantee profit without sensible position sizing and risk control.</dd></div>
+          <div class="term"><dt>Slippage</dt><dd>The gap between the price you expected and the price you actually got, usually caused by fast-moving markets or thin liquidity.</dd></div>
+          <div class="term"><dt>Walk-forward analysis</dt><dd>A validation method that repeatedly optimizes a strategy on one window of data and tests it on the next, unseen window — a strong defense against overfitting.</dd></div>
+          <div class="term"><dt>Monte Carlo simulation</dt><dd>Running many randomized scenarios to estimate the range of outcomes a strategy might produce, and how robust its edge really is.</dd></div>
+          <div class="term"><dt>Overfitting</dt><dd>When a strategy is tuned so tightly to past data that it learns noise instead of a real edge — and then falls apart on new data.</dd></div>
+          <div class="term"><dt>Market regime</dt><dd>A persistent market environment — such as trending, ranging, or high-volatility — that determines which kinds of strategies tend to thrive.</dd></div>
+          <div class="term"><dt>Momentum</dt><dd>The tendency of assets that have been rising (or falling) to keep moving in the same direction for a while. The basis of trend-following strategies.</dd></div>
+          <div class="term"><dt>Mean reversion</dt><dd>The tendency of prices to snap back toward an average after stretching to an extreme — the basis of many counter-trend strategies.</dd></div>
+          <div class="term"><dt>Confidence score</dt><dd>A numeric estimate (often 0–100%) of how strongly the available data supports a given trade signal. Useful for sizing positions.</dd></div>
+          <div class="term"><dt>Position sizing</dt><dd>Deciding how much capital to put behind a trade, typically based on your risk tolerance, the asset's volatility, and your account size.</dd></div>
+          <div class="term"><dt>Out-of-sample testing</dt><dd>Evaluating a strategy on data it was never optimized on, to get an honest preview of how it might perform in the real world.</dd></div>
+        </dl>
+        <p class="glossary-empty" id="glossaryEmpty" hidden>No terms match your search.</p>
+
+        <div class="glossary-cta glass">
+          <h2>Ready to put these into practice?</h2>
+          <p>Join the Kudbee Quant waitlist and turn the theory into a tested, signal-generating strategy.</p>
+          <a href="index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="index.html" style="color:var(--honey-lt)">Home</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+# Kudbee Quant
+
+> Kudbee Quant is a quantitative trading research platform that combines real-time,
+> confidence-scored trade signals, institutional-grade market analytics, and a no-code
+> engine to build, backtest, and optimize trading strategies across crypto, equities,
+> and forex. It is a research and analytics tool — it does not place trades or provide
+> financial advice; the trader always stays in control of execution.
+
+## Key facts
+
+- Name: Kudbee Quant
+- Category: Quantitative trading signals, analytics, and backtesting platform
+- Audience: Active, systematic, discretionary, and learning traders
+- Coding required: None — the strategy builder is fully visual / no-code
+- Markets: Cryptocurrencies, equities, and forex (rolling out)
+- Status: Private beta with an open early-access waitlist (free to join)
+- Not financial advice; trading involves substantial risk of loss
+
+## What it does
+
+- Real-time signals: confidence-scored long / short / exit calls with plain-English reasoning
+- Analytics: Sharpe ratio, maximum drawdown, win rate, exposure, and market-regime detection
+- No-code strategy builder: compose strategies from indicators, filters, and risk rules
+- Backtesting: tick-accurate historical replay modeling fees, slippage, and funding, with
+  walk-forward, out-of-sample, and Monte Carlo validation
+
+## How it works (four steps)
+
+1. Connect your markets (crypto, equities, or forex)
+2. Build a strategy from a template or from scratch in the visual builder
+3. Backtest and optimize against historical data
+4. Receive real-time, confidence-scored signals from your validated strategy
+
+## Pages
+
+- Home: https://kudbeequant.com/
+- Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html
+- Early-access waitlist: https://kudbeequant.com/#waitlist
+- FAQ: https://kudbeequant.com/#faq
+
+## Contact
+
+- Email: hello@kudbeequant.com

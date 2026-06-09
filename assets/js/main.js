@@ -173,6 +173,28 @@
     }, 3200);
   })();
 
+  /* ---- Glossary live filter ---- */
+  var gSearch = document.getElementById('glossarySearch');
+  if (gSearch) {
+    var terms = Array.prototype.slice.call(document.querySelectorAll('#glossaryList .term'));
+    var empty = document.getElementById('glossaryEmpty');
+    // Deep-link: ?q=term focuses the filter
+    var q = new URLSearchParams(window.location.search).get('q');
+    if (q) gSearch.value = q;
+    function filter() {
+      var v = gSearch.value.trim().toLowerCase();
+      var shown = 0;
+      terms.forEach(function (t) {
+        var match = t.textContent.toLowerCase().indexOf(v) !== -1;
+        t.hidden = !match;
+        if (match) shown++;
+      });
+      if (empty) empty.hidden = shown !== 0;
+    }
+    gSearch.addEventListener('input', filter);
+    if (q) filter();
+  }
+
   /* ---- Waitlist form (front-end only, stores locally) ---- */
   var form = document.getElementById('waitlistForm');
   if (form) {

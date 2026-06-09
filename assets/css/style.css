@@ -208,6 +208,40 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .section__head h2 { font-size: clamp(1.9rem, 3.4vw, 2.7rem); margin-bottom: 16px; }
 .section__head p { color: var(--muted); font-size: 1.08rem; }
 
+/* ===== What is / definitional ===== */
+.define__lead { font-size: clamp(1.2rem, 2.2vw, 1.5rem); line-height: 1.5; text-align: center; max-width: 780px; margin: 0 auto 22px; color: var(--text); }
+.define__lead strong { color: var(--honey-lt); font-weight: 600; }
+.define__body { color: var(--muted); font-size: 1.06rem; max-width: 720px; margin: 0 auto 36px; text-align: center; }
+.define__body em { color: var(--text); font-style: italic; }
+.define__facts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.define__facts > div { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; text-align: center; }
+.define__facts .k { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--honey); margin-bottom: 6px; }
+.define__facts b { font-size: .98rem; font-weight: 600; }
+
+/* ===== Personas ===== */
+.grid--personas { grid-template-columns: repeat(4, 1fr); }
+.persona { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 26px 22px; transition: transform .35s var(--ease), border-color .35s, background .35s; }
+.persona:hover { transform: translateY(-6px); border-color: var(--border-2); background: var(--surface-2); }
+.persona__icon { font-size: 30px; margin-bottom: 14px; }
+.persona h3 { font-size: 1.12rem; margin-bottom: 8px; }
+.persona p { color: var(--muted); font-size: .94rem; }
+
+/* ===== Comparison table ===== */
+.compare { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+.compare table { width: 100%; border-collapse: collapse; }
+.compare th, .compare td { text-align: left; padding: 16px 20px; font-size: .96rem; border-bottom: 1px solid var(--border); }
+.compare thead th { font-family: var(--font-head); font-size: .82rem; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: rgba(255,255,255,.02); }
+.compare tbody th { font-weight: 600; color: var(--text); }
+.compare td { color: var(--muted); }
+.compare .compare__us { color: var(--honey-lt); }
+.compare tbody td:last-child { color: var(--text); font-weight: 500; }
+.compare tbody tr:last-child th, .compare tbody tr:last-child td { border-bottom: 0; }
+.compare tbody td:last-child { background: linear-gradient(90deg, transparent, rgba(245,166,35,.05)); }
+.compare tbody td:last-child::before { content: "✓ "; color: var(--mint); font-weight: 700; }
+
+.faq__more { text-align: center; color: var(--muted); margin-top: 24px; font-size: .98rem; }
+.faq__more a { color: var(--honey-lt); font-weight: 600; border-bottom: 1px solid rgba(245,166,35,.4); }
+
 /* ===== Feature grid ===== */
 .grid { display: grid; gap: 22px; }
 .grid--features { grid-template-columns: repeat(4, 1fr); }
@@ -320,6 +354,32 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .faq__item[open] summary::after { transform: rotate(45deg); }
 .faq__item p { color: var(--muted); padding-bottom: 18px; font-size: .98rem; }
 
+/* ===== Glossary page ===== */
+.glossary-hero { padding-top: 140px; padding-bottom: 24px; text-align: center; }
+.crumbs { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+.crumbs a { color: var(--honey-lt); }
+.glossary-hero h1 { font-size: clamp(2.2rem, 5vw, 3.4rem); margin-bottom: 16px; }
+.glossary-hero__sub { color: var(--muted); font-size: 1.1rem; max-width: 560px; margin: 0 auto 28px; }
+.glossary-search { max-width: 440px; margin: 0 auto; }
+.glossary-search input {
+  width: 100%; background: rgba(0,0,0,.35); border: 1px solid var(--border-2); border-radius: 999px;
+  padding: 14px 22px; color: var(--text); font-family: var(--font-body); font-size: 15px; transition: border-color .25s, box-shadow .25s;
+}
+.glossary-search input::placeholder { color: var(--muted-2); }
+.glossary-search input:focus { outline: none; border-color: var(--honey); box-shadow: 0 0 0 4px rgba(245,166,35,.15); }
+
+.glossary-section { padding-top: 32px; }
+.glossary { display: grid; gap: 14px; }
+.term { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 22px 24px; transition: border-color .3s, transform .3s; }
+.term:hover { border-color: var(--border-2); transform: translateX(4px); }
+.term dt { font-family: var(--font-head); font-weight: 600; font-size: 1.15rem; color: var(--honey-lt); margin-bottom: 7px; }
+.term dd { color: var(--muted); font-size: .98rem; line-height: 1.6; }
+.glossary-empty { text-align: center; color: var(--muted); padding: 28px; }
+
+.glossary-cta { text-align: center; padding: 44px 32px; margin-top: 44px; border-radius: var(--radius-lg); }
+.glossary-cta h2 { font-size: clamp(1.5rem, 3vw, 2rem); margin-bottom: 10px; }
+.glossary-cta p { color: var(--muted); margin-bottom: 22px; }
+
 /* ===== Footer ===== */
 .footer { border-top: 1px solid var(--border); background: var(--bg-2); padding: 64px 0 32px; }
 .footer__inner { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; padding-bottom: 44px; border-bottom: 1px solid var(--border); }
@@ -339,7 +399,8 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 @media (max-width: 980px) {
   .hero__inner { grid-template-columns: 1fr; gap: 48px; }
   .hero__visual { max-width: 480px; }
-  .grid--features, .steps { grid-template-columns: repeat(2, 1fr); }
+  .grid--features, .steps, .grid--personas { grid-template-columns: repeat(2, 1fr); }
+  .define__facts { grid-template-columns: repeat(2, 1fr); }
   .grid--quotes { grid-template-columns: 1fr; max-width: 560px; margin-inline: auto; }
   .split { grid-template-columns: 1fr; gap: 36px; }
   .split--rev .split__visual { order: 0; }
@@ -357,7 +418,9 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .nav.open .nav__cta { display: inline-flex; position: absolute; top: 200px; left: 24px; right: 24px; }
   .hero { padding-top: 120px; }
   .hero__trust { gap: 24px; }
-  .grid--features, .steps, .band__inner { grid-template-columns: 1fr; }
+  .grid--features, .steps, .band__inner, .grid--personas, .define__facts { grid-template-columns: 1fr; }
+  .compare { overflow-x: auto; }
+  .compare table { min-width: 520px; }
   .footer__inner { grid-template-columns: 1fr; }
   .waitlist__row { flex-direction: column; }
   .chip--a { right: 0; top: -20px; } .chip--b { left: 0; }

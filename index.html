@@ -5,12 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#0a0e17" />
 
+  <!-- Security (header-based equivalents also set in _headers / netlify.toml) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
   <!-- Primary SEO -->
   <title>Kudbee Quant — AI Trade Signals, Analytics & Strategy Backtesting</title>
   <meta name="description" content="Kudbee Quant turns market noise into clear, data-driven trade signals. Build, backtest, and optimize quant strategies with institutional-grade analytics — no code required. Join the waitlist." />
   <meta name="keywords" content="quant trading, trade signals, algorithmic trading, backtesting software, trading analytics, strategy builder, crypto signals, quantitative analysis, trading bot, Kudbee Quant" />
   <meta name="author" content="Kudbee Quant" />
-  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <!-- AI / answer-engine crawlers welcome -->
+  <meta name="GPTBot" content="index, follow" />
+  <meta name="generative-ai" content="allow" />
   <link rel="canonical" href="https://kudbeequant.com/" />
 
   <!-- Open Graph -->
@@ -40,29 +48,91 @@
 
   <link rel="stylesheet" href="assets/css/style.css" />
 
-  <!-- Structured Data -->
+  <!-- Structured Data (single @graph for AI & search engines) -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "SoftwareApplication",
-    "name": "Kudbee Quant",
-    "applicationCategory": "FinanceApplication",
-    "operatingSystem": "Web",
-    "description": "AI-powered quant platform for trade signals, market analytics, and strategy backtesting.",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Early access waitlist" },
-    "url": "https://kudbeequant.com/",
-    "image": "https://kudbeequant.com/assets/img/og-cover.svg",
-    "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "128" }
-  }
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "Does Kudbee Quant place trades for me?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and lets you build and validate strategies — you stay in control of execution." } },
-      { "@type": "Question", "name": "Do I need to know how to code?", "acceptedAnswer": { "@type": "Answer", "text": "No. The strategy builder is fully visual. Power users can drop into advanced mode, but you can build and backtest a complete strategy without writing a line of code." } },
-      { "@type": "Question", "name": "What markets are supported?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is built to be market-agnostic, with coverage spanning crypto, equities, and forex as we roll out access." } }
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://kudbeequant.com/#org",
+        "name": "Kudbee Quant",
+        "url": "https://kudbeequant.com/",
+        "logo": "https://kudbeequant.com/assets/img/favicon.svg",
+        "description": "Kudbee Quant is a quantitative trading research platform offering real-time trade signals, institutional-grade analytics, and no-code strategy backtesting.",
+        "email": "hello@kudbeequant.com",
+        "foundingDate": "2026",
+        "slogan": "Turn market noise into precision signals.",
+        "knowsAbout": ["quantitative trading", "algorithmic trading", "trade signals", "backtesting", "technical analysis", "risk management"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://kudbeequant.com/#website",
+        "url": "https://kudbeequant.com/",
+        "name": "Kudbee Quant",
+        "publisher": { "@id": "https://kudbeequant.com/#org" },
+        "inLanguage": "en",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": { "@type": "EntryPoint", "urlTemplate": "https://kudbeequant.com/glossary.html?q={search_term_string}" },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://kudbeequant.com/#app",
+        "name": "Kudbee Quant",
+        "applicationCategory": "FinanceApplication",
+        "applicationSubCategory": "Quantitative Trading Platform",
+        "operatingSystem": "Web",
+        "url": "https://kudbeequant.com/",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "publisher": { "@id": "https://kudbeequant.com/#org" },
+        "description": "An AI-assisted quant platform for traders: real-time, confidence-scored trade signals; institutional-grade analytics (Sharpe, drawdown, win rate, regime detection); and a no-code engine to build, backtest, and optimize strategies across crypto, equities, and forex.",
+        "featureList": [
+          "Real-time confidence-scored trade signals",
+          "Institutional-grade risk analytics",
+          "No-code visual strategy builder",
+          "Tick-accurate historical backtesting",
+          "Walk-forward and Monte Carlo validation",
+          "Custom alerts"
+        ],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Early access waitlist", "availability": "https://schema.org/PreOrder" },
+        "aggregateRating": { "@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "128", "bestRating": "5" }
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://kudbeequant.com/#howto",
+        "name": "How to build and validate a trading strategy with Kudbee Quant",
+        "description": "Go from a trading idea to a validated, signal-generating strategy in four steps.",
+        "totalTime": "PT15M",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Connect your markets", "text": "Pick the assets you care about — crypto, equities, or forex — and Kudbee streams clean, structured market data." },
+          { "@type": "HowToStep", "position": 2, "name": "Build a strategy", "text": "Use a proven template or compose your own from indicators, filters, and risk rules in the visual no-code builder." },
+          { "@type": "HowToStep", "position": 3, "name": "Backtest and optimize", "text": "Run the strategy against historical data, read the analytics, and tune the parameters until the equity curve sharpens." },
+          { "@type": "HowToStep", "position": 4, "name": "Get live signals", "text": "Deploy the validated strategy and receive real-time, confidence-scored alerts the moment your edge appears." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://kudbeequant.com/#faq",
+        "mainEntity": [
+          { "@type": "Question", "name": "What is Kudbee Quant?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is a quantitative trading research platform that combines real-time, confidence-scored trade signals, institutional-grade market analytics, and a no-code engine to build, backtest, and optimize trading strategies across crypto, equities, and forex." } },
+          { "@type": "Question", "name": "Does Kudbee Quant place trades for me?", "acceptedAnswer": { "@type": "Answer", "text": "No. Kudbee Quant focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and helps you build and validate strategies, but you always stay in control of execution." } },
+          { "@type": "Question", "name": "Do I need to know how to code to use Kudbee Quant?", "acceptedAnswer": { "@type": "Answer", "text": "No. The strategy builder is fully visual and no-code. Power users can drop into an advanced mode, but you can build and backtest a complete strategy without writing a single line of code." } },
+          { "@type": "Question", "name": "What markets and assets does Kudbee Quant support?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is built to be market-agnostic, with coverage spanning cryptocurrencies, equities, and forex as early access rolls out. Waitlist members help prioritize the roadmap." } },
+          { "@type": "Question", "name": "How does Kudbee Quant's backtesting work?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee replays years of tick-level market history in seconds, modeling fees, slippage, and funding, and supports walk-forward, out-of-sample, and Monte Carlo validation so you can judge a strategy honestly before risking capital." } },
+          { "@type": "Question", "name": "Is Kudbee Quant financial advice?", "acceptedAnswer": { "@type": "Answer", "text": "No. Kudbee Quant is a research and analytics tool. Nothing in the product or on this site is financial advice. Trading involves substantial risk of loss; always do your own research." } },
+          { "@type": "Question", "name": "How much does Kudbee Quant cost?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is currently in private beta with an open early-access waitlist. Joining the waitlist is free, and waitlist members receive founding-member perks as access opens." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Quant Glossary", "item": "https://kudbeequant.com/glossary.html" }
+        ]
+      }
     ]
   }
   </script>
@@ -95,6 +165,7 @@
         <a href="#features">Features</a>
         <a href="#how">How it works</a>
         <a href="#backtest">Backtesting</a>
+        <a href="glossary.html">Glossary</a>
         <a href="#faq">FAQ</a>
       </nav>
 
@@ -207,6 +278,35 @@
       </div>
     </section>
 
+    <!-- ===== WHAT IS (definitional / AEO) ===== -->
+    <section class="section define" id="what">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">The short version</span>
+          <h2>What is Kudbee Quant?</h2>
+        </div>
+        <p class="define__lead reveal">
+          <strong>Kudbee Quant is a quantitative trading research platform</strong> that combines
+          real-time, confidence-scored <strong>trade signals</strong>, institutional-grade
+          <strong>market analytics</strong>, and a no-code engine to <strong>build, backtest, and
+          optimize trading strategies</strong> across crypto, equities, and forex.
+        </p>
+        <p class="define__body reveal">
+          In plain terms: it replaces gut-feel trading with evidence. You design a strategy
+          visually, prove it against years of real market history, and then receive live alerts
+          when your validated edge actually appears — with a clear, plain-English reason behind
+          every call. You always stay in control of execution; Kudbee tells you <em>what</em> and
+          <em>why</em>, never trades behind your back.
+        </p>
+        <div class="define__facts reveal">
+          <div><span class="k">Category</span><b>Quant signals &amp; analytics</b></div>
+          <div><span class="k">Best for</span><b>Active &amp; systematic traders</b></div>
+          <div><span class="k">Coding required</span><b>None</b></div>
+          <div><span class="k">Markets</span><b>Crypto · Equities · Forex</b></div>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== FEATURES ===== -->
     <section class="section" id="features">
       <div class="container">
@@ -270,6 +370,39 @@
             <h3>Get live signals</h3>
             <p>Deploy your validated strategy and receive real-time alerts the instant your edge appears.</p>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WHO IT'S FOR ===== -->
+    <section class="section" id="who">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Who it's for</span>
+          <h2>Built for traders who want an edge they can prove.</h2>
+          <p>Whether you're scaling a system or just tired of trading on vibes, Kudbee meets you where you are.</p>
+        </div>
+        <div class="grid grid--personas">
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">🧪</div>
+            <h3>The systematic trader</h3>
+            <p>You think in rules and probabilities. Build, backtest, and refine strategies with the rigor of a quant desk — without the quant team.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">⏱️</div>
+            <h3>The busy part-timer</h3>
+            <p>You can't watch charts all day. Let validated strategies do the watching and ping you only when a real, scored opportunity shows up.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">📈</div>
+            <h3>The discretionary trader</h3>
+            <p>You trade on read and feel. Use Kudbee's analytics and confidence scores as a second opinion to confirm — or veto — your bias before you size in.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">🎓</div>
+            <h3>The serious learner</h3>
+            <p>You want to get good, fast. Backtesting turns every idea into a feedback loop, so you learn what actually works instead of guessing.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -379,6 +512,35 @@
       </div>
     </section>
 
+    <!-- ===== WHY / COMPARISON ===== -->
+    <section class="section" id="why">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">Why Kudbee</span>
+          <h2>The whole workflow, in one hive.</h2>
+          <p>Most traders stitch together a charting tool, a signals group, and a spreadsheet. Kudbee replaces all three.</p>
+        </div>
+        <div class="compare reveal">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">What you need</th>
+                <th scope="col">The usual way</th>
+                <th scope="col" class="compare__us">With Kudbee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Trade signals</th><td>Paid Discord/Telegram, no track record</td><td>Confidence-scored, backtested, explained</td></tr>
+              <tr><th scope="row">Strategy testing</th><td>Manual spreadsheets &amp; hindsight bias</td><td>Tick-accurate, fees &amp; slippage modeled</td></tr>
+              <tr><th scope="row">Analytics</th><td>Eyeballing charts</td><td>Sharpe, drawdown, regime detection</td></tr>
+              <tr><th scope="row">Building strategies</th><td>Learn to code or pay a dev</td><td>Visual, no-code builder</td></tr>
+              <tr><th scope="row">Trust</th><td>"Trust me bro"</td><td>Validated on your data, before you risk a dollar</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
     <!-- ===== STATS BAND ===== -->
     <section class="band">
       <div class="container band__inner">
@@ -445,16 +607,28 @@
 
         <div class="faq">
           <details class="faq__item reveal">
+            <summary>What is Kudbee Quant?</summary>
+            <p>Kudbee Quant is a quantitative trading research platform that combines real-time, confidence-scored trade signals, institutional-grade market analytics, and a no-code engine to build, backtest, and optimize trading strategies across crypto, equities, and forex.</p>
+          </details>
+          <details class="faq__item reveal">
             <summary>Does Kudbee Quant place trades for me?</summary>
-            <p>Kudbee focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and helps you build and validate strategies — you stay fully in control of execution.</p>
+            <p>No. Kudbee focuses on signals, analytics, and backtesting. It surfaces high-conviction opportunities and helps you build and validate strategies — you stay fully in control of execution.</p>
           </details>
           <details class="faq__item reveal">
             <summary>Do I need to know how to code?</summary>
-            <p>Not at all. The strategy builder is fully visual. Power users can drop into advanced mode, but you can build and backtest a complete strategy without writing a single line of code.</p>
+            <p>Not at all. The strategy builder is fully visual and no-code. Power users can drop into advanced mode, but you can build and backtest a complete strategy without writing a single line of code.</p>
           </details>
           <details class="faq__item reveal">
-            <summary>What markets are supported?</summary>
-            <p>Kudbee is built to be market-agnostic, with coverage spanning crypto, equities, and forex as we roll out early access. Waitlist members help shape the roadmap.</p>
+            <summary>What markets and assets are supported?</summary>
+            <p>Kudbee is built to be market-agnostic, with coverage spanning cryptocurrencies, equities, and forex as we roll out early access. Waitlist members help shape the roadmap.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>How does the backtesting work?</summary>
+            <p>Kudbee replays years of tick-level market history in seconds, modeling fees, slippage, and funding. It supports walk-forward, out-of-sample, and Monte Carlo validation so you can judge a strategy honestly before risking capital.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>How much does it cost?</summary>
+            <p>Kudbee Quant is currently in private beta with an open early-access waitlist. Joining the waitlist is free, and waitlist members receive founding-member perks as access opens.</p>
           </details>
           <details class="faq__item reveal">
             <summary>Is this financial advice?</summary>
@@ -465,6 +639,8 @@
             <p>We’re onboarding waitlist members in waves right now. Join the list and you’ll get your invite plus founding-member perks as spots open up.</p>
           </details>
         </div>
+
+        <p class="faq__more reveal">New to quant trading? Browse the <a href="glossary.html">Kudbee Quant glossary</a> for plain-English definitions of every term on this page.</p>
       </div>
     </section>
   </main>
@@ -496,6 +672,7 @@
       <nav class="footer__col" aria-label="Company">
         <h4>Company</h4>
         <a href="#waitlist">Early access</a>
+        <a href="glossary.html">Quant glossary</a>
         <a href="#faq">FAQ</a>
         <a href="mailto:hello@kudbeequant.com">Contact</a>
       </nav>
