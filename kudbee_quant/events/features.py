@@ -31,10 +31,12 @@ def _reference_opens(df: pd.DataFrame) -> pd.DataFrame:
     ts = pd.to_datetime(out["timestamp"], utc=True)
     ny = ts.dt.tz_convert(NY)
     out["ny_date"] = ny_session_date(out["timestamp"])
+    # UTC calendar date — the daily-open anchor (00:00 UTC), matching the
+    # TradingView default the trader reads off their chart.
+    out["utc_date"] = ts.dt.date
 
-    # Daily open = open of the first bar of each NY calendar date.
-    daily_open = out.groupby("ny_date")["open"].transform("first")
-    out["daily_open"] = daily_open
+    # Daily open = open of the first bar of each UTC calendar date (00:00 UTC).
+    out["daily_open"] = out.groupby("utc_date")["open"].transform("first")
 
     # Weekly open = open of the first bar on/after Sunday 18:00 NY each ICT week.
     # Define the ICT week id as the date of the most recent Sunday-18:00 anchor.

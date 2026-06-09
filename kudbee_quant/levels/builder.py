@@ -19,6 +19,7 @@ LEVEL_COLUMNS = [
     "brinks_high", "brinks_low",
     "round_below", "round_above",
     "pivot_pp", "pivot_r1", "pivot_s1", "pivot_r2", "pivot_s2",
+    "vwap", "dealing_mid",
 ]
 
 
@@ -129,5 +130,9 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFr
     }, index=dd.index)
     for col in piv.columns:
         out[col] = out["ny_date"].map(piv[col]).astype(float)
+
+    # ICT/Hybrid microstructure (VWAP, premium/discount, FVGs, macro windows).
+    from .microstructure import add_microstructure
+    out = add_microstructure(out)
 
     return out.drop(columns=["_month_id", "_week_id"], errors="ignore")
