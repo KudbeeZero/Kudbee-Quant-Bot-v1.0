@@ -16,6 +16,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from .resolver import resolve_bracket
+
 
 @dataclass(frozen=True)
 class BracketResult:
@@ -208,27 +210,25 @@ def bracket_excursions(
             hit_stop = (low[j] <= stop) if direction > 0 else (high[j] >= stop)
             if hit_stop:
                 stopped = True; exit_j = j; mae = min(mae, -1.0); break
-        rows.append({"direction": direction, "mfe_r": float(mfe),
-                     "mae_r": float(mae), "stopped": stopped})
+        rows.append({"entry_bar": int(entry_bar), "direction": direction,
+                     "mfe_r": float(mfe), "mae_r": float(mae), "stopped": stopped})
         busy_until = exit_j
     return pd.DataFrame(rows)
 
 
 def _resolve_full(direction, entry, stop, target, sd, target_r,
                   high, low, close, entry_bar, end):
-    """All-or-nothing exit: first of stop/target wins; else mark to close."""
-    for j in range(entry_bar + 1, end + 1):
-        if direction > 0:
-            if low[j] <= stop:          # stop checked first (conservative)
-                return -1.0, j
-            if high[j] >= target:
-                return target_r, j
-        else:
-            if high[j] >= stop:
-                return -1.0, j
-            if low[j] <= target:
-                return target_r, j
-    return direction * (close[end] - entry) / sd, end
+    """All-or-nothing exit: first of stop/target wins; else mark to close.
+
+    Thin adapter over the shared resolver (``backtest/resolver.py``) so the
+    backtest and the live journal resolve trades identically.
+    """
+    out = resolve_bracket(direction, entry, stop, target, sd, target_r,
+                          high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
+                          close[entry_bar + 1:end + 1], force_close_at_end=True)
+    if out.exit_offset is None:     # no bars after entry: mark to close at entry bar
+        return direction * (close[end] - entry) / sd, end
+    return out.outcome_r, entry_bar + 1 + out.exit_offset
 
 
 def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_tp1,
@@ -236,36 +236,19 @@ def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_t
     """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), ride the rest to
     TARGET TWO (target_r); optionally move the stop to breakeven after TP1.
 
-    Returns the BLENDED R for the whole position (sum of each tranche's R,
-    weighted by its size). Conservative within a bar: the active stop is checked
-    before the favorable level, and TP2 is not resolved on the same bar TP1 fills.
+    Returns the BLENDED R for the whole position. Thin adapter over the shared
+    resolver — see ``backtest/resolver.py`` for the (conservative) walk logic.
     """
     stop = entry - direction * sd
     tp1 = entry + direction * sd * tp1_r
     target = entry + direction * sd * target_r
-    realized = 0.0
-    remaining = 1.0
-    tp1_done = False
-    cur_stop = stop
-    for j in range(entry_bar + 1, end + 1):
-        hit_stop = (low[j] <= cur_stop) if direction > 0 else (high[j] >= cur_stop)
-        if hit_stop:                              # stop first (conservative)
-            stop_r = direction * (cur_stop - entry) / sd   # -1R pre-TP1, ~0 at BE
-            return realized + remaining * stop_r, j
-        if not tp1_done:
-            hit_tp1 = (high[j] >= tp1) if direction > 0 else (low[j] <= tp1)
-            if hit_tp1:
-                realized += tp1_frac * tp1_r
-                remaining -= tp1_frac
-                tp1_done = True
-                if be_after_tp1:
-                    cur_stop = entry
-                continue                          # don't also resolve TP2 this bar
-        else:
-            hit_tgt = (high[j] >= target) if direction > 0 else (low[j] <= target)
-            if hit_tgt:
-                return realized + remaining * target_r, j
-    return realized + remaining * direction * (close[end] - entry) / sd, end
+    out = resolve_bracket(direction, entry, stop, target, sd, target_r,
+                          high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
+                          close[entry_bar + 1:end + 1], force_close_at_end=True,
+                          tp1=tp1, tp1_r=tp1_r, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1)
+    if out.exit_offset is None:     # no bars after entry: mark to close at entry bar
+        return direction * (close[end] - entry) / sd, end
+    return out.outcome_r, entry_bar + 1 + out.exit_offset
 
 
 def _is_confirmation(o: float, h: float, l: float, c: float, direction: float) -> bool:

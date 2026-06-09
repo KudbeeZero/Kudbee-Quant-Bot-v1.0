@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from ..backtest.resolver import resolve_bracket
 from ..ingest import BinanceClient
 
 # Prediction kinds and how each is verified against OHLCV over the window:
@@ -161,66 +162,24 @@ class TradeJournal:
         else:
             fill_i = -1   # resolve from the start
 
-        # 2) RESOLVE phase from the bar after fill.
-        if p.tp1 is not None:
-            return self._resolve_partial(p, rows, fill_i, risk, deadline_passed)
-        for i in range(fill_i + 1, len(rows)):
-            bar = rows.iloc[i]
-            if p.direction > 0:
-                if bar["low"] <= p.stop:
-                    return ("miss", -1.0)
-                if bar["high"] >= p.target:
-                    return ("hit", float(p.target_r))
-            else:
-                if bar["high"] >= p.stop:
-                    return ("miss", -1.0)
-                if bar["low"] <= p.target:
-                    return ("hit", float(p.target_r))
-        if deadline_passed:                          # time-stop: mark to last close
-            r = p.direction * (float(rows["close"].iloc[-1]) - p.entry) / risk
-            return ("hit" if r > 0 else "miss", float(r))
-        return ("open", None)   # filled, not yet resolved
-
-    def _resolve_partial(self, p, rows, fill_i, risk, deadline_passed) -> tuple[str, float | None]:
-        """Scale-out resolution: bank ``tp1_frac`` at TARGET ONE, ride the rest to
-        TARGET TWO; optionally move the stop to breakeven after TP1. Stateless
-        recompute (like the rest of the journal) — returns the BLENDED R.
-        """
+        # 2) RESOLVE phase from the bar after fill — via the SHARED resolver
+        # (backtest/resolver.py) so a live trade and a backtest never disagree.
+        fwd = rows.iloc[fill_i + 1:]
         d = p.direction
-        tp1_r = d * (p.tp1 - p.entry) / risk          # R of TARGET ONE from price
-        target_r = float(p.target_r) if p.target_r is not None else d * (p.target - p.entry) / risk
-        realized = 0.0
-        remaining = 1.0
-        tp1_done = False
-        cur_stop = p.stop
-        for i in range(fill_i + 1, len(rows)):
-            bar = rows.iloc[i]
-            hit_stop = (bar["low"] <= cur_stop) if d > 0 else (bar["high"] >= cur_stop)
-            if hit_stop:
-                stop_r = d * (cur_stop - p.entry) / risk   # -1R pre-TP1, ~0 at BE
-                total = realized + remaining * stop_r
-                return ("hit" if total > 0 else "miss", float(total))
-            if not tp1_done:
-                hit_tp1 = (bar["high"] >= p.tp1) if d > 0 else (bar["low"] <= p.tp1)
-                if hit_tp1:
-                    realized += p.tp1_frac * tp1_r
-                    remaining -= p.tp1_frac
-                    tp1_done = True
-                    if p.be_after_tp1:
-                        cur_stop = p.entry
-                    if p.tp1_filled_at is None:        # record the partial bank
-                        p.tp1_filled_at = str(bar["timestamp"])
-                    continue
-            else:
-                hit_tgt = (bar["high"] >= p.target) if d > 0 else (bar["low"] <= p.target)
-                if hit_tgt:
-                    total = realized + remaining * target_r
-                    return ("hit", float(total))
-        if deadline_passed:                            # time-stop: mark remainder to close
-            mark = d * (float(rows["close"].iloc[-1]) - p.entry) / risk
-            total = realized + remaining * mark
-            return ("hit" if total > 0 else "miss", float(total))
-        return ("open", None)   # filled, TP1 may be banked, rest still running
+        win_r = float(p.target_r) if p.target_r is not None else d * (p.target - p.entry) / risk
+        tp1_r = (d * (p.tp1 - p.entry) / risk) if p.tp1 is not None else None
+        out = resolve_bracket(
+            d, p.entry, p.stop, p.target, risk, win_r,
+            fwd["high"].to_numpy(), fwd["low"].to_numpy(), fwd["close"].to_numpy(),
+            force_close_at_end=deadline_passed,
+            tp1=p.tp1, tp1_r=tp1_r, tp1_frac=p.tp1_frac, be_after_tp1=p.be_after_tp1,
+        )
+        if p.tp1 is not None and out.tp1_offset is not None and p.tp1_filled_at is None:
+            p.tp1_filled_at = str(fwd["timestamp"].iloc[out.tp1_offset])
+        if not out.exited:
+            return ("open", None)   # filled, not yet resolved (TP1 may be banked)
+        r = out.outcome_r
+        return ("hit" if r > 0 else "miss", float(r))
 
     def check_open(self) -> list[Prediction]:
         """Re-evaluate open/pending predictions; persist state transitions."""
