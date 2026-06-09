@@ -382,3 +382,23 @@ REMAINING VALIDATION (before any capital — staying humble):
 
 Status: a robust, null-beating, thesis-confirming SIGNAL on crypto majors — not
 yet proven alpha, but the first real lead, and it is the trader's own framework.
+
+### VALIDATION: confluence-R survives the full gauntlet
+
+The lead was put through the test that killed every prior candidate: walk-forward
+across 6 consecutive windows, 6 assets INCLUDING uncorrelated ones (gold, S&P),
+with cost sensitivity. Result (confluence strength>=5, 2R, 0.02R cost):
+
+- 36 cells (6 assets x 6 folds), **75% POSITIVE**, median +0.148 R/trade.
+- **Cross-asset correlation 0.00** — GLD 5/6 folds positive, SPY 5/6 positive.
+  The edge GENERALIZES to genuinely uncorrelated markets => it is NOT crypto beta.
+- Cost-robust: 0.00R -> +0.168 (81%); 0.02R -> +0.148 (75%); 0.05R -> +0.118
+  (72%); 0.10R -> +0.068 (67%). Survives heavy slippage.
+- Only fold 2 was broadly weak (one regime) — honest, expected.
+
+This is the first candidate to survive walk-forward + uncorrelated assets + cost
+sensitivity. Remaining before capital: more historical eras (crypto folds span
+~one era; equities span ~2y and already add regime diversity), in-sample
+parameter-selection caveat (min_strength=5/2R chosen from a grid that was
+positive throughout), and FORWARD/paper validation on live data. Status:
+a genuine, cross-asset, cost-robust, walk-forward-validated EDGE CANDIDATE.

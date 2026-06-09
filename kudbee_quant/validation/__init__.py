@@ -7,6 +7,11 @@ verdict. The goal is not to confirm an edge — it is to try hard to *break*
 it, and only report robustness when it refuses to break.
 """
 
+from .bracket_validation import (
+    cost_sensitivity,
+    validate_bracket,
+    walkforward_bracket,
+)
 from .universe import (
     AssetReport,
     UniverseReport,
@@ -19,4 +24,7 @@ __all__ = [
     "UniverseReport",
     "validate_frames",
     "validate_universe",
+    "validate_bracket",
+    "walkforward_bracket",
+    "cost_sensitivity",
 ]

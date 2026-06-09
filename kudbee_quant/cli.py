@@ -282,6 +282,40 @@ def _confluence_stack(args) -> None:
           "A flat\ncolumn at ~50% = confluence stacking adds nothing. Not financial advice.")
 
 
+def _validate_r(args) -> None:
+    from .confluence.stack import confluence_position
+    from .validation import cost_sensitivity, validate_bracket
+    pos_fn = lambda d: confluence_position(d, min_strength=args.min_strength)
+
+    cells, summary = validate_bracket(
+        args.symbols, pos_fn, interval=args.interval, limit=args.limit,
+        n_folds=args.folds, target_r=args.target_r, stop_atr=args.stop_atr, fee_r=args.fee_r)
+    print(f"Walk-forward R-validation — confluence (strength>={args.min_strength}), "
+          f"{args.target_r}R target, {args.fee_r}R cost")
+    print(f"{len(args.symbols)} assets x {args.folds} folds = {summary['n_cells']} cells "
+          f"({summary['n_sufficient']} with enough trades)\n")
+
+    # Per-asset x fold expectancy matrix.
+    piv = cells.pivot(index="asset", columns="fold", values="expectancy_r")
+    print("expectancy (R/trade) by asset x fold:")
+    print(piv.to_string(float_format=lambda x: f"{x:+.2f}"))
+    print(f"\nfraction of sufficient cells POSITIVE: {summary['frac_positive']:.0%}")
+    print(f"median expectancy: {summary['median_expectancy_r']:+.3f} R/trade")
+    print(f"cross-asset correlation: {summary['median_cross_corr']:.2f} "
+          f"(lower = more independent evidence)")
+
+    print("\ncost sensitivity (median expectancy R/trade by round-trip cost):")
+    cs = cost_sensitivity(args.symbols, pos_fn, fees=(0.0, 0.02, 0.05, 0.10),
+                          interval=args.interval, limit=args.limit, n_folds=args.folds,
+                          target_r=args.target_r, stop_atr=args.stop_atr)
+    print(cs.to_string(index=False, formatters={
+        "fee_r": "{:.2f}".format, "frac_positive": "{:.0%}".format,
+        "median_expectancy_r": "{:+.3f}".format}))
+    print("\nHonest read: a real edge is positive across MOST asset x fold cells AND "
+          "survives a\nbelievable cost. Correlated assets count as fewer independent tests. "
+          "Not financial advice.")
+
+
 def _bracket_sweep(args) -> None:
     table = run_bracket_sweep(args.symbols, interval=args.interval, limit=args.limit,
                               target_r=args.target_r, stop_atr=args.stop_atr, max_bars=args.max_bars)
@@ -468,6 +502,17 @@ def main() -> None:
     au.add_argument("--limit", type=int, default=2000)
     au.add_argument("--checks", type=int, default=60)
     au.set_defaults(func=_audit)
+
+    vr = sub.add_parser("validate-r", help="walk-forward + cost validation of confluence-R")
+    vr.add_argument("symbols", nargs="+")
+    vr.add_argument("--interval", default="1h")
+    vr.add_argument("--limit", type=int, default=4000)
+    vr.add_argument("--folds", type=int, default=6)
+    vr.add_argument("--min-strength", type=float, default=5.0)
+    vr.add_argument("--target-r", type=float, default=2.0)
+    vr.add_argument("--stop-atr", type=float, default=1.0)
+    vr.add_argument("--fee-r", type=float, default=0.02)
+    vr.set_defaults(func=_validate_r)
 
     bs = sub.add_parser("bracket-sweep", help="rank scenarios by R expectancy (stop/target)")
     bs.add_argument("symbols", nargs="+")
