@@ -195,6 +195,31 @@
     if (q) filter();
   }
 
+  /* ---- Contact form (front-end only; mailto fallback) ---- */
+  var contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    var cMsg = document.getElementById('contactMsg');
+    var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    contactForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var name = (document.getElementById('cname').value || '').trim();
+      var email = (document.getElementById('cemail').value || '').trim();
+      var message = (document.getElementById('cmsg').value || '').trim();
+      if (!name || !emailRe.test(email) || message.length < 5) {
+        cMsg.textContent = 'Please add your name, a valid email, and a short message.';
+        cMsg.className = 'waitlist__msg err';
+        return;
+      }
+      // No backend yet — open the user's mail client as a graceful fallback.
+      var subject = encodeURIComponent('Kudbee Quant enquiry from ' + name);
+      var body = encodeURIComponent(message + '\n\n— ' + name + ' (' + email + ')');
+      cMsg.textContent = 'Thanks! Opening your email app to send…';
+      cMsg.className = 'waitlist__msg ok';
+      window.location.href = 'mailto:hello@kudbeequant.com?subject=' + subject + '&body=' + body;
+      contactForm.reset();
+    });
+  }
+
   /* ---- Waitlist form (front-end only, stores locally) ---- */
   var form = document.getElementById('waitlistForm');
   if (form) {

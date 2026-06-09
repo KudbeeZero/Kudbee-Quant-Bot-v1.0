@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Start Here — A Beginner's Guide to Quant Trading | Kudbee Quant</title>
+  <meta name="description" content="New to quantitative trading? Start here. A guided learning path through the core concepts — signals, strategies, backtesting, risk metrics, and position sizing — in the right order, all in plain English." />
+  <meta name="keywords" content="quant trading for beginners, how to start quant trading, learn algorithmic trading, quant trading guide, backtesting for beginners" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/start-here.html" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Start Here — A Beginner's Guide to Quant Trading" />
+  <meta property="og:description" content="A guided learning path through the core concepts of quant trading, in the right order and in plain English." />
+  <meta property="og:url" content="https://kudbeequant.com/start-here.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "CollectionPage",
+        "url": "https://kudbeequant.com/start-here.html",
+        "name": "Start Here — A Beginner's Guide to Quant Trading",
+        "description": "A guided learning path through the core concepts of quantitative trading.",
+        "hasPart": [
+          { "@type": "Article", "headline": "Trade Signals vs. Trading Strategies", "url": "https://kudbeequant.com/blog/signals-vs-strategies.html" },
+          { "@type": "Article", "headline": "What Is Backtesting?", "url": "https://kudbeequant.com/blog/what-is-backtesting.html" },
+          { "@type": "Article", "headline": "How to Read a Sharpe Ratio", "url": "https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html" },
+          { "@type": "Article", "headline": "Momentum vs. Mean Reversion", "url": "https://kudbeequant.com/blog/momentum-vs-mean-reversion.html" },
+          { "@type": "Article", "headline": "Position Sizing & Risk Management", "url": "https://kudbeequant.com/blog/position-sizing-and-risk-management.html" }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Start Here", "item": "https://kudbeequant.com/start-here.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How it works</a>
+        <a href="index.html#pricing">Pricing</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="blog/">Blog</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section glossary-hero">
+      <div class="container container--narrow">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Start Here</span>
+        </nav>
+        <span class="eyebrow">For beginners</span>
+        <h1>New to quant trading? Start here.</h1>
+        <p class="glossary-hero__sub">Quantitative trading just means trading with data and rules instead of gut feel. This is the short path through the core ideas — read them in order and you'll have the foundations down in an afternoon.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:24px;">
+      <div class="container container--narrow">
+        <ol class="path">
+          <li class="path__step">
+            <span class="path__num">1</span>
+            <div>
+              <h2><a href="blog/signals-vs-strategies.html">Signals vs. strategies</a></h2>
+              <p>Start with the vocabulary that trips up most beginners: a signal is a single trigger; a strategy is the whole rule set around it. Get this and everything else clicks.</p>
+            </div>
+          </li>
+          <li class="path__step">
+            <span class="path__num">2</span>
+            <div>
+              <h2><a href="blog/what-is-backtesting.html">What is backtesting?</a></h2>
+              <p>The single most important habit in systematic trading: testing an idea on history before risking money — and the traps that make a backtest lie.</p>
+            </div>
+          </li>
+          <li class="path__step">
+            <span class="path__num">3</span>
+            <div>
+              <h2><a href="blog/how-to-read-a-sharpe-ratio.html">How to read a Sharpe ratio</a></h2>
+              <p>Once you can backtest, you need to judge the results. The Sharpe ratio is the quickest read on whether a return was worth the risk.</p>
+            </div>
+          </li>
+          <li class="path__step">
+            <span class="path__num">4</span>
+            <div>
+              <h2><a href="blog/momentum-vs-mean-reversion.html">Momentum vs. mean reversion</a></h2>
+              <p>The two families nearly every strategy belongs to — and how to tell which market environment favors each.</p>
+            </div>
+          </li>
+          <li class="path__step">
+            <span class="path__num">5</span>
+            <div>
+              <h2><a href="blog/position-sizing-and-risk-management.html">Position sizing &amp; risk</a></h2>
+              <p>The skill that keeps you in the game. How much you risk matters more than your entry — here's how the pros size trades.</p>
+            </div>
+          </li>
+        </ol>
+
+        <div class="callout-row glass">
+          <div>
+            <h3>Keep a dictionary handy</h3>
+            <p>Hit a term you don't know? The <a href="glossary.html">quant glossary</a> defines them all in plain English.</p>
+          </div>
+          <div>
+            <h3>Ready to compare tools?</h3>
+            <p>See how an all-in-one platform stacks up against signal groups and spreadsheets on the <a href="compare.html">comparison page</a>.</p>
+          </div>
+        </div>
+
+        <div class="glossary-cta glass" style="margin-top:44px;">
+          <h2>Learn by doing.</h2>
+          <p>The fastest way to understand quant trading is to build and backtest a strategy yourself. Join the Kudbee Quant waitlist to start.</p>
+          <a href="index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="index.html" style="color:var(--honey-lt)">Home</a> · <a href="blog/" style="color:var(--honey-lt)">Blog</a> · <a href="glossary.html" style="color:var(--honey-lt)">Glossary</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

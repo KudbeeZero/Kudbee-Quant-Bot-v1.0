@@ -34,9 +34,12 @@
 ## Pages
 
 - Home: https://kudbeequant.com/
+- About (mission & story): https://kudbeequant.com/about.html
+- Start Here (beginner's guide to quant trading): https://kudbeequant.com/start-here.html
 - Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html
 - Compare (vs. signal groups & spreadsheets): https://kudbeequant.com/compare.html
 - Blog (quant trading guides): https://kudbeequant.com/blog/
+- Contact: https://kudbeequant.com/contact.html
 - Early-access waitlist: https://kudbeequant.com/#waitlist
 - FAQ: https://kudbeequant.com/#faq
 
