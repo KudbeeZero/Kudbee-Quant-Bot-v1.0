@@ -58,6 +58,23 @@ def test_no_overlap_skips_entries_during_trade():
     assert r.n_trades == 1
 
 
+def test_fee_pct_is_timeframe_aware():
+    # Entry 100, ATR=1 -> stop distance 1 (1% of price). A 0.5% round-trip cost
+    # = 0.5R. Target +2R hit -> net 2 - 0.5 = 1.5R.
+    prices = [100, 102.5, 103, 103]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[1, "high"] = 102.5
+    sig = pd.Series([1, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=2.0, max_bars=3, fee_pct=0.005)
+    assert abs(r.trades[0] - 1.5) < 1e-9
+    # Tighter stop (smaller ATR) -> same % cost is MORE R: ATR=0.5 -> stop 0.5%
+    # -> cost 1.0R -> net 2 - 1 = 1.0R.
+    df2 = _df_with_atr(prices, atr=0.5)
+    df2.loc[1, "high"] = 101.0  # target = 100 + 2*0.5 = 101
+    r2 = bracket_backtest(df2, sig, stop_atr=1.0, target_r=2.0, max_bars=3, fee_pct=0.005)
+    assert abs(r2.trades[0] - 1.0) < 1e-9
+
+
 def test_short_side_target():
     # Short at 100, target 2R down = 98. Price falls to 97 -> +2R.
     prices = [100, 99, 98, 97, 97]

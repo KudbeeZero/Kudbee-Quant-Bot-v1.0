@@ -46,6 +46,7 @@ def bracket_backtest(
     fee_r: float = 0.02,
     allow_overlap: bool = False,
     size: pd.Series | None = None,
+    fee_pct: float | None = None,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -54,7 +55,12 @@ def bracket_backtest(
         stop_atr: stop distance = stop_atr * ATR at entry (= 1R).
         target_r: take-profit at target_r * R.
         max_bars: time-stop; if neither level hits, exit at that bar's close.
-        fee_r: round-trip cost expressed in R (slippage+fees), subtracted/trade.
+        fee_r: round-trip cost in R (flat). Used when ``fee_pct`` is None.
+        fee_pct: realistic round-trip cost as a FRACTION OF PRICE (e.g. 0.0010
+            = 0.10%). Converted per-trade to R via cost / (stop distance %), so
+            cost is correctly timeframe-aware — tiny stops (1m) cost many R,
+            wider stops (1h+) cost a fraction of R. Strongly preferred over the
+            flat fee_r, which can badly understate low-timeframe costs.
         allow_overlap: if False, no new entry until the current trade exits.
         size: optional per-bar position size in [0,1]; each trade's R is scaled
             by the size at entry (confidence-scaled sizing). Default 1.0.
@@ -99,8 +105,10 @@ def bracket_backtest(
                     outcome, exit_j = target_r, j; break
         if outcome is None:             # time-stop: mark to the exit close in R
             outcome = direction * (close[end] - entry) / sd
+        # Realistic cost: convert a price-fraction cost to R via the stop size.
+        cost = fee_r if fee_pct is None else fee_pct * entry / sd
         trade_size = sz[t] if size is not None else 1.0
-        trades.append((outcome - fee_r) * trade_size)
+        trades.append((outcome - cost) * trade_size)
         busy_until = exit_j
 
     return _summarize(trades, target_r)

@@ -427,3 +427,32 @@ confluence (+24.6R, Sharpe +0.125) or reaching down to 40% (+16.0R, +0.070).
 Conclusion: take every >=50%-confluence setup at full size and stop there;
 don't down-size mid setups or reach for weak ones. Threshold is now a tunable
 percentage (confluence_pct / min_pct); paper-scan defaults to 0.5.
+
+### CRITICAL CORRECTION: realistic costs — the 1h edge is THIN, 1m is dead
+
+A 1m/3R scalp test forced an honest cost audit, and it materially corrects the
+earlier "validated edge". Cost in R = round-trip price-fraction cost / stop-size%,
+so it is timeframe-aware (tiny 1m stops cost MANY R).
+
+1-MINUTE: 1m ATR ~0.08-0.14% of price, so a 0.10-0.20% round trip = **0.74-2.56 R
+PER TRADE**. The 1m confluence scalp loses -0.89R to -1.88R/trade at realistic
+costs (total -2400 to -5200R). 1-minute scalping is killed by costs. (3R > 2R on
+1m, but irrelevant — the whole timeframe is non-viable.)
+
+1-HOUR (the earlier "validated" edge), OOS, by cost:
+| cost            | 2R exp | 3R exp |
+|-----------------|--------|--------|
+| 0.02R (old, OPTIMISTIC) | +0.210 | -- |
+| 0.04% maker/VIP | +0.174 | +0.161 |
+| 0.10% realistic | +0.091 | +0.077 |
+| 0.20% taker     | -0.049 | -0.062 |
+
+So the 1h edge is REAL but THIN and EXECUTION-DEPENDENT: profitable only with
+low-cost execution (limit/maker fills + fee discounts), NEGATIVE with naive
+taker fees. My prior +0.21R used a 0.02R cost that understated reality ~5-8x —
+corrected. 2R slightly beats 3R on the 1h. Practical viable config: 1h, 2R,
+>=50% confluence, ENTER WITH LIMIT ORDERS at the level (maker), fee discounts.
+
+Tooling fix: bracket_backtest now takes ``fee_pct`` (price-fraction round-trip
+cost, converted to R per-trade via the stop size) so costs are realistic and
+timeframe-aware by default. Always validate with fee_pct, not a flat fee_r.
