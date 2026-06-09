@@ -18,16 +18,13 @@
   opens the single PR, and sets the baton for the next chat.
 
 ## Standing preference: how every working reply ENDS
-When you finish a task or a unit of work, ALWAYS close the reply with two clearly
-labelled parts:
-1. **Summary** — what you actually did this turn (concise, honest; include test
-   results / what's committed/pushed; flag anything skipped or uncertain).
-2. **Next** — *exactly* what you recommend the user do next, as a concrete,
-   specific action (not vague options). If a decision is genuinely theirs, state
-   your recommended default first.
-
-Keep it honest over optimistic: if something failed or is unverified, say so in
-the Summary rather than burying it.
+SHORT. Two short paragraphs, a couple of bullets total — not a full report. He
+wants the bottom line, not every detail.
+1. **Summary** — does it work or not? One or two bullets. If it failed or is
+   unverified, say so plainly (honest over optimistic) — don't bury it.
+2. **Next** — does he need to test it himself? If yes, the one thing to test.
+   If no, the single next action you recommend. State the recommended default
+   first; skip the menu of alternatives.
 
 ## Project norms (the thesis)
 - The edge is honesty + execution, not more signals. Don't over-claim. A result
