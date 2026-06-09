@@ -57,6 +57,17 @@
       "interval": "1h",
       "baseline_exp": 0.1664,
       "baseline_n": 1577
+    },
+    {
+      "ts": "2026-06-09 08:02 UTC",
+      "tested": [
+        "tighter_stop",
+        "entry_window_long",
+        "entry_window_short"
+      ],
+      "interval": "1h",
+      "baseline_exp": 0.1713,
+      "baseline_n": 1578
     }
   ],
   "results": [
@@ -499,6 +510,57 @@
       "h2_delta": -0.0542,
       "base_win": 0.38,
       "cand_win": 0.407,
+      "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "tighter_stop",
+      "desc": "Execution: 1.0-ATR stop, 3R target",
+      "tested_at": "2026-06-09 08:02 UTC",
+      "n_trades": 2042,
+      "base_n": 1578,
+      "keep_pct": 1.294,
+      "base_exp": 0.1713,
+      "cand_exp": 0.1946,
+      "delta": 0.0233,
+      "h1_delta": 0.026,
+      "h2_delta": 0.0206,
+      "base_win": 0.382,
+      "cand_win": 0.338,
+      "verdict": "WINNER",
+      "interval": "1h"
+    },
+    {
+      "name": "entry_window_long",
+      "desc": "Execution: 12-bar limit-fill window",
+      "tested_at": "2026-06-09 08:02 UTC",
+      "n_trades": 1570,
+      "base_n": 1578,
+      "keep_pct": 0.995,
+      "base_exp": 0.1713,
+      "cand_exp": 0.1908,
+      "delta": 0.0195,
+      "h1_delta": 0.0165,
+      "h2_delta": 0.02,
+      "base_win": 0.382,
+      "cand_win": 0.387,
+      "verdict": "WINNER",
+      "interval": "1h"
+    },
+    {
+      "name": "entry_window_short",
+      "desc": "Execution: 3-bar limit-fill window",
+      "tested_at": "2026-06-09 08:02 UTC",
+      "n_trades": 1581,
+      "base_n": 1578,
+      "keep_pct": 1.002,
+      "base_exp": 0.1713,
+      "cand_exp": 0.1431,
+      "delta": -0.0281,
+      "h1_delta": -0.0306,
+      "h2_delta": -0.0257,
+      "base_win": 0.382,
+      "cand_win": 0.374,
       "verdict": "HURTS",
       "interval": "1h"
     }
