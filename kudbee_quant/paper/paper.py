@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 from ..confluence.stack import confluence_score
-from ..ingest import BinanceClient
+from ..ingest import RouterClient
+from ..ingest.router import parse_spec
 from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
 
@@ -33,7 +34,7 @@ def paper_scan(
     deadline_days: float | None = None,   # None = scale with the timeframe (recommended)
     fill_deadline_days: float | None = None,
     journal: TradeJournal | None = None,
-    client: BinanceClient | None = None,
+    client: RouterClient | None = None,
     biases=None,
     require_bias: bool = False,
     tp1_r: float | None = None,    # optional TARGET ONE (partial bank); None = full target only
@@ -56,7 +57,7 @@ def paper_scan(
     """
     from ..exposure import symbol_exposure
     j = journal or TradeJournal()
-    client = client or BinanceClient()
+    client = client or RouterClient()
     if biases is None:
         from ..bias import BiasBook
         biases = BiasBook()
@@ -72,6 +73,12 @@ def paper_scan(
       tf_fill = fill_deadline_days if fill_deadline_days is not None else _bars_to_days(interval, _FILL_BARS)
       for sym in symbols:
         sym = sym.upper()
+        # Venue: bare/binance: crypto vs yahoo: TradFi (gold/S&P/oil/FX). TradFi
+        # rides the exchange's 0-fee promo (MEMORY §26) and is tagged so its
+        # forward record scores SEPARATELY from the fee-paying crypto book.
+        source, _ = parse_spec(sym)
+        is_tradfi = source != "binance"
+        venue_tag = "_tradfi" if is_tradfi else ""
         if (sym, interval) in open_keys:
             continue  # already in a paper trade on this symbol+timeframe
         f = build_levels(client.klines(sym, interval=interval, limit=600))
@@ -115,9 +122,10 @@ def paper_scan(
             deadline_days=tf_deadline, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
-                  + ("_tf" if trend_filter else ""),
+                  + ("_tf" if trend_filter else "") + venue_tag,
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
+                  (" [TradFi 0-fee venue]" if is_tradfi else "") +
                   (f" Read: {bias.note}" if bias is not None and bias.note else "") +
                   f" LIMIT {limit:.4g} (retrace {retrace_atr} ATR from {signal_price:.4g}), "
                   f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)." +

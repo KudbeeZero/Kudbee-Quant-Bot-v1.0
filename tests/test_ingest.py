@@ -2,6 +2,7 @@
 import pandas as pd
 
 from kudbee_quant.backtest.metrics import infer_periods_per_year
+from kudbee_quant.ingest import RouterClient
 from kudbee_quant.ingest.router import parse_spec
 from kudbee_quant.ingest.yahoo import YahooClient
 
@@ -13,6 +14,27 @@ def test_parse_spec_defaults_to_binance():
     # A bare symbol containing '=' (Yahoo futures) without a known prefix
     # stays a Binance default rather than being mis-split.
     assert parse_spec("GC=F") == ("binance", "GC=F")
+
+
+def test_router_client_dispatches_by_spec():
+    """RouterClient.klines() routes bare/binance: to Binance, yahoo: to Yahoo —
+    the single client the journal + paper loop use for a mixed universe."""
+    calls = []
+
+    class FakeBinance:
+        def klines(self, symbol, interval="1h", limit=1000):
+            calls.append(("binance", symbol, interval, limit))
+            return pd.DataFrame({"close": [1.0]})
+
+    class FakeYahoo:
+        def history(self, symbol, interval="1d", range_="5y", limit=None):
+            calls.append(("yahoo", symbol, interval, limit))
+            return pd.DataFrame({"close": [2.0]})
+
+    rc = RouterClient(binance=FakeBinance(), yahoo=FakeYahoo())
+    rc.klines("BTCUSDT", interval="1h", limit=10)
+    rc.klines("yahoo:GC=F", interval="1h", limit=20)
+    assert calls == [("binance", "BTCUSDT", "1h", 10), ("yahoo", "GC=F", "1h", 20)]
 
 
 def test_infer_periods_hourly_vs_daily():

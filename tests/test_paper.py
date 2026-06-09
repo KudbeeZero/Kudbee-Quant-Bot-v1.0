@@ -161,3 +161,32 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     fake_levels["confluence_pct"] = [0.4]
     j2 = TradeJournal(path=tmp_path / "j2.json", client=C())
     assert pp.paper_scan(["ETHUSDT"], min_pct=0.5, journal=j2, client=C()) == []
+
+
+def test_paper_scan_tags_tradfi_venue(tmp_path, monkeypatch):
+    """A yahoo: (TradFi) spec is logged with the '_tradfi' setup tag so its
+    forward record scores separately from the fee-paying crypto book; a bare
+    crypto symbol is NOT tagged."""
+    import kudbee_quant.paper.paper as pp
+    fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                                "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
+
+    j = TradeJournal(path=tmp_path / "tf.json", client=C())
+    logged = pp.paper_scan(["yahoo:GC=F"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           stop_atr=1.0, journal=j, client=C())
+    assert len(logged) == 1
+    p = logged[0]
+    assert p.symbol == "YAHOO:GC=F"        # spec preserved; source lowercased on route
+    assert p.setup.endswith("_tradfi")     # separate scorecard row
+    assert "TradFi 0-fee venue" in p.note
+
+    j2 = TradeJournal(path=tmp_path / "cr.json", client=C())
+    crypto = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           stop_atr=1.0, journal=j2, client=C())
+    assert crypto and "_tradfi" not in crypto[0].setup

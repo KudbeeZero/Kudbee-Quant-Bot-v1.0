@@ -741,8 +741,21 @@ HONEST CAVEATS (so we don't over-rotate on a promo):
   (NY-date ranges, killzones) must be checked against equity/futures sessions before
   trusting it there.
 
-CONCRETE NEXT STEP (offered, not yet built): add a **zero-fee TradFi forward-scan**
-to the paper loop — gold/S&P/oil/forex via Yahoo, `fee_pct=0`, same confluence-R
-strategy — to start a forward track record on the cost-free venue alongside the
-crypto scan. This is a real build (router crypto-vs-yahoo, session handling, a 2nd
-Action job), so it waits for the go-ahead.
+BUILT (2026-06-09) — zero-fee TradFi forward-scan is LIVE:
+- `RouterClient` (ingest/router.py) gives the journal + paper loop ONE client that
+  routes by spec: bare/`binance:` -> Binance, `yahoo:` -> Yahoo. `TradeJournal` and
+  `paper_scan` now default to it, so a `yahoo:GC=F` trade RESOLVES against Yahoo, not
+  Binance (backward-compatible: bare crypto symbols unchanged).
+- `paper_scan` tags TradFi trades `*_tradfi` (setup label) + "[TradFi 0-fee venue]"
+  in the note, so the cost-free book scores SEPARATELY from the fee-paying crypto one.
+- The hourly Action (paper-trade.yml) now runs a 2nd scan after crypto: gold (GC=F),
+  silver (SI=F), S&P (^GSPC), Nasdaq (^NDX), Dow (^DJI), WTI (CL=F), Brent (BZ=F),
+  nat-gas (NG=F), EUR/GBP-USD — **1h only** (validated TF, Yahoo-supported, dodges
+  session-gap noise on sub-hourly bars), trend-filtered, one commit for both books.
+- Seeded live: first scan logged 4 shorts (GC=F/SI=F/CL=F/BZ=F, ~50% conf, with-trend).
+- Tests: `test_router_client_dispatches_by_spec`, `test_paper_scan_tags_tradfi_venue`.
+STILL OPEN (honest): journal R is GROSS of fees, so the 0-fee edge shows up as
+"net≈gross for TradFi vs crypto loses ~0.09%/trade" only when we score NET — a
+follow-up (subtract per-venue fee in scorecard). And TradFi session/RTH handling in
+build_levels is unverified (NY-range logic assumes 24/7) — watch the `_tradfi` record
+for level-quality artifacts before trusting it.

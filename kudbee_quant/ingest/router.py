@@ -65,3 +65,24 @@ def load_ohlcv(
         range_ = "2y" if interval.endswith(("m", "h")) else "5y"
         return (yahoo or YahooClient()).history(symbol, interval=interval, range_=range_, limit=limit)
     raise ValueError(f"unknown data source {source!r} (use 'binance' or 'yahoo')")
+
+
+class RouterClient:
+    """A ``klines()``-compatible client that routes by symbol SPEC.
+
+    Exposes the same ``.klines(symbol, interval, limit)`` surface as
+    ``BinanceClient`` but dispatches each symbol through :func:`load_ohlcv`:
+    bare / ``binance:`` symbols hit Binance, ``yahoo:`` specs hit Yahoo. This
+    lets the journal and the paper loop carry a MIXED crypto + TradFi universe
+    behind one client, so resolving a ``yahoo:GC=F`` trade fetches from Yahoo
+    (not Binance). Bare crypto symbols keep working unchanged, so it is a
+    drop-in default. Underlying clients are reused to share their caches.
+    """
+
+    def __init__(self, binance: BinanceClient | None = None, yahoo: YahooClient | None = None):
+        self.binance = binance or BinanceClient()
+        self.yahoo = yahoo or YahooClient()
+
+    def klines(self, symbol: str, interval: str = "1h", limit: int = 1000) -> pd.DataFrame:
+        return load_ohlcv(symbol, interval=interval, limit=limit,
+                          binance=self.binance, yahoo=self.yahoo)

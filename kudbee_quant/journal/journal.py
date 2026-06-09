@@ -10,7 +10,7 @@ from pathlib import Path
 import pandas as pd
 
 from ..backtest.resolver import resolve_bracket
-from ..ingest import BinanceClient
+from ..ingest import RouterClient
 
 # Prediction kinds and how each is verified against OHLCV over the window:
 #   touch        : a bar's [low, high] contains the level             -> hit
@@ -71,9 +71,11 @@ class Prediction:
 
 
 class TradeJournal:
-    def __init__(self, path: Path | str = DEFAULT_PATH, client: BinanceClient | None = None):
+    def __init__(self, path: Path | str = DEFAULT_PATH, client: RouterClient | None = None):
         self.path = Path(path)
-        self.client = client or BinanceClient()
+        # RouterClient so a mixed crypto + TradFi (yahoo:) journal resolves each
+        # trade against the RIGHT source. Bare crypto symbols still hit Binance.
+        self.client = client or RouterClient()
         self.predictions: list[Prediction] = []
         self._load()
 

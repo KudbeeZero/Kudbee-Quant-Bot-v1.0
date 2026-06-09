@@ -10,7 +10,8 @@ source is unreachable we raise rather than fabricate.
 
 from .binance import BinanceClient
 from .polymarket import PolymarketClient
-from .router import load_ohlcv, parse_spec
+from .router import RouterClient, load_ohlcv, parse_spec
 from .yahoo import YahooClient
 
-__all__ = ["BinanceClient", "PolymarketClient", "YahooClient", "load_ohlcv", "parse_spec"]
+__all__ = ["BinanceClient", "PolymarketClient", "RouterClient", "YahooClient",
+           "load_ohlcv", "parse_spec"]
