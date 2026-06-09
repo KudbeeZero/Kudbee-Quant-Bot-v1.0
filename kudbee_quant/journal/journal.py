@@ -44,10 +44,17 @@ class Prediction:
     direction: float = 0.0      # +1 long / -1 short
     target_r: float | None = None
     outcome_r: float | None = None  # realized R when resolved
+    # pending limit-order (retrace entry) lifecycle:
+    pending_limit: bool = False     # True = limit at `entry` not yet filled
+    signal_price: float | None = None  # close at signal time (for reference)
+    fill_deadline_days: float = 0.5    # cancel the limit if unfilled in this window
+    filled_at: str | None = None
 
     def __post_init__(self):
         if self.kind not in KINDS:
             raise ValueError(f"kind must be one of {sorted(KINDS)}")
+        if self.pending_limit and self.status == "open":
+            self.status = "pending"   # limit orders start unfilled
 
     @property
     def deadline(self) -> datetime:
@@ -115,13 +122,42 @@ class TradeJournal:
         return ("miss" if deadline_passed else "open", None)
 
     def _evaluate_bracket(self, p: Prediction, window, deadline_passed: bool) -> tuple[str, float | None]:
-        """Resolve a stop/target bracket: which level is hit first, in R."""
+        """Lifecycle of a (possibly pending limit) stop/target bracket, in R.
+
+        For a pending limit order, first find the FILL (price reaches the limit
+        within the fill window; else 'cancelled'/'pending'), then resolve which
+        of stop/target hits first from the fill bar onward.
+        """
         risk = abs(p.entry - p.stop)
         if risk <= 0:
-            return ("open", None)
-        for _, bar in window.iterrows():
+            return ("cancelled" if p.pending_limit else "open", None)
+        rows = window.reset_index(drop=True)
+        ts = pd.to_datetime(rows["timestamp"], utc=True)
+
+        # 1) FILL phase. Market orders fill at the first bar; limits wait.
+        if p.pending_limit:
+            fill_deadline = datetime.fromisoformat(p.created_at) + timedelta(days=p.fill_deadline_days)
+            fill_i = None
+            for i in range(len(rows)):
+                if ts.iloc[i] >= fill_deadline:   # window closed before any fill
+                    break
+                bar = rows.iloc[i]
+                if (p.direction > 0 and bar["low"] <= p.entry) or \
+                   (p.direction < 0 and bar["high"] >= p.entry):
+                    fill_i = i
+                    break
+            if fill_i is None:
+                if datetime.now(timezone.utc) >= fill_deadline:
+                    return ("cancelled", None)   # limit never filled -> no trade
+                return ("pending", None)
+        else:
+            fill_i = -1   # resolve from the start
+
+        # 2) RESOLVE phase from the bar after fill.
+        for i in range(fill_i + 1, len(rows)):
+            bar = rows.iloc[i]
             if p.direction > 0:
-                if bar["low"] <= p.stop:            # stop first (conservative)
+                if bar["low"] <= p.stop:
                     return ("miss", -1.0)
                 if bar["high"] >= p.target:
                     return ("hit", float(p.target_r))
@@ -131,22 +167,27 @@ class TradeJournal:
                 if bar["low"] <= p.target:
                     return ("hit", float(p.target_r))
         if deadline_passed:                          # time-stop: mark to last close
-            r = p.direction * (float(window["close"].iloc[-1]) - p.entry) / risk
+            r = p.direction * (float(rows["close"].iloc[-1]) - p.entry) / risk
             return ("hit" if r > 0 else "miss", float(r))
-        return ("open", None)
+        return ("open", None)   # filled, not yet resolved
 
     def check_open(self) -> list[Prediction]:
-        """Re-evaluate every open prediction; persist newly-resolved ones."""
+        """Re-evaluate open/pending predictions; persist state transitions."""
         changed = []
         for p in self.predictions:
-            if p.status != "open":
+            if p.status not in ("open", "pending"):
                 continue
             status, outcome_r = self._evaluate(p)
+            if status == p.status:
+                continue
+            prev, p.status = p.status, status
+            now = datetime.now(timezone.utc).isoformat()
             if status in ("hit", "miss"):
-                p.status = status
                 p.outcome_r = outcome_r
-                p.resolved_at = datetime.now(timezone.utc).isoformat()
-                changed.append(p)
+                p.resolved_at = now
+            elif status == "open" and prev == "pending":
+                p.filled_at = now          # limit just filled; trade is live
+            changed.append(p)
         if changed:
             self.save()
         return changed

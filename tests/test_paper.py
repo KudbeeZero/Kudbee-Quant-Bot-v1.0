@@ -66,6 +66,45 @@ def test_scorecard_reports_expectancy_r(tmp_path):
     assert sc.loc[sc["setup"] == "confluence_r", "expectancy_r"].iloc[0] == 2.0
 
 
+def _pending(direction, limit, stop, target, days=2.0, fill_days=0.5):
+    p = Prediction(symbol="X", kind="bracket", level=limit, entry=limit, stop=stop,
+                   target=target, direction=direction, target_r=3.0, deadline_days=days,
+                   pending_limit=True, signal_price=limit + direction, fill_deadline_days=fill_days,
+                   setup="confluence_r")
+    p.created_at = (datetime.now(timezone.utc) - timedelta(hours=10)).isoformat()
+    return p
+
+
+def test_pending_limit_fills_then_wins(tmp_path):
+    # Long limit at 99.5 (below signal). Price dips to 99.5 (fills), then runs to
+    # target 99.5+3=102.5. Stop 98.5. Path: 100,99.4(fill),101,103.
+    j = _journal(tmp_path, [100, 99.4, 101, 103])
+    j.add(_pending(1, 99.5, 98.5, 102.5))
+    changed = j.check_open()
+    assert changed and changed[-1].status == "hit" and changed[-1].outcome_r == 3.0
+
+
+def test_pending_limit_cancelled_if_never_filled(tmp_path):
+    # Price never dips to the 99.5 limit within the fill window -> cancelled.
+    j = _journal(tmp_path, [100, 100.5, 101, 102])
+    p = _pending(1, 99.5, 98.5, 102.5, fill_days=0.01)  # tiny fill window (already passed)
+    j.add(p)
+    changed = j.check_open()
+    assert changed and changed[-1].status == "cancelled"
+    assert changed[-1].outcome_r is None  # no trade -> not scored
+
+
+def test_pending_limit_stays_pending_within_window(tmp_path):
+    # Not filled yet, fill window still open -> remains pending (no resolution).
+    j = _journal(tmp_path, [100, 100.5, 101, 101])
+    p = Prediction(symbol="X", kind="bracket", level=99.5, entry=99.5, stop=98.5,
+                   target=102.5, direction=1.0, target_r=3.0, deadline_days=5,
+                   pending_limit=True, fill_deadline_days=5.0, setup="c")
+    j.add(p)
+    assert j.check_open() == []  # still pending, nothing changed
+    assert j.predictions[-1].status == "pending"
+
+
 def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
     # Force a strong long confluence signal (60% of factors aligned).
@@ -78,10 +117,14 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
         def klines(self, *a, **k):
             return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
     j = TradeJournal(path=tmp_path / "j.json", client=C())
-    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, journal=j, client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           journal=j, client=C())
     assert len(logged) == 1
     p = logged[0]
-    assert p.kind == "bracket" and p.direction == 1.0 and p.target == 102.0 and p.stop == 99.0
+    # Pending LIMIT entry at a 0.25 ATR retrace: 100 - 0.25 = 99.75; stop 98.75;
+    # target 99.75 + 2*1 = 101.75.
+    assert p.kind == "bracket" and p.pending_limit and p.direction == 1.0
+    assert abs(p.entry - 99.75) < 1e-9 and abs(p.stop - 98.75) < 1e-9 and abs(p.target - 101.75) < 1e-9
     # Re-scan: already open on BTCUSDT -> no duplicate.
     assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, journal=j, client=C()) == []
     # Below-threshold confluence (40%) -> nothing logged on a fresh symbol.
