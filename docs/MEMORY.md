@@ -798,3 +798,37 @@ STANDING REPLY FORMAT (his ask, now in `CLAUDE.md`): every working reply ends wi
 a **Summary** (what was actually done — honest, with test/commit state and anything
 skipped) and a **Next** (the exact concrete action he should take next, recommended
 default first). Honesty over optimism — surface failures in the Summary, don't bury.
+
+## 28. Net-of-fee scoring — the zero-fee TradFi edge is now MEASURABLE — 2026-06-09
+
+Closed the §26 open follow-up ("journal R is GROSS of fees"). The scorecard now
+reports R both gross and NET of a per-VENUE round-trip fee, so the §26 promo edge
+is visible instead of implied.
+
+WHAT SHIPPED (first chat under the §27 relay; audited+merged the bootstrap PR #2,
+then built this):
+- `journal/fees.py`: venue is read AUTHORITATIVELY from the symbol spec (the same
+  routing signal the paper loop uses) — `yahoo:` = TradFi (0-fee promo), else
+  crypto. `fee_in_r` converts a round-trip fee% to R via `fee_pct * entry /
+  |entry-stop|` (R is risk-normalised, so a price-% cost must be divided by the
+  risk width). Non-bracket trades (no stop) can't be sized → charged 0.
+- `Journal.scorecard()` gains `net_expectancy_r` / `net_total_r`; CLI `journal
+  score` renders + explains them. TradFi rows keep net == gross; crypto rows pay
+  the drag — the GAP between the columns IS the zero-fee edge.
+- Config (scoring-only, `FEE_PCT` untouched/off-limits): `CRYPTO_FEE_ROUNDTRIP =
+  0.0008`, `TRADFI_FEE_ROUNDTRIP = 0.0`.
+
+HONEST UNKNOWN (the one thing to nail down): the crypto rate 0.0008 is an ASSUMED
+maker round-trip. It sits ABOVE `FEE_PCT`'s 0.0004 "round-trip maker" backtest
+figure and BELOW the §25 MEASURED taker (0.0009 rt) — i.e. deliberately
+conservative (it UNDER-states net edge, the safe direction). But `FEE_PCT=0.0004`
+and `CRYPTO_FEE_ROUNDTRIP=0.0008` are 2x apart and BOTH claim to be "maker" — that
+contradiction is unresolved until ONE real limit (maker) fill confirms the true
+rate (still the §25 OPEN ITEM). Until then the constant is FROZEN (don't drift it
+without a real fill). Tests: fee charged on crypto not TradFi, the fee→R math, and
+the per-venue net split. Suite 168 passed.
+
+STILL GROSS (next chat's scope): only the per-setup *scorecard* is net so far. The
+forward EQUITY CURVE (`resolved_series`) and `source_record` still report gross —
+so the same book shows two different numbers. Make them net too for consistency
+(`claude/net-of-fee-equity-curve`) before anyone misreads a gross figure as net.
