@@ -21,6 +21,8 @@ def paper_scan(
     client: BinanceClient | None = None,
     biases=None,
     require_bias: bool = False,
+    tp1_r: float | None = None,    # optional TARGET ONE (partial bank); None = full target only
+    tp1_frac: float = 0.5,
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
@@ -69,10 +71,12 @@ def paper_scan(
         limit = signal_price - direction * retrace_atr * atr
         stop = limit - direction * sd
         target = limit + direction * sd * target_r
+        tp1 = (limit + direction * sd * tp1_r) if tp1_r is not None else None
         side = "long" if direction > 0 else "short"
         p = j.add(Prediction(
             symbol=sym, kind="bracket", level=limit, entry=limit, stop=stop,
             target=target, direction=direction, target_r=target_r,
+            tp1=tp1, tp1_frac=tp1_frac,
             deadline_days=deadline_days, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=fill_deadline_days,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct",
@@ -80,7 +84,8 @@ def paper_scan(
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (f" Read: {bias.note}" if bias is not None and bias.note else "") +
                   f" LIMIT {limit:.4g} (retrace {retrace_atr} ATR from {signal_price:.4g}), "
-                  f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)."),
+                  f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)." +
+                  (f" TP1 {tp1:.4g} ({tp1_r}R, bank {tp1_frac:.0%})." if tp1 is not None else "")),
         ))
         logged.append(p)
     return logged

@@ -374,8 +374,9 @@ def _journal_check(args) -> None:
             print(f"  {p.id} {p.symbol} {p.setup}: {p.status.upper()}")
     else:
         print("No predictions resolved this check.")
-    opens = [p for p in j.predictions if p.status == "open"]
-    print(f"\n{len(opens)} still open, {len(j.predictions) - len(opens)} resolved.")
+    opens = [p for p in j.predictions if p.status in ("open", "pending")]
+    resolved = [p for p in j.predictions if p.status in ("hit", "miss", "cancelled")]
+    print(f"\n{len(opens)} open/pending, {len(resolved)} resolved.")
 
 
 def _journal_list(args) -> None:

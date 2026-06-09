@@ -50,6 +50,9 @@ def bracket_backtest(
     limit_retrace_atr: float | None = None,
     entry_window: int = 6,
     require_confirmation: bool = False,
+    tp1_r: float | None = None,
+    tp1_frac: float = 0.5,
+    be_after_tp1: bool = True,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -74,6 +77,16 @@ def bracket_backtest(
             ``entry_window`` bars; otherwise the signal is MISSED (no trade).
             Stop/target are measured from the limit fill price.
         entry_window: bars allowed for a limit entry to fill.
+        tp1_r: if set, take partial profit at this R-multiple (TARGET ONE) and
+            let the remainder run to ``target_r`` (TARGET TWO). ``tp1_frac`` of
+            the position is closed at TP1; the rest stays on. This is the
+            "scale out" / "bank some, ride the rest" management the user asked
+            for. When None, the trade is all-or-nothing at ``target_r`` (legacy).
+        tp1_frac: fraction of the position closed at TP1 (default 0.5 = half).
+        be_after_tp1: after TP1 fills, move the stop on the remainder to
+            BREAKEVEN (entry). This is the classic "free trade" — once half is
+            banked, the worst case on the rest is ~0R. Conservative within a
+            bar: the (breakeven) stop is checked before the favorable level.
     """
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
@@ -116,28 +129,143 @@ def bracket_backtest(
         stop = entry - direction * sd
         target = entry + direction * sd * target_r
         end = min(entry_bar + max_bars, n - 1)
-        outcome = None
-        exit_j = end
-        for j in range(entry_bar + 1, end + 1):
-            if direction > 0:
-                if low[j] <= stop:      # stop checked first (conservative)
-                    outcome, exit_j = -1.0, j; break
-                if high[j] >= target:
-                    outcome, exit_j = target_r, j; break
-            else:
-                if high[j] >= stop:
-                    outcome, exit_j = -1.0, j; break
-                if low[j] <= target:
-                    outcome, exit_j = target_r, j; break
-        if outcome is None:             # time-stop: mark to the exit close in R
-            outcome = direction * (close[end] - entry) / sd
+        if tp1_r is None:
+            outcome, exit_j = _resolve_full(direction, entry, stop, target, sd,
+                                            target_r, high, low, close, entry_bar, end)
+            extra_exit = 0.0
+        else:
+            outcome, exit_j = _resolve_partial(direction, entry, sd, target_r, tp1_r,
+                                               tp1_frac, be_after_tp1, high, low, close,
+                                               entry_bar, end)
+            extra_exit = tp1_frac      # scaling out adds a partial exit fill
         # Realistic cost: convert a price-fraction cost to R via the stop size.
-        cost = fee_r if fee_pct is None else fee_pct * entry / sd
+        # A partial exit (TP1) incurs one extra half round-trip on tp1_frac.
+        cost = fee_r if fee_pct is None else fee_pct * entry / sd * (1 + 0.5 * extra_exit)
         trade_size = sz[t] if size is not None else 1.0
         trades.append((outcome - cost) * trade_size)
         busy_until = exit_j
 
     return _summarize(trades, target_r)
+
+
+def bracket_excursions(
+    df: pd.DataFrame,
+    signal: pd.Series,
+    stop_atr: float = 1.5,
+    max_bars: int = 24,
+    limit_retrace_atr: float | None = 0.25,
+    entry_window: int = 6,
+) -> pd.DataFrame:
+    """Per-trade Max Favorable / Adverse Excursion in R — the honest answer to
+    "how often does price reach 1R, 1.5R, 2R, 3R before my stop?".
+
+    For each entered trade (same entry logic as ``bracket_backtest``: optional
+    limit-retrace fill, fixed stop = 1R), walk forward until the stop is hit or
+    ``max_bars`` elapse, and record:
+      mfe_r  : the furthest FAVORABLE move reached, in R (capped at the bar the
+               stop hits — you can only bank what came before you were stopped).
+      mae_r  : the furthest ADVERSE move (<=0; -1 means the stop was reached).
+      stopped: whether the 1R stop was hit within the window.
+    With this, P(mfe_r >= X) is exactly the hit-rate of a take-profit at X R.
+    """
+    need = {"high", "low", "close", "atr"}
+    if not need <= set(df.columns):
+        raise ValueError(f"bracket_excursions needs columns {sorted(need)}")
+    close = df["close"].to_numpy(); high = df["high"].to_numpy()
+    low = df["low"].to_numpy(); atr = df["atr"].to_numpy()
+    op = df["open"].to_numpy() if "open" in df.columns else close
+    sig = pd.Series(signal, index=df.index).fillna(0.0).to_numpy()
+    n = len(df)
+    rows = []
+    busy_until = -1
+    for t in range(n - 1):
+        if sig[t] == 0 or t <= busy_until:
+            continue
+        direction = 1.0 if sig[t] > 0 else -1.0
+        sd = stop_atr * atr[t]
+        if not np.isfinite(sd) or sd <= 0:
+            continue
+        if limit_retrace_atr is None:
+            entry, entry_bar = close[t], t
+        else:
+            limit = close[t] - direction * limit_retrace_atr * atr[t]
+            ewin = min(t + entry_window, n - 1)
+            entry_bar = None
+            for j in range(t + 1, ewin + 1):
+                if (direction > 0 and low[j] <= limit) or (direction < 0 and high[j] >= limit):
+                    entry_bar = j; break
+            if entry_bar is None:
+                continue
+            entry = limit
+        stop = entry - direction * sd
+        end = min(entry_bar + max_bars, n - 1)
+        mfe = 0.0; mae = 0.0; stopped = False; exit_j = end
+        for j in range(entry_bar + 1, end + 1):
+            fav = direction * (high[j] - entry) / sd if direction > 0 else direction * (low[j] - entry) / sd
+            adv = direction * (low[j] - entry) / sd if direction > 0 else direction * (high[j] - entry) / sd
+            mfe = max(mfe, fav)
+            mae = min(mae, adv)
+            hit_stop = (low[j] <= stop) if direction > 0 else (high[j] >= stop)
+            if hit_stop:
+                stopped = True; exit_j = j; mae = min(mae, -1.0); break
+        rows.append({"direction": direction, "mfe_r": float(mfe),
+                     "mae_r": float(mae), "stopped": stopped})
+        busy_until = exit_j
+    return pd.DataFrame(rows)
+
+
+def _resolve_full(direction, entry, stop, target, sd, target_r,
+                  high, low, close, entry_bar, end):
+    """All-or-nothing exit: first of stop/target wins; else mark to close."""
+    for j in range(entry_bar + 1, end + 1):
+        if direction > 0:
+            if low[j] <= stop:          # stop checked first (conservative)
+                return -1.0, j
+            if high[j] >= target:
+                return target_r, j
+        else:
+            if high[j] >= stop:
+                return -1.0, j
+            if low[j] <= target:
+                return target_r, j
+    return direction * (close[end] - entry) / sd, end
+
+
+def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_tp1,
+                     high, low, close, entry_bar, end):
+    """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), ride the rest to
+    TARGET TWO (target_r); optionally move the stop to breakeven after TP1.
+
+    Returns the BLENDED R for the whole position (sum of each tranche's R,
+    weighted by its size). Conservative within a bar: the active stop is checked
+    before the favorable level, and TP2 is not resolved on the same bar TP1 fills.
+    """
+    stop = entry - direction * sd
+    tp1 = entry + direction * sd * tp1_r
+    target = entry + direction * sd * target_r
+    realized = 0.0
+    remaining = 1.0
+    tp1_done = False
+    cur_stop = stop
+    for j in range(entry_bar + 1, end + 1):
+        hit_stop = (low[j] <= cur_stop) if direction > 0 else (high[j] >= cur_stop)
+        if hit_stop:                              # stop first (conservative)
+            stop_r = direction * (cur_stop - entry) / sd   # -1R pre-TP1, ~0 at BE
+            return realized + remaining * stop_r, j
+        if not tp1_done:
+            hit_tp1 = (high[j] >= tp1) if direction > 0 else (low[j] <= tp1)
+            if hit_tp1:
+                realized += tp1_frac * tp1_r
+                remaining -= tp1_frac
+                tp1_done = True
+                if be_after_tp1:
+                    cur_stop = entry
+                continue                          # don't also resolve TP2 this bar
+        else:
+            hit_tgt = (high[j] >= target) if direction > 0 else (low[j] <= target)
+            if hit_tgt:
+                return realized + remaining * target_r, j
+    return realized + remaining * direction * (close[end] - entry) / sd, end
 
 
 def _is_confirmation(o: float, h: float, l: float, c: float, direction: float) -> bool:

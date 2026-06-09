@@ -20,7 +20,9 @@ indicator("Kudbee Confluence Engine", overlay=true, max_lines_count=120, max_lab
 // ---- Inputs -----------------------------------------------------------------
 minPct      = input.float(0.5, "Confluence threshold (fraction of factors)", minval=0.1, maxval=1.0, step=0.05, group="Strategy")
 stopAtr     = input.float(1.5, "Stop distance (ATR)", minval=0.3, step=0.1, group="Strategy", tooltip="1.5 ATR validated best (wider stop, keep ~3:1)")
-targetR     = input.float(3.0, "Target (reward : risk)", minval=1.0, step=0.5, group="Strategy")
+targetR     = input.float(3.0, "Target TWO (reward : risk)", minval=1.0, step=0.5, group="Strategy")
+showTp1     = input.bool(false, "Show TARGET ONE (partial bank)", group="Strategy", tooltip="Optional scale-out: bank part at TP1, ride the rest. Full-3R has higher expectancy; TP1 raises win-rate / takes something off the table.")
+tp1R        = input.float(1.5, "Target ONE (reward : risk)", minval=0.5, step=0.5, group="Strategy", tooltip="In backtest TP1=1.5R is reached ~2x as often as the full 3R target")
 retraceAtr  = input.float(0.25, "Limit-entry retrace (ATR)", minval=0.0, step=0.05, group="Strategy", tooltip="Enter on a pullback = maker fill + better price")
 biasInput   = input.string("Auto", "Your directional read (bias)", options=["Auto", "Long only", "Short only"], group="Strategy", tooltip="Set this to YOUR high-probability direction; the engine scalps WITH it")
 showLevels  = input.bool(true,  "Show key levels", group="Display")
@@ -105,6 +107,7 @@ actionable = confPct >= minPct and direction != 0 and aligned
 entryLimit = close - direction * retraceAtr * atr
 stopP      = entryLimit - direction * stopAtr * atr
 targetP    = entryLimit + direction * stopAtr * targetR * atr
+tp1P       = entryLimit + direction * stopAtr * tp1R * atr
 
 // ---- Vector candle colouring ------------------------------------------------
 vColor = bullClimax ? color.lime : bearClimax ? color.red : above and isBull ? color.new(color.blue, 0) : above and not isBull ? color.fuchsia : na
@@ -123,13 +126,17 @@ newSig = actionable and not actionable[1]
 var line lE = na
 var line lS = na
 var line lT = na
+var line lT1 = na
 var label lab = na
 if showBracket and newSig
-    line.delete(lE), line.delete(lS), line.delete(lT), label.delete(lab)
+    line.delete(lE), line.delete(lS), line.delete(lT), line.delete(lT1), label.delete(lab)
     x2 = bar_index + 24
     lE := line.new(bar_index, entryLimit, x2, entryLimit, color=color.blue,   width=2, style=line.style_solid)
     lS := line.new(bar_index, stopP,      x2, stopP,      color=color.red,    width=1, style=line.style_dashed)
     lT := line.new(bar_index, targetP,    x2, targetP,    color=color.green,  width=1, style=line.style_dashed)
+    if showTp1
+        lT1 := line.new(bar_index, tp1P, x2, tp1P, color=color.new(color.green, 40), width=1, style=line.style_dotted)
+        label.new(bar_index, tp1P, "TP1 " + str.tostring(tp1R, "#.#") + "R", style=direction>0?label.style_label_down:label.style_label_up, color=color.new(color.green, 60), textcolor=color.white, size=size.tiny)
     side = direction > 0 ? "LONG" : "SHORT"
     lab := label.new(bar_index, targetP, side + " " + str.tostring(confPct*100, "#") + "% conf · " + str.tostring(targetR, "#.#") + "R", style=direction>0?label.style_label_down:label.style_label_up, color=color.new(direction>0?color.green:color.red,20), textcolor=color.white, size=size.small)
 

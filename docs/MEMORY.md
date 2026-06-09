@@ -252,7 +252,39 @@ MTF ENTRY REFINEMENT (1h direction -> 15m timing, the top-down method):
   discretionary entry timing (stopping candle, cookie-crumb vectors), which the
   machine can't bottle. Consistent with the whole project.
 
+## 12. TP1/TP2 partial profit + MFE survival + stocks — 2026-06-09
+
+The user asked to "set up target one and target two for profit taking" and to
+measure how often the FIRST target is hit vs the FULL one. Built it honestly.
+
+WHAT WAS BUILT (opt-in; full-3R stays the validated DEFAULT):
+- bracket.py: `tp1_r`/`tp1_frac`/`be_after_tp1` (scale out, move stop to BE after
+  TP1) + `bracket_excursions()` (per-trade Max Favorable Excursion in R).
+- journal.py: Prediction.tp1/tp1_frac/be_after_tp1/tp1_filled_at + `_resolve_partial`
+  (stateless blended-R resolution; banks TP1, rides rest, BE stop).
+- paper.py: optional `tp1_r`/`tp1_frac`. Pine: optional TARGET ONE line.
+
+MFE SURVIVAL (how often each R-target is reached before the 1R stop; just counting
+— SOLID). 1h, >=50% confluence, 1.5-ATR stop, 0.25-ATR limit retrace:
+  CRYPTO (n=676):  1R=58% 1.5R=46% 2R=35% 2.5R=28% 3R=22% 4R=14%
+  STOCKS (n=904):  1R=51% 1.5R=41% 2R=33% 2.5R=27% 3R=21% 4R=12%
+  => TP1 at 1.5R is hit ~2x as often as the full 3R target. Taking something off
+     the table is real — but it CAPS the winners that pay for the losers.
+
+REAL EXPECTANCY (proper bracket_backtest — NOT the -1R-on-miss proxy, which is too
+pessimistic and wrongly printed negative). Pooled, by fee:
+                       zero    ~0.02% (stock spread)   0.04% (crypto maker)
+  CRYPTO full-3R:    +0.270R        +0.249R                +0.227R
+  CRYPTO scale 2R+4R:+0.235R        +0.209R                +0.182R
+  STOCKS full-3R:    +0.168R        +0.148R                +0.129R
+  STOCKS scale 2R+4R:+0.143R        +0.119R                +0.095R
+HONEST VERDICT: full-3R has the HIGHEST expectancy and best return/drawdown (~9.7
+vs ~5-6 for scale-out). Scaling out RAISES win-rate (39%->43-48%) and feels better
+but costs ~0.04-0.07R of expectancy. Use TP1 for psychology / "free trade" comfort,
+not as an edge enhancer. STOCKS work too (commission-free now): positive but a bit
+lower than crypto (+0.13-0.17R). LOWER FEES improve everything — the user is right.
+
 PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
 hourly Action. Everything in main: engine + website + Live Signals + API +
 TradingView indicator (pinescript/kudbee_confluence.pine) + alert->journal webhook
-+ bias layer + research Vols 1-10. Ready to archive.
++ bias layer + TP1/TP2 partials + research Vols 1-10. Ready to archive.

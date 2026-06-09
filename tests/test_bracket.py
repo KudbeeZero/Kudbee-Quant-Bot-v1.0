@@ -120,3 +120,57 @@ def test_short_side_target():
     sig = pd.Series([-1, 0, 0, 0, 0], dtype=float)
     r = bracket_backtest(df, sig, stop_atr=1.0, target_r=2.0, max_bars=4, fee_r=0.0)
     assert r.trades[0] == 2.0
+
+
+def test_tp1_tp2_full_run_blends_both_targets():
+    # Long at 100, ATR 1. TP1 at +2R (102, half), TP2/target at +4R (104, half).
+    # Price runs to 104 -> blended R = 0.5*2 + 0.5*4 = 3.0R.
+    prices = [100, 100, 102, 104, 104]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[2, "high"] = 102.0
+    df.loc[3, "high"] = 104.0
+    sig = pd.Series([1, 0, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=4.0, max_bars=4, fee_r=0.0,
+                         tp1_r=2.0, tp1_frac=0.5, be_after_tp1=True)
+    assert r.n_trades == 1
+    assert abs(r.trades[0] - 3.0) < 1e-9
+
+
+def test_tp1_then_breakeven_stop_banks_half():
+    # Long at 100. TP1 +2R (102) fills banking 0.5*2=1R, stop -> breakeven (100).
+    # Price then falls back through 100 before reaching TP2 -> remainder exits ~0R.
+    # Blended R = 1.0 + 0.5*0 = 1.0R (the "free trade" outcome).
+    prices = [100, 100, 102, 100, 99]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[2, "high"] = 102.0
+    df.loc[3, "low"] = 99.9       # dips back to breakeven (100) after TP1
+    sig = pd.Series([1, 0, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=4.0, max_bars=4, fee_r=0.0,
+                         tp1_r=2.0, tp1_frac=0.5, be_after_tp1=True)
+    assert abs(r.trades[0] - 1.0) < 1e-9
+
+
+def test_bracket_excursions_records_mfe_and_stop():
+    from kudbee_quant.backtest.bracket import bracket_excursions
+    # Long market entry at 100 (no retrace), ATR 1. Price runs to 102.5 (MFE 2.5R)
+    # then drops through the 99 stop (MAE -1, stopped). Path highs/lows crafted.
+    prices = [100, 101, 102.5, 98.5, 98]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[2, "high"] = 102.5
+    df.loc[3, "low"] = 98.5      # breaches the 99 stop
+    sig = pd.Series([1, 0, 0, 0, 0], dtype=float)
+    ex = bracket_excursions(df, sig, stop_atr=1.0, max_bars=4, limit_retrace_atr=None)
+    assert len(ex) == 1
+    assert abs(ex["mfe_r"].iloc[0] - 2.5) < 1e-9
+    assert ex["stopped"].iloc[0] and ex["mae_r"].iloc[0] <= -1.0
+
+
+def test_tp1_full_stop_before_tp1_is_minus_one():
+    # Long at 100, stop at 99. Price drops to 98 before TP1 -> full -1R (no partial).
+    prices = [100, 99.5, 98, 98]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[2, "low"] = 98.0
+    sig = pd.Series([1, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=4.0, max_bars=3, fee_r=0.0,
+                         tp1_r=2.0, tp1_frac=0.5, be_after_tp1=True)
+    assert abs(r.trades[0] - (-1.0)) < 1e-9

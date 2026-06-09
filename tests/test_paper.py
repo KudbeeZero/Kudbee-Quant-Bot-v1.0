@@ -105,6 +105,36 @@ def test_pending_limit_stays_pending_within_window(tmp_path):
     assert j.predictions[-1].status == "pending"
 
 
+def test_bracket_partial_tp1_banks_then_breakeven(tmp_path):
+    # Long entry 100, stop 99, TP1 at 101 (half), TP2/target at 103.
+    # Price hits 101 (banks 0.5*1R=0.5R, stop->BE 100), then falls back to 100
+    # before TP2 -> remainder ~0R. Blended = 0.5R. Path: 100,101,100,99.9.
+    j = _journal(tmp_path, [100, 101, 100, 99.9])
+    p = Prediction(symbol="X", kind="bracket", level=100, entry=100, stop=99,
+                   target=103, tp1=101, tp1_frac=0.5, be_after_tp1=True,
+                   direction=1.0, target_r=3.0, deadline_days=1.0, setup="partial")
+    p.created_at = (datetime.now(timezone.utc) - timedelta(hours=10)).isoformat()
+    j.add(p)
+    changed = j.check_open()
+    assert changed and changed[-1].outcome_r is not None
+    assert abs(changed[-1].outcome_r - 0.5) < 1e-9
+    assert changed[-1].tp1_filled_at is not None
+
+
+def test_bracket_partial_full_run_blends_targets(tmp_path):
+    # TP1 at 101 (half @ +1R), TP2 at 103 (half @ +3R). Price runs to 103.
+    # Blended = 0.5*1 + 0.5*3 = 2.0R. Path: 100,101,103,103.
+    j = _journal(tmp_path, [100, 101, 103, 103])
+    p = Prediction(symbol="X", kind="bracket", level=100, entry=100, stop=99,
+                   target=103, tp1=101, tp1_frac=0.5, be_after_tp1=True,
+                   direction=1.0, target_r=3.0, deadline_days=1.0, setup="partial")
+    p.created_at = (datetime.now(timezone.utc) - timedelta(hours=10)).isoformat()
+    j.add(p)
+    changed = j.check_open()
+    assert changed and changed[-1].status == "hit"
+    assert abs(changed[-1].outcome_r - 2.0) < 1e-9
+
+
 def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
     # Force a strong long confluence signal (60% of factors aligned).
