@@ -1,8 +1,5 @@
 {
   "pending": [
-    "target_5r",
-    "vol_dryup_coil",
-    "inside_bar",
     "conf_60",
     "trend_strong_sep",
     "two_bar_momentum",
@@ -45,6 +42,9 @@
     "wider_stop",
     "tighter_stop",
     "entry_window_long",
-    "entry_window_short"
+    "entry_window_short",
+    "target_5r",
+    "vol_dryup_coil",
+    "inside_bar"
   ]
 }

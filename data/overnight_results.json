@@ -68,6 +68,17 @@
       "interval": "1h",
       "baseline_exp": 0.1713,
       "baseline_n": 1578
+    },
+    {
+      "ts": "2026-06-09 09:03 UTC",
+      "tested": [
+        "target_5r",
+        "vol_dryup_coil",
+        "inside_bar"
+      ],
+      "interval": "1h",
+      "baseline_exp": 0.1721,
+      "baseline_n": 1578
     }
   ],
   "results": [
@@ -562,6 +573,57 @@
       "base_win": 0.382,
       "cand_win": 0.374,
       "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "target_5r",
+      "desc": "Execution: 5R target everywhere",
+      "tested_at": "2026-06-09 09:03 UTC",
+      "n_trades": 1419,
+      "base_n": 1578,
+      "keep_pct": 0.899,
+      "base_exp": 0.1721,
+      "cand_exp": 0.179,
+      "delta": 0.0069,
+      "h1_delta": 0.0588,
+      "h2_delta": -0.0431,
+      "base_win": 0.382,
+      "cand_win": 0.357,
+      "verdict": "NEUTRAL",
+      "interval": "1h"
+    },
+    {
+      "name": "vol_dryup_coil",
+      "desc": "Coil + volume dry-up (accumulation tell)",
+      "tested_at": "2026-06-09 09:03 UTC",
+      "n_trades": 521,
+      "base_n": 1578,
+      "keep_pct": 0.33,
+      "base_exp": 0.1721,
+      "cand_exp": 0.1455,
+      "delta": -0.0266,
+      "h1_delta": 0.0449,
+      "h2_delta": -0.0875,
+      "base_win": 0.382,
+      "cand_win": 0.382,
+      "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "inside_bar",
+      "desc": "Prior bar is an inside bar (compression)",
+      "tested_at": "2026-06-09 09:03 UTC",
+      "n_trades": 875,
+      "base_n": 1578,
+      "keep_pct": 0.554,
+      "base_exp": 0.1721,
+      "cand_exp": 0.1829,
+      "delta": 0.0108,
+      "h1_delta": 0.0488,
+      "h2_delta": -0.0355,
+      "base_win": 0.382,
+      "cand_win": 0.392,
+      "verdict": "NEUTRAL",
       "interval": "1h"
     }
   ]
