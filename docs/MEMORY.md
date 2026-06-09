@@ -793,3 +793,8 @@ source of truth for "what's next"; memory is read first, every session.
 
 BOOTSTRAP NOTE: work BEFORE the introducing PR (§24–§26) was merged direct to
 `main` pre-protocol; the one-PR-per-chat + audit-gate rules apply from that PR on.
+
+STANDING REPLY FORMAT (his ask, now in `CLAUDE.md`): every working reply ends with
+a **Summary** (what was actually done — honest, with test/commit state and anything
+skipped) and a **Next** (the exact concrete action he should take next, recommended
+default first). Honesty over optimism — surface failures in the Summary, don't bury.

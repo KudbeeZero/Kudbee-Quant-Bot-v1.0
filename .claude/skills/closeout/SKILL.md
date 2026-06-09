@@ -53,6 +53,9 @@ Rewrite the **Current baton** and **NEXT chat** sections:
 - Append a one-line entry to **Baton history**.
 - Commit (`closeout: hand off to <next-branch> [skip ci]`) and push the branch.
 
-## 6. Tell the user
-State: the PR URL, that it is AWAITING_AUDIT, and that the **next chat should run
-`/handoff-audit` first** — it will review this PR, and merge it only on a PASS.
+## 6. Tell the user (the standing end-of-reply format — see CLAUDE.md)
+Close with two labelled parts:
+- **Summary** — what this session shipped (honest; PR URL; status AWAITING_AUDIT;
+  test result; anything skipped/uncertain).
+- **Next** — exactly what to do next: the next chat should run `/handoff-audit`
+  first (it reviews this PR and merges only on a PASS), then work the baton scope.
