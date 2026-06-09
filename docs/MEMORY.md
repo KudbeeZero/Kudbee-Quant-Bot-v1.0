@@ -235,3 +235,24 @@ confluence score + dashboard, PVSRA vector colouring, key levels, the limit-
 retrace bracket, bias filter, and phone alerts. alert() fires a JSON webhook ->
 POST /api/alert -> auto-logs a paper trade (chart setup -> journal -> forward
 score). The engine now lives ON the trading screen.
+
+## 11. Project Syndicate pattern + MTF entry refinement — 2026-06-09 (final session tests)
+
+PROJECT SYNDICATE double-top/bottom (his signature "Pattern Recognition"):
+- FADE equal highs/lows (enter early): +0.046R, 58% positive — weak/breakeven.
+- NECKLINE BREAK (wait for confirmation): +0.181R, 75% positive — REAL edge
+  (first borrowed mechanism to beat the null; still < confluence-R +0.235R and
+  likely correlated). Lesson reinforced: the CONFIRMATION/execution timing is the
+  edge, not the pattern (same as limit-retrace).
+
+MTF ENTRY REFINEMENT (1h direction -> 15m timing, the top-down method):
+- 15m alone: -0.045R. 15m GATED by 1h direction: -0.013R. Both NEGATIVE -- the
+  mechanical 15m entry is not viable (cost+noise), and the 1h gate doesn't rescue
+  it. CONCLUSION: bot executes on 1h/2h/4h; the lower TFs are for the HUMAN's
+  discretionary entry timing (stopping candle, cookie-crumb vectors), which the
+  machine can't bottle. Consistent with the whole project.
+
+PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
+hourly Action. Everything in main: engine + website + Live Signals + API +
+TradingView indicator (pinescript/kudbee_confluence.pine) + alert->journal webhook
++ bias layer + research Vols 1-10. Ready to archive.
