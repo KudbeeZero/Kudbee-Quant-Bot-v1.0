@@ -35,6 +35,17 @@
       "interval": "1h",
       "baseline_exp": 0.1662,
       "baseline_n": 1577
+    },
+    {
+      "ts": "2026-06-09 07:30 UTC",
+      "tested": [
+        "coil_rng_pct",
+        "atr_band_3085",
+        "ret_autocorr_pos"
+      ],
+      "interval": "1h",
+      "baseline_exp": 0.1664,
+      "baseline_n": 1577
     }
   ],
   "results": [
@@ -376,6 +387,57 @@
       "base_win": 0.38,
       "cand_win": 0.41,
       "verdict": "WINNER",
+      "interval": "1h"
+    },
+    {
+      "name": "coil_rng_pct",
+      "desc": "Coil: prior-bar range in bottom quintile of trailing-50",
+      "tested_at": "2026-06-09 07:29 UTC",
+      "n_trades": 707,
+      "base_n": 1577,
+      "keep_pct": 0.448,
+      "base_exp": 0.1664,
+      "cand_exp": 0.1386,
+      "delta": -0.0278,
+      "h1_delta": -0.0107,
+      "h2_delta": -0.0344,
+      "base_win": 0.38,
+      "cand_win": 0.368,
+      "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "atr_band_3085",
+      "desc": "Regime: ATR%-percentile band 0.30..0.85 (wider band)",
+      "tested_at": "2026-06-09 07:29 UTC",
+      "n_trades": 978,
+      "base_n": 1577,
+      "keep_pct": 0.62,
+      "base_exp": 0.1664,
+      "cand_exp": 0.103,
+      "delta": -0.0634,
+      "h1_delta": -0.0238,
+      "h2_delta": -0.101,
+      "base_win": 0.38,
+      "cand_win": 0.371,
+      "verdict": "HURTS",
+      "interval": "1h"
+    },
+    {
+      "name": "ret_autocorr_pos",
+      "desc": "Regime: 48-bar return autocorrelation > 0",
+      "tested_at": "2026-06-09 07:30 UTC",
+      "n_trades": 857,
+      "base_n": 1577,
+      "keep_pct": 0.543,
+      "base_exp": 0.1664,
+      "cand_exp": 0.1622,
+      "delta": -0.0042,
+      "h1_delta": 0.0297,
+      "h2_delta": -0.0658,
+      "base_win": 0.38,
+      "cand_win": 0.383,
+      "verdict": "NEUTRAL",
       "interval": "1h"
     }
   ]

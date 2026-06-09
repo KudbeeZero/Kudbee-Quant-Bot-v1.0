@@ -1,8 +1,5 @@
 {
   "pending": [
-    "coil_rng_pct",
-    "atr_band_3085",
-    "ret_autocorr_pos",
     "climax_dir_veto",
     "pullback_run2",
     "wider_stop",
@@ -31,6 +28,9 @@
     "size_by_confluence",
     "round_number_entry",
     "variance_ratio_trend",
-    "clean_trend_stack"
+    "clean_trend_stack",
+    "coil_rng_pct",
+    "atr_band_3085",
+    "ret_autocorr_pos"
   ]
 }
