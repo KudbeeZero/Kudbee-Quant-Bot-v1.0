@@ -53,6 +53,10 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
         in_bull = (df["low"] <= df["bull_fvg_top"]) & (df["high"] >= df["bull_fvg_bottom"])
         in_bear = (df["high"] >= df["bear_fvg_bottom"]) & (df["low"] <= df["bear_fvg_top"])
         out["v_fvg"] = np.where(in_bull, 1.0, np.where(in_bear, -1.0, 0.0))
+    # NOTE: an Order-Block vote (Vol 4 sec 2) was tested here and REMOVED — it
+    # diluted the edge (walk-forward median +0.148R -> +0.125R, 75% -> 72%
+    # positive). The OB zones remain available as features (build_levels) for
+    # other uses; they just don't improve the confluence score. Parsimony wins.
 
     return out.fillna(0.0)
 

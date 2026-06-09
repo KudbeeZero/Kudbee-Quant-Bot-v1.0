@@ -73,6 +73,37 @@ def add_fvg(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def add_order_blocks(df: pd.DataFrame, disp_mult: float = 1.5) -> pd.DataFrame:
+    """ICT Order Blocks (Vol 4 sec 2): last opposite candle before a displacement.
+
+    Bullish OB = the bearish candle immediately before a strong up-displacement
+    (body > disp_mult*ATR); its [low, high] becomes a demand zone. Bearish OB is
+    the mirror. The zone is confirmed at the displacement bar and exposed only
+    from the NEXT bar (shifted + ffill) so it is causal.
+    """
+    out = df.copy()
+    if "atr" not in out.columns:
+        return out
+    body = out["close"] - out["open"]
+    up_disp = body > disp_mult * out["atr"]
+    dn_disp = -body > disp_mult * out["atr"]
+    prev_bear = out["close"].shift(1) < out["open"].shift(1)
+    prev_bull = out["close"].shift(1) > out["open"].shift(1)
+
+    bull_ob = up_disp & prev_bear
+    bear_ob = dn_disp & prev_bull
+    bull_low = out["low"].shift(1).where(bull_ob)
+    bull_high = out["high"].shift(1).where(bull_ob)
+    bear_low = out["low"].shift(1).where(bear_ob)
+    bear_high = out["high"].shift(1).where(bear_ob)
+
+    out["bull_ob_low"] = bull_low.shift(1).ffill()
+    out["bull_ob_high"] = bull_high.shift(1).ffill()
+    out["bear_ob_low"] = bear_low.shift(1).ffill()
+    out["bear_ob_high"] = bear_high.shift(1).ffill()
+    return out
+
+
 def add_macro_flags(df: pd.DataFrame) -> pd.DataFrame:
     """ICT macro-time and Silver Bullet windows from NY-local time (DST-correct).
 
@@ -94,5 +125,6 @@ def add_microstructure(df: pd.DataFrame) -> pd.DataFrame:
     out = add_session_vwap(df)
     out = add_premium_discount(out)
     out = add_fvg(out)
+    out = add_order_blocks(out)
     out = add_macro_flags(out)
     return out
