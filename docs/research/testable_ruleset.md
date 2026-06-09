@@ -402,3 +402,28 @@ sensitivity. Remaining before capital: more historical eras (crypto folds span
 parameter-selection caveat (min_strength=5/2R chosen from a grid that was
 positive throughout), and FORWARD/paper validation on live data. Status:
 a genuine, cross-asset, cost-robust, walk-forward-validated EDGE CANDIDATE.
+
+### Threshold calibration: confluence as a PERCENTAGE, and a ~50% floor
+
+The trader noted the threshold should be a percentage, not 5/5 ("I'd take a 3/5
+or 4/5"). Reconciled by aligning denominators: the system has ~10 factors, so
+"3 of 5" = 60% = strength 6/10, NOT strength 3. Marginal (exact-strength) OOS
+expectancy (crypto majors, 2R, costs in):
+
+| exact strength | %    | win% | exp_R  |
+|----------------|------|------|--------|
+| 3/10           | 30%  | 33%  | -0.074 |  (loses)
+| 4/10           | 40%  | 36%  | +0.013 |  (breakeven)
+| 5/10           | 50%  | 42%  | +0.214 |  (edge)
+| 6/10           | 60%  | 40%  | +0.142 |
+| 7/10           | 70%  | 43%  | +0.224 |
+
+So 50%+ confluence is the tradeable zone (the trader's "~3 of 5" is right once
+denominators match); there is a FLOOR near 50% — below ~40% it stops paying.
+
+Confidence-scaled SIZING was tested and did NOT help: flat full-size at >=50%
+gave total +91.2R, exp +0.210, per-trade-Sharpe +0.144 — better than sizing by
+confluence (+24.6R, Sharpe +0.125) or reaching down to 40% (+16.0R, +0.070).
+Conclusion: take every >=50%-confluence setup at full size and stop there;
+don't down-size mid setups or reach for weak ones. Threshold is now a tunable
+percentage (confluence_pct / min_pct); paper-scan defaults to 0.5.

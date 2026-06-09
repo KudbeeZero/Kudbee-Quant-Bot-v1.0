@@ -68,21 +68,53 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def confluence_score(df: pd.DataFrame) -> pd.DataFrame:
-    """Add net_score (sum of votes), strength (|net|), and direction columns."""
+    """Add net_score (sum of votes), strength (|net|), direction, and pct.
+
+    ``confluence_pct`` = strength / n_factors — the intuitive "X out of N"
+    percentage the trader reasons in, so a threshold can be set as a percentage
+    (e.g. 0.6 = "3 of 5") rather than a raw count.
+    """
     votes = factor_votes(df)
     out = df.copy()
+    n_factors = max(votes.shape[1], 1)
     out["net_score"] = votes.sum(axis=1)
     out["strength"] = out["net_score"].abs()
     out["direction"] = np.sign(out["net_score"])
-    out["n_factors"] = votes.shape[1]
+    out["n_factors"] = n_factors
+    out["confluence_pct"] = out["strength"] / n_factors
     return out
 
 
-def confluence_position(df: pd.DataFrame, min_strength: float = 4.0) -> pd.Series:
-    """Strategy signal: take the confluence direction only when strength is high."""
+def confluence_position(df: pd.DataFrame, min_strength: float = 4.0,
+                        min_pct: float | None = None) -> pd.Series:
+    """Strategy signal: take the confluence direction above a threshold.
+
+    Threshold by raw ``min_strength`` (default) OR by ``min_pct`` (fraction of
+    factors aligned) when provided — the percentage the trader thinks in.
+    """
     scored = confluence_score(df)
-    sig = scored["direction"].where(scored["strength"] >= min_strength, 0.0)
-    return sig.astype(float)
+    if min_pct is not None:
+        gate = scored["confluence_pct"] >= min_pct
+    else:
+        gate = scored["strength"] >= min_strength
+    return scored["direction"].where(gate, 0.0).astype(float)
+
+
+def confluence_sized_position(df: pd.DataFrame, min_pct: float = 0.5,
+                              floor_size: float = 0.25) -> tuple[pd.Series, pd.Series]:
+    """Directional signal + per-trade SIZE scaled by confluence percentage.
+
+    "Give it a certain percentage": above ``min_pct``, size ramps linearly from
+    ``floor_size`` (at the threshold) to 1.0 (at 100% confluence). Below the
+    threshold, no trade. Returns (signal, size) where size is in [0, 1].
+    """
+    scored = confluence_score(df)
+    gate = scored["confluence_pct"] >= min_pct
+    span = max(1.0 - min_pct, 1e-9)
+    ramp = floor_size + (1.0 - floor_size) * ((scored["confluence_pct"] - min_pct) / span).clip(0, 1)
+    sig = scored["direction"].where(gate, 0.0).astype(float)
+    size = ramp.where(gate, 0.0).astype(float)
+    return sig, size
 
 
 def confluence_directional_study(

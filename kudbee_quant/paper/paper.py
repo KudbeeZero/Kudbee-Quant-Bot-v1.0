@@ -9,7 +9,7 @@ from ..levels import build_levels
 
 def paper_scan(
     symbols: list[str],
-    min_strength: float = 5.0,
+    min_pct: float = 0.5,
     target_r: float = 2.0,
     stop_atr: float = 1.0,
     interval: str = "1h",
@@ -19,8 +19,9 @@ def paper_scan(
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
-    One open trade per symbol at a time (no pyramiding). Returns the list of
-    newly-logged predictions (empty if nothing signals).
+    Threshold is a confluence PERCENTAGE (``min_pct``, e.g. 0.5 = "half the
+    factors aligned" — the validated floor). One open trade per symbol at a
+    time. Returns the list of newly-logged predictions (empty if none).
     """
     j = journal or TradeJournal()
     client = client or BinanceClient()
@@ -34,8 +35,9 @@ def paper_scan(
             continue  # already in a paper trade on this symbol
         f = build_levels(client.klines(sym, interval=interval, limit=600))
         last = confluence_score(f).iloc[-1]
-        strength, direction = float(last["strength"]), float(last["direction"])
-        if strength < min_strength or direction == 0:
+        pct, direction = float(last["confluence_pct"]), float(last["direction"])
+        strength = float(last["strength"])
+        if pct < min_pct or direction == 0:
             continue
         entry = float(last["close"])
         sd = float(last["atr"]) * stop_atr
@@ -48,9 +50,10 @@ def paper_scan(
             symbol=sym, kind="bracket", level=entry, entry=entry, stop=stop,
             target=target, direction=direction, target_r=target_r,
             deadline_days=deadline_days, timeframe=interval,
-            setup=f"confluence_r_s{int(strength)}",
-            note=f"Auto confluence-R {side} scalp: strength {int(strength)}, "
-                 f"entry {entry:.4g}, stop {stop:.4g}, target {target:.4g} ({target_r}R).",
+            setup=f"confluence_r_{int(round(pct*100))}pct",
+            note=f"Auto confluence-R {side} scalp: {pct:.0%} confluence "
+                 f"(strength {int(strength)}), entry {entry:.4g}, stop {stop:.4g}, "
+                 f"target {target:.4g} ({target_r}R).",
         ))
         logged.append(p)
     return logged

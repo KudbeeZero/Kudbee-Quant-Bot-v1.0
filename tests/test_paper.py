@@ -68,9 +68,9 @@ def test_scorecard_reports_expectancy_r(tmp_path):
 
 def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
-    # Force a strong long confluence signal on the last bar.
+    # Force a strong long confluence signal (60% of factors aligned).
     fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
-                                "direction": [1.0]})
+                                "direction": [1.0], "confluence_pct": [0.6]})
     monkeypatch.setattr(pp, "build_levels", lambda df: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
 
@@ -78,9 +78,13 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
         def klines(self, *a, **k):
             return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
     j = TradeJournal(path=tmp_path / "j.json", client=C())
-    logged = pp.paper_scan(["BTCUSDT"], min_strength=5, journal=j, client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, journal=j, client=C())
     assert len(logged) == 1
     p = logged[0]
     assert p.kind == "bracket" and p.direction == 1.0 and p.target == 102.0 and p.stop == 99.0
     # Re-scan: already open on BTCUSDT -> no duplicate.
-    assert pp.paper_scan(["BTCUSDT"], min_strength=5, journal=j, client=C()) == []
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, journal=j, client=C()) == []
+    # Below-threshold confluence (40%) -> nothing logged on a fresh symbol.
+    fake_levels["confluence_pct"] = [0.4]
+    j2 = TradeJournal(path=tmp_path / "j2.json", client=C())
+    assert pp.paper_scan(["ETHUSDT"], min_pct=0.5, journal=j2, client=C()) == []

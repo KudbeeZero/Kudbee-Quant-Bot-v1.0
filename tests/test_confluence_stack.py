@@ -41,6 +41,24 @@ def test_score_strength_consistent():
     assert (f["strength"] <= f["n_factors"]).all()
 
 
+def test_confluence_pct_and_min_pct_threshold():
+    from kudbee_quant.confluence.stack import confluence_sized_position
+    f = build_levels(_ohlcv())
+    scored = confluence_score(f)
+    assert "confluence_pct" in scored.columns
+    assert (scored["confluence_pct"] == scored["strength"] / scored["n_factors"]).all()
+    assert ((scored["confluence_pct"] >= 0) & (scored["confluence_pct"] <= 1)).all()
+    # min_pct gate fires only where pct >= threshold.
+    pos = confluence_position(f, min_pct=0.5)
+    active = pos != 0
+    assert (scored.loc[active, "confluence_pct"] >= 0.5).all()
+    # Sized position: size in [0,1], zero below the threshold.
+    sig, size = confluence_sized_position(f, min_pct=0.5, floor_size=0.25)
+    assert ((size >= 0) & (size <= 1)).all()
+    assert (size[sig == 0] == 0).all()
+    assert (size[sig != 0] >= 0.25 - 1e-9).all()
+
+
 def test_position_only_fires_at_high_strength():
     f = build_levels(_ohlcv())
     pos = confluence_position(f, min_strength=4.0)

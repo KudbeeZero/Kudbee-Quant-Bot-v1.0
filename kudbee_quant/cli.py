@@ -404,7 +404,7 @@ def _journal_score(args) -> None:
 
 def _paper_scan(args) -> None:
     from .paper import paper_scan
-    logged = paper_scan(args.symbols, min_strength=args.min_strength,
+    logged = paper_scan(args.symbols, min_pct=args.min_pct,
                         target_r=args.target_r, stop_atr=args.stop_atr, interval=args.interval)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
@@ -570,7 +570,8 @@ def main() -> None:
     ps = sub.add_parser("paper-scan", help="log live confluence-R signals as paper trades")
     ps.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
     ps.add_argument("--interval", default="1h")
-    ps.add_argument("--min-strength", type=float, default=5.0)
+    ps.add_argument("--min-pct", type=float, default=0.5,
+                    help="confluence percentage threshold (0.5 = validated floor)")
     ps.add_argument("--target-r", type=float, default=2.0)
     ps.add_argument("--stop-atr", type=float, default=1.0)
     ps.set_defaults(func=_paper_scan)

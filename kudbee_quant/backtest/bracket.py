@@ -45,6 +45,7 @@ def bracket_backtest(
     max_bars: int = 24,
     fee_r: float = 0.02,
     allow_overlap: bool = False,
+    size: pd.Series | None = None,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -55,6 +56,8 @@ def bracket_backtest(
         max_bars: time-stop; if neither level hits, exit at that bar's close.
         fee_r: round-trip cost expressed in R (slippage+fees), subtracted/trade.
         allow_overlap: if False, no new entry until the current trade exits.
+        size: optional per-bar position size in [0,1]; each trade's R is scaled
+            by the size at entry (confidence-scaled sizing). Default 1.0.
     """
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
@@ -64,6 +67,8 @@ def bracket_backtest(
     low = df["low"].to_numpy()
     atr = df["atr"].to_numpy()
     sig = pd.Series(signal, index=df.index).fillna(0.0).to_numpy()
+    sz = (pd.Series(size, index=df.index).fillna(0.0).to_numpy()
+          if size is not None else np.ones(len(df)))
     n = len(df)
 
     trades: list[float] = []
@@ -94,7 +99,8 @@ def bracket_backtest(
                     outcome, exit_j = target_r, j; break
         if outcome is None:             # time-stop: mark to the exit close in R
             outcome = direction * (close[end] - entry) / sd
-        trades.append(outcome - fee_r)
+        trade_size = sz[t] if size is not None else 1.0
+        trades.append((outcome - fee_r) * trade_size)
         busy_until = exit_j
 
     return _summarize(trades, target_r)
