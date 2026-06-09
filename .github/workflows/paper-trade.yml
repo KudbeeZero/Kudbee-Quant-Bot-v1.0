@@ -37,7 +37,7 @@ jobs:
         run: |
           python -m kudbee_quant.cli paper-scan \
             BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
-            --intervals 5m 15m 1h 2h 4h || true
+            --intervals 5m 15m 1h 2h 4h --trend-filter || true
           python -m kudbee_quant.cli journal-check || true
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true

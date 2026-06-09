@@ -487,7 +487,8 @@ def _paper_scan(args) -> None:
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
-                        risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk)
+                        risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
+                        trend_filter=args.trend_filter)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:
@@ -701,6 +702,8 @@ def main() -> None:
                     help="risk per trade as a fraction of account (0.01 = 1%)")
     ps.add_argument("--max-symbol-risk", type=float, default=0.02,
                     help="cap on COMBINED long+short risk per coin (0.02 = 2%)")
+    ps.add_argument("--trend-filter", action="store_true",
+                    help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%)")
     ps.set_defaults(func=_paper_scan)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")

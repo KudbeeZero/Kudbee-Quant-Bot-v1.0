@@ -68,6 +68,21 @@ def test_position_only_fires_at_high_strength():
     assert (scored.loc[active, "strength"] >= 4.0).all()
 
 
+def test_trend_align_drops_counter_trend_signals():
+    import numpy as np
+    f = build_levels(_ohlcv())
+    scored = confluence_score(f)
+    base = confluence_position(f, min_pct=0.5)
+    filt = confluence_position(f, min_pct=0.5, trend_align=True)
+    # The filter only removes signals, never adds or flips them.
+    assert ((filt == base) | (filt == 0.0)).all()
+    assert (filt != 0).sum() <= (base != 0).sum()
+    # Every surviving signal agrees with the 800-EMA HTF trend.
+    htf = np.sign(scored["close"] - scored["ema_800"])
+    active = filt != 0
+    assert (np.sign(filt[active]) == htf[active]).all()
+
+
 def test_directional_study_table():
     f = build_levels(_ohlcv())
     table = confluence_directional_study(f, horizon=6, min_n=5)

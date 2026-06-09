@@ -345,9 +345,31 @@ NEW (all in main, tested):
   measured fee curve). /api/journal now returns by_source + resolved_series +
   exposure + total_gross_risk_pct.
 
+## 16. Edge-booster lab — what lifts expectancy, what HURTS — 2026-06-09
+
+Tested ~12 entry filters across top-10 1h (11,465 trades, baseline +0.091R, 36% win):
+WINNERS (real):
+- HTF TREND FILTER (price vs 800-EMA agree): +0.141R (Δ+0.050), keeps 83%. Counter-
+  trend signals were NEGATIVE (-0.146R). ROBUST: +0.054R/+0.046R in both split-halves.
+  -> IMPLEMENTED as confluence_position(trend_align=True) + paper_scan(trend_filter=True),
+     CLI --trend-filter, now ON in the forward Action (setup tagged "_tf").
+- killzone (London/NY-brinks/macro): +0.144R (Δ+0.053), keeps 25%. Tino's sessions hold.
+- WITH premium/discount (long in discount/short in premium): +0.151R (Δ+0.060), keeps 10%.
+- strong confluence >=70%: +0.176R (Δ+0.085), keeps only 5% (confluence IS ~monotonic).
+- STACKED trend+killzone +0.185R; trend+strong +0.210R; trend+Tue-Fri +0.271R (38%).
+HONEST NEGATIVES (go AGAINST intuition — kept as findings):
+- "near daily open <=0.5ATR" (mechanical): +0.014R (Δ-0.078) — HURTS. The bot blindly
+  trading at the daily open is chop; the user's daily-open edge is the DISCRETIONARY read,
+  not a mechanical proximity rule.
+- "ADR room left <70%": Δ-0.025 — slightly hurts. EMA cloud / structure_dir agreement:
+  ~0 effect (already baked into confluence). climax-vector-at-signal: only Δ+0.016.
+SUGGESTIVE but data-mining risk (need walk-forward before trusting): day-of-week (Mon
+-0.217R worst, Thu +0.256R / Tue +0.239R best), NY hours 1-4 (+0.18..+0.22R) vs 14/22/23
+(negative). Tino's Tuesday/session lore shows up but DON'T hard-code yet.
+
 PROJECT STATE: complete & validated-backward; forward paper proof accruing via the
-hourly Action (top-10 majors, 5m/15m/1h/2h/4h). Everything in main: engine +
+hourly Action (top-10 majors, 5m/15m/1h/2h/4h, TREND-FILTERED). Everything in main: engine +
 website + Live Signals + The Lab (interactive charts/calculator/venue/exposure/
 forward-record) + API + TradingView indicator + alert->journal webhook + bias layer
 + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + net-exposure guard +
-human-read scoring + research Vols 1-10. Ready to archive.
+human-read scoring + HTF trend filter + research Vols 1-10. Ready to archive.

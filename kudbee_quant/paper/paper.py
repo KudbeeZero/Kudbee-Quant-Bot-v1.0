@@ -40,6 +40,7 @@ def paper_scan(
     tp1_frac: float = 0.5,
     risk_per_trade: float = 0.01,      # each defined-risk trade ~= 1% of the account
     max_symbol_risk: float = 0.02,     # cap COMBINED long+short risk per coin (two-sided guard)
+    trend_filter: bool = False,        # tested: skip signals fighting the 800-EMA HTF trend
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
@@ -79,6 +80,10 @@ def paper_scan(
         strength = float(last["strength"])
         if pct < min_pct or direction == 0:
             continue
+        # HTF TREND FILTER (tested, robust): don't fight the 800-EMA trend.
+        if trend_filter and "ema_800" in last and last["ema_800"] == last["ema_800"]:
+            if direction != (1.0 if last["close"] > last["ema_800"] else -1.0):
+                continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
         if bias is not None:
@@ -109,7 +114,8 @@ def paper_scan(
             tp1=tp1, tp1_frac=tp1_frac,
             deadline_days=tf_deadline, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
-            setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct",
+            setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
+                  + ("_tf" if trend_filter else ""),
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (f" Read: {bias.note}" if bias is not None and bias.note else "") +
