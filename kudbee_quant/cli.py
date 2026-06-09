@@ -395,8 +395,27 @@ def _journal_score(args) -> None:
         print("No resolved predictions yet — score builds as deadlines pass.")
         return
     print("Your measured track record (resolved predictions only):")
-    print(table.to_string(index=False, formatters={"hit_rate": "{:.0%}".format}))
-    print("\nThis is the honest number: hits / total logged, no cherry-picking.")
+    fmt = {"hit_rate": "{:.0%}".format, "expectancy_r": "{:+.3f}".format,
+           "total_r": "{:+.1f}".format}
+    print(table.to_string(index=False, formatters={k: v for k, v in fmt.items() if k in table.columns}))
+    print("\nThis is the honest number: hits / total logged, no cherry-picking. For "
+          "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
+
+
+def _paper_scan(args) -> None:
+    from .paper import paper_scan
+    logged = paper_scan(args.symbols, min_strength=args.min_strength,
+                        target_r=args.target_r, stop_atr=args.stop_atr, interval=args.interval)
+    if not logged:
+        print("No confluence-R signals right now (or already in a trade on those symbols).")
+    else:
+        print(f"Logged {len(logged)} paper trade(s):")
+        for p in logged:
+            side = "LONG" if p.direction > 0 else "SHORT"
+            print(f"  {p.id} {p.symbol} {side} [{p.setup}] entry {p.entry:.4g} "
+                  f"stop {p.stop:.4g} target {p.target:.4g} ({p.target_r}R) by {p.deadline.date()}")
+    print("\nRun `journal-check` later to resolve them, `journal-score` for forward R "
+          "expectancy.\nThis accumulates a FORWARD record on unseen data. Not financial advice.")
 
 
 def _polymarkets(args) -> None:
@@ -545,8 +564,16 @@ def main() -> None:
     jc.set_defaults(func=_journal_check)
     jl = sub.add_parser("journal-list", help="list all predictions")
     jl.set_defaults(func=_journal_list)
-    js = sub.add_parser("journal-score", help="your measured hit rate by setup")
+    js = sub.add_parser("journal-score", help="your measured hit rate + R by setup")
     js.set_defaults(func=_journal_score)
+
+    ps = sub.add_parser("paper-scan", help="log live confluence-R signals as paper trades")
+    ps.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
+    ps.add_argument("--interval", default="1h")
+    ps.add_argument("--min-strength", type=float, default=5.0)
+    ps.add_argument("--target-r", type=float, default=2.0)
+    ps.add_argument("--stop-atr", type=float, default=1.0)
+    ps.set_defaults(func=_paper_scan)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

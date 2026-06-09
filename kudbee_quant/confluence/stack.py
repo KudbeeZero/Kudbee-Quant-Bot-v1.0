@@ -26,6 +26,12 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
     """Per-bar directional vote (+1 long / -1 short / 0) from each factor."""
     out = pd.DataFrame(index=df.index)
 
+    # NOTE: a macro cross-asset vote (DXY/ES/VIX risk-on-off, Vol 4 sec 3) was
+    # tested as both a vote AND an agreement-filter and REMOVED — both hurt the
+    # 1h scalp edge (walk-forward +0.151R -> +0.013R vote / +0.014R filter). The
+    # confluence-R edge is structural/intraday, not macro-regime-driven; the
+    # macro module (levels/macro.py) remains for possible HTF/swing use.
+
     # Trend / momentum factors.
     if {"ema_50", "ema_800", "close"} <= set(df.columns):
         out["v_emastack"] = np.where((df["close"] > df["ema_50"]) & (df["ema_50"] > df["ema_800"]), 1,

@@ -17,7 +17,9 @@ from ..ingest import BinanceClient
 #   reach_below  : any low  <= level                                  -> hit
 #   stay_below   : all highs < level for the whole window             -> hit
 #   stay_above   : all lows  > level for the whole window             -> hit
-KINDS = {"touch", "reach_above", "reach_below", "stay_below", "stay_above"}
+#   bracket      : entry/stop/target/direction; target-first = win (+target_r R),
+#                  stop-first = loss (-1R); time-stop marks to close in R
+KINDS = {"touch", "reach_above", "reach_below", "stay_below", "stay_above", "bracket"}
 
 DEFAULT_PATH = Path("data/journal.json")
 
@@ -35,6 +37,13 @@ class Prediction:
     id: str = field(default_factory=lambda: uuid.uuid4().hex[:8])
     status: str = "open"        # open | hit | miss
     resolved_at: str | None = None
+    # bracket-only fields:
+    entry: float | None = None
+    stop: float | None = None
+    target: float | None = None
+    direction: float = 0.0      # +1 long / -1 short
+    target_r: float | None = None
+    outcome_r: float | None = None  # realized R when resolved
 
     def __post_init__(self):
         if self.kind not in KINDS:
@@ -65,14 +74,21 @@ class TradeJournal:
         self.save()
         return prediction
 
-    def _evaluate(self, p: Prediction) -> str:
-        """Return 'hit', 'miss', or 'open' by checking price since creation."""
+    def _evaluate(self, p: Prediction) -> tuple[str, float | None]:
+        """Return (status, outcome_r) by checking price since creation.
+
+        status is 'hit'/'miss'/'open'; outcome_r is the realized R for bracket
+        predictions (None otherwise).
+        """
         now = datetime.now(timezone.utc)
         df = self.client.klines(p.symbol, interval=p.timeframe, limit=1000)
         window = df[pd.to_datetime(df["timestamp"], utc=True) >= datetime.fromisoformat(p.created_at)]
         deadline_passed = now >= p.deadline
         if window.empty:
-            return "miss" if deadline_passed else "open"
+            return ("miss", None) if deadline_passed else ("open", None)
+
+        if p.kind == "bracket":
+            return self._evaluate_bracket(p, window, deadline_passed)
 
         high, low = window["high"], window["low"]
         if p.kind == "touch":
@@ -84,19 +100,40 @@ class TradeJournal:
         elif p.kind == "stay_below":
             violated = (high >= p.level).any()
             if violated:
-                return "miss"
-            return "hit" if deadline_passed else "open"
+                return ("miss", None)
+            return ("hit" if deadline_passed else "open", None)
         elif p.kind == "stay_above":
             violated = (low <= p.level).any()
             if violated:
-                return "miss"
-            return "hit" if deadline_passed else "open"
+                return ("miss", None)
+            return ("hit" if deadline_passed else "open", None)
         else:  # pragma: no cover
-            return "open"
+            return ("open", None)
 
         if hit:
-            return "hit"
-        return "miss" if deadline_passed else "open"
+            return ("hit", None)
+        return ("miss" if deadline_passed else "open", None)
+
+    def _evaluate_bracket(self, p: Prediction, window, deadline_passed: bool) -> tuple[str, float | None]:
+        """Resolve a stop/target bracket: which level is hit first, in R."""
+        risk = abs(p.entry - p.stop)
+        if risk <= 0:
+            return ("open", None)
+        for _, bar in window.iterrows():
+            if p.direction > 0:
+                if bar["low"] <= p.stop:            # stop first (conservative)
+                    return ("miss", -1.0)
+                if bar["high"] >= p.target:
+                    return ("hit", float(p.target_r))
+            else:
+                if bar["high"] >= p.stop:
+                    return ("miss", -1.0)
+                if bar["low"] <= p.target:
+                    return ("hit", float(p.target_r))
+        if deadline_passed:                          # time-stop: mark to last close
+            r = p.direction * (float(window["close"].iloc[-1]) - p.entry) / risk
+            return ("hit" if r > 0 else "miss", float(r))
+        return ("open", None)
 
     def check_open(self) -> list[Prediction]:
         """Re-evaluate every open prediction; persist newly-resolved ones."""
@@ -104,9 +141,10 @@ class TradeJournal:
         for p in self.predictions:
             if p.status != "open":
                 continue
-            result = self._evaluate(p)
-            if result in ("hit", "miss"):
-                p.status = result
+            status, outcome_r = self._evaluate(p)
+            if status in ("hit", "miss"):
+                p.status = status
+                p.outcome_r = outcome_r
                 p.resolved_at = datetime.now(timezone.utc).isoformat()
                 changed.append(p)
         if changed:
@@ -114,12 +152,17 @@ class TradeJournal:
         return changed
 
     def scorecard(self) -> pd.DataFrame:
-        """Hit rate by setup label over RESOLVED predictions only (honest)."""
+        """Per-setup record over RESOLVED predictions: hit rate + R expectancy."""
         resolved = [p for p in self.predictions if p.status in ("hit", "miss")]
         if not resolved:
-            return pd.DataFrame(columns=["setup", "n", "hits", "hit_rate"])
-        df = pd.DataFrame([{"setup": p.setup or "(unlabeled)", "hit": p.status == "hit"} for p in resolved])
-        g = df.groupby("setup")["hit"].agg(["count", "sum"]).reset_index()
-        g.columns = ["setup", "n", "hits"]
-        g["hit_rate"] = g["hits"] / g["n"]
-        return g.sort_values("n", ascending=False).reset_index(drop=True)
+            return pd.DataFrame(columns=["setup", "n", "hits", "hit_rate", "expectancy_r", "total_r"])
+        df = pd.DataFrame([{"setup": p.setup or "(unlabeled)", "hit": p.status == "hit",
+                            "r": p.outcome_r} for p in resolved])
+        rows = []
+        for setup, g in df.groupby("setup"):
+            rs = g["r"].dropna()
+            rows.append({"setup": setup, "n": len(g), "hits": int(g["hit"].sum()),
+                         "hit_rate": g["hit"].mean(),
+                         "expectancy_r": float(rs.mean()) if len(rs) else float("nan"),
+                         "total_r": float(rs.sum()) if len(rs) else float("nan")})
+        return pd.DataFrame(rows).sort_values("n", ascending=False).reset_index(drop=True)
