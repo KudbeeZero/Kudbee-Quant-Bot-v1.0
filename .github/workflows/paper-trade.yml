@@ -1,0 +1,50 @@
+name: Forward paper-trade (confluence-R)
+
+# Automated FORWARD paper trading of the validated strategy:
+# 1h, >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides.
+# Runs hourly: logs new setups, resolves pending/open trades, commits the
+# journal so a real forward track record accumulates with no babysitting.
+
+on:
+  schedule:
+    - cron: "5 * * * *"        # hourly, 5 min after the hour (let the 1h bar close)
+  workflow_dispatch:           # manual run button
+
+permissions:
+  contents: write
+
+concurrency:
+  group: paper-trade
+  cancel-in-progress: false
+
+jobs:
+  paper-trade:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install -q -r requirements.txt
+
+      - name: Scan for new setups + resolve open trades
+        run: |
+          python -m kudbee_quant.cli paper-scan SOLUSDT BTCUSDT ETHUSDT BNBUSDT || true
+          python -m kudbee_quant.cli journal-check || true
+          echo "---- scorecard ----"
+          python -m kudbee_quant.cli journal-score || true
+
+      - name: Commit journal if changed
+        run: |
+          git config user.name "kudbee-paper-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if ! git diff --quiet -- data/journal.json; then
+            git add data/journal.json
+            git commit -m "paper-trade: update journal [skip ci]"
+            git push
+          else
+            echo "No journal changes this run."
+          fi
