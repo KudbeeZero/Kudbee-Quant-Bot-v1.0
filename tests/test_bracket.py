@@ -90,6 +90,17 @@ def test_limit_retrace_entry_fills_at_pullback():
     assert abs(r.trades[0] - 2.0) < 1e-9
 
 
+def test_confirmation_filter_requires_reversal_candle():
+    from kudbee_quant.backtest.bracket import _is_confirmation
+    # Bullish hammer (long lower wick, bullish close) confirms a long.
+    assert _is_confirmation(o=100, h=100.3, l=98, c=100.1, direction=1)
+    # A bearish candle does not confirm a long.
+    assert not _is_confirmation(o=100, h=100.2, l=99.5, c=99.6, direction=1)
+    # Shooting star confirms a short; a bull candle does not.
+    assert _is_confirmation(o=100, h=102, l=99.9, c=99.95, direction=-1)
+    assert not _is_confirmation(o=100, h=100.5, l=99.9, c=100.4, direction=-1)
+
+
 def test_limit_retrace_missed_when_no_pullback():
     # Price runs up without retracing to the limit -> signal missed, no trade.
     prices = [100, 101, 102, 103]

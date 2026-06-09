@@ -49,6 +49,7 @@ def bracket_backtest(
     fee_pct: float | None = None,
     limit_retrace_atr: float | None = None,
     entry_window: int = 6,
+    require_confirmation: bool = False,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -77,6 +78,7 @@ def bracket_backtest(
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
         raise ValueError(f"bracket_backtest needs columns {sorted(need)}")
+    op = df["open"].to_numpy() if "open" in df.columns else df["close"].to_numpy()
     close = df["close"].to_numpy()
     high = df["high"].to_numpy()
     low = df["low"].to_numpy()
@@ -103,7 +105,9 @@ def bracket_backtest(
             ewin = min(t + entry_window, n - 1)
             entry_bar = None
             for j in range(t + 1, ewin + 1):
-                if (direction > 0 and low[j] <= limit) or (direction < 0 and high[j] >= limit):
+                touched = (direction > 0 and low[j] <= limit) or (direction < 0 and high[j] >= limit)
+                if touched and (not require_confirmation or
+                                _is_confirmation(op[j], high[j], low[j], close[j], direction)):
                     entry_bar = j
                     break
             if entry_bar is None:
@@ -134,6 +138,25 @@ def bracket_backtest(
         busy_until = exit_j
 
     return _summarize(trades, target_r)
+
+
+def _is_confirmation(o: float, h: float, l: float, c: float, direction: float) -> bool:
+    """A candlestick confirmation/reversal candle in the trade direction.
+
+    Long: a bullish close with either a large lower 'stopping' wick (hammer/pin
+    bar rejecting lower) OR a strong bullish body. Short is the mirror (shooting
+    star / strong bearish body). This is the 'stopping candle at the level'
+    confirmation from the methodology (Vol 8), applied at the retrace fill.
+    """
+    rng = h - l
+    if rng <= 0:
+        return False
+    body = abs(c - o)
+    lower_wick = min(o, c) - l
+    upper_wick = h - max(o, c)
+    if direction > 0:
+        return (c > o) and (lower_wick >= 0.5 * rng or body >= 0.6 * rng)
+    return (c < o) and (upper_wick >= 0.5 * rng or body >= 0.6 * rng)
 
 
 def _summarize(trades: list, target_r: float) -> BracketResult:

@@ -579,3 +579,16 @@ Expectancy rises with R:R, robustness barely dips. 2R = most consistent (88%,
 -> 3R +0.205R -> 4R +0.283R. 3R adopted as the default (paper-scan), best fit for
 the asymmetric small-loss/big-win style. Trade-off is psychological (win rate),
 not edge.
+
+### Candlestick confirmation at the entry (mixed — option, not default)
+
+The "stopping candle at the level" (Vol 8): require a reversal/confirmation
+candle (hammer/pin or strong body, mirror for shorts) at the limit-retrace fill.
+Tested as require_confirmation in bracket_backtest. Walk-forward (6 folds x 4
+crypto, 3R, maker): WITHOUT +0.243R (1021 trades) -> WITH +0.324R (755 trades),
+both 83% positive — a real AGGREGATE improvement (fewer/better entries). BUT
+SOL held-out specifically went +0.179R -> -0.039R. So it helps on average yet is
+inconsistent per-asset; kept as a configurable option, NOT the default. The
+forward paper test runs the clean config first; A/B confirmation once we have
+live data. Belongs in the ENTRY model (the one lever that helps), not the
+confluence count.
