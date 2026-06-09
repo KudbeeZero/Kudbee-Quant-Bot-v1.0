@@ -425,3 +425,47 @@ NEXT (queued, needs a small engine extension): path-dependent EXECUTION variants
 the agents flagged as highest-leverage — ATR/chandelier TRAILING stop, time-decay
 target, MAE "give-up" early exit. bracket.py currently does fixed stop/target/
 tp1/time-stop only; add trailing + early-exit, then test the same honest way.
+
+## 18. Project Edge: meta-labeling + execution engine + 6-layer memory — 2026-06-09
+
+A full-stack build (user asked for "something major / new logic"). The honest
+verdict is the deliverable: we built sophisticated, correct infrastructure, and it
+told us the truth — the two headline ideas are NULLS at the validated config, and
+the multiple-testing ledger says our overnight "winners" are probably luck. That
+is the project working as designed.
+
+WHAT WAS BUILT (all tested; 156 suite green):
+- backtest/resolver.py — ONE shared trade resolver. bracket.py AND journal.py now
+  delegate to it (resolution logic was duplicated -> drift risk between backtest &
+  live). Pure refactor, behaviour identical.
+- Path-dependent EXITS on the resolver (off by default): chandelier TRAILING stop,
+  MAE give-up, time-decay target. Threaded through bracket_backtest; candidates
+  exit_trail_3atr / exit_mae_giveup / exit_time_decay queued for the loop.
+- ml/ : labels.py (meta-labels = did the trade reach target before the 1R stop;
+  causal feature frame from votes+levels), cv.py (purged + embargoed walk-forward,
+  Lopez de Prado), meta_model.py (GBT + interpretable logit, scored OUT-OF-SAMPLE,
+  win-rate-beats-base gated by Wilson CI). scikit-learn added.
+- memory/ : the 6 layers formalized — registry.py (L4 strategies as objects),
+  working.py (L5 biases + open hypotheses), reflection.py (L6 regime + overfit
+  alarms + failure rollup), testing_ledger.py (family-wide deflated/BH-FDR).
+  scripts/reflect.py + scripts/meta_eval.py.
+
+HONEST RESULTS (top-10, 1h, validated config):
+- META-LABELING at the 3R target: WEAK/NULL. GBT OOS AUC ~0.55; gating at
+  prob>=0.7 lifted win-rate +0.068 but the Wilson CI did NOT clear the base rate
+  (n too small). Logit top features: -atr_pct, +pct_awr_used, +in_overlap,
+  +v_emastack. Infra is reusable for other labels (e.g. 1.5R, expectancy-positive).
+- EXECUTION EXITS: trailing (-0.024 to -0.035R) and time-decay (-0.040R) HURT
+  pooled expectancy; the fixed-3R fat tail pays for the losers (consistent with
+  §10/§12). MAE give-up at 1.0R is a no-op (that IS the stop); 0.8R queued.
+- MULTIPLE-TESTING LEDGER (the big honest win): of 32 candidates logged, 4 naive
+  winners, **0 survive family-wide BH-FDR**; highvol_bigtarget (h1 +0.014/h2
+  +0.133) and clean_trend_stack (h1 +0.203/h2 +0.009) flagged UNSTABLE across
+  halves. Expected false winners under pure noise ~1.6. => Treat ALL overnight
+  "winners" as UNPROVEN; forward paper is the only proof. This directly corrects
+  the earlier "2-4 winners!" enthusiasm.
+
+LESSON (reinforces the whole project): more machinery did not manufacture an edge.
+The durable wins are STRUCTURAL — no backtest/live drift (shared resolver), a
+reusable meta-labeling/CV rig for honest future tests, and a memory spine that
+re-grades every result under multiplicity so we never mistake luck for edge.

@@ -11,7 +11,10 @@
     "atr_vs_tr_compression",
     "ema50_slope_accel",
     "structural_stop_swing",
-    "contraction_reclaim"
+    "contraction_reclaim",
+    "exit_trail_3atr",
+    "exit_mae_giveup",
+    "exit_time_decay"
   ],
   "done": [
     "vol_regime_mid",

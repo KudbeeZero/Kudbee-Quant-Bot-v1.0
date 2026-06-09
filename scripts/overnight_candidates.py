@@ -442,6 +442,25 @@ def c_contraction_reclaim(df, scored, base_sig):
     return _dir_gate(base_sig, long_ok, short_ok), None, {}
 
 
+def c_exit_trail_3atr(df, scored, base_sig):
+    """EXECUTION (path-dependent): chandelier trailing stop at 3 ATR below the
+    high-since-entry, instead of the fixed 3R target. Tests whether trailing
+    captures the fat-tail runner (MEMORY §17 frontier)."""
+    return base_sig, None, {"trailing_atr": 3.0}
+
+
+def c_exit_mae_giveup(df, scored, base_sig):
+    """EXECUTION: MAE 'give-up' — if by bar 6 the trade is >=0.8R offside and has
+    not shown >=0.5R favorable, exit at market rather than wait for the 1R stop."""
+    return base_sig, None, {"mae_giveup": (6, 0.8, 0.5)}
+
+
+def c_exit_time_decay(df, scored, base_sig):
+    """EXECUTION: time-decay target from 3R down to 1.5R over the 24-bar window —
+    harvest stale trades instead of marking out at the time stop."""
+    return base_sig, None, {"time_decay": (24, 1.5)}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -490,4 +509,7 @@ REGISTRY: dict[str, tuple] = {
     "ema50_slope_accel": (c_ema50_slope_accel, "EMA50 slope aligned AND accelerating"),
     "structural_stop_swing": (c_structural_stop_swing, "1.5-ATR stop lands just beyond nearest swing"),
     "contraction_reclaim": (c_contraction_reclaim, "2-bar range contraction then prior-close reclaim"),
+    "exit_trail_3atr": (c_exit_trail_3atr, "Execution: 3-ATR chandelier trailing stop"),
+    "exit_mae_giveup": (c_exit_mae_giveup, "Execution: MAE give-up (0.8R offside by bar 6, no 0.5R fav)"),
+    "exit_time_decay": (c_exit_time_decay, "Execution: target decays 3R->1.5R over 24 bars"),
 }
