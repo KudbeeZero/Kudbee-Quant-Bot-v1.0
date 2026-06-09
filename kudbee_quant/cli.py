@@ -402,6 +402,33 @@ def _journal_score(args) -> None:
           "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
 
 
+def _bias_set(args) -> None:
+    from .bias import BiasBook
+    b = BiasBook().set(args.symbol, args.side, target=args.target, days=args.days, note=args.note)
+    print(f"Bias set: {b.symbol} {b.side.upper()}"
+          + (f" -> target {b.target}" if b.target else "")
+          + f"  (expires {b.expires_at[:16]})")
+    print("The bot will now scalp ONLY in this direction on", b.symbol, "while active.")
+
+
+def _bias_list(args) -> None:
+    from .bias import BiasBook
+    act = BiasBook().active()
+    if not act:
+        print("No active biases. The bot uses its own confluence direction.")
+        return
+    print("Active directional biases (the human read; bot scalps WITH these):")
+    for b in act:
+        print(f"  {b.symbol:9} {b.side.upper():5}"
+              + (f"  target {b.target}" if b.target else "")
+              + f"  expires {b.expires_at[:16]}" + (f"  | {b.note}" if b.note else ""))
+
+
+def _bias_clear(args) -> None:
+    from .bias import BiasBook
+    print("Cleared." if BiasBook().clear(args.symbol) else "No active bias for that symbol.")
+
+
 def _paper_scan(args) -> None:
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct,
@@ -566,6 +593,19 @@ def main() -> None:
     jl.set_defaults(func=_journal_list)
     js = sub.add_parser("journal-score", help="your measured hit rate + R by setup")
     js.set_defaults(func=_journal_score)
+
+    bset = sub.add_parser("bias-set", help="set your directional read (bot scalps WITH it)")
+    bset.add_argument("symbol")
+    bset.add_argument("side", choices=["long", "short"])
+    bset.add_argument("--target", type=float, default=None)
+    bset.add_argument("--days", type=float, default=1.0, help="how long the read stays active")
+    bset.add_argument("--note", default="", help="the confluences/reasoning you saw")
+    bset.set_defaults(func=_bias_set)
+    blist = sub.add_parser("bias-list", help="show active directional reads")
+    blist.set_defaults(func=_bias_list)
+    bclr = sub.add_parser("bias-clear", help="clear a symbol's bias")
+    bclr.add_argument("symbol")
+    bclr.set_defaults(func=_bias_clear)
 
     ps = sub.add_parser("paper-scan", help="log live confluence-R signals as paper trades")
     ps.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")

@@ -10,6 +10,28 @@ _Last updated: 2026-06-09._
 
 ---
 
+## 0. THE OPERATING MODEL (the click — read this first)
+
+**Direction = the human read. Scalping = the bot's execution.** These are
+SEPARATE jobs. A skilled discretionary read (Tino-style, or KudbeeX) sets the
+HIGH-PROBABILITY DIRECTION for a symbol ("SOL going down to ~62"). The bot then
+takes only confluence-R scalps THAT AGREE with that direction — trading WITH the
+identified market-maker momentum, never against it.
+
+Why this is right (and why it took a while to click): when the ENGINE picks
+direction from confluence, the edge is modest and regime-dependent. But the
+data already shows the with-direction side is far stronger (downtrend: short-only
+scalps +0.267R vs +0.159R both-sides). When the human supplies the correct
+direction, the bot's *execution* edge (limit-retrace, 3R, maker) compounds on
+the right side. Human judgment (direction) + machine discipline (execution +
+measurement) = the real product. Neither alone is the edge.
+
+Implementation: `kudbee_quant/bias.py` (BiasBook, data/biases.json) + the paper
+loop's direction gate. CLI: `bias-set SOLUSDT short --target 62 --note "..."`,
+`bias-list`, `bias-clear`. The hourly Action scalps WITH active biases.
+
+---
+
 ## 1. The validated strategy (current best — tested, not believed)
 
 > **1h timeframe · confluence ≥ 50% (of ~10 factors) · 3R target · LIMIT entry

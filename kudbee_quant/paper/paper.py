@@ -18,15 +18,22 @@ def paper_scan(
     fill_deadline_days: float = 0.5,
     journal: TradeJournal | None = None,
     client: BinanceClient | None = None,
+    biases=None,
+    require_bias: bool = False,
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
-    Threshold is a confluence PERCENTAGE (``min_pct``, e.g. 0.5 = "half the
-    factors aligned" — the validated floor). One open trade per symbol at a
-    time. Returns the list of newly-logged predictions (empty if none).
+    Threshold is a confluence PERCENTAGE (``min_pct``). DIRECTION is gated by
+    the human bias layer: if a bias is set for a symbol, only signals that AGREE
+    with it are taken (scalp WITH the read, never against). If ``require_bias``
+    is True, symbols without an active bias are skipped entirely (pure
+    human-directed mode). One open trade per symbol at a time.
     """
     j = journal or TradeJournal()
     client = client or BinanceClient()
+    if biases is None:
+        from ..bias import BiasBook
+        biases = BiasBook()
     open_syms = {p.symbol for p in j.predictions
                  if p.status in ("open", "pending") and p.kind == "bracket"}
 
@@ -41,6 +48,13 @@ def paper_scan(
         strength = float(last["strength"])
         if pct < min_pct or direction == 0:
             continue
+        # Direction gate: scalp only WITH the human read (bias), never against.
+        bias = biases.get(sym)
+        if bias is not None:
+            if direction != bias.direction:
+                continue            # signal opposes the read -> skip
+        elif require_bias:
+            continue                # human-directed mode: no read -> no trade
         signal_price = float(last["close"])
         atr = float(last["atr"])
         sd = atr * stop_atr
@@ -57,11 +71,12 @@ def paper_scan(
             target=target, direction=direction, target_r=target_r,
             deadline_days=deadline_days, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=fill_deadline_days,
-            setup=f"confluence_r_{int(round(pct*100))}pct",
-            note=f"Auto confluence-R {side} scalp: {pct:.0%} confluence "
-                 f"(strength {int(strength)}). LIMIT entry {limit:.4g} (retrace "
-                 f"{retrace_atr} ATR from {signal_price:.4g}), stop {stop:.4g}, "
-                 f"target {target:.4g} ({target_r}R, maker).",
+            setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct",
+            note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
+                  f"{pct:.0%} confluence (strength {int(strength)})." +
+                  (f" Read: {bias.note}" if bias is not None and bias.note else "") +
+                  f" LIMIT {limit:.4g} (retrace {retrace_atr} ATR from {signal_price:.4g}), "
+                  f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)."),
         ))
         logged.append(p)
     return logged
