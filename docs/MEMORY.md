@@ -469,3 +469,34 @@ LESSON (reinforces the whole project): more machinery did not manufacture an edg
 The durable wins are STRUCTURAL — no backtest/live drift (shared resolver), a
 reusable meta-labeling/CV rig for honest future tests, and a memory spine that
 re-grades every result under multiplicity so we never mistake luck for edge.
+
+## 19. THE LEAD: meta-gating lifts expectancy, cross-asset — 2026-06-09 (do not over-trust yet)
+
+After §18's nulls, fixed the approach and found the first real signal of the whole
+build. THREE changes mattered: (1) LABEL on realized PROFIT (realized_r>0), not the
+rare 3R tag; (2) measure on R-EXPECTANCY, not hit-rate; (3) significance-test it.
+
+RESULT (GBT meta-model, purged+embargo OOS, top-10 1h, 1.5R bracket):
+  gate prob>=0.60 -> take 34% of trades, expectancy +0.219R vs +0.093R base
+  (lift +0.126R), permutation p=0.007 (beats RANDOM selection of the same size).
+  Monotonic across thresholds (0.50->0.65 all significant). Beats even the
+  shipping 3R config (~+0.16R).
+CROSS-ASSET HONESTY CHECK (the one that kills fake edges): train on CRYPTO only,
+apply to STOCKS (SPY/AAPL/NVDA/MSFT/TSLA/AMZN, rho~0.15): gate prob>=0.60 ->
++0.379R on 17% of trades, lift +0.313R, p_perm=0.001. THE EDGE TRANSFERS across
+asset classes -> it is not crypto-regime luck; the model learned something general
+about which confluence setups are high quality. Note: logit (linear) shows NO
+lift -> the edge is nonlinear interactions (watch overfit; that's why we permission
+-test + cross-validate).
+
+STATUS: a genuine LEAD, validated BACKWARD across two uncorrelated asset classes
+with significance. NOT yet proven: forward paper. NEXT: wire a meta-gated 1.5R
+variant into the paper loop as a SECOND tracked strategy and accrue forward R
+beside the baseline; only then does it earn live capital. Code: kudbee_quant/ml/
+(labels realized_r, meta_model expectancy_gate + permutation p). CLI:
+python scripts/meta_eval.py.
+
+ANTI-RECURRENCE (so §18's "lucky winners" never happen again): the overnight
+harness verdict now REQUIRES a bootstrap p<0.05 on ΔR (plus both-halves robust)
+to call anything a WINNER; the memory testing-ledger re-grades the whole family
+under BH-FDR. Luck no longer earns the word "winner".

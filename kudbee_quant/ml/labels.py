@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 
 from ..backtest.bracket import bracket_excursions
+from ..backtest.resolver import resolve_bracket
 from ..confluence.stack import confluence_score, factor_votes
 
 
@@ -73,6 +74,72 @@ def make_features(df: pd.DataFrame) -> pd.DataFrame:
     return f.replace([np.inf, -np.inf], np.nan)
 
 
+def trade_outcomes(
+    df: pd.DataFrame,
+    signal: pd.Series,
+    target_r: float = 3.0,
+    stop_atr: float = 1.5,
+    limit_retrace_atr: float | None = 0.25,
+    max_bars: int = 24,
+    entry_window: int = 6,
+    fee_pct: float = 0.0004,
+) -> pd.DataFrame:
+    """Per-trade REALIZED R for the validated bracket — the truth a meta-model
+    should be judged against (expectancy), not just whether it tagged 3R.
+
+    Same entry logic as ``bracket_excursions`` (limit-retrace fills), but resolves
+    each trade through the shared resolver to get the realized R (net of a
+    timeframe-aware maker cost) plus the max-favorable excursion. Returns columns
+    ``entry_bar, direction, realized_r, mfe_r``.
+    """
+    need = {"high", "low", "close", "atr"}
+    if not need <= set(df.columns):
+        raise ValueError(f"trade_outcomes needs {sorted(need)}")
+    close = df["close"].to_numpy(); high = df["high"].to_numpy()
+    low = df["low"].to_numpy(); atr = df["atr"].to_numpy()
+    sig = pd.Series(signal, index=df.index).fillna(0.0).to_numpy()
+    n = len(df)
+    rows = []
+    busy = -1
+    for t in range(n - 1):
+        if sig[t] == 0 or t <= busy:
+            continue
+        direction = 1.0 if sig[t] > 0 else -1.0
+        sd = stop_atr * atr[t]
+        if not np.isfinite(sd) or sd <= 0:
+            continue
+        if limit_retrace_atr is None:
+            entry, entry_bar = close[t], t
+        else:
+            limit = close[t] - direction * limit_retrace_atr * atr[t]
+            ewin = min(t + entry_window, n - 1)
+            entry_bar = None
+            for j in range(t + 1, ewin + 1):
+                if (direction > 0 and low[j] <= limit) or (direction < 0 and high[j] >= limit):
+                    entry_bar = j; break
+            if entry_bar is None:
+                continue
+            entry = limit
+        stop = entry - direction * sd
+        target = entry + direction * sd * target_r
+        end = min(entry_bar + max_bars, n - 1)
+        hs, ls, cs = high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1], close[entry_bar + 1:end + 1]
+        out = resolve_bracket(direction, entry, stop, target, sd, target_r, hs, ls, cs,
+                              force_close_at_end=True)
+        raw_r = out.outcome_r if out.outcome_r is not None else 0.0
+        cost = fee_pct * entry / sd
+        # MFE in R over the held window (favorable extreme).
+        if len(hs):
+            fav = (hs - entry) / sd if direction > 0 else (entry - ls) / sd
+            mfe = float(np.max(fav))
+        else:
+            mfe = 0.0
+        rows.append({"entry_bar": int(entry_bar), "direction": direction,
+                     "realized_r": float(raw_r - cost), "mfe_r": mfe})
+        busy = entry_bar + 1 + (out.exit_offset or 0)
+    return pd.DataFrame(rows)
+
+
 def make_labels(
     df: pd.DataFrame,
     signal: pd.Series,
@@ -81,19 +148,21 @@ def make_labels(
     limit_retrace_atr: float | None = 0.25,
     max_bars: int = 24,
     entry_window: int = 6,
+    fee_pct: float = 0.0004,
 ) -> pd.DataFrame:
-    """Per-(filled)-trade label frame: entry_bar, label, mfe_r, mae_r, direction.
+    """Per-(filled)-trade label frame: entry_bar, label, realized_r, mfe_r, direction.
 
-    label = 1 if the trade reached ``target_r`` (in R) before the 1R stop within
-    ``max_bars`` — i.e. it would have been a winning bracket — else 0.
+    label = 1 if the trade was PROFITABLE (realized R > 0, net of cost). This ties
+    the meta-model directly to expectancy — "should we have taken this trade?" —
+    rather than the harder, rarer "did it tag the full target" question.
     """
-    ex = bracket_excursions(df, signal, stop_atr=stop_atr, max_bars=max_bars,
-                            limit_retrace_atr=limit_retrace_atr, entry_window=entry_window)
-    if ex.empty:
-        return pd.DataFrame(columns=["entry_bar", "label", "mfe_r", "mae_r", "direction"])
-    ex = ex.copy()
-    ex["label"] = (ex["mfe_r"] >= target_r).astype(int)
-    return ex[["entry_bar", "label", "mfe_r", "mae_r", "direction"]]
+    out = trade_outcomes(df, signal, target_r=target_r, stop_atr=stop_atr,
+                         limit_retrace_atr=limit_retrace_atr, max_bars=max_bars,
+                         entry_window=entry_window, fee_pct=fee_pct)
+    if out.empty:
+        return pd.DataFrame(columns=["entry_bar", "label", "realized_r", "mfe_r", "direction"])
+    out["label"] = (out["realized_r"] > 0).astype(int)
+    return out[["entry_bar", "label", "realized_r", "mfe_r", "direction"]]
 
 
 def build_dataset(
@@ -128,6 +197,7 @@ def build_dataset(
               if "timestamp" in df.columns else pd.Series(rows))
         meta = pd.DataFrame({"symbol": sym, "entry_time": pd.to_datetime(ts, utc=True, errors="coerce"),
                              "direction": labels["direction"].to_numpy(),
+                             "realized_r": labels["realized_r"].to_numpy(),
                              "mfe_r": labels["mfe_r"].to_numpy()})
         X_parts.append(Xs)
         y_parts.append(labels["label"].reset_index(drop=True))

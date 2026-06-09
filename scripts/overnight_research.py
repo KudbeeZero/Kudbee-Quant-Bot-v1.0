@@ -82,6 +82,22 @@ BASE_KW = dict(stop_atr=1.5, target_r=3.0, max_bars=24,
 
 MIN_TRADES = 120          # below this the candidate sample is too thin to trust
 DELTA_GATE = 0.015        # R/trade improvement that counts as real
+SIG_P = 0.05              # bootstrap p-value a WINNER must clear (no more luck)
+
+
+def _bootstrap_p(base: list, cand: list, n_boot: int = 2000, seed: int = 0) -> float:
+    """One-sided bootstrap p-value that the candidate's mean R exceeds the
+    baseline's. Resamples each pooled trade set with replacement and reports the
+    fraction of resamples where the candidate does NOT beat the baseline. This is
+    the gate that stops us crowning a lucky +0.05R as a 'winner' ever again."""
+    b = np.asarray(base, dtype=float)
+    c = np.asarray(cand, dtype=float)
+    if b.size < 30 or c.size < 30:
+        return 1.0
+    rng = np.random.default_rng(seed)
+    bm = rng.choice(b, size=(n_boot, b.size), replace=True).mean(axis=1)
+    cm = rng.choice(c, size=(n_boot, c.size), replace=True).mean(axis=1)
+    return float(((cm - bm) <= 0).mean())
 
 
 # --- data --------------------------------------------------------------------
@@ -158,16 +174,19 @@ def evaluate(name: str, frames: dict) -> dict:
 
     delta = cexp - bexp
     h1, h2 = cexp1 - bexp1, cexp2 - bexp2
+    p_value = _bootstrap_p(base_full, cand_full)
+    robust = h1 > 0 and h2 > 0
+    significant = p_value < SIG_P
     if cn < MIN_TRADES:
         verdict = "THIN"
     elif delta <= -DELTA_GATE:
         verdict = "HURTS"
     elif delta < DELTA_GATE:
         verdict = "NEUTRAL"
-    elif h1 > 0 and h2 > 0:
-        verdict = "WINNER"
+    elif robust and significant:
+        verdict = "WINNER"          # beats baseline, robust BOTH halves, AND p<0.05
     else:
-        verdict = "SUGGESTIVE"
+        verdict = "SUGGESTIVE"      # positive but not robust+significant -> not luck-proof
 
     return {
         "name": name, "desc": desc,
@@ -176,6 +195,7 @@ def evaluate(name: str, frames: dict) -> dict:
         "keep_pct": round(cn / bn, 3) if bn else None,
         "base_exp": round(bexp, 4), "cand_exp": round(cexp, 4),
         "delta": round(delta, 4), "h1_delta": round(h1, 4), "h2_delta": round(h2, 4),
+        "p_value": round(p_value, 4),
         "base_win": round(bwin, 3), "cand_win": round(cwin, 3),
         "verdict": verdict,
     }
@@ -239,12 +259,13 @@ def _write_findings(results: dict) -> None:
 
     def row(r):
         return (f"| `{r['name']}` | {r['verdict']} | {r['delta']:+.3f} | "
+                f"{r.get('p_value', float('nan'))} | "
                 f"{r['h1_delta']:+.3f} / {r['h2_delta']:+.3f} | "
                 f"{r['cand_exp']:+.3f} | {r['base_exp']:+.3f} | "
                 f"{r['n_trades']} ({r['keep_pct']}) | {r['cand_win']:.2f} | {r['desc']} |")
 
-    head = ("| candidate | verdict | ΔR | Δ h1 / h2 | cand R | base R | "
-            "trades (keep) | win | idea |\n|---|---|---|---|---|---|---|---|---|")
+    head = ("| candidate | verdict | ΔR | boot p | Δ h1 / h2 | cand R | base R | "
+            "trades (keep) | win | idea |\n|---|---|---|---|---|---|---|---|---|---|")
 
     L.append("\n## 🏆 Winners (beat baseline, robust both halves)\n")
     L.append(head if winners else "_None yet._")

@@ -72,6 +72,37 @@ def _gated_stats(oos: pd.DataFrame, threshold: float, base_rate: float) -> dict:
     }
 
 
+def _expectancy_gate(oos: pd.DataFrame, thresholds) -> list:
+    """The metric that matters: does gating on the meta-prob raise OUT-OF-SAMPLE
+    R-EXPECTANCY above taking every trade? Uses realized R carried through CV."""
+    if "realized_r" not in oos or oos["realized_r"].isna().all():
+        return []
+    r_all = oos["realized_r"].to_numpy(dtype=float)
+    base_exp = float(r_all.mean())
+    rng = np.random.default_rng(0)
+    out = []
+    for t in thresholds:
+        take = oos[oos["oos_prob"] >= t]
+        nt = int(len(take))
+        if nt == 0:
+            out.append({"threshold": t, "n_take": 0}); continue
+        gated_exp = float(take["realized_r"].mean())
+        # Permutation test: is selecting THESE nt trades better than selecting nt
+        # trades at random? p = fraction of random picks that match/beat the model.
+        rand = rng.choice(r_all, size=(3000, nt), replace=True).mean(axis=1)
+        p_perm = float((rand >= gated_exp).mean())
+        out.append({
+            "threshold": t, "n_take": nt,
+            "take_frac": round(nt / len(oos), 3),
+            "gated_expectancy_r": round(gated_exp, 4),
+            "base_expectancy_r": round(base_exp, 4),
+            "lift_r": round(gated_exp - base_exp, 4),
+            "p_perm": round(p_perm, 4),
+            "significant": bool(p_perm < 0.05 and gated_exp > base_exp),
+        })
+    return out
+
+
 def evaluate(X: pd.DataFrame, y: pd.Series, meta: pd.DataFrame,
              thresholds=(0.5, 0.6, 0.7), n_splits: int = 5,
              embargo_frac: float = 0.01) -> dict:
@@ -94,6 +125,7 @@ def evaluate(X: pd.DataFrame, y: pd.Series, meta: pd.DataFrame,
             "n_oos": int(len(oos)), "auc": round(auc, 4), "brier": round(brier, 4),
             "oos_base_rate": round(float(oos["y_true"].mean()), 4),
             "gated": gated,
+            "expectancy_gate": _expectancy_gate(oos, thresholds),
         }
     report["logit_coefficients"] = logit_coefficients(X, y)
     return report

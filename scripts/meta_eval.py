@@ -44,14 +44,15 @@ def main() -> None:
     X, y, meta = build_dataset(frames, sig, target_r=args.target_r)
     print(f"dataset: {X.shape} trades, base win-rate(@{args.target_r}R) "
           f"{float(y.mean()):.3f}, signal-bars {meta.attrs.get('n_signal_bars')}")
-    report = evaluate(X, y, meta, thresholds=(0.5, 0.6, 0.7), n_splits=args.n_splits)
+    report = evaluate(X, y, meta, thresholds=(0.5, 0.55, 0.6, 0.65), n_splits=args.n_splits)
     print(json.dumps(report, indent=2))
-    # Plain-English verdict.
-    any_beats = any(g.get("beats_base") for m in report["models"].values()
-                    if isinstance(m, dict) for g in m.get("gated", []))
-    print("\nVERDICT:", "meta-gating beats the base rate (OOS, CI-clear) at some "
-          "threshold — worth A/B-ing on expectancy." if any_beats else
-          "no threshold clears the base rate OOS — meta-model is NOT an edge yet.")
+    # Plain-English verdict — EXPECTANCY is the metric that matters, not hit-rate.
+    sig = any(g.get("significant") for m in report["models"].values()
+              if isinstance(m, dict) for g in m.get("expectancy_gate", []))
+    print("\nVERDICT:", "meta-gating SIGNIFICANTLY lifts OOS expectancy (permutation "
+          "p<0.05) at some threshold — a real LEAD; validate on uncorrelated assets "
+          "+ forward paper before trusting." if sig else
+          "no threshold significantly lifts OOS expectancy — not an edge yet.")
 
 
 if __name__ == "__main__":

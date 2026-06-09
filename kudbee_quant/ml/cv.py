@@ -98,6 +98,7 @@ def cross_val_oos(estimator_factory, X: pd.DataFrame, y: pd.Series,
             "entry_time": pd.to_datetime(meta["entry_time"], utc=True).to_numpy()[te]
             if "entry_time" in meta else pd.NaT,
             "mfe_r": meta["mfe_r"].to_numpy()[te] if "mfe_r" in meta else np.nan,
+            "realized_r": meta["realized_r"].to_numpy()[te] if "realized_r" in meta else np.nan,
         })
         rows.append(block)
     if not rows:

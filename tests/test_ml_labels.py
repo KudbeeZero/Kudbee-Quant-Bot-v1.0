@@ -44,8 +44,8 @@ def test_labels_align_to_entries(frame):
         pytest.skip("no trades on synthetic frame")
     assert set(labels["label"].unique()) <= {0, 1}
     assert labels["entry_bar"].between(0, len(frame) - 1).all()
-    # label must equal (mfe reached target) — the meta-question, exactly
-    assert (labels["label"] == (labels["mfe_r"] >= 3.0).astype(int)).all()
+    # label must equal (trade was profitable) — ties the meta-model to expectancy
+    assert (labels["label"] == (labels["realized_r"] > 0).astype(int)).all()
 
 
 def test_build_dataset_shapes(frame):
