@@ -1,68 +1,63 @@
-# Kudbee Quant Bot
+# Kudbee Quant
 
-An **honest** quantitative trading research toolkit for crypto and
-prediction markets.
+An **honest** quantitative trading research toolkit for crypto and prediction
+markets — built as the deliberate inverse of the viral "AI trading terminal"
+screenshots. No fake Sharpe ratios, no "low risk / huge return" promises. Every
+signal is a hypothesis to be *measured*; risk is reported as loudly as return.
 
-We are deliberately building the inverse of the viral "AI trading terminal"
-screenshots. No hardcoded PnL, no fake Sharpe ratios, no "low risk / huge
-return" promises. Our edge is *radical honesty about uncertainty*: every
-signal is a hypothesis to be measured, and risk is reported as loudly as
-return. See [docs/PHILOSOPHY.md](docs/PHILOSOPHY.md).
+This repository is one unit:
 
-## What's here (v0.1)
+| Path | What it is |
+|---|---|
+| `kudbee_quant/` | The Python engine (ingestion, signals, backtest, confluence, paper loop, API) |
+| `research/` | The Traders Reality / ICT / BTMM research corpus (Vols 1–10) |
+| `docs/research/` | Honest findings & the testable rule set (what survived the null) |
+| `*.html`, `assets/`, `blog/` | The static marketing/education website (Netlify) |
+| `kudbee_quant/api.py` | FastAPI backend that serves the website's Live Signals page |
 
-- **Ingestion** (`kudbee_quant.ingest`)
-  - `BinanceClient` — public spot OHLCV, cached, auto-paging history.
-  - `YahooClient` — equities/ETFs/commodities/FX (uncorrelated assets for validation).
-  - `PolymarketClient` — prediction-market metadata + CLOB prices.
-  - `load_ohlcv` — source router: `binance:BTCUSDT` / `yahoo:SPY` / bare symbol.
-- **Signals** (`kudbee_quant.signals`)
-  - `pvsra_vector_candles` — Traders Reality (Tino) PVSRA vector candles,
-    Python port. Pine Script version in
-    [`pinescript/pvsra_vector_candles.pine`](pinescript/pvsra_vector_candles.pine).
-- **Market-maker context** (`kudbee_quant.context`) — Traders Reality regime layer
-  - `add_mm_context` — sessions (Asian/London/NY) + Asian-range box,
-    previous day/week highs & lows, liquidity-sweep detection, weekly cycle phase.
-- **Backtest + risk engine** (`kudbee_quant.backtest`)
-  - `run_backtest` — event-driven, fees + slippage, no lookahead.
-  - `performance_metrics` — Sharpe, Sortino, max drawdown, VaR/CVaR, Calmar.
-  - `monte_carlo` — bootstrap outcome distribution + risk-of-ruin.
-  - `fractional_kelly` — capped position sizing.
-  - `walk_forward` — in-sample vs out-of-sample overfitting check.
-  - `pvsra_positions` / `pvsra_mm_positions` — naive vs MM-context-filtered
-    strategies (the hybrid system; compare them with the `backtest` CLI).
-- **Validation** (`kudbee_quant.validation`)
-  - `validate_universe` — run a strategy across many assets, score each on
-    out-of-sample results, and render a conservative verdict that is
-    **correlation-adjusted** (correlated assets count as fewer independent
-    tests, so the harness can't fool itself).
+## The validated strategy (what survived honest testing)
 
-## Quick start
+After testing the whole PVSRA/BTMM/ICT corpus, **adding confluence factors did
+not help** (the 10-factor set is saturated). The edge came from **execution and
+R:R**, validated walk-forward across crypto + equities + gold:
+
+> **1h timeframe · ≥50% confluence · 3R target · LIMIT entry on a 0.25-ATR
+> retrace (maker) · both directions · sized small.**
+
+Honest caveats: it's a *modest*, regime-dependent edge (stronger in trends,
+short-led in downtrends), execution-gated (needs maker fills), with real
+drawdowns. Forward/paper testing is the final proof — which the paper loop now
+accumulates. See `docs/research/testable_ruleset.md` and `docs/PHILOSOPHY.md`.
+
+## Quick start (engine)
 
 ```bash
 pip install -r requirements.txt
+python -m pytest tests/ -q
 
-python -m kudbee_quant.cli klines BTCUSDT --interval 5m --limit 300
-python -m kudbee_quant.cli vectors BTCUSDT --interval 1h --limit 500
-python -m kudbee_quant.cli context BTCUSDT --interval 1h --limit 500
-python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra      # naive
-python -m kudbee_quant.cli backtest BTCUSDT --strategy pvsra_mm --walkforward
-python -m kudbee_quant.cli validate BTCUSDT ETHUSDT yahoo:SPY yahoo:GLD --strategy pvsra_mm
-python -m kudbee_quant.cli polymarkets --limit 20
+python -m kudbee_quant.cli vectors BTCUSDT --interval 1h
+python -m kudbee_quant.cli confluence-stack SOLUSDT --interval 1h
+python -m kudbee_quant.cli bracket-sweep BTCUSDT ETHUSDT SOLUSDT
+python -m kudbee_quant.cli paper-scan BTCUSDT ETHUSDT SOLUSDT   # logs validated 3R limit trades
+python -m kudbee_quant.cli journal-check                        # resolve them
+python -m kudbee_quant.cli journal-score                        # forward R expectancy
 ```
 
-## Tests
+## Run it as one unit (site + API)
 
 ```bash
-python -m pytest tests/ -q
+# 1) backend API (serves live signals to the site)
+uvicorn kudbee_quant.api:app --port 8000
+# 2) static site (any static server, or Netlify). The site calls /api/* which
+#    Netlify proxies to the backend (see netlify.toml). Open live-signals.html.
 ```
 
-## Roadmap
+## Honesty layer
 
-Backtester, Monte-Carlo risk engine, walk-forward validation, MM-cycle
-context, correlation graph, orchestrator pipeline, and a dashboard where
-every number carries a confidence interval. Tracked in the philosophy doc.
+No hardcoded performance numbers. Paper-trading by default. Lookahead self-audit
+on every signal. Realistic, timeframe-aware costs. Multiple-comparisons control.
+Walk-forward + uncorrelated-asset validation. When something doesn't beat the
+null, the docs say so.
 
-> Nothing here is financial advice. Markets do not offer high return at low
-> risk. This tool exists to help you measure edge honestly — including
-> discovering when there isn't any.
+> Not financial advice. Markets do not offer high return at low risk. This tool
+> exists to measure edge honestly — including discovering when there isn't any.

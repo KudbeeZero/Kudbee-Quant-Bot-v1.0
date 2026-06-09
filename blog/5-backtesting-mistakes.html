@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>5 Backtesting Mistakes That Wreck Real Returns | Kudbee Quant</title>
+  <meta name="description" content="A strategy can look brilliant in a backtest and lose money live. Here are the five most common backtesting mistakes — overfitting, look-ahead bias, ignoring costs, survivorship bias, and tiny samples — and how to avoid each one." />
+  <meta name="keywords" content="backtesting mistakes, overfitting, look-ahead bias, survivorship bias, backtest errors, why backtest fails live" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/5-backtesting-mistakes.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="5 Backtesting Mistakes That Wreck Real Returns" />
+  <meta property="og:description" content="Why a brilliant backtest can lose money live — and how to avoid the five most common mistakes." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/5-backtesting-mistakes.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og/og-5-backtesting-mistakes.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "5 Backtesting Mistakes That Wreck Real Returns",
+        "description": "The five most common backtesting mistakes — overfitting, look-ahead bias, ignoring costs, survivorship bias, and tiny samples — and how to avoid each.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/5-backtesting-mistakes.html",
+        "image": "https://kudbeequant.com/assets/img/og/og-5-backtesting-mistakes.svg",
+        "articleSection": "Backtesting",
+        "wordCount": 780,
+        "about": [ { "@type": "Thing", "name": "Backtesting" }, { "@type": "Thing", "name": "Overfitting" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "5 Backtesting Mistakes", "item": "https://kudbeequant.com/blog/5-backtesting-mistakes.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>5 Backtesting Mistakes</span>
+          </nav>
+          <span class="article__tag">Backtesting</span>
+          <h1>5 Backtesting Mistakes That Wreck Real Returns</h1>
+          <p class="article__meta">June 9, 2026 · 6 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>A strategy can look brilliant in a backtest and still lose money the moment it goes live.</strong> Almost always, the culprit isn't bad luck — it's a flawed backtest that was lying to you the whole time. Here are the five mistakes that cause it, and how to avoid each.</p>
+          <p>If you're new to the concept, start with our primer on <a href="what-is-backtesting.html">what backtesting is</a>, then come back for the traps.</p>
+
+          <h2>1. Overfitting</h2>
+          <p>This is the big one. <a href="../glossary.html">Overfitting</a> is when you tweak a strategy — adding rules, tuning parameters — until it fits the historical data almost perfectly. The problem: you've taught it to memorize the past's random noise, not to capture a repeatable edge. It looks flawless on the data you built it on and collapses on everything else.</p>
+          <p><strong>Fix:</strong> keep strategies simple, prefer fewer parameters, and always validate on data you didn't optimize on.</p>
+
+          <h2>2. Look-ahead bias</h2>
+          <p>Look-ahead bias is using information that wouldn't have been available at the moment of the decision. The classic version: using a day's <em>closing</em> price to trigger a trade that supposedly happened <em>during</em> that day. Your backtest effectively trades with tomorrow's newspaper.</p>
+          <p><strong>Fix:</strong> make sure every decision uses only data that existed at that point in time. A good engine enforces this for you.</p>
+
+          <h2>3. Ignoring trading costs</h2>
+          <p>Fees, spreads, and <a href="../glossary.html">slippage</a> are quiet killers. A high-frequency strategy that's wildly profitable on paper can flip to a loser once realistic costs are subtracted from every one of its hundreds of trades.</p>
+          <p><strong>Fix:</strong> model commissions, spread, and slippage from the very first backtest — not as an afterthought.</p>
+
+          <h2>4. Survivorship bias</h2>
+          <p>If you backtest a stock strategy only on companies that still exist today, you've quietly deleted every company that went bankrupt. Your results inherit a rosy glow that real-time trading never offered.</p>
+          <p><strong>Fix:</strong> use datasets that include delisted and dead assets, so failures are represented honestly.</p>
+
+          <h2>5. Too small a sample</h2>
+          <p>A strategy that looks amazing over three months or twenty trades has told you almost nothing. Small samples are dominated by luck. A great-looking <a href="how-to-read-a-sharpe-ratio.html">Sharpe ratio</a> over a few weeks is noise wearing a suit.</p>
+          <p><strong>Fix:</strong> test across years and many market <a href="momentum-vs-mean-reversion.html">regimes</a>, and lean on walk-forward and Monte Carlo methods to gauge robustness.</p>
+
+          <blockquote>A backtest's job isn't to make you feel good. It's to try its hardest to prove your idea wrong — and report what survived.</blockquote>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>Most backtests are too optimistic. Guard against overfitting, look-ahead bias, ignored costs, survivorship bias, and tiny samples — and what's left is something you can actually trust.</p>
+          </div>
+
+          <p>Kudbee Quant bakes these safeguards in: point-in-time data, modeled costs, and out-of-sample validation by default. <a href="../index.html#waitlist">Join the waitlist</a> to backtest the honest way.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="./">← All articles</a>
+          <a href="what-is-drawdown.html">Next: What is drawdown? →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>Backtest the honest way.</h2>
+          <p>Join the Kudbee Quant waitlist for safeguards that are on by default.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>What Is Drawdown? Why It Matters More Than Returns | Kudbee Quant</title>
+  <meta name="description" content="Drawdown is the peak-to-trough drop in your account, and it's the risk metric that decides whether you can actually stick with a strategy. Learn what maximum drawdown means, why recovery math is brutal, and how to use it." />
+  <meta name="keywords" content="what is drawdown, maximum drawdown, drawdown explained, trading risk, recovery math, equity curve" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/what-is-drawdown.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="What Is Drawdown? Why It Matters More Than Returns" />
+  <meta property="og:description" content="The risk metric that decides whether you can actually stick with a strategy — explained simply." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/what-is-drawdown.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og/og-what-is-drawdown.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "What Is Drawdown? Why It Matters More Than Returns",
+        "description": "Drawdown is the peak-to-trough drop in an account. Learn what maximum drawdown means, why recovery math is brutal, and how to use it.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/what-is-drawdown.html",
+        "image": "https://kudbeequant.com/assets/img/og/og-what-is-drawdown.svg",
+        "articleSection": "Risk metrics",
+        "wordCount": 730,
+        "about": [ { "@type": "Thing", "name": "Drawdown" }, { "@type": "Thing", "name": "Risk management" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "What Is Drawdown?", "item": "https://kudbeequant.com/blog/what-is-drawdown.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>What Is Drawdown?</span>
+          </nav>
+          <span class="article__tag">Risk metrics</span>
+          <h1>What Is Drawdown? Why It Matters More Than Returns</h1>
+          <p class="article__meta">June 9, 2026 · 5 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>Drawdown is the drop from a peak in your account value to the lowest point that follows, before a new peak is made.</strong> Maximum drawdown is the worst such drop over a period — and it's arguably the most honest number in trading, because it measures the pain you actually have to live through.</p>
+
+          <p>Returns get the headlines. Drawdown decides whether you're still around to collect them.</p>
+
+          <h2>A quick example</h2>
+          <p>Say your account grows to $12,000, then falls to $9,000 before recovering. That fall is a drawdown of $3,000, or 25%. If $9,000 is the lowest it ever gets across the whole period, then 25% is your <a href="../glossary.html">maximum drawdown</a>. It answers a simple, vital question: "What's the worst it got?"</p>
+
+          <h2>Why recovery math is brutal</h2>
+          <p>Here's the part that surprises people. Losses and the gains needed to undo them are not symmetrical:</p>
+          <ul>
+            <li>Lose 10% → you need +11% to recover</li>
+            <li>Lose 25% → you need +33%</li>
+            <li>Lose 50% → you need +100%</li>
+            <li>Lose 80% → you need +400%</li>
+          </ul>
+          <p>The deeper the hole, the disproportionately harder the climb out. This is exactly why protecting against large drawdowns matters more than chasing large returns — and why <a href="position-sizing-and-risk-management.html">position sizing</a> is the skill that keeps you solvent.</p>
+
+          <div class="callout"><p><strong>The human factor:</strong> drawdown isn't just math — it's psychology. Most traders abandon a perfectly good strategy during a deep drawdown, locking in the loss at the worst moment. Knowing a strategy's likely drawdown in advance is what lets you hold on.</p></div>
+
+          <h2>Drawdown vs. the Sharpe ratio</h2>
+          <p>The <a href="how-to-read-a-sharpe-ratio.html">Sharpe ratio</a> tells you about risk-adjusted return on average; drawdown tells you about the worst case. You want both. A strategy with a great Sharpe but a 60% max drawdown is one almost nobody can actually stick with. Read them together.</p>
+
+          <h2>How to use it</h2>
+          <ul>
+            <li><strong>Know your number before you trade.</strong> A backtest's max drawdown is your preview of the worst-case pain.</li>
+            <li><strong>Size for the drawdown you can stomach.</strong> If a 30% drop would make you quit, build a system that's unlikely to reach it.</li>
+            <li><strong>Compare strategies by drawdown, not just return.</strong> Smoother equity curves are easier to hold — and easier to leverage safely.</li>
+          </ul>
+
+          <blockquote>The best strategy isn't the one with the highest return. It's the one with the highest return you can actually survive.</blockquote>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>Drawdown measures the worst-case fall in your account, and recovering from a big one is mathematically punishing. Judge a strategy by the drawdown you'd have to endure — not just the returns it advertises.</p>
+          </div>
+
+          <p>Kudbee Quant puts maximum drawdown next to every backtest, so you see the pain before you feel it. <a href="../index.html#waitlist">Join the waitlist</a> to trade with your eyes open.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="5-backtesting-mistakes.html">← 5 backtesting mistakes</a>
+          <a href="./">All articles →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>See the pain before you feel it.</h2>
+          <p>Join the Kudbee Quant waitlist for risk metrics that don't sugarcoat.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>

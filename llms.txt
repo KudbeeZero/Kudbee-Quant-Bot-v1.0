@@ -1,0 +1,71 @@
+# Kudbee Quant
+
+> Kudbee Quant is an honest quantitative research toolkit for crypto and prediction
+> markets. It takes the discretionary Traders Reality PVSRA method (vector candles and
+> market-maker-cycle context), quantifies it as testable features, and validates it with
+> an event-driven backtester, walk-forward analysis, and Monte Carlo — reporting risk as
+> loudly as return. It is the deliberate inverse of "AI trading terminal" screenshots:
+> no hardcoded performance numbers, every figure computed from real data, every signal a
+> hypothesis. Not financial advice; markets do not offer high return at low risk.
+
+## Key facts
+
+- Name: Kudbee Quant
+- Category: Honest quantitative trading research toolkit
+- Method: Tino's Traders Reality "Hybrid System" — PVSRA + Beat-the-Market-Maker (BTMM)
+- Markets: Crypto (Binance) and prediction markets (Polymarket); equities/FX via Yahoo for uncorrelated validation
+- Default mode: Paper-trading; live capital is a guarded opt-in with hard drawdown limits
+- Differentiator: radical honesty about uncertainty — risk reported as loudly as return
+- Status: Private beta with an open early-access waitlist (free to join)
+- Not financial advice; trading involves substantial risk of loss
+
+## What it does
+
+- Signal: PVSRA vector candles (Pine Script ported to Python), treated as hypotheses
+- Context: market-maker layer — sessions (Asian/London/NY), Asian range, PDH/PDL/PWH/PWL,
+  liquidity sweeps, weekly MM cycle, monthly open (M0 pivot)
+- Backtest: event-driven, fees + slippage, no lookahead
+- Risk engine: Sharpe, Sortino, max drawdown, VaR/CVaR, Calmar, risk-of-ruin, fractional Kelly
+- Validation: walk-forward out-of-sample, Monte Carlo, and correlation-adjusted multi-asset
+
+## How it works (Scan, Detect, Validate, Size)
+
+1. Scan: ingest OHLCV from Binance and Yahoo, plus Polymarket prediction-market prices
+2. Detect: quantify PVSRA vector candles and market-maker context as testable features
+3. Validate: backtest with fees/slippage/no-lookahead, then walk-forward and Monte Carlo
+4. Size: only if an edge survives — capped fractional Kelly, hard drawdown limits, paper-first
+
+## The honesty contract (enforced in code)
+
+1. No hardcoded performance numbers — if it can't be computed from real data, it doesn't render
+2. Paper-trading is the default; live is a guarded opt-in
+3. Every signal is a hypothesis to be measured, never a promise
+4. Risk is reported as loudly as return
+5. Validation is adversarial — walk-forward and Monte Carlo by default
+
+## Pages
+
+- Home: https://kudbeequant.com/
+- Methodology (the Traders Reality × quant honesty system): https://kudbeequant.com/methodology.html
+- About (mission & story): https://kudbeequant.com/about.html
+- Start Here (beginner's guide to quant trading): https://kudbeequant.com/start-here.html
+- Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html
+- Compare (vs. signal groups & spreadsheets): https://kudbeequant.com/compare.html
+- Blog (quant trading guides): https://kudbeequant.com/blog/
+- Contact: https://kudbeequant.com/contact.html
+- Early-access waitlist: https://kudbeequant.com/#waitlist
+- FAQ: https://kudbeequant.com/#faq
+
+## Articles
+
+- What Is Backtesting? A Trader's Plain-English Guide: https://kudbeequant.com/blog/what-is-backtesting.html
+- How to Read a Sharpe Ratio (Without a Math Degree): https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html
+- Trade Signals vs. Trading Strategies: https://kudbeequant.com/blog/signals-vs-strategies.html
+- Momentum vs. Mean Reversion: Two Ways to Trade an Edge: https://kudbeequant.com/blog/momentum-vs-mean-reversion.html
+- Position Sizing & Risk Management: https://kudbeequant.com/blog/position-sizing-and-risk-management.html
+- 5 Backtesting Mistakes That Wreck Real Returns: https://kudbeequant.com/blog/5-backtesting-mistakes.html
+- What Is Drawdown? Why It Matters More Than Returns: https://kudbeequant.com/blog/what-is-drawdown.html
+
+## Contact
+
+- Email: hello@kudbeequant.com

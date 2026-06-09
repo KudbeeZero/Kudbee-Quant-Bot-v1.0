@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+
+  <!-- Security (header-based equivalents also set in _headers / netlify.toml) -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <!-- Primary SEO -->
+  <title>Kudbee Quant — The Honest Quant Toolkit for Crypto &amp; Prediction Markets</title>
+  <meta name="description" content="Kudbee Quant is an honest quantitative research toolkit for crypto and prediction markets. It turns Traders Reality PVSRA reads into measured hypotheses — backtested with walk-forward and Monte Carlo, with risk reported as loudly as return. No fake Sharpe ratios. Join the waitlist." />
+  <meta name="keywords" content="quant trading, PVSRA, vector candles, Traders Reality, market maker method, BTMM, backtesting, walk-forward, Monte Carlo, crypto trading research, prediction markets, Polymarket, risk of ruin, Kudbee Quant" />
+  <meta name="author" content="Kudbee Quant" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+  <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <!-- AI / answer-engine crawlers welcome -->
+  <meta name="GPTBot" content="index, follow" />
+  <meta name="generative-ai" content="allow" />
+  <link rel="canonical" href="https://kudbeequant.com/" />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Kudbee Quant — The Honest Quant Toolkit for Crypto &amp; Prediction Markets" />
+  <meta property="og:description" content="An honest quant research toolkit: turn Traders Reality PVSRA reads into measured hypotheses, backtested with walk-forward and Monte Carlo. Risk reported as loudly as return." />
+  <meta property="og:url" content="https://kudbeequant.com/" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta property="og:image:alt" content="Kudbee Quant — honest quant research toolkit" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Kudbee Quant — The Honest Quant Toolkit for Crypto &amp; Prediction Markets" />
+  <meta name="twitter:description" content="Turn discretionary PVSRA reads into measured hypotheses — backtested honestly, with risk reported as loudly as return." />
+  <meta name="twitter:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+
+  <!-- Icons & Manifest -->
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="apple-touch-icon" href="assets/img/favicon.svg" />
+  <link rel="manifest" href="site.webmanifest" />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <!-- Structured Data (single @graph for AI & search engines) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://kudbeequant.com/#org",
+        "name": "Kudbee Quant",
+        "url": "https://kudbeequant.com/",
+        "logo": "https://kudbeequant.com/assets/img/favicon.svg",
+        "description": "Kudbee Quant is an honest quantitative research toolkit for crypto and prediction markets. It turns Traders Reality PVSRA reads into measured hypotheses, validated with walk-forward and Monte Carlo, with risk reported as loudly as return.",
+        "email": "hello@kudbeequant.com",
+        "foundingDate": "2026",
+        "slogan": "Measure the edge honestly — including when there isn't one.",
+        "knowsAbout": ["quantitative trading", "PVSRA", "vector candles", "Volume Spread Analysis", "Beat the Market Maker", "market-maker cycle", "backtesting", "walk-forward validation", "Monte Carlo", "risk of ruin", "prediction markets"]
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://kudbeequant.com/#website",
+        "url": "https://kudbeequant.com/",
+        "name": "Kudbee Quant",
+        "publisher": { "@id": "https://kudbeequant.com/#org" },
+        "inLanguage": "en",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": { "@type": "EntryPoint", "urlTemplate": "https://kudbeequant.com/glossary.html?q={search_term_string}" },
+          "query-input": "required name=search_term_string"
+        }
+      },
+      {
+        "@type": "SoftwareApplication",
+        "@id": "https://kudbeequant.com/#app",
+        "name": "Kudbee Quant",
+        "applicationCategory": "FinanceApplication",
+        "applicationSubCategory": "Quantitative Trading Platform",
+        "operatingSystem": "Web",
+        "url": "https://kudbeequant.com/",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "publisher": { "@id": "https://kudbeequant.com/#org" },
+        "description": "An honest quant research toolkit for crypto and prediction markets. It quantifies Traders Reality PVSRA vector candles and market-maker-cycle context as testable features, runs an event-driven backtester (fees, slippage, no lookahead), and reports every edge with walk-forward and Monte Carlo confidence — risk shown as loudly as return.",
+        "featureList": [
+          "PVSRA vector-candle signals (Traders Reality hybrid system)",
+          "Market-maker cycle context (sessions, liquidity sweeps, PDH/PDL)",
+          "Event-driven backtester with fees, slippage and no lookahead",
+          "Adversarial validation: walk-forward + Monte Carlo",
+          "Honest risk engine: max drawdown, VaR/CVaR, risk-of-ruin, fractional Kelly",
+          "Multi-asset, correlation-adjusted validation",
+          "Crypto (Binance) and prediction markets (Polymarket)",
+          "Paper-trading by default; guarded live opt-in"
+        ],
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD", "description": "Early access waitlist", "availability": "https://schema.org/PreOrder" }
+      },
+      {
+        "@type": "HowTo",
+        "@id": "https://kudbeequant.com/#howto",
+        "name": "How Kudbee Quant turns a discretionary read into a measured edge",
+        "description": "The Scan → Detect → Validate → Size pipeline that subjects every PVSRA read to statistical scrutiny.",
+        "step": [
+          { "@type": "HowToStep", "position": 1, "name": "Scan the markets", "text": "Ingest clean OHLCV from crypto (Binance) and equities/FX for uncorrelated validation, plus prediction-market prices from Polymarket." },
+          { "@type": "HowToStep", "position": 2, "name": "Detect the read", "text": "Quantify PVSRA vector candles and market-maker-cycle context (sessions, liquidity sweeps, prior-day and prior-week levels) as testable features." },
+          { "@type": "HowToStep", "position": 3, "name": "Validate adversarially", "text": "Backtest with realistic fees and slippage and no lookahead, then run walk-forward and Monte Carlo to estimate the edge and the probability it is just noise." },
+          { "@type": "HowToStep", "position": 4, "name": "Size with risk first", "text": "If — and only if — an edge survives, size it with capped fractional Kelly and hard drawdown limits, paper-trading by default." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://kudbeequant.com/#faq",
+        "mainEntity": [
+          { "@type": "Question", "name": "What is Kudbee Quant?", "acceptedAnswer": { "@type": "Answer", "text": "Kudbee Quant is an honest quantitative research toolkit for crypto and prediction markets. It takes the discretionary Traders Reality PVSRA method (vector candles and market-maker-cycle context), quantifies it as testable features, and validates it with an event-driven backtester, walk-forward, and Monte Carlo — reporting risk as loudly as return." } },
+          { "@type": "Question", "name": "What is the Traders Reality / PVSRA hybrid system?", "acceptedAnswer": { "@type": "Answer", "text": "PVSRA (Price, Volume, Support & Resistance Analysis) uses 'vector candles' — volume and spread climaxes — to infer where large players act. Tino's Traders Reality hybrid system combines PVSRA with the Beat-the-Market-Maker (BTMM) cycle. Kudbee keeps the discretionary read but subjects it to statistical scrutiny instead of treating it as certainty." } },
+          { "@type": "Question", "name": "Does Kudbee Quant promise high returns?", "acceptedAnswer": { "@type": "Answer", "text": "No — and that's the point. Kudbee Quant is the inverse of the viral 'AI trading terminal' screenshots with fake Sharpe ratios and huge low-risk returns. It contains no hardcoded performance figures; every number is computed from real data, and a strategy that loses is reported honestly." } },
+          { "@type": "Question", "name": "Does Kudbee Quant place trades for me?", "acceptedAnswer": { "@type": "Answer", "text": "Paper-trading is the default. Live capital is an explicit, guarded opt-in with hard drawdown limits. Kudbee is a research tool first — you stay in control." } },
+          { "@type": "Question", "name": "What markets does Kudbee Quant support?", "acceptedAnswer": { "@type": "Answer", "text": "Crypto via Binance and prediction markets via Polymarket, with equities, ETFs, FX and commodities via Yahoo used as uncorrelated assets for honest validation." } },
+          { "@type": "Question", "name": "How does validation work?", "acceptedAnswer": { "@type": "Answer", "text": "Every signal is treated as a hypothesis. The event-driven backtester models fees and slippage with no lookahead, then walk-forward and Monte Carlo estimate the edge, its drawdown profile, and the probability it is just noise. Multi-asset validation is correlation-adjusted so the harness can't fool itself." } },
+          { "@type": "Question", "name": "Is Kudbee Quant financial advice?", "acceptedAnswer": { "@type": "Answer", "text": "No. Kudbee Quant is a research tool. Nothing in the product or on this site is financial advice. Markets do not offer high return at low risk; trading involves substantial risk of loss. Always do your own research." } }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Quant Glossary", "item": "https://kudbeequant.com/glossary.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <!-- Skip link for a11y -->
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="#hero" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs>
+              <linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#FFD45E"/>
+                <stop offset="1" stop-color="#F5A623"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+
+      <nav class="nav__links" aria-label="Primary">
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="blog/">Blog</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+
+      <a href="#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ===== HERO ===== -->
+    <section class="hero" id="hero">
+      <div class="hero__bg" aria-hidden="true">
+        <div class="hero__glow hero__glow--1"></div>
+        <div class="hero__glow hero__glow--2"></div>
+        <div class="hero__grid"></div>
+      </div>
+
+      <div class="container hero__inner">
+        <div class="hero__copy">
+          <span class="pill reveal">
+            <span class="pill__dot"></span> Now in private beta — early access open
+          </span>
+          <h1 class="hero__title reveal">
+            The anti-hype quant terminal.
+            <span class="grad-text">Measure the edge honestly.</span>
+          </h1>
+          <p class="hero__sub reveal">
+            Kudbee Quant takes the discretionary <strong>Traders Reality PVSRA</strong> read and
+            subjects it to real statistics — backtested with fees and slippage, stress-tested with
+            walk-forward and Monte Carlo. Every signal is a hypothesis, and <strong>risk is reported
+            as loudly as return</strong>. No fake Sharpe ratios. For crypto and prediction markets.
+          </p>
+          <div class="hero__actions reveal">
+            <a href="#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+            <a href="methodology.html" class="btn btn--ghost btn--lg">
+              <span class="play" aria-hidden="true">▶</span> Read the methodology
+            </a>
+          </div>
+          <ul class="hero__trust reveal" aria-label="Highlights">
+            <li><strong>No fake stats</strong><span>Every number computed from real data</span></li>
+            <li><strong>Paper-first</strong><span>Live capital is a guarded opt-in</span></li>
+            <li><strong>Adversarial</strong><span>Walk-forward + Monte Carlo by default</span></li>
+          </ul>
+        </div>
+
+        <!-- Live-ish dashboard mock -->
+        <div class="hero__visual reveal">
+          <div class="glass dash">
+            <div class="dash__head">
+              <div class="dash__title">
+                <span class="dash__dot"></span> BTC / USDT · 1h · PVSRA + MM context
+              </div>
+              <span class="badge badge--neutral" id="signalBadge">hypothesis · measuring</span>
+            </div>
+            <div class="dash__chart">
+              <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="spark" aria-hidden="true">
+                <defs>
+                  <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="rgba(45,212,191,.35)"/>
+                    <stop offset="1" stop-color="rgba(45,212,191,0)"/>
+                  </linearGradient>
+                </defs>
+                <path id="sparkFill" fill="url(#fill)" d=""/>
+                <path id="sparkLine" fill="none" stroke="#2DD4BF" stroke-width="2.5" d=""/>
+                <circle id="sparkDot" r="4" fill="#2DD4BF"/>
+              </svg>
+            </div>
+            <div class="dash__stats">
+              <div><span class="k">Edge est.</span><b>+1.1% <span class="ci">±2.6</span></b></div>
+              <div><span class="k">Max DD</span><b class="down">-11.1%</b></div>
+              <div><span class="k">P(noise)</span><b class="down">21%</b></div>
+              <div><span class="k">OOS Sharpe</span><b>＋ pending</b></div>
+            </div>
+            <p class="dash__note">Illustrative output — not a track record. Numbers render only when computed from real data.</p>
+          </div>
+          <div class="glass chip chip--a">
+            <span class="chip__k">Liquidity sweep</span>
+            <span class="badge badge--neutral">● flagged</span>
+          </div>
+          <div class="glass chip chip--b">
+            <span class="chip__k">Bull vector candle</span>
+            <span class="badge badge--up">▲ detected</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track">
+          <span>BINANCE <em>BTC/USDT</em></span><span>ETH/USDT</span>
+          <span>SOL/USDT</span><span>POLYMARKET <em>events</em></span>
+          <span>PVSRA <em>vectors</em></span><span>MM <em>cycle</em></span>
+          <span>YAHOO <em>SPY · GLD</em></span><span>WALK-FORWARD</span>
+          <span>BINANCE <em>BTC/USDT</em></span><span>ETH/USDT</span>
+          <span>SOL/USDT</span><span>POLYMARKET <em>events</em></span>
+          <span>PVSRA <em>vectors</em></span><span>MM <em>cycle</em></span>
+          <span>YAHOO <em>SPY · GLD</em></span><span>WALK-FORWARD</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== LOGOS / TRUST ===== -->
+    <section class="trust container">
+      <p class="trust__label">Built for traders who treat the markets like a science</p>
+      <div class="trust__row">
+        <span>PVSRA vector candles</span><span class="dot">•</span>
+        <span>Market-maker context</span><span class="dot">•</span>
+        <span>Walk-forward + Monte Carlo</span><span class="dot">•</span>
+        <span>Risk reported loudly</span>
+      </div>
+    </section>
+
+    <!-- ===== WHAT IS (definitional / AEO) ===== -->
+    <section class="section define" id="what">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">The short version</span>
+          <h2>What is Kudbee Quant?</h2>
+        </div>
+        <p class="define__lead reveal">
+          <strong>Kudbee Quant is an honest quantitative research toolkit</strong> for crypto and
+          prediction markets. It takes the discretionary <strong>Traders Reality PVSRA</strong> method —
+          vector candles and market-maker-cycle context — quantifies it as testable features, and
+          <strong>measures whether it actually has an edge</strong>.
+        </p>
+        <p class="define__body reveal">
+          It is the deliberate inverse of the viral "AI trading terminal" screenshots — the ones with
+          Sharpe 4.9 and 41,000% APY that don't reconcile with reality. Kudbee contains
+          <em>no hardcoded performance numbers</em>. Every figure is computed from real data, every
+          signal is a hypothesis to be tested, and a strategy that loses is reported honestly. The
+          edge isn't a promise — it's the honesty about uncertainty.
+        </p>
+        <div class="define__facts reveal">
+          <div><span class="k">Category</span><b>Honest quant research toolkit</b></div>
+          <div><span class="k">Method</span><b>Traders Reality · PVSRA</b></div>
+          <div><span class="k">Markets</span><b>Crypto · Prediction markets</b></div>
+          <div><span class="k">Default mode</span><b>Paper-trading</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FEATURES ===== -->
+    <section class="section" id="features">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The toolkit</span>
+          <h2>A discretionary read, put under a microscope.</h2>
+          <p>Four layers that turn "smart money is here" into a number you can actually trust — or reject.</p>
+        </div>
+
+        <div class="grid grid--features">
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">🕯️</div>
+            <h3>PVSRA vector candles</h3>
+            <p>The Traders Reality signal — volume and spread climaxes that flag where large players act — ported faithfully from the open-source Pine to Python.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">🌀</div>
+            <h3>Market-maker context</h3>
+            <p>Sessions (Asian/London/NY), the Asian range, prior-day and prior-week levels, liquidity-sweep detection, and the weekly MM cycle phase.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">🔬</div>
+            <h3>Adversarial validation</h3>
+            <p>Event-driven backtester with fees, slippage and no lookahead, then walk-forward and Monte Carlo to estimate the edge — and the odds it's just noise.</p>
+          </article>
+          <article class="card reveal">
+            <div class="card__icon" aria-hidden="true">🛡️</div>
+            <h3>Honest risk engine</h3>
+            <p>Max drawdown, VaR/CVaR, risk-of-ruin and capped fractional Kelly — reported next to every return, never buried beneath it.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== HOW IT WORKS ===== -->
+    <section class="section section--alt" id="how">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">How it works</span>
+          <h2>Scan → Detect → Validate → Size.</h2>
+          <p>The pipeline that keeps the discretionary signal but never takes it on faith.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step reveal">
+            <span class="step__num">01</span>
+            <h3>Scan</h3>
+            <p>Ingest clean OHLCV from Binance (crypto) and Yahoo (equities/FX for uncorrelated checks), plus Polymarket prediction-market prices.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">02</span>
+            <h3>Detect</h3>
+            <p>Quantify PVSRA vector candles and market-maker context — sweeps, sessions, prior-day/week levels — into testable features.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">03</span>
+            <h3>Validate</h3>
+            <p>Backtest with fees and slippage, then walk-forward and Monte Carlo for the edge estimate, drawdown profile, and probability it's noise.</p>
+          </div>
+          <div class="step reveal">
+            <span class="step__num">04</span>
+            <h3>Size</h3>
+            <p>Only if an edge survives: capped fractional Kelly, hard drawdown limits, and paper-trading by default. Live is a guarded opt-in.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WHO IT'S FOR ===== -->
+    <section class="section" id="who">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Who it's for</span>
+          <h2>Built for traders who want an edge they can prove.</h2>
+          <p>Whether you're scaling a system or just tired of trading on vibes, Kudbee meets you where you are.</p>
+        </div>
+        <div class="grid grid--personas">
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">🧪</div>
+            <h3>The systematic trader</h3>
+            <p>You think in rules and probabilities. Build, backtest, and refine strategies with the rigor of a quant desk — without the quant team.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">⏱️</div>
+            <h3>The busy part-timer</h3>
+            <p>You can't watch charts all day. Let validated strategies do the watching and ping you only when a real, scored opportunity shows up.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">📈</div>
+            <h3>The discretionary trader</h3>
+            <p>You trade on read and feel. Use Kudbee's analytics and confidence scores as a second opinion to confirm — or veto — your bias before you size in.</p>
+          </article>
+          <article class="persona reveal">
+            <div class="persona__icon" aria-hidden="true">🎓</div>
+            <h3>The serious learner</h3>
+            <p>You want to get good, fast. Backtesting turns every idea into a feedback loop, so you learn what actually works instead of guessing.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== BACKTEST SHOWCASE ===== -->
+    <section class="section" id="backtest">
+      <div class="container split">
+        <div class="split__copy reveal">
+          <span class="eyebrow">Backtesting engine</span>
+          <h2>The engine that tells you when there's no edge.</h2>
+          <p>
+            The first time we backtested the raw PVSRA read on BTC, it <strong>lost money</strong> —
+            and the engine said so out loud. That's the whole point. An event-driven backtester with
+            fees, slippage and no lookahead, plus walk-forward and Monte Carlo, exists to find the
+            reasons a strategy will fail <em>before</em> your capital does.
+          </p>
+          <ul class="checklist">
+            <li>Event-driven, fees &amp; slippage, no lookahead</li>
+            <li>Walk-forward &amp; out-of-sample validation</li>
+            <li>Monte Carlo: the probability your edge is noise</li>
+            <li>Multi-asset checks, correlation-adjusted</li>
+          </ul>
+          <a href="methodology.html" class="btn btn--primary">Read the methodology</a>
+        </div>
+
+        <div class="split__visual reveal">
+          <div class="glass equity">
+            <div class="equity__head">
+              <span>Naive PVSRA — first backtest</span>
+              <span class="badge badge--down">illustrative · 1000h BTC</span>
+            </div>
+            <svg viewBox="0 0 460 240" class="equity__chart" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="eqfill" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stop-color="rgba(245,166,35,.30)"/>
+                  <stop offset="1" stop-color="rgba(245,166,35,0)"/>
+                </linearGradient>
+              </defs>
+              <g class="equity__grid" stroke="rgba(255,255,255,.06)">
+                <line x1="0" y1="60" x2="460" y2="60"/>
+                <line x1="0" y1="120" x2="460" y2="120"/>
+                <line x1="0" y1="180" x2="460" y2="180"/>
+              </g>
+              <path id="eqFill" fill="url(#eqfill)" d=""/>
+              <path id="eqLine" fill="none" stroke="#F5A623" stroke-width="3" stroke-linejoin="round" d=""/>
+            </svg>
+            <div class="equity__legend">
+              <div><span class="k">Return</span><b class="down">-12.9%</b></div>
+              <div><span class="k">Sharpe</span><b class="down">-2.79</b></div>
+              <div><span class="k">Max DD</span><b class="down">-18.8%</b></div>
+              <div><span class="k">P(profit)</span><b class="down">~12%</b></div>
+            </div>
+            <p class="dash__note">The raw read lost money — and the engine reported it honestly. Filtering by market-maker context flipped this small sample; the caveats matter more than the result.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SIGNALS / ANALYTICS SHOWCASE ===== -->
+    <section class="section section--alt" id="signals">
+      <div class="container split split--rev">
+        <div class="split__visual reveal">
+          <div class="glass signals">
+            <div class="signals__head">Signals are hypotheses, not promises</div>
+            <ul class="signals__list">
+              <li>
+                <span class="sym">SOL/USDT</span>
+                <span class="badge badge--up">▲ EDGE</span>
+                <span class="conf">OOS ✓</span>
+                <span class="meta">bull vector at M0 pivot + swept lows</span>
+              </li>
+              <li>
+                <span class="sym">BTC/USDT</span>
+                <span class="badge badge--neutral">● TEST</span>
+                <span class="conf">p 21%</span>
+                <span class="meta">bull vector, London — measuring edge</span>
+              </li>
+              <li>
+                <span class="sym">ETH/USDT</span>
+                <span class="badge badge--down">▼ SKIP</span>
+                <span class="conf">p 64%</span>
+                <span class="meta">bear vector, no sweep — likely noise</span>
+              </li>
+              <li>
+                <span class="sym">POLY · event</span>
+                <span class="badge badge--neutral">● WATCH</span>
+                <span class="conf">—</span>
+                <span class="meta">prediction-market CLOB mispricing</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="split__copy reveal">
+          <span class="eyebrow">Signals &amp; verdicts</span>
+          <h2>Every signal is a hypothesis to be measured.</h2>
+          <p>
+            A PVSRA vector candle isn't a buy — it's a question. Kudbee answers it with the
+            market-maker context that fired it, the estimated edge, and the Monte Carlo probability
+            it's just noise. Sometimes the honest verdict is <em>skip</em>, and that's a feature.
+          </p>
+          <ul class="checklist">
+            <li>Each read tied to its PVSRA + MM-context trigger</li>
+            <li>Edge estimate with a confidence interval</li>
+            <li>P(noise) so you know when to walk away</li>
+            <li>Crypto and prediction markets</li>
+          </ul>
+          <a href="#waitlist" class="btn btn--primary">Join the waitlist</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== WHY / COMPARISON ===== -->
+    <section class="section" id="why">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">Why Kudbee</span>
+          <h2>The whole workflow, in one hive.</h2>
+          <p>Most traders stitch together a charting tool, a signals group, and a spreadsheet. Kudbee replaces all three.</p>
+        </div>
+        <div class="compare reveal">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">What you need</th>
+                <th scope="col">The usual way</th>
+                <th scope="col" class="compare__us">With Kudbee</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">Trade signals</th><td>Paid Discord/Telegram, no track record</td><td>PVSRA reads, measured and backtested</td></tr>
+              <tr><th scope="row">Performance claims</th><td>Screenshots: "Sharpe 4.9 · 41,000% APY"</td><td>No hardcoded numbers — computed from real data</td></tr>
+              <tr><th scope="row">Validation</th><td>Hindsight &amp; cherry-picked charts</td><td>Walk-forward + Monte Carlo, no lookahead</td></tr>
+              <tr><th scope="row">Risk</th><td>Buried or never mentioned</td><td>Drawdown, CVaR &amp; risk-of-ruin up front</td></tr>
+              <tr><th scope="row">When there's no edge</th><td>You find out with real money</td><td>The engine tells you, and says skip</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="faq__more reveal">See the full breakdown vs. signal groups and spreadsheets on our <a href="compare.html">comparison page</a>.</p>
+      </div>
+    </section>
+
+    <!-- ===== STATS BAND (honest facts only) ===== -->
+    <section class="band">
+      <div class="container band__inner">
+        <div class="reveal"><strong data-count="3">0</strong><span>Data sources: Binance · Yahoo · Polymarket</span></div>
+        <div class="reveal"><strong data-count="0">0</strong><span>Hardcoded performance numbers</span></div>
+        <div class="reveal"><strong data-count="5">0</strong><span>Honesty-contract rules enforced in code</span></div>
+        <div class="reveal"><strong data-count="100" data-suffix="%">0</strong><span>Figures computed from real data</span></div>
+      </div>
+    </section>
+
+    <!-- ===== HONESTY CONTRACT ===== -->
+    <section class="section" id="honesty">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The honesty contract</span>
+          <h2>Five promises, enforced in code — not in marketing.</h2>
+          <p>We'd rather show you fewer winners than one fake one. Here's the contract the engine actually holds itself to.</p>
+        </div>
+        <div class="grid grid--features honesty-grid">
+          <article class="card reveal">
+            <div class="honesty__n">01</div>
+            <h3>No hardcoded performance</h3>
+            <p>If a figure can't be computed from real data, it does not render. Ever. No fake Sharpe, no invented APY.</p>
+          </article>
+          <article class="card reveal">
+            <div class="honesty__n">02</div>
+            <h3>Paper-trading by default</h3>
+            <p>Live capital is an explicit, guarded opt-in with hard drawdown limits. Research first, always.</p>
+          </article>
+          <article class="card reveal">
+            <div class="honesty__n">03</div>
+            <h3>Every signal is a hypothesis</h3>
+            <p>PVSRA reads, MM context, correlation — all are features to be measured, never promises.</p>
+          </article>
+          <article class="card reveal">
+            <div class="honesty__n">04</div>
+            <h3>Risk reported as loudly as return</h3>
+            <p>Max drawdown, risk-of-ruin, CVaR and out-of-sample decay sit right next to every PnL figure.</p>
+          </article>
+          <article class="card reveal">
+            <div class="honesty__n">05</div>
+            <h3>Validation is adversarial</h3>
+            <p>Walk-forward and Monte Carlo by default. We hunt for the reasons a strategy fails before trusting it.</p>
+          </article>
+          <article class="card reveal honesty-grid__cta">
+            <h3>Read the full philosophy</h3>
+            <p>The hybrid system, the lineage, and the caveats — laid out in the open.</p>
+            <a href="methodology.html" class="btn btn--ghost btn--sm">Methodology →</a>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ABOUT / TRUST ===== -->
+    <section class="section section--alt" id="about">
+      <div class="container split">
+        <div class="split__copy reveal">
+          <span class="eyebrow">Our approach</span>
+          <h2>Built by traders who got tired of guessing.</h2>
+          <p>
+            Kudbee Quant started with a simple frustration: the tools that give real
+            statistical edges were locked inside hedge funds and prop desks, while everyone
+            else was sold hype, screenshots, and signal groups with no track record.
+          </p>
+          <p>
+            We're closing that gap. Our mission is to put institutional-grade rigor — honest
+            backtests, real risk metrics, and explainable signals — in the hands of every
+            serious trader, with none of the gatekeeping.
+          </p>
+          <ul class="values">
+            <li><b>Evidence over hype.</b> Every claim is something you can backtest yourself.</li>
+            <li><b>You stay in control.</b> We inform decisions; we never trade behind your back.</li>
+            <li><b>Transparency by default.</b> Confidence scores and the reasoning behind every call.</li>
+          </ul>
+        </div>
+        <div class="split__visual reveal">
+          <div class="principles">
+            <div class="principle glass"><span class="principle__n">01</span><h3>Honest backtests</h3><p>Fees, slippage, and out-of-sample validation modeled in — no cherry-picking.</p></div>
+            <div class="principle glass"><span class="principle__n">02</span><h3>Explainable signals</h3><p>Plain-English reasoning and a confidence score on every call.</p></div>
+            <div class="principle glass"><span class="principle__n">03</span><h3>Risk first</h3><p>Drawdown and exposure front and center, because survival compounds.</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== PRICING PREVIEW ===== -->
+    <section class="section" id="pricing">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Pricing</span>
+          <h2>Simple plans, founding-member rates.</h2>
+          <p>Final pricing lands at launch. Join the waitlist now to lock founding-member rates and early access.</p>
+        </div>
+
+        <div class="grid grid--pricing">
+          <article class="price reveal">
+            <h3 class="price__name">Explorer</h3>
+            <div class="price__amt">Free<span>forever</span></div>
+            <p class="price__desc">Get a feel for quant trading with the essentials.</p>
+            <ul class="price__list">
+              <li>Real-time signals (select assets)</li>
+              <li>Core market analytics</li>
+              <li>1 saved strategy</li>
+              <li>Community access</li>
+            </ul>
+            <a href="#waitlist" class="btn btn--ghost">Join the waitlist</a>
+          </article>
+
+          <article class="price price--featured reveal">
+            <span class="price__badge">Most popular</span>
+            <h3 class="price__name">Trader</h3>
+            <div class="price__amt">Pro<span>early-bird at launch</span></div>
+            <p class="price__desc">For active traders who want the full toolkit.</p>
+            <ul class="price__list">
+              <li>Everything in Explorer</li>
+              <li>Unlimited signals, all markets</li>
+              <li>Full analytics suite</li>
+              <li>25 strategies + backtesting</li>
+              <li>Custom alerts</li>
+            </ul>
+            <a href="#waitlist" class="btn btn--primary">Lock founding rate</a>
+          </article>
+
+          <article class="price reveal">
+            <h3 class="price__name">Quant</h3>
+            <div class="price__amt">Elite<span>early-bird at launch</span></div>
+            <p class="price__desc">For systematic traders who push the limits.</p>
+            <ul class="price__list">
+              <li>Everything in Trader</li>
+              <li>Unlimited strategies</li>
+              <li>Walk-forward &amp; Monte Carlo</li>
+              <li>API access</li>
+              <li>Priority support</li>
+            </ul>
+            <a href="#waitlist" class="btn btn--ghost">Join the waitlist</a>
+          </article>
+        </div>
+        <p class="price__note reveal">No payment now. Waitlist members are first in line and lock the lowest pricing we'll ever offer.</p>
+      </div>
+    </section>
+
+    <!-- ===== WAITLIST CTA ===== -->
+    <section class="section cta-section" id="waitlist">
+      <div class="container">
+        <div class="cta glass reveal">
+          <div class="cta__glow" aria-hidden="true"></div>
+          <span class="eyebrow">Early access</span>
+          <h2>Be first into the hive.</h2>
+          <p>Join the waitlist for early access, founding-member perks, and a front-row seat as we roll out new markets and strategies.</p>
+
+          <form class="waitlist" id="waitlistForm" novalidate>
+            <div class="waitlist__row">
+              <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email address" />
+              <button type="submit" class="btn btn--primary btn--lg">Request early access</button>
+            </div>
+            <p class="waitlist__note">No spam. Just launch news and your invite. Unsubscribe anytime.</p>
+            <p class="waitlist__msg" id="waitlistMsg" role="status" aria-live="polite"></p>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section section--alt" id="faq">
+      <div class="container container--narrow">
+        <div class="section__head reveal">
+          <span class="eyebrow">FAQ</span>
+          <h2>Questions, answered.</h2>
+        </div>
+
+        <div class="faq">
+          <details class="faq__item reveal">
+            <summary>What is Kudbee Quant?</summary>
+            <p>An honest quantitative research toolkit for crypto and prediction markets. It takes the discretionary Traders Reality PVSRA method — vector candles and market-maker-cycle context — quantifies it as testable features, and validates it with an event-driven backtester, walk-forward, and Monte Carlo, reporting risk as loudly as return.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>What is the Traders Reality / PVSRA hybrid system?</summary>
+            <p>PVSRA (Price, Volume, Support &amp; Resistance Analysis) uses "vector candles" — volume and spread climaxes — to infer where large players act. Tino's Traders Reality hybrid system pairs PVSRA with the Beat-the-Market-Maker (BTMM) cycle. Kudbee keeps that discretionary read but subjects it to statistical scrutiny instead of treating it as certainty.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Does Kudbee Quant promise high returns?</summary>
+            <p>No — and that's the point. It's the deliberate inverse of the viral "AI trading terminal" screenshots with impossible Sharpe ratios and huge low-risk returns. There are no hardcoded performance figures; every number is computed from real data, and a strategy that loses is reported honestly.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Does it place trades for me?</summary>
+            <p>Paper-trading is the default. Live capital is an explicit, guarded opt-in with hard drawdown limits. Kudbee is a research tool first — you stay in control.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>What markets are supported?</summary>
+            <p>Crypto via Binance and prediction markets via Polymarket, with equities, ETFs, FX and commodities via Yahoo used as uncorrelated assets for honest validation.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>How does validation work?</summary>
+            <p>Every signal is a hypothesis. The event-driven backtester models fees and slippage with no lookahead, then walk-forward and Monte Carlo estimate the edge, its drawdown profile, and the probability it's just noise. Multi-asset validation is correlation-adjusted so the harness can't fool itself.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>How much does it cost?</summary>
+            <p>Kudbee Quant is currently in private beta with an open early-access waitlist. Joining the waitlist is free, and waitlist members help prioritize the roadmap.</p>
+          </details>
+          <details class="faq__item reveal">
+            <summary>Is this financial advice?</summary>
+            <p>No. Kudbee Quant is a research tool. Nothing here is financial advice. Markets do not offer high return at low risk; trading involves substantial risk of loss. Always do your own research.</p>
+          </details>
+        </div>
+
+        <p class="faq__more reveal">New to quant trading? Browse the <a href="glossary.html">Kudbee Quant glossary</a> for plain-English definitions of every term on this page.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#hero" class="brand">
+          <span class="brand__mark" aria-hidden="true">
+            <svg viewBox="0 0 32 32" width="24" height="24">
+              <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad2)"/>
+              <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+              <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad2)"/>
+              <defs><linearGradient id="hexgrad2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+            </svg>
+          </span>
+          <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+        </a>
+        <p>The honest quant toolkit for crypto and prediction markets. Traders Reality PVSRA, measured.</p>
+      </div>
+      <nav class="footer__col" aria-label="Product">
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="#pricing">Pricing</a>
+        <a href="compare.html">Compare</a>
+      </nav>
+      <nav class="footer__col" aria-label="Company">
+        <h4>Company</h4>
+        <a href="about.html">About</a>
+        <a href="start-here.html">Start here</a>
+        <a href="blog/">Blog</a>
+        <a href="glossary.html">Quant glossary</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="footer__col">
+        <h4>Stay in the loop</h4>
+        <a href="#waitlist" class="btn btn--ghost btn--sm">Join the waitlist</a>
+      </div>
+    </div>
+    <div class="container footer__bottom">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved.</p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Position Sizing &amp; Risk Management: The Skill That Keeps You Alive | Kudbee Quant</title>
+  <meta name="description" content="The best entry in the world won't save you from bad position sizing. Learn the fundamentals of risk management — risk-per-trade, the 1% rule, stop-losses, and why survival is the real edge in trading." />
+  <meta name="keywords" content="position sizing, risk management trading, 1 percent rule, risk per trade, stop loss, money management, trading risk" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/position-sizing-and-risk-management.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Position Sizing & Risk Management: The Skill That Keeps You Alive" />
+  <meta property="og:description" content="Why survival is the real edge in trading — and how risk-per-trade and stop-losses keep you in the game." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/position-sizing-and-risk-management.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og/og-position-sizing-and-risk-management.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "Position Sizing & Risk Management: The Skill That Keeps You Alive",
+        "description": "The fundamentals of risk management for traders — risk-per-trade, the 1% rule, stop-losses, and why survival is the real edge.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/position-sizing-and-risk-management.html",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "articleSection": "Risk management",
+        "wordCount": 760,
+        "about": [ { "@type": "Thing", "name": "Position sizing" }, { "@type": "Thing", "name": "Risk management" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "Position Sizing & Risk Management", "item": "https://kudbeequant.com/blog/position-sizing-and-risk-management.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>Position Sizing &amp; Risk Management</span>
+          </nav>
+          <span class="article__tag">Risk management</span>
+          <h1>Position Sizing &amp; Risk Management: The Skill That Keeps You Alive</h1>
+          <p class="article__meta">June 9, 2026 · 6 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>Position sizing is deciding how much to risk on each trade — and it matters more than your entry signal.</strong> You can be right more often than not and still blow up your account if you bet too big on the wrong day. Survival, not prediction, is the real edge.</p>
+
+          <p>Here's the brutal math that explains why: lose 50% of your account, and you need a 100% gain just to get back to even. Big losses don't just hurt; they're mathematically expensive to recover from. Good <a href="../glossary.html">position sizing</a> exists to make sure you never take one.</p>
+
+          <h2>Risk per trade: the core idea</h2>
+          <p>Instead of thinking "how many shares should I buy?", professionals think "how much of my account am I willing to lose if this trade is wrong?" That amount — your <strong>risk per trade</strong> — is usually a small, fixed percentage of your account.</p>
+
+          <h2>The 1% rule</h2>
+          <p>A widely used guideline is to risk no more than <strong>1% of your account on any single trade</strong> (some use 0.5%, some 2%). On a $10,000 account, 1% means you structure the trade so that if your stop-loss is hit, you lose about $100 — no matter how many shares or contracts that works out to.</p>
+          <p>The position size then falls out of two things:</p>
+          <ol>
+            <li>Your risk per trade (e.g. $100)</li>
+            <li>The distance to your stop-loss (e.g. $2 per share)</li>
+          </ol>
+          <p>$100 ÷ $2 = 50 shares. The stop distance determines the size — not your conviction, not a round number.</p>
+
+          <div class="callout"><p><strong>Why this is powerful:</strong> with 1% risk per trade, you could lose ten trades in a row and still have roughly 90% of your account. You stay in the game long enough for your edge to play out.</p></div>
+
+          <h2>Stop-losses make sizing possible</h2>
+          <p>You can't size a position properly without knowing where you're wrong. A stop-loss defines that point in advance — a price at which you admit the trade failed and exit. Without one, "risk per trade" is undefined, and a single bad position can become an open-ended loss.</p>
+
+          <h2>The metrics that keep you honest</h2>
+          <p>Risk management isn't only per-trade; it's portfolio-wide. Watch:</p>
+          <ul>
+            <li><strong>Maximum drawdown</strong> — the worst peak-to-trough fall in your equity. Know your number before the market shows it to you.</li>
+            <li><strong>Total exposure</strong> — how much of your account is at risk across all open positions at once.</li>
+            <li><strong>Correlation</strong> — five "different" trades that all move together are really one big trade.</li>
+          </ul>
+
+          <blockquote>Amateurs ask how much they can make. Professionals ask how much they can lose.</blockquote>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>Decide what you'll lose before you think about what you'll make. Risk a small, fixed slice per trade, let your stop distance set the size, and watch portfolio drawdown — because the trader who survives is the one who compounds.</p>
+          </div>
+
+          <p>Kudbee Quant builds risk rules and position sizing directly into every strategy, and reports drawdown and exposure on each backtest. <a href="../index.html#waitlist">Join the waitlist</a> to trade with guardrails, or read our <a href="how-to-read-a-sharpe-ratio.html">guide to the Sharpe ratio</a> next.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="momentum-vs-mean-reversion.html">← Momentum vs. mean reversion</a>
+          <a href="./">All articles →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>Trade with guardrails.</h2>
+          <p>Join the Kudbee Quant waitlist for risk-first strategy building.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>
