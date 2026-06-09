@@ -50,6 +50,8 @@
 - Trade Signals vs. Trading Strategies: https://kudbeequant.com/blog/signals-vs-strategies.html
 - Momentum vs. Mean Reversion: Two Ways to Trade an Edge: https://kudbeequant.com/blog/momentum-vs-mean-reversion.html
 - Position Sizing & Risk Management: https://kudbeequant.com/blog/position-sizing-and-risk-management.html
+- 5 Backtesting Mistakes That Wreck Real Returns: https://kudbeequant.com/blog/5-backtesting-mistakes.html
+- What Is Drawdown? Why It Matters More Than Returns: https://kudbeequant.com/blog/what-is-drawdown.html
 
 ## Contact
 
