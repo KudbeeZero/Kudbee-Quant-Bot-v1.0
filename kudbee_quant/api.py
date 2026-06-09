@@ -16,7 +16,7 @@ from pydantic import BaseModel
 
 from .confluence.stack import confluence_score
 from .ingest import BinanceClient
-from .journal import TradeJournal
+from .journal import Prediction, TradeJournal
 from .levels import build_levels
 
 app = FastAPI(title="Kudbee Quant API", version="1.0.0",
@@ -97,7 +97,6 @@ def alert_webhook(a: AlertPayload) -> dict:
 
     Closes the loop: chart setup fires -> webhook -> journal -> forward score.
     """
-    from .journal import Prediction, TradeJournal
     j = TradeJournal()
     open_keys = {(p.symbol, p.timeframe) for p in j.predictions
                  if p.status in ("open", "pending") and p.kind == "bracket"}
