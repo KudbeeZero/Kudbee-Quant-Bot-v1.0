@@ -563,3 +563,44 @@ HONEST VERDICT (applying §20-era anti-luck discipline):
   and variance -> it FIGHTS leverage safety. Keep the 1.5 stop + the show-me exit.
 QUEUED for the full significance gauntlet (bootstrap p + both-halves): candidates
 exit_showme, exit_tight_showme (scripts/overnight_candidates.py).
+
+## 22. Leverage / risk-of-ruin math (2 research agents) + the SAFE-LEVERAGE answer — 2026-06-09
+
+Two web-research passes (cited below) turned KudbeeX's "smaller losses → safer
+leverage" intuition into computable math. Built kudbee_quant/risk.py (Kelly,
+risk-of-ruin, Vince optimal-f, vol-target, perp max-safe-leverage) + tests +
+scripts/risk_report.py. Per-trade MAE/adverse-move added to ml/labels.trade_outcomes
+(measured ONLY while the position is open — bug fixed: was scanning the full window).
+
+THE NUMBERS (validated strategy, top-10 1h, real distribution):
+- mean +0.158R, std 1.63. Full Kelly f* ≈ 0.066 (m/s²). => trade QUARTER-KELLY ≈
+  1.65% risk/trade. optimal_f 0.079 (a CEILING, never a target).
+- **MAX SAFE LEVERAGE ≈ 9x** to keep P(liquidation) < 1% over the sample
+  (liq_distance = 1/lev − MMR; fed REAL per-trade adverse-% excursions). 20x is
+  ~2x above this ceiling — the ~5% liq buffer at 20x ≈ a normal bad-trade wick.
+
+KEY HONEST + COUNTERINTUITIVE FINDING: the fast-fail show-me exit (§21) does NOT
+raise the liquidation ceiling (both 9x). Liquidation is an INTRA-BAR wick event;
+a close-based early exit can't prevent it. Fast-fail smooths the EQUITY CURVE
+(std 1.63→1.38, MC ruin-DD 16.3%→15.1%) and lifts Kelly-safe size ~18% in theory,
+but for LIQUIDATION safety only a tighter INTRA-BAR hard stop or LOWER LEVERAGE
+works. So: size to ~quarter-Kelly (~1.6%/trade) and cap leverage ~8–9x, not 20x.
+
+WHAT THE LITERATURE SAYS TO BUILD NEXT (encodable, queued/flagged):
+- CONSTANT-VOL position sizing (Barroso-Santa-Clara; Moskowitz-Ooi-Pedersen): size
+  ∝ target_vol/realized_vol — strongest, most-replicated Sharpe evidence; de-levers
+  on vol spikes (the #1 perp survival behavior). NOTE: our harness judged
+  voltarget_size as "HURTS" on RAW MEAN-R — the WRONG lens; it's a VARIANCE
+  reducer. ACTION: add risk-adjusted metrics (Sharpe/maxDD/Kelly) to the harness so
+  variance-reducers are judged honestly (next build).
+- MAE-percentile stop (Sweeney): stop at ~85th pct of WINNERS' MAE (use our mae_r).
+- Vol-expansion exit (Daniel-Moskowitz panic state): exit non-progressing trade if
+  ATR_now/ATR_entry ≥ ~1.5-2.
+- Kaminski-Lo theorem: stops add return only in MOMENTUM regimes, cost in random
+  walk → gate aggressive exits by a trend filter. CPPI / drawdown floor for sizing.
+
+SOURCES: Kelly (Wikipedia; Thorp f*=μ/σ²; MacLean-Ziemba-Blazenko frac-Kelly);
+Vince optimal-f (Mathematics of Money Management); Kaminski & Lo "When Do Stop-Loss
+Rules Stop Losses?" (JFM 2014); Daniel-Moskowitz "Momentum Crashes" (JFE 2016);
+Barroso-Santa-Clara "Momentum Has Its Moments" (JFE 2015); Moskowitz-Ooi-Pedersen
+"Time Series Momentum" (JFE 2012); Sweeney MAE; perp liq mechanics (MetaMask/Bybit).

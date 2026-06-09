@@ -82,14 +82,19 @@ def trade_outcomes(
     max_bars: int = 24,
     entry_window: int = 6,
     fee_pct: float = 0.0004,
+    trailing_atr: float | None = None,
+    mae_giveup: tuple | None = None,
+    time_decay: tuple | None = None,
 ) -> pd.DataFrame:
     """Per-trade REALIZED R for the validated bracket — the truth a meta-model
     should be judged against (expectancy), not just whether it tagged 3R.
 
     Same entry logic as ``bracket_excursions`` (limit-retrace fills), but resolves
     each trade through the shared resolver to get the realized R (net of a
-    timeframe-aware maker cost) plus the max-favorable excursion. Returns columns
-    ``entry_bar, direction, realized_r, mfe_r``.
+    timeframe-aware maker cost), the MFE, and the MAE/adverse-move measured only
+    while the position is open. Optional path-dependent exits (trailing/mae_giveup/
+    time_decay) are forwarded so the realized R and the open-window MAE reflect the
+    actual exit. Returns ``entry_bar, direction, realized_r, mfe_r, mae_r, adverse_pct``.
     """
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
@@ -124,17 +129,27 @@ def trade_outcomes(
         end = min(entry_bar + max_bars, n - 1)
         hs, ls, cs = high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1], close[entry_bar + 1:end + 1]
         out = resolve_bracket(direction, entry, stop, target, sd, target_r, hs, ls, cs,
-                              force_close_at_end=True)
+                              force_close_at_end=True, atr_at_entry=atr[t],
+                              trailing_atr=trailing_atr, mae_giveup=mae_giveup,
+                              time_decay=time_decay)
         raw_r = out.outcome_r if out.outcome_r is not None else 0.0
         cost = fee_pct * entry / sd
-        # MFE in R over the held window (favorable extreme).
-        if len(hs):
-            fav = (hs - entry) / sd if direction > 0 else (entry - ls) / sd
+        # MFE / MAE in R, measured ONLY while the position is open (up to the exit
+        # bar) — adverse moves after the trade closes are irrelevant to risk, and
+        # adverse_pct (what drives perp liquidation) must reflect the live window.
+        k = (out.exit_offset + 1) if out.exit_offset is not None else len(hs)
+        if k > 0:
+            hk, lk = hs[:k], ls[:k]
+            fav = (hk - entry) / sd if direction > 0 else (entry - lk) / sd
+            adv = (lk - entry) / sd if direction > 0 else (hk - entry) / sd
             mfe = float(np.max(fav))
+            mae = float(np.min(adv))           # <= 0
         else:
-            mfe = 0.0
+            mfe = mae = 0.0
+        adverse_pct = abs(mae) * sd / entry    # |MAE in R| * (1R as % of entry)
         rows.append({"entry_bar": int(entry_bar), "direction": direction,
-                     "realized_r": float(raw_r - cost), "mfe_r": mfe})
+                     "realized_r": float(raw_r - cost), "mfe_r": mfe,
+                     "mae_r": mae, "adverse_pct": float(adverse_pct)})
         busy = entry_bar + 1 + (out.exit_offset or 0)
     return pd.DataFrame(rows)
 
