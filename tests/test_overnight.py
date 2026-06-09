@@ -75,8 +75,18 @@ def test_evaluate_produces_honest_record(frame, monkeypatch):
     for key in ("name", "verdict", "delta", "h1_delta", "h2_delta",
                 "n_trades", "base_exp", "cand_exp"):
         assert key in rec
-    assert rec["verdict"] in {"WINNER", "SUGGESTIVE", "NEUTRAL", "HURTS", "THIN"}
+    assert rec["verdict"] in {"WINNER", "SUGGESTIVE", "NEUTRAL", "HURTS", "THIN", "RISK-REDUCER"}
     assert isinstance(rec["delta"], float)
+    # risk-adjusted metrics are now part of every record (§22 harness upgrade)
+    for k in ("base_sharpe", "cand_sharpe", "sharpe_delta", "cand_maxdd_r", "cand_std"):
+        assert k in rec
+
+
+def test_risk_metrics_helper():
+    import numpy as np
+    sharpe, std, dd = orx._risk_metrics([1.0, -1.0, 1.0, -1.0, 1.0])
+    assert std > 0 and sharpe != 0 and dd <= 0
+    assert orx._risk_metrics([])[0] == 0.0
 
 
 def test_queue_roundtrip(tmp_path, monkeypatch):

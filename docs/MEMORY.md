@@ -604,3 +604,25 @@ Vince optimal-f (Mathematics of Money Management); Kaminski & Lo "When Do Stop-L
 Rules Stop Losses?" (JFM 2014); Daniel-Moskowitz "Momentum Crashes" (JFE 2016);
 Barroso-Santa-Clara "Momentum Has Its Moments" (JFE 2015); Moskowitz-Ooi-Pedersen
 "Time Series Momentum" (JFE 2012); Sweeney MAE; perp liq mechanics (MetaMask/Bybit).
+
+## 23. Harness upgrade: risk-adjusted verdicts (Sharpe/DD) + the honest re-grade — 2026-06-09
+
+Acted on §22's lesson: the overnight harness now records, per candidate, the
+per-trade SHARPE (mean/std), return STD, and MAX DRAWDOWN in R — and adds a
+RISK-REDUCER verdict (flat mean-R but std down >=5% AND Sharpe up AND drawdown
+shallower). scripts/overnight_research.py evaluate() + findings table; tests added.
+
+HONEST RE-GRADE (the discipline working a 2nd time — prevented over-claiming):
+the hypothesis "we wrongly rejected variance-reducers on mean-R" did NOT survive
+the proper risk-adjusted test:
+  voltarget_size:    dR -0.052, dSharpe -0.010 (per-trade std 1.63->1.24, DD
+                     -24.8->-20.1) — DD better but Sharpe flat-negative; NOT a win.
+  exit_showme:       dR -0.060, dSharpe -0.025, DD -24.8->-30.9 (WORSE) — trades
+                     more often, so cumulative drawdown deepens. NOT a clean reducer.
+  exit_tight_showme: ~flat mean/Sharpe, DD -37.8 (worse).
+LESSON: per-trade std reduction does NOT automatically improve Sharpe or cumulative
+drawdown, because exits change trade FREQUENCY/sequence. CAVEAT (next step): true
+vol-targeting's benefit appears in COMPOUNDED equity with position sizing, which a
+per-trade-R harness can't fully capture — to test it properly, evaluate on the
+sequenced/compounded equity curve (backtest/money.py simulate_account), not pooled
+per-trade R. That is the honest next build.

@@ -140,6 +140,20 @@ def _pool_expectancy(trades: list) -> tuple[int, float, float]:
     return arr.size, float(arr.mean()), float((arr > 0).mean())
 
 
+def _risk_metrics(trades: list) -> tuple[float, float, float]:
+    """Per-trade Sharpe-like ratio (mean/std), return std, and max drawdown in R.
+    These are the RISK-ADJUSTED lenses — a variance-reducer can be flat on mean-R
+    yet clearly better here, which a leverage trader cares about most (§22)."""
+    arr = np.asarray(trades, dtype=float)
+    if arr.size < 2:
+        return 0.0, 0.0, 0.0
+    std = float(arr.std())
+    sharpe = float(arr.mean() / std) if std > 0 else 0.0
+    equity = np.cumsum(arr)
+    maxdd = float((equity - np.maximum.accumulate(equity)).min())
+    return sharpe, std, maxdd
+
+
 def evaluate(name: str, frames: dict) -> dict:
     """Run baseline vs candidate pooled across the universe + split-half."""
     fn, desc = REGISTRY[name]
@@ -177,12 +191,20 @@ def evaluate(name: str, frames: dict) -> dict:
     p_value = _bootstrap_p(base_full, cand_full)
     robust = h1 > 0 and h2 > 0
     significant = p_value < SIG_P
+    b_sharpe, b_std, b_dd = _risk_metrics(base_full)
+    c_sharpe, c_std, c_dd = _risk_metrics(cand_full)
     if cn < MIN_TRADES:
         verdict = "THIN"
     elif delta <= -DELTA_GATE:
         verdict = "HURTS"
     elif delta < DELTA_GATE:
-        verdict = "NEUTRAL"
+        # Flat on mean-R — but if it cuts variance AND lifts Sharpe AND shallows the
+        # drawdown, it's a RISK-REDUCER (the §22 lesson: variance-reducers are worth
+        # keeping for leverage even at flat expectancy; don't bury them in NEUTRAL).
+        if b_std and c_std < 0.95 * b_std and c_sharpe > b_sharpe and c_dd > b_dd:
+            verdict = "RISK-REDUCER"
+        else:
+            verdict = "NEUTRAL"
     elif robust and significant:
         verdict = "WINNER"          # beats baseline, robust BOTH halves, AND p<0.05
     else:
@@ -197,6 +219,10 @@ def evaluate(name: str, frames: dict) -> dict:
         "delta": round(delta, 4), "h1_delta": round(h1, 4), "h2_delta": round(h2, 4),
         "p_value": round(p_value, 4),
         "base_win": round(bwin, 3), "cand_win": round(cwin, 3),
+        "base_sharpe": round(b_sharpe, 4), "cand_sharpe": round(c_sharpe, 4),
+        "sharpe_delta": round(c_sharpe - b_sharpe, 4),
+        "base_maxdd_r": round(b_dd, 2), "cand_maxdd_r": round(c_dd, 2),
+        "base_std": round(b_std, 4), "cand_std": round(c_std, 4),
         "verdict": verdict,
     }
 
@@ -260,12 +286,12 @@ def _write_findings(results: dict) -> None:
     def row(r):
         return (f"| `{r['name']}` | {r['verdict']} | {r['delta']:+.3f} | "
                 f"{r.get('p_value', float('nan'))} | "
-                f"{r['h1_delta']:+.3f} / {r['h2_delta']:+.3f} | "
+                f"{r.get('sharpe_delta', 0):+.3f} | {r.get('cand_maxdd_r', 0):.1f} | "
                 f"{r['cand_exp']:+.3f} | {r['base_exp']:+.3f} | "
                 f"{r['n_trades']} ({r['keep_pct']}) | {r['cand_win']:.2f} | {r['desc']} |")
 
-    head = ("| candidate | verdict | ΔR | boot p | Δ h1 / h2 | cand R | base R | "
-            "trades (keep) | win | idea |\n|---|---|---|---|---|---|---|---|---|---|")
+    head = ("| candidate | verdict | ΔR | boot p | ΔSharpe | candDD(R) | cand R | base R | "
+            "trades (keep) | win | idea |\n|---|---|---|---|---|---|---|---|---|---|---|")
 
     L.append("\n## 🏆 Winners (beat baseline, robust both halves)\n")
     L.append(head if winners else "_None yet._")
