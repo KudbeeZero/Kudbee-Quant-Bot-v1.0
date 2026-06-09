@@ -535,3 +535,25 @@ This is the strongest validated config, and it came from EXECUTION, not added
 factors. Viable strategy: 1h, 2R, >=50% confluence, BOTH directions, enter via
 LIMIT at a 0.25 ATR retrace (maker). Caveat: backtest assumes touch=fill (limit
 adverse selection in reality is worse); forward/paper test is the final proof.
+
+### Vol 9 divergence factor (dilutes, 5/5) + SOL 1h 100+ test report
+
+Vol 9 ("10 data-verified confluences"). Most need external data; the price-only
+candidates are RSI/MACD divergence and Volume Profile. Tested RSI divergence
+(momentum-reversal, genuinely different from the trend factors): standalone edge
+~+0.019R, and in confluence it DILUTED (limit-entry OOS +0.243R -> +0.068R).
+FIFTH added factor to dilute (after OB, macro, structure, funding). The 10-factor
+set is conclusively saturated — adding factors does not help, full stop.
+
+SOL 1h backtest (validated config: limit-retrace 0.25 ATR, 2R, 0.02% maker, both
+sides), 8000 bars (~333 days):
+- FULL sample: 626 trades, 37.5% win, +0.092R, PF 1.14, maxDD -31R.
+- HELD-OUT (last 40%, 253 trades): 40.7% win, +0.176R, +44.6R total, PF 1.29,
+  maxDD -14.6R. Short-led: short +0.162R vs long +0.012R (downtrend).
+- Bootstrap (2000 resamples of the 253-trade seq): total R p5/p50/p95
+  +5.7/+44.2/+84.4; 97% probability profitable; even 5th-pct positive.
+
+Honest caveats: the held-out window was downtrend-FAVORABLE (full-year thinner
+at +0.092R), so the edge is regime-dependent and short-led; drawdowns are
+sizeable (size small per trade); limit-fill assumes touch=fill. Consistent with
+the cross-asset walk-forward (SOL +0.174R median). Real, modest, regime-aware.

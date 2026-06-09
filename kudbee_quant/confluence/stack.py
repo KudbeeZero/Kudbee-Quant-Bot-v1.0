@@ -70,6 +70,11 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
     if "vector" in df:
         out["v_vector"] = np.where(df["vector"] == "bull_climax", 1.0,
                                    np.where(df["vector"] == "bear_climax", -1.0, 0.0))
+    # NOTE: an RSI-divergence vote (Vol 9) was tested and REMOVED — it diluted
+    # the edge (limit-entry OOS +0.243R -> +0.068R) with ~zero standalone edge
+    # (+0.019R). FIFTH added factor to dilute (after OB, macro, structure,
+    # funding). The 10-factor set is conclusively saturated. RSI/divergence
+    # features (levels/divergence.py) remain available.
     if {"bull_fvg_bottom", "bull_fvg_top", "bear_fvg_top", "bear_fvg_bottom"} <= set(df.columns):
         in_bull = (df["low"] <= df["bull_fvg_top"]) & (df["high"] >= df["bull_fvg_bottom"])
         in_bear = (df["high"] >= df["bear_fvg_bottom"]) & (df["low"] <= df["bear_fvg_top"])
