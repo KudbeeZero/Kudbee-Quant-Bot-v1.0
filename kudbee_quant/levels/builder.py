@@ -18,6 +18,7 @@ LEVEL_COLUMNS = [
     "ny_open", "asian_open",
     "brinks_high", "brinks_low",
     "round_below", "round_above",
+    "pivot_pp", "pivot_r1", "pivot_s1", "pivot_r2", "pivot_s2",
 ]
 
 
@@ -107,5 +108,26 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFr
     step = _round_step(out["close"])
     out["round_below"] = np.floor(out["close"] / step) * step
     out["round_above"] = out["round_below"] + step
+
+    # EMA stack + cloud position (price above/inside/below the 13-50 ribbon).
+    # "Price above the EMA cloud" = bullish markup structure on the timeframe.
+    for p in (5, 13, 50, 200, 800):
+        out[f"ema_{p}"] = out["close"].ewm(span=p, adjust=False).mean()
+    cloud_hi = out[["ema_13", "ema_50"]].max(axis=1)
+    cloud_lo = out[["ema_13", "ema_50"]].min(axis=1)
+    out["ema_cloud_pos"] = np.where(out["close"] > cloud_hi, 1,
+                                    np.where(out["close"] < cloud_lo, -1, 0))
+
+    # Classic floor pivots from the PRIOR completed NY day (no lookahead).
+    dd = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"), _dc=("close", "last"))
+    pdh, pdl, pdc = dd["_dh"].shift(1), dd["_dl"].shift(1), dd["_dc"].shift(1)
+    pp = (pdh + pdl + pdc) / 3.0
+    piv = pd.DataFrame({
+        "pivot_pp": pp,
+        "pivot_r1": 2 * pp - pdl, "pivot_s1": 2 * pp - pdh,
+        "pivot_r2": pp + (pdh - pdl), "pivot_s2": pp - (pdh - pdl),
+    }, index=dd.index)
+    for col in piv.columns:
+        out[col] = out["ny_date"].map(piv[col]).astype(float)
 
     return out.drop(columns=["_month_id", "_week_id"], errors="ignore")

@@ -23,6 +23,7 @@ from .events import build_features, conditional_table, detect_level_tests, recov
 from .events.outcomes import add_forward_outcomes
 from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
+from .journal import Prediction, TradeJournal
 from .levels import build_levels, range_stats
 from .scenarios import SCENARIOS, run_sweep
 from .scenarios.audit import audit_all
@@ -279,6 +280,48 @@ def _sweep(args) -> None:
           "any capital.\nNot financial advice.")
 
 
+def _journal_add(args) -> None:
+    j = TradeJournal()
+    p = j.add(Prediction(symbol=args.symbol.upper(), kind=args.kind, level=args.level,
+                         deadline_days=args.days, setup=args.setup, timeframe=args.timeframe,
+                         note=args.note))
+    print(f"Logged {p.id}: {p.symbol} {p.kind} {p.level} within {p.deadline_days}d "
+          f"[{p.setup}] -> deadline {p.deadline.date()}")
+
+
+def _journal_check(args) -> None:
+    j = TradeJournal()
+    changed = j.check_open()
+    if changed:
+        for p in changed:
+            print(f"  {p.id} {p.symbol} {p.setup}: {p.status.upper()}")
+    else:
+        print("No predictions resolved this check.")
+    opens = [p for p in j.predictions if p.status == "open"]
+    print(f"\n{len(opens)} still open, {len(j.predictions) - len(opens)} resolved.")
+
+
+def _journal_list(args) -> None:
+    j = TradeJournal()
+    if not j.predictions:
+        print("Journal empty.")
+        return
+    for p in j.predictions:
+        print(f"  [{p.status:5}] {p.id} {p.symbol:9} {p.kind:11} {p.level:>10.2f}  "
+              f"by {p.deadline.date()}  {p.setup}")
+
+
+def _journal_score(args) -> None:
+    j = TradeJournal()
+    table = j.scorecard()
+    if table.empty:
+        print("No resolved predictions yet — score builds as deadlines pass.")
+        return
+    print("Your measured track record (resolved predictions only):")
+    print(table.to_string(index=False, formatters={"hit_rate": "{:.0%}".format}))
+    print("\nThis is the honest number: hits / total logged, no cherry-picking.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -381,6 +424,24 @@ def main() -> None:
     sw.add_argument("--limit", type=int, default=4000)
     sw.add_argument("--hold", type=int, default=12, help="bars to hold each trigger")
     sw.set_defaults(func=_sweep)
+
+    ja = sub.add_parser("journal-add", help="log a chart-read prediction")
+    ja.add_argument("symbol")
+    ja.add_argument("--kind", required=True,
+                    choices=["touch", "reach_above", "reach_below", "stay_below", "stay_above"])
+    ja.add_argument("--level", type=float, required=True)
+    ja.add_argument("--days", type=float, default=7.0)
+    ja.add_argument("--setup", default="")
+    ja.add_argument("--timeframe", default="1h")
+    ja.add_argument("--note", default="")
+    ja.set_defaults(func=_journal_add)
+
+    jc = sub.add_parser("journal-check", help="re-evaluate open predictions vs price")
+    jc.set_defaults(func=_journal_check)
+    jl = sub.add_parser("journal-list", help="list all predictions")
+    jl.set_defaults(func=_journal_list)
+    js = sub.add_parser("journal-score", help="your measured hit rate by setup")
+    js.set_defaults(func=_journal_score)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)
