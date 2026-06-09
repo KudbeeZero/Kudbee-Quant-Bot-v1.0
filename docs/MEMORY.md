@@ -373,3 +373,256 @@ website + Live Signals + The Lab (interactive charts/calculator/venue/exposure/
 forward-record) + API + TradingView indicator + alert->journal webhook + bias layer
 + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + net-exposure guard +
 human-read scoring + HTF trend filter + research Vols 1-10. Ready to archive.
+
+## 17. Overnight research harness — autonomous honest hypothesis testing — 2026-06-09
+
+The user asked, before bed, for an overnight build that "spins up agents to find
+out-of-the-box ways to raise the % / chances of our trades" so the algorithm is
+stronger by morning. Built it the ONLY honest way: not by bolting on believed
+"win-rate boosters" (the project's cardinal sin — §2), but as a repeatable worker
+that TESTS candidate edges against the shipping baseline and records the verdict.
+
+WHAT WAS BUILT:
+- `scripts/overnight_candidates.py` — a registry of candidate edges, each a
+  function `(df, scored, base_sig) -> (signal, size, overrides)`. Every candidate
+  lives in execution / entry-timing / regime / sizing (where edge has historically
+  been), NEVER "one more confluence factor". Seeded from two parallel research
+  agents + my own; 30 candidates so far.
+- `scripts/overnight_research.py` — the harness. Pools trades across the top-10
+  majors, compares candidate vs the shipping baseline (1h, ≥50% conf + trend
+  filter, 0.25-ATR limit, 1.5-ATR stop, 3R, maker), and runs a SPLIT-HALF
+  robustness check. Verdict = WINNER (ΔR≥+0.015 AND both halves positive),
+  SUGGESTIVE, NEUTRAL, HURTS, or THIN. Queue in `data/overnight_queue.json`,
+  machine log in `data/overnight_results.json`, human report in
+  `docs/research/overnight_findings.md`. Per-candidate try/except + parquet cache
+  fallback so a bad candidate or network blip can't kill a cycle.
+- `tests/test_overnight.py` — contract tests (every candidate well-formed; gating
+  candidates are a strict subset of the baseline; evaluator returns an honest record).
+
+FIRST-NIGHT RESULTS (baseline pooled +0.166R, ~1577 trades, top-10 1h):
+TWO WINNERS (beat baseline in BOTH halves — promising, NOT yet shipped; forward
+paper-proof required before they touch the default, per the honesty contract):
+- `clean_trend_stack` +0.115R (h1 +0.203 / h2 +0.009), keeps ~51% of trades →
+  +0.281R. Only trade when the 13/50/800-EMA stack has been monotonically ordered
+  10 bars AND the 13/50 gap is widening (a clean, separating trend, not a braid).
+- `highvol_bigtarget` +0.067R (h1 +0.014 / h2 +0.133), keeps ~48% → +0.233R. In
+  the high-vol regime (top-40% ATR%), aim for 4R instead of 3R — volatile regimes
+  run further. (Note: h1 thin; treat as suggestive-strong.)
+DEAD ENDS this sweep (logged so we never re-test — §2 discipline): vol_regime_mid,
+vol_contraction, relvol_participation (and its quiet A/B), shallow & deeper
+retrace (≈neutral), fast/slow time-stop, lowvol_smalltarget, round_number_entry,
+voltarget_size, size_by_confluence (HURT badly −0.103R), variance_ratio_trend
+(HURT −0.086 — the textbook regime filter did NOT help here), skip_overextended.
+Reinforces the project thesis: most clever ideas fail; the survivors are about
+REGIME SELECTION and EXECUTION GEOMETRY, not new signals.
+
+HOW IT RUNS OVERNIGHT: this branch runs the harness hourly via the Claude `/loop`
+(Binance is reachable from the container, verified). Each cycle drains ~3 queued
+candidates, an idea-agent appends fresh candidate ideas to a backlog, results +
+report are committed to `claude/overnight-algo-research-plan-hyqzf6`. NOT merged
+to main / no live-capital change — winners must clear forward paper proof first.
+NEXT (queued, needs a small engine extension): path-dependent EXECUTION variants
+the agents flagged as highest-leverage — ATR/chandelier TRAILING stop, time-decay
+target, MAE "give-up" early exit. bracket.py currently does fixed stop/target/
+tp1/time-stop only; add trailing + early-exit, then test the same honest way.
+
+## 18. Project Edge: meta-labeling + execution engine + 6-layer memory — 2026-06-09
+
+A full-stack build (user asked for "something major / new logic"). The honest
+verdict is the deliverable: we built sophisticated, correct infrastructure, and it
+told us the truth — the two headline ideas are NULLS at the validated config, and
+the multiple-testing ledger says our overnight "winners" are probably luck. That
+is the project working as designed.
+
+WHAT WAS BUILT (all tested; 156 suite green):
+- backtest/resolver.py — ONE shared trade resolver. bracket.py AND journal.py now
+  delegate to it (resolution logic was duplicated -> drift risk between backtest &
+  live). Pure refactor, behaviour identical.
+- Path-dependent EXITS on the resolver (off by default): chandelier TRAILING stop,
+  MAE give-up, time-decay target. Threaded through bracket_backtest; candidates
+  exit_trail_3atr / exit_mae_giveup / exit_time_decay queued for the loop.
+- ml/ : labels.py (meta-labels = did the trade reach target before the 1R stop;
+  causal feature frame from votes+levels), cv.py (purged + embargoed walk-forward,
+  Lopez de Prado), meta_model.py (GBT + interpretable logit, scored OUT-OF-SAMPLE,
+  win-rate-beats-base gated by Wilson CI). scikit-learn added.
+- memory/ : the 6 layers formalized — registry.py (L4 strategies as objects),
+  working.py (L5 biases + open hypotheses), reflection.py (L6 regime + overfit
+  alarms + failure rollup), testing_ledger.py (family-wide deflated/BH-FDR).
+  scripts/reflect.py + scripts/meta_eval.py.
+
+HONEST RESULTS (top-10, 1h, validated config):
+- META-LABELING at the 3R target: WEAK/NULL. GBT OOS AUC ~0.55; gating at
+  prob>=0.7 lifted win-rate +0.068 but the Wilson CI did NOT clear the base rate
+  (n too small). Logit top features: -atr_pct, +pct_awr_used, +in_overlap,
+  +v_emastack. Infra is reusable for other labels (e.g. 1.5R, expectancy-positive).
+- EXECUTION EXITS: trailing (-0.024 to -0.035R) and time-decay (-0.040R) HURT
+  pooled expectancy; the fixed-3R fat tail pays for the losers (consistent with
+  §10/§12). MAE give-up at 1.0R is a no-op (that IS the stop); 0.8R queued.
+- MULTIPLE-TESTING LEDGER (the big honest win): of 32 candidates logged, 4 naive
+  winners, **0 survive family-wide BH-FDR**; highvol_bigtarget (h1 +0.014/h2
+  +0.133) and clean_trend_stack (h1 +0.203/h2 +0.009) flagged UNSTABLE across
+  halves. Expected false winners under pure noise ~1.6. => Treat ALL overnight
+  "winners" as UNPROVEN; forward paper is the only proof. This directly corrects
+  the earlier "2-4 winners!" enthusiasm.
+
+LESSON (reinforces the whole project): more machinery did not manufacture an edge.
+The durable wins are STRUCTURAL — no backtest/live drift (shared resolver), a
+reusable meta-labeling/CV rig for honest future tests, and a memory spine that
+re-grades every result under multiplicity so we never mistake luck for edge.
+
+## 19. THE LEAD: meta-gating lifts expectancy, cross-asset — 2026-06-09 (do not over-trust yet)
+
+After §18's nulls, fixed the approach and found the first real signal of the whole
+build. THREE changes mattered: (1) LABEL on realized PROFIT (realized_r>0), not the
+rare 3R tag; (2) measure on R-EXPECTANCY, not hit-rate; (3) significance-test it.
+
+RESULT (GBT meta-model, purged+embargo OOS, top-10 1h, 1.5R bracket):
+  gate prob>=0.60 -> take 34% of trades, expectancy +0.219R vs +0.093R base
+  (lift +0.126R), permutation p=0.007 (beats RANDOM selection of the same size).
+  Monotonic across thresholds (0.50->0.65 all significant). Beats even the
+  shipping 3R config (~+0.16R).
+CROSS-ASSET HONESTY CHECK (the one that kills fake edges): train on CRYPTO only,
+apply to STOCKS (SPY/AAPL/NVDA/MSFT/TSLA/AMZN, rho~0.15): gate prob>=0.60 ->
++0.379R on 17% of trades, lift +0.313R, p_perm=0.001. THE EDGE TRANSFERS across
+asset classes -> it is not crypto-regime luck; the model learned something general
+about which confluence setups are high quality. Note: logit (linear) shows NO
+lift -> the edge is nonlinear interactions (watch overfit; that's why we permission
+-test + cross-validate).
+
+STATUS: a genuine LEAD, validated BACKWARD across two uncorrelated asset classes
+with significance. NOT yet proven: forward paper. NEXT: wire a meta-gated 1.5R
+variant into the paper loop as a SECOND tracked strategy and accrue forward R
+beside the baseline; only then does it earn live capital. Code: kudbee_quant/ml/
+(labels realized_r, meta_model expectancy_gate + permutation p). CLI:
+python scripts/meta_eval.py.
+
+ANTI-RECURRENCE (so §18's "lucky winners" never happen again): the overnight
+harness verdict now REQUIRES a bootstrap p<0.05 on ΔR (plus both-halves robust)
+to call anything a WINNER; the memory testing-ledger re-grades the whole family
+under BH-FDR. Luck no longer earns the word "winner".
+
+## 20. KudbeeX live read — BB-upper rejection short (SOL) + the setup, recorded — 2026-06-09
+
+The user supplied a REAL annotated trade (two screenshots) and asked to record the
+setup so we can measure and adjust the logic. This is the §0 operating model in
+action: human reads direction, machine records + scores it.
+
+THE TRADE (logged: journal id 84dcb6ce, source='human', scored forward):
+- SOLUSD Perp SHORT, 20x, real fill 66.43 @ 06/08/2026 22:10 (UTC-5), #32007241.
+- Live at log: price 66.14, PnL +7.88% (20x), liq 76.77, position $410.73.
+- Logged as SOLUSDT 1h short, entry 66.43, target 64.5 (then 62), structural stop
+  ~68.1 (reclaim of the upper band — inferred; he didn't state an explicit stop).
+
+THE SETUP (his words, distilled) — "Bollinger-upper rejection / stopping candle":
+1. A STOPPING CANDLE prints ABOVE the BB basis (mid), up near the UPPER band
+   (chart: BOLL 26,2 → mid 66.91, upper 68.06; price had run to ~68.3).
+2. Two "REVERSE HAMMERS" at the top = inverted-hammer / shooting-star candles
+   (long UPPER wick, small body, little/no lower wick); one was green.
+3. The NEXT bar GAPS DOWN (lower open / first bid lower), prints a solid body with
+   a long upper wick and ~no lower wick → sellers in control.
+4. ENTER short on the OPEN of that confirmation bar.
+5. Confluence stack he cited: MACD bearish (DIF 0.04 < DEA 0.17, hist −0.25); KDJ
+   bearish (K 40.25 < D 49.06, J 22.62); order book 65% sell / 35% buy.
+
+MECHANIZED FOR TESTING: scripts/overnight_candidates.py `bb_band_reject` — a
+STANDALONE BB(26,2) rejection reversal (shooting-star@upper → short, hammer@lower
+→ long), enqueued for the overnight harness so we measure honestly whether the
+mechanical core beats the shipping baseline. (If it doesn't, the edge is in his
+READ/timing, not the rule — consistent with the whole project; we keep scoring his
+calls via source='human'.)
+
+HONEST RISK NOTE (project duty, §13/§14): this is 20x leverage. A positive-edge
+setup still BLOWS UP at high leverage — liq here is only ~16% away (76.77). The
+trade is green and the read is clean; the flag is about SIZE, not the setup. The
+documented stance remains ~1% risk/trade, leverage as a tool not the bet size.
+
+## 21. KudbeeX 'fast-fail' early-exit theory — measured — 2026-06-09
+
+His theory: with higher leverage, cut the loss small by EXITING EARLY if the trade
+isn't going your way within the first few candles (keep a stop for a bad candle).
+"You should know quickly if it's working." Tested on the validated 1h (his "1-3
+minute" gut is a 1m idea; 1m is dead for us, §2 — the principle maps to the first
+2-3 bars of whatever TF you trade). Built on the resolver's mae_giveup exit.
+
+RESULT (top-10, 1h, ~2000 trades):
+                              expR    win   avgLoss  worst   std
+  baseline (1.5 stop/3R)     +0.158   38%   -0.99   -1.20   1.63
+  show-me: not +0.5R by bar3 +0.113   38%   -0.76   -1.18   1.38
+  show-me: not +0.3R by bar2 +0.116   37%   -0.74   -1.17   1.38
+  tight 1.0 stop             +0.185   34%   -1.04   -1.30   1.78
+  tight1.0 + show-me bar2    +0.175   34%   -0.92   -1.30   1.67
+HONEST VERDICT (applying §20-era anti-luck discipline):
+- The EXPECTANCY differences (~0.04R) are WITHIN NOISE (SE≈0.047 at n≈2000) — do
+  NOT claim fast-fail raises return.
+- What IS real + structural (not statistical luck): it SHRINKS the loss (avg loss
+  -0.99 -> -0.76R) and cuts VARIANCE ~15% (std 1.63 -> 1.38). Edge/variance
+  (Kelly-ish) is flat-to-better -> you can SIZE UP for the same risk-of-ruin. So
+  this is a RISK-EFFICIENCY lever, exactly right for a leverage style — not a
+  bigger-return edge.
+- The TIGHT 1.0 stop raises expectancy but ALSO worst-case (-1.30R, gap-through)
+  and variance -> it FIGHTS leverage safety. Keep the 1.5 stop + the show-me exit.
+QUEUED for the full significance gauntlet (bootstrap p + both-halves): candidates
+exit_showme, exit_tight_showme (scripts/overnight_candidates.py).
+
+## 22. Leverage / risk-of-ruin math (2 research agents) + the SAFE-LEVERAGE answer — 2026-06-09
+
+Two web-research passes (cited below) turned KudbeeX's "smaller losses → safer
+leverage" intuition into computable math. Built kudbee_quant/risk.py (Kelly,
+risk-of-ruin, Vince optimal-f, vol-target, perp max-safe-leverage) + tests +
+scripts/risk_report.py. Per-trade MAE/adverse-move added to ml/labels.trade_outcomes
+(measured ONLY while the position is open — bug fixed: was scanning the full window).
+
+THE NUMBERS (validated strategy, top-10 1h, real distribution):
+- mean +0.158R, std 1.63. Full Kelly f* ≈ 0.066 (m/s²). => trade QUARTER-KELLY ≈
+  1.65% risk/trade. optimal_f 0.079 (a CEILING, never a target).
+- **MAX SAFE LEVERAGE ≈ 9x** to keep P(liquidation) < 1% over the sample
+  (liq_distance = 1/lev − MMR; fed REAL per-trade adverse-% excursions). 20x is
+  ~2x above this ceiling — the ~5% liq buffer at 20x ≈ a normal bad-trade wick.
+
+KEY HONEST + COUNTERINTUITIVE FINDING: the fast-fail show-me exit (§21) does NOT
+raise the liquidation ceiling (both 9x). Liquidation is an INTRA-BAR wick event;
+a close-based early exit can't prevent it. Fast-fail smooths the EQUITY CURVE
+(std 1.63→1.38, MC ruin-DD 16.3%→15.1%) and lifts Kelly-safe size ~18% in theory,
+but for LIQUIDATION safety only a tighter INTRA-BAR hard stop or LOWER LEVERAGE
+works. So: size to ~quarter-Kelly (~1.6%/trade) and cap leverage ~8–9x, not 20x.
+
+WHAT THE LITERATURE SAYS TO BUILD NEXT (encodable, queued/flagged):
+- CONSTANT-VOL position sizing (Barroso-Santa-Clara; Moskowitz-Ooi-Pedersen): size
+  ∝ target_vol/realized_vol — strongest, most-replicated Sharpe evidence; de-levers
+  on vol spikes (the #1 perp survival behavior). NOTE: our harness judged
+  voltarget_size as "HURTS" on RAW MEAN-R — the WRONG lens; it's a VARIANCE
+  reducer. ACTION: add risk-adjusted metrics (Sharpe/maxDD/Kelly) to the harness so
+  variance-reducers are judged honestly (next build).
+- MAE-percentile stop (Sweeney): stop at ~85th pct of WINNERS' MAE (use our mae_r).
+- Vol-expansion exit (Daniel-Moskowitz panic state): exit non-progressing trade if
+  ATR_now/ATR_entry ≥ ~1.5-2.
+- Kaminski-Lo theorem: stops add return only in MOMENTUM regimes, cost in random
+  walk → gate aggressive exits by a trend filter. CPPI / drawdown floor for sizing.
+
+SOURCES: Kelly (Wikipedia; Thorp f*=μ/σ²; MacLean-Ziemba-Blazenko frac-Kelly);
+Vince optimal-f (Mathematics of Money Management); Kaminski & Lo "When Do Stop-Loss
+Rules Stop Losses?" (JFM 2014); Daniel-Moskowitz "Momentum Crashes" (JFE 2016);
+Barroso-Santa-Clara "Momentum Has Its Moments" (JFE 2015); Moskowitz-Ooi-Pedersen
+"Time Series Momentum" (JFE 2012); Sweeney MAE; perp liq mechanics (MetaMask/Bybit).
+
+## 23. Harness upgrade: risk-adjusted verdicts (Sharpe/DD) + the honest re-grade — 2026-06-09
+
+Acted on §22's lesson: the overnight harness now records, per candidate, the
+per-trade SHARPE (mean/std), return STD, and MAX DRAWDOWN in R — and adds a
+RISK-REDUCER verdict (flat mean-R but std down >=5% AND Sharpe up AND drawdown
+shallower). scripts/overnight_research.py evaluate() + findings table; tests added.
+
+HONEST RE-GRADE (the discipline working a 2nd time — prevented over-claiming):
+the hypothesis "we wrongly rejected variance-reducers on mean-R" did NOT survive
+the proper risk-adjusted test:
+  voltarget_size:    dR -0.052, dSharpe -0.010 (per-trade std 1.63->1.24, DD
+                     -24.8->-20.1) — DD better but Sharpe flat-negative; NOT a win.
+  exit_showme:       dR -0.060, dSharpe -0.025, DD -24.8->-30.9 (WORSE) — trades
+                     more often, so cumulative drawdown deepens. NOT a clean reducer.
+  exit_tight_showme: ~flat mean/Sharpe, DD -37.8 (worse).
+LESSON: per-trade std reduction does NOT automatically improve Sharpe or cumulative
+drawdown, because exits change trade FREQUENCY/sequence. CAVEAT (next step): true
+vol-targeting's benefit appears in COMPOUNDED equity with position sizing, which a
+per-trade-R harness can't fully capture — to test it properly, evaluate on the
+sequenced/compounded equity curve (backtest/money.py simulate_account), not pooled
+per-trade R. That is the honest next build.

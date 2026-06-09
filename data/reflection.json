@@ -1,0 +1,66 @@
+{
+  "generated_at": "2026-06-09 10:20 UTC",
+  "regime": {
+    "trend": "down",
+    "vol_regime": "mid",
+    "vol_percentile": 0.64,
+    "choppy": false
+  },
+  "ledger_summary": {
+    "n_candidates": 32,
+    "naive_winners": 4,
+    "fdr_survivors": 0,
+    "fdr_alpha": 0.1,
+    "survivor_names": [],
+    "note": "Approximate two-point-variance p-values; relative use only. A candidate 'survives' if its expectancy edge clears family-wide BH-FDR \u2014 i.e. it is unlikely to be one of the lucky few among all 32 tries."
+  },
+  "overfit_alarms": {
+    "n_candidates": 32,
+    "naive_winners": 4,
+    "fdr_survivors": 0,
+    "expected_false_winners_if_all_null": 1.6,
+    "unstable_winners": [
+      {
+        "name": "highvol_bigtarget",
+        "h1": 0.0136,
+        "h2": 0.1328
+      },
+      {
+        "name": "clean_trend_stack",
+        "h1": 0.2033,
+        "h2": 0.0088
+      }
+    ],
+    "verdict": "NO winner survives family-wide FDR \u2014 treat all as unproven"
+  },
+  "failure_rollup": {
+    "volatility": {
+      "failed": 10,
+      "winner": 1
+    },
+    "trend/regime": {
+      "failed": 4,
+      "winner": 1
+    },
+    "volume": {
+      "failed": 9,
+      "winner": 1
+    },
+    "execution": {
+      "failed": 8,
+      "winner": 3
+    },
+    "structure/level": {
+      "failed": 4,
+      "winner": 0
+    },
+    "sizing": {
+      "failed": 2,
+      "winner": 0
+    },
+    "other": {
+      "failed": 1,
+      "winner": 0
+    }
+  }
+}

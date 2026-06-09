@@ -6,7 +6,6 @@ raw {-1,0,+1} signal; all causal (verified by the lookahead audit).
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 
 from .indicators import add_emas

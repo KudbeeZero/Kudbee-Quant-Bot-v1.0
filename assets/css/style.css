@@ -531,11 +531,17 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .hero__trust { gap: 24px; }
   .grid--features, .steps, .band__inner, .grid--personas, .define__facts, .grid--posts { grid-template-columns: 1fr; }
   .grid--features.honesty-grid { grid-template-columns: 1fr; }
-  .compare { overflow-x: auto; }
-  .compare table { min-width: 520px; }
+  /* Wide tables: smooth momentum scroll + smaller type/padding so more fits on
+     a ~375px phone before any horizontal scroll is needed. */
+  .compare { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .compare table { min-width: 460px; font-size: .9rem; }
+  .compare th, .compare td { padding-inline: 10px; }
   .footer__inner { grid-template-columns: 1fr; }
   .waitlist__row { flex-direction: column; }
   .callout-row { grid-template-columns: 1fr; }
   .chip--a { right: 0; top: -20px; } .chip--b { left: 0; }
   .section { padding: 72px 0; }
+  /* Comfortable touch targets (WCAG 2.5.5) on small screens. */
+  .btn, .btn--sm { min-height: 44px; }
+  .contact-form input, .contact-form textarea, .contact-form button { min-height: 44px; }
 }

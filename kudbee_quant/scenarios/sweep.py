@@ -13,7 +13,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from ..backtest import BacktestConfig, run_backtest, walk_forward
+from ..backtest import BacktestConfig, walk_forward
 from ..backtest.bracket import bracket_backtest
 from ..backtest.metrics import infer_periods_per_year
 from ..ingest import load_ohlcv

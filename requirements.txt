@@ -1,8 +1,12 @@
-requests>=2.31
-pandas>=2.0
-numpy>=1.24
-pyarrow>=14.0
+requests>=2.31,<3
+pandas>=2.0,<3
+numpy>=1.24,<3
+pyarrow>=14.0,<21
 # Backend API (serves the website's Live Signals page)
-fastapi>=0.110
-uvicorn>=0.27
-pydantic>=2.0
+fastapi>=0.110,<1
+uvicorn>=0.27,<1
+pydantic>=2.0,<3
+# Required by starlette/fastapi TestClient (tests/test_api.py, test_alert_endpoint.py)
+httpx>=0.27,<1
+# Meta-labeling: secondary classifier that learns which primary signals to take
+scikit-learn>=1.4,<2
