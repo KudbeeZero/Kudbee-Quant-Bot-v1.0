@@ -1,0 +1,36 @@
+{
+  "pending": [
+    "coil_rng_pct",
+    "atr_band_3085",
+    "ret_autocorr_pos",
+    "climax_dir_veto",
+    "pullback_run2",
+    "wider_stop",
+    "tighter_stop",
+    "entry_window_long",
+    "entry_window_short",
+    "target_5r"
+  ],
+  "done": [
+    "vol_regime_mid",
+    "skip_vol_shock",
+    "vol_contraction",
+    "no_climax_entry",
+    "relvol_participation",
+    "relvol_quiet",
+    "pullback_in_trend",
+    "clean_trend",
+    "skip_overextended",
+    "deeper_retrace",
+    "shallow_retrace",
+    "fast_timestop",
+    "slow_timestop",
+    "highvol_bigtarget",
+    "lowvol_smalltarget",
+    "voltarget_size",
+    "size_by_confluence",
+    "round_number_entry",
+    "variance_ratio_trend",
+    "clean_trend_stack"
+  ]
+}

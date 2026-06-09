@@ -373,3 +373,55 @@ website + Live Signals + The Lab (interactive charts/calculator/venue/exposure/
 forward-record) + API + TradingView indicator + alert->journal webhook + bias layer
 + TP1/TP2 partials + dollar sizing + double-top/bottom + S/R + net-exposure guard +
 human-read scoring + HTF trend filter + research Vols 1-10. Ready to archive.
+
+## 17. Overnight research harness — autonomous honest hypothesis testing — 2026-06-09
+
+The user asked, before bed, for an overnight build that "spins up agents to find
+out-of-the-box ways to raise the % / chances of our trades" so the algorithm is
+stronger by morning. Built it the ONLY honest way: not by bolting on believed
+"win-rate boosters" (the project's cardinal sin — §2), but as a repeatable worker
+that TESTS candidate edges against the shipping baseline and records the verdict.
+
+WHAT WAS BUILT:
+- `scripts/overnight_candidates.py` — a registry of candidate edges, each a
+  function `(df, scored, base_sig) -> (signal, size, overrides)`. Every candidate
+  lives in execution / entry-timing / regime / sizing (where edge has historically
+  been), NEVER "one more confluence factor". Seeded from two parallel research
+  agents + my own; 30 candidates so far.
+- `scripts/overnight_research.py` — the harness. Pools trades across the top-10
+  majors, compares candidate vs the shipping baseline (1h, ≥50% conf + trend
+  filter, 0.25-ATR limit, 1.5-ATR stop, 3R, maker), and runs a SPLIT-HALF
+  robustness check. Verdict = WINNER (ΔR≥+0.015 AND both halves positive),
+  SUGGESTIVE, NEUTRAL, HURTS, or THIN. Queue in `data/overnight_queue.json`,
+  machine log in `data/overnight_results.json`, human report in
+  `docs/research/overnight_findings.md`. Per-candidate try/except + parquet cache
+  fallback so a bad candidate or network blip can't kill a cycle.
+- `tests/test_overnight.py` — contract tests (every candidate well-formed; gating
+  candidates are a strict subset of the baseline; evaluator returns an honest record).
+
+FIRST-NIGHT RESULTS (baseline pooled +0.166R, ~1577 trades, top-10 1h):
+TWO WINNERS (beat baseline in BOTH halves — promising, NOT yet shipped; forward
+paper-proof required before they touch the default, per the honesty contract):
+- `clean_trend_stack` +0.115R (h1 +0.203 / h2 +0.009), keeps ~51% of trades →
+  +0.281R. Only trade when the 13/50/800-EMA stack has been monotonically ordered
+  10 bars AND the 13/50 gap is widening (a clean, separating trend, not a braid).
+- `highvol_bigtarget` +0.067R (h1 +0.014 / h2 +0.133), keeps ~48% → +0.233R. In
+  the high-vol regime (top-40% ATR%), aim for 4R instead of 3R — volatile regimes
+  run further. (Note: h1 thin; treat as suggestive-strong.)
+DEAD ENDS this sweep (logged so we never re-test — §2 discipline): vol_regime_mid,
+vol_contraction, relvol_participation (and its quiet A/B), shallow & deeper
+retrace (≈neutral), fast/slow time-stop, lowvol_smalltarget, round_number_entry,
+voltarget_size, size_by_confluence (HURT badly −0.103R), variance_ratio_trend
+(HURT −0.086 — the textbook regime filter did NOT help here), skip_overextended.
+Reinforces the project thesis: most clever ideas fail; the survivors are about
+REGIME SELECTION and EXECUTION GEOMETRY, not new signals.
+
+HOW IT RUNS OVERNIGHT: this branch runs the harness hourly via the Claude `/loop`
+(Binance is reachable from the container, verified). Each cycle drains ~3 queued
+candidates, an idea-agent appends fresh candidate ideas to a backlog, results +
+report are committed to `claude/overnight-algo-research-plan-hyqzf6`. NOT merged
+to main / no live-capital change — winners must clear forward paper proof first.
+NEXT (queued, needs a small engine extension): path-dependent EXECUTION variants
+the agents flagged as highest-leverage — ATR/chandelier TRAILING stop, time-decay
+target, MAE "give-up" early exit. bracket.py currently does fixed stop/target/
+tp1/time-stop only; add trailing + early-exit, then test the same honest way.
