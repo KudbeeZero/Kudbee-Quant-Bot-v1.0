@@ -55,6 +55,9 @@ def bracket_backtest(
     tp1_r: float | None = None,
     tp1_frac: float = 0.5,
     be_after_tp1: bool = True,
+    trailing_atr: float | None = None,
+    mae_giveup: tuple | None = None,
+    time_decay: tuple | None = None,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -133,7 +136,9 @@ def bracket_backtest(
         end = min(entry_bar + max_bars, n - 1)
         if tp1_r is None:
             outcome, exit_j = _resolve_full(direction, entry, stop, target, sd,
-                                            target_r, high, low, close, entry_bar, end)
+                                            target_r, high, low, close, entry_bar, end,
+                                            atr_at_entry=atr[t], trailing_atr=trailing_atr,
+                                            mae_giveup=mae_giveup, time_decay=time_decay)
             extra_exit = 0.0
         else:
             outcome, exit_j = _resolve_partial(direction, entry, sd, target_r, tp1_r,
@@ -217,15 +222,19 @@ def bracket_excursions(
 
 
 def _resolve_full(direction, entry, stop, target, sd, target_r,
-                  high, low, close, entry_bar, end):
+                  high, low, close, entry_bar, end, *, atr_at_entry=None,
+                  trailing_atr=None, mae_giveup=None, time_decay=None):
     """All-or-nothing exit: first of stop/target wins; else mark to close.
 
     Thin adapter over the shared resolver (``backtest/resolver.py``) so the
-    backtest and the live journal resolve trades identically.
+    backtest and the live journal resolve trades identically. Optional
+    path-dependent exits (trailing/MAE-giveup/time-decay) are forwarded.
     """
     out = resolve_bracket(direction, entry, stop, target, sd, target_r,
                           high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
-                          close[entry_bar + 1:end + 1], force_close_at_end=True)
+                          close[entry_bar + 1:end + 1], force_close_at_end=True,
+                          atr_at_entry=atr_at_entry, trailing_atr=trailing_atr,
+                          mae_giveup=mae_giveup, time_decay=time_decay)
     if out.exit_offset is None:     # no bars after entry: mark to close at entry bar
         return direction * (close[end] - entry) / sd, end
     return out.outcome_r, entry_bar + 1 + out.exit_offset
