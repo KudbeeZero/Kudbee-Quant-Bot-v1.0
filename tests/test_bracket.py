@@ -75,6 +75,32 @@ def test_fee_pct_is_timeframe_aware():
     assert abs(r2.trades[0] - 1.0) < 1e-9
 
 
+def test_limit_retrace_entry_fills_at_pullback():
+    # Long signal at bar 0 (close 100, ATR 1). Limit retrace 0.5 ATR -> 99.5.
+    # Price dips to 99.5 (bar 1 low), fills at 99.5, then runs to target
+    # 99.5 + 2*1 = 101.5 (bar 2). Outcome +2R from the limit fill.
+    prices = [100, 100, 102, 102]
+    df = _df_with_atr(prices, atr=1.0)
+    df.loc[1, "low"] = 99.4      # reaches the 99.5 limit
+    df.loc[2, "high"] = 101.6    # reaches target 101.5
+    sig = pd.Series([1, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=2.0, max_bars=5,
+                         fee_r=0.0, limit_retrace_atr=0.5, entry_window=4)
+    assert r.n_trades == 1
+    assert abs(r.trades[0] - 2.0) < 1e-9
+
+
+def test_limit_retrace_missed_when_no_pullback():
+    # Price runs up without retracing to the limit -> signal missed, no trade.
+    prices = [100, 101, 102, 103]
+    df = _df_with_atr(prices, atr=1.0)
+    df["low"] = df["close"] - 0.05  # never dips to the 99.5 limit
+    sig = pd.Series([1, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=2.0, max_bars=5,
+                         fee_r=0.0, limit_retrace_atr=0.5, entry_window=3)
+    assert r.n_trades == 0
+
+
 def test_short_side_target():
     # Short at 100, target 2R down = 98. Price falls to 97 -> +2R.
     prices = [100, 99, 98, 97, 97]

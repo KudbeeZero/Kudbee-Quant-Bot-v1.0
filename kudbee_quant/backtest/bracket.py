@@ -47,6 +47,8 @@ def bracket_backtest(
     allow_overlap: bool = False,
     size: pd.Series | None = None,
     fee_pct: float | None = None,
+    limit_retrace_atr: float | None = None,
+    entry_window: int = 6,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -64,6 +66,13 @@ def bracket_backtest(
         allow_overlap: if False, no new entry until the current trade exits.
         size: optional per-bar position size in [0,1]; each trade's R is scaled
             by the size at entry (confidence-scaled sizing). Default 1.0.
+        limit_retrace_atr: if set, enter via a LIMIT order at a pullback of
+            ``limit_retrace_atr`` * ATR against the signal (maker fill, better
+            price — the Vol 8 "enter on the retrace, not the signal candle"
+            rule). The trade only fills if price retraces to the limit within
+            ``entry_window`` bars; otherwise the signal is MISSED (no trade).
+            Stop/target are measured from the limit fill price.
+        entry_window: bars allowed for a limit entry to fill.
     """
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
@@ -86,13 +95,26 @@ def bracket_backtest(
         sd = stop_atr * atr[t]
         if not np.isfinite(sd) or sd <= 0:
             continue
-        entry = close[t]
+        # Entry: market at the signal close, or a LIMIT at a retrace (maker).
+        if limit_retrace_atr is None:
+            entry, entry_bar = close[t], t
+        else:
+            limit = close[t] - direction * limit_retrace_atr * atr[t]
+            ewin = min(t + entry_window, n - 1)
+            entry_bar = None
+            for j in range(t + 1, ewin + 1):
+                if (direction > 0 and low[j] <= limit) or (direction < 0 and high[j] >= limit):
+                    entry_bar = j
+                    break
+            if entry_bar is None:
+                continue  # retrace never came; signal missed (realistic)
+            entry = limit
         stop = entry - direction * sd
         target = entry + direction * sd * target_r
-        end = min(t + max_bars, n - 1)
+        end = min(entry_bar + max_bars, n - 1)
         outcome = None
         exit_j = end
-        for j in range(t + 1, end + 1):
+        for j in range(entry_bar + 1, end + 1):
             if direction > 0:
                 if low[j] <= stop:      # stop checked first (conservative)
                     outcome, exit_j = -1.0, j; break

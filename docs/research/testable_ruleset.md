@@ -510,3 +510,28 @@ Takeaway: the confluence is a REGIME-ADAPTIVE directional edge (shorts in
 downtrends, longs in uptrends), concentrated on the with-trend side, that adds
 skill above always-/random-/trend- nulls. Do NOT hand-flip factors (overfits);
 DO trade both sides and let the confluence pick the direction.
+
+### BREAKTHROUGH #2: limit-retrace entry (Vol 8) — execution, not factors
+
+Vol 8 sec 4.4-4.5: "never enter on the signal candle — enter on the retrace."
+Implemented as a LIMIT entry at a 0.25-0.5 ATR pullback (bracket_backtest
+limit_retrace_atr). This does two things at once: enters at a BETTER price AND
+makes you a MAKER (solving the taker-cost problem that made the market-entry
+edge thin/negative).
+
+1h confluence-R, OOS, 2R:
+| entry                  | cost        | expectancy |
+|------------------------|-------------|------------|
+| market                 | 0.04% taker | +0.158R    |
+| market                 | 0.10%       | +0.051R    |
+| limit retrace 0.25 ATR | 0.02% maker | +0.243R    |
+| limit retrace 0.50 ATR | 0.02% maker | +0.294R    |
+
+WALK-FORWARD (6 folds x 6 assets incl. SPY + GLD, 0.25 ATR retrace, 0.02% maker):
+83% of 36 cells positive, median +0.192R, mean +0.204R. BTC 6/6, ETH/SOL/BNB/
+SPY 5/6, GLD 4/6. Holds across time AND uncorrelated assets.
+
+This is the strongest validated config, and it came from EXECUTION, not added
+factors. Viable strategy: 1h, 2R, >=50% confluence, BOTH directions, enter via
+LIMIT at a 0.25 ATR retrace (maker). Caveat: backtest assumes touch=fill (limit
+adverse selection in reality is worse); forward/paper test is the final proof.
