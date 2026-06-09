@@ -14,6 +14,7 @@ def paper_scan(
     stop_atr: float = 1.0,
     retrace_atr: float = 0.25,  # limit entry pullback (validated execution)
     interval: str = "1h",
+    intervals: list[str] | None = None,  # multi-timeframe scan (1h core; 2h/4h also viable)
     deadline_days: float = 3.0,
     fill_deadline_days: float = 0.5,
     journal: TradeJournal | None = None,
@@ -34,14 +35,17 @@ def paper_scan(
     if biases is None:
         from ..bias import BiasBook
         biases = BiasBook()
-    open_syms = {p.symbol for p in j.predictions
+    # One open trade per (symbol, timeframe) -> multi-TF widens the chances.
+    open_keys = {(p.symbol, p.timeframe) for p in j.predictions
                  if p.status in ("open", "pending") and p.kind == "bracket"}
+    tf_list = intervals or [interval]
 
     logged = []
-    for sym in symbols:
+    for interval in tf_list:
+      for sym in symbols:
         sym = sym.upper()
-        if sym in open_syms:
-            continue  # already in a paper trade on this symbol
+        if (sym, interval) in open_keys:
+            continue  # already in a paper trade on this symbol+timeframe
         f = build_levels(client.klines(sym, interval=interval, limit=600))
         last = confluence_score(f).iloc[-1]
         pct, direction = float(last["confluence_pct"]), float(last["direction"])

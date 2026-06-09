@@ -185,3 +185,25 @@ not more indicators.
 Append here whenever we (a) validate or kill a hypothesis, (b) distill a video/
 lesson, (c) log a real call + outcome. Keep the honesty layer: record what
 *failed* as loudly as what worked, so we never burn time re-testing dead ends.
+
+## 9. Timeframe survey (where the edge lives) — 2026-06-09
+
+Validated config across timeframes (walk-forward, 3R, 0.25-ATR limit, 0.04% maker,
+realistic per-TF cost):
+
+| TF | BTC | SOL | note |
+|----|-----|-----|------|
+| 7m | +0.250R (67%) | -0.121R (33%) | asset-dependent; cost fee_r ~0.10-0.15 |
+| 15m | -0.054R | +0.055R | weak/negative (cost+noise) |
+| 30m | -0.077R | -0.101R | NEGATIVE — do not run standalone |
+| **1h** | **+0.252R (100%)** | +0.066R (67%) | **sweet spot** (robust + sample) |
+| 2h | +0.189R (83%) | +0.018R | viable, fewer trades |
+| 3h | +0.464R (81 tr) | +0.398R (81 tr) | high exp, small sample |
+| 4h | +0.102R (50%) | +0.232R (83%) | viable, fewer trades |
+
+Conclusion: 1h is the core; **2h/4h are viable ADDITIONS** (more chances, fewer
+trades) -> paper loop now scans 1h+2h+4h. 15m/30m FAIL as standalone strategies;
+7m is asset-dependent. NOTE: this tested each TF as a STANDALONE strategy. The
+trader's real method (1h direction -> drop to 15m/1m to TIME the entry) is NOT
+this -- that's entry refinement, still untested and the next build. Tool:
+`tf-survey SYMBOL`.

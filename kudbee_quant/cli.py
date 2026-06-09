@@ -429,10 +429,23 @@ def _bias_clear(args) -> None:
     print("Cleared." if BiasBook().clear(args.symbol) else "No active bias for that symbol.")
 
 
+def _tf_survey(args) -> None:
+    from .survey import timeframe_survey
+    table = timeframe_survey(args.symbol, fee_pct=args.fee_pct)
+    print(f"Timeframe survey — {args.symbol} (confluence-R, 3R, 0.25-ATR limit, "
+          f"{args.fee_pct*100:.2f}% maker, walk-forward):")
+    print(table.to_string(index=False, formatters={
+        "atr_pct": lambda x: f"{x*100:.3f}%", "fee_r": "{:.2f}".format,
+        "frac_positive": "{:.0%}".format, "median_exp_r": "{:+.3f}".format}))
+    print("\nHonest read: 1h is the sweet spot; 2h-4h viable (fewer trades); 15m/30m "
+          "weak/negative\n(cost+noise); 7m asset-dependent. Run the STRATEGY on the "
+          "positive TFs only. Not advice.")
+
+
 def _paper_scan(args) -> None:
     from .paper import paper_scan
-    logged = paper_scan(args.symbols, min_pct=args.min_pct,
-                        target_r=args.target_r, stop_atr=args.stop_atr, interval=args.interval)
+    logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
+                        stop_atr=args.stop_atr, intervals=args.intervals)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:
@@ -594,6 +607,11 @@ def main() -> None:
     js = sub.add_parser("journal-score", help="your measured hit rate + R by setup")
     js.set_defaults(func=_journal_score)
 
+    tfs = sub.add_parser("tf-survey", help="where does the edge live across timeframes?")
+    tfs.add_argument("symbol")
+    tfs.add_argument("--fee-pct", type=float, default=0.0004, help="round-trip cost fraction (maker)")
+    tfs.set_defaults(func=_tf_survey)
+
     bset = sub.add_parser("bias-set", help="set your directional read (bot scalps WITH it)")
     bset.add_argument("symbol")
     bset.add_argument("side", choices=["long", "short"])
@@ -609,7 +627,8 @@ def main() -> None:
 
     ps = sub.add_parser("paper-scan", help="log live confluence-R signals as paper trades")
     ps.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
-    ps.add_argument("--interval", default="1h")
+    ps.add_argument("--intervals", nargs="+", default=["1h"],
+                    help="timeframes to scan, e.g. 1h 2h 4h (1h is the core; 2h/4h viable)")
     ps.add_argument("--min-pct", type=float, default=0.5,
                     help="confluence percentage threshold (0.5 = validated floor)")
     ps.add_argument("--target-r", type=float, default=3.0)
