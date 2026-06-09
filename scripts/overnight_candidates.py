@@ -44,6 +44,15 @@ def _gate(base_sig: pd.Series, mask: pd.Series) -> pd.Series:
     return base_sig.where(mask, 0.0).astype(float)
 
 
+def _dir_gate(base_sig: pd.Series, long_ok, short_ok) -> pd.Series:
+    """Keep longs where ``long_ok`` and shorts where ``short_ok`` (direction-
+    conditional filters). Both masks are aligned to base_sig's index."""
+    long_ok = pd.Series(long_ok, index=base_sig.index).fillna(False)
+    short_ok = pd.Series(short_ok, index=base_sig.index).fillna(False)
+    keep = ((base_sig > 0) & long_ok) | ((base_sig < 0) & short_ok)
+    return base_sig.where(keep, 0.0).astype(float)
+
+
 def _atr_pct(df: pd.DataFrame) -> pd.Series:
     """Realized-volatility proxy: ATR as a fraction of price."""
     return (df["atr"] / df["close"]).replace([np.inf, -np.inf], np.nan)
@@ -347,6 +356,92 @@ def c_range_expansion(df, scored, base_sig):
     return _gate(base_sig, mask), None, {}
 
 
+def c_ret_percentile_self(df, scored, base_sig):
+    """Relative-strength-of-self: long only when the symbol's 24-bar return is in
+    the upper 30% of its trailing-500 history (hot vs its own normal); mirror for
+    shorts. Normalises momentum per-symbol without a hard ROC threshold."""
+    roc = df["close"].pct_change(24)
+    rank = _rolling_pctrank(roc, 500)
+    return _dir_gate(base_sig, rank >= 0.70, rank <= 0.30), None, {}
+
+
+def c_near_high_recovery(df, scored, base_sig):
+    """Trade near the recent extreme, not deep in a local drawdown: long only
+    within 5% of the 50-bar high, short only within 5% of the 50-bar low."""
+    hi = df["high"].rolling(50, min_periods=25).max()
+    lo = df["low"].rolling(50, min_periods=25).min()
+    long_ok = (hi - df["close"]) / df["close"] <= 0.05
+    short_ok = (df["close"] - lo) / df["close"] <= 0.05
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_run_streak_gate(df, scored, base_sig):
+    """Moderate-run timing: require 2-5 consecutive same-direction closes before
+    entry (established drive, not yet exhausted)."""
+    up = (df["close"] > df["close"].shift(1)).astype(int)
+    su = (up.groupby((up != up.shift()).cumsum()).cumcount() + 1).where(up == 1, 0)
+    dn = (df["close"] < df["close"].shift(1)).astype(int)
+    sd = (dn.groupby((dn != dn.shift()).cumsum()).cumcount() + 1).where(dn == 1, 0)
+    return _dir_gate(base_sig, su.between(2, 5), sd.between(2, 5)), None, {}
+
+
+def c_jump_continuation(df, scored, base_sig):
+    """Impulse-continuation (crypto's 'gap'): after a big bar (TR > 1.8 ATR) in
+    the trade direction, enter only if the next close takes out the impulse
+    bar's extreme — selects the continuation branch, drops the blowoff fade."""
+    bar = df["close"] - df["open"]
+    big = (df["high"] - df["low"]) > 1.8 * df["atr"]
+    long_ok = big.shift(1) & (bar.shift(1) > 0) & (df["close"] > df["high"].shift(1))
+    short_ok = big.shift(1) & (bar.shift(1) < 0) & (df["close"] < df["low"].shift(1))
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_atr_vs_tr_compression(df, scored, base_sig):
+    """Contraction timing: enter only when the latest true range is <=0.7x the
+    smoothed ATR — fill the maker retrace inside a quiet bar that precedes
+    expansion, with the stop sized off the (higher) recent vol."""
+    tr = pd.concat([df["high"] - df["low"],
+                    (df["high"] - df["close"].shift()).abs(),
+                    (df["low"] - df["close"].shift()).abs()], axis=1).max(axis=1)
+    return _gate(base_sig, (tr / df["atr"]) <= 0.7), None, {}
+
+
+def c_ema50_slope_accel(df, scored, base_sig):
+    """Trend VELOCITY, not just level: require the ATR-normalised ema_50 slope to
+    be aligned AND accelerating (second difference same sign) — active, steepening
+    trend rather than flat-above-EMA chop."""
+    slope = df["ema_50"].diff()
+    accel = slope.diff()
+    norm = slope / df["atr"]
+    long_ok = (norm > 0.02) & (accel > 0)
+    short_ok = (norm < -0.02) & (accel < 0)
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_structural_stop_swing(df, scored, base_sig):
+    """Structural stop placement: take the trade only when the 1.5-ATR stop lands
+    just beyond the nearest swing (within 0.5 ATR) — structure must break before
+    the stop trips, so noise wicks get absorbed."""
+    entry = df["close"]
+    sl = entry - 1.5 * df["atr"]
+    ss = entry + 1.5 * df["atr"]
+    buf = 0.5 * df["atr"]
+    long_ok = (df["swing_low"] > sl) & (df["swing_low"] < entry) & ((df["swing_low"] - sl) <= buf)
+    short_ok = (df["swing_high"] < ss) & (df["swing_high"] > entry) & ((ss - df["swing_high"]) <= buf)
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_contraction_reclaim(df, scored, base_sig):
+    """Effort-vs-result: among retrace entries, keep only those after a 2-bar
+    range contraction (counter-push exhausting) AND an immediate reclaim of the
+    prior close (demand returns) — a spring/absorption tell."""
+    rng = df["high"] - df["low"]
+    falling = (rng < rng.shift(1)) & (rng.shift(1) < rng.shift(2))
+    long_ok = falling & (df["close"] > df["close"].shift(1))
+    short_ok = falling & (df["close"] < df["close"].shift(1))
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -387,4 +482,12 @@ REGISTRY: dict[str, tuple] = {
     "trend_strong_sep": (c_trend_strong_sep, "Strong trend: 13/800-EMA gap >= 2 ATR"),
     "two_bar_momentum": (c_two_bar_momentum, "Two consecutive with-direction closes"),
     "range_expansion": (c_range_expansion, "Trigger-bar range > 1.5x trailing-20 avg"),
+    "ret_percentile_self": (c_ret_percentile_self, "Own-momentum percentile (24-bar ROC vs trailing-500)"),
+    "near_high_recovery": (c_near_high_recovery, "Within 5% of the 50-bar extreme (not in drawdown)"),
+    "run_streak_gate": (c_run_streak_gate, "2-5 consecutive same-direction closes"),
+    "jump_continuation": (c_jump_continuation, "Impulse bar (TR>1.8 ATR) + extreme takeout"),
+    "atr_vs_tr_compression": (c_atr_vs_tr_compression, "Latest TR <= 0.7x smoothed ATR (contraction)"),
+    "ema50_slope_accel": (c_ema50_slope_accel, "EMA50 slope aligned AND accelerating"),
+    "structural_stop_swing": (c_structural_stop_swing, "1.5-ATR stop lands just beyond nearest swing"),
+    "contraction_reclaim": (c_contraction_reclaim, "2-bar range contraction then prior-close reclaim"),
 }

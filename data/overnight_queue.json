@@ -6,7 +6,15 @@
     "conf_60",
     "trend_strong_sep",
     "two_bar_momentum",
-    "range_expansion"
+    "range_expansion",
+    "ret_percentile_self",
+    "near_high_recovery",
+    "run_streak_gate",
+    "jump_continuation",
+    "atr_vs_tr_compression",
+    "ema50_slope_accel",
+    "structural_stop_swing",
+    "contraction_reclaim"
   ],
   "done": [
     "vol_regime_mid",
