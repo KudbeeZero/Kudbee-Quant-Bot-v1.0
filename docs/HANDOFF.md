@@ -8,8 +8,8 @@
 
 - **Protocol status:** `BOOTSTRAP` — this is the chat that introduced the relay.
 - **This chat's branch:** `claude/sol-short-position-0eytax`
-- **This chat's PR:** _(set by /closeout when the PR is opened)_
-- **Audit status:** `AWAITING_AUDIT`
+- **This chat's PR:** #2 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/2
+- **Audit status:** `AWAITING_AUDIT` (bootstrap PR — next chat verifies it via the checklist in the PR body, then merges)
 - **Prior work note:** everything before this PR (SOL short logging, MEMORY §24–§26,
   zero-fee TradFi forward-scan) was merged **direct to `main` pre-protocol**. From
   this PR forward, the one-PR-per-chat + audit-gate rules apply.
