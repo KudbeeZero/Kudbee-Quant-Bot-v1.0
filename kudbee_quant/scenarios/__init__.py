@@ -12,9 +12,10 @@ from .btmm import BTMM_SCENARIOS
 from .ict import ICT_SCENARIOS
 from .library import SCENARIOS as _BASE_SCENARIOS
 from .library import hold
-from .sweep import run_sweep
+from .sweep import run_bracket_sweep, run_sweep
 
 # Full registry = original battery + precise BTMM/PVSRA + ICT/Vol1-3 setups.
 SCENARIOS = {**_BASE_SCENARIOS, **BTMM_SCENARIOS, **ICT_SCENARIOS}
 
-__all__ = ["SCENARIOS", "BTMM_SCENARIOS", "hold", "run_sweep", "audit_all", "lookahead_audit"]
+__all__ = ["SCENARIOS", "BTMM_SCENARIOS", "ICT_SCENARIOS", "hold", "run_sweep",
+           "run_bracket_sweep", "audit_all", "lookahead_audit"]

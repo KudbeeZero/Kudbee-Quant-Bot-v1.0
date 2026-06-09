@@ -61,6 +61,27 @@ null (does price reach the unfilled zone more than a random equidistant level?
 — our recovery study found vectors recover at ~null rate intraday, so the
 honest expectation is skeptical, but HTF directional framing is untested).
 
+## Post 4 — SOL/USDT 1h short scalp (2026-06-09)  [corrects an earlier mis-stated ZEC note]
+A prior journal entry described this as a Zcash setup; that was a mistake from
+notes and has been removed. The correct analysis is SOL/USDT 1h:
+
+- Price **rejected yesterday's daily high** (~68.2) and **New York's range high**
+  from earlier in the day.
+- Price **rejected and broke below the daily open** (~66.8).
+- A **vector candle sits down by the psychological-low area** (~62); a
+  **psychological high** sits ~64.5.
+- A **green candle with ~25% imbalance** remains — imbalances normally resolve
+  in quartiles: **25% / 50% / 75% / 100%** of the gap.
+
+Call: **short scalp** on the daily-open rejection, **target the psychological
+high (~64.5) at minimum**, then potentially the psych-low (~62). Logged as
+`reach_below 64.5` within 2 days (scalp horizon).
+
+Testable concepts to add: **partial imbalance/FVG resolution in quartiles**
+(does a gap that fills 25% tend to continue to 50/75/100%?), and a **scalp
+bracket** (enter on daily-open rejection, stop above the rejection high, target
+the next level) — measured in R, not win-rate.
+
 ## Honesty note
 These are discretionary chart calls (single examples, hindsight-framed). They
 become evidence only when the underlying rule is measured across many

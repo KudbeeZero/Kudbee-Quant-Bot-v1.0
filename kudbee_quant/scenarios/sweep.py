@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 
 from ..backtest import BacktestConfig, run_backtest, walk_forward
+from ..backtest.bracket import bracket_backtest
 from ..backtest.metrics import infer_periods_per_year
 from ..ingest import load_ohlcv
 from ..levels import build_levels
@@ -80,3 +81,57 @@ def run_sweep(
         "mean_oos_return": r.mean_oos_return,
     } for r in results])
     return table.sort_values("median_oos_sharpe", ascending=False).reset_index(drop=True)
+
+
+def run_bracket_sweep(
+    specs: list[str],
+    interval: str = "1h",
+    limit: int = 4000,
+    target_r: float = 2.0,
+    stop_atr: float = 1.0,
+    max_bars: int = 24,
+    scenarios: dict | None = None,
+    oos_frac: float = 0.3,
+) -> pd.DataFrame:
+    """Rank scenarios by OUT-OF-SAMPLE expectancy in R using a stop/target model.
+
+    This is the scalper's lens: each signal is entered with a stop (1R) and a
+    target (target_r * R); we measure mean R per trade on the last ``oos_frac``
+    of history (data the rule never 'saw'). A scenario is interesting only if
+    OOS expectancy is clearly > 0 across most assets with enough trades.
+    """
+    if scenarios is None:
+        from . import SCENARIOS
+        scenarios = SCENARIOS
+    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit)) for spec in specs}
+
+    rows = []
+    for name, fn in scenarios.items():
+        exps, totals, trades_list, wins = [], [], [], []
+        for spec, df in frames.items():
+            sig = fn(df)
+            split = int(len(df) * (1 - oos_frac))
+            oos_df = df.iloc[split:].reset_index(drop=True)
+            oos_sig = pd.Series(sig).iloc[split:].reset_index(drop=True)
+            try:
+                r = bracket_backtest(oos_df, oos_sig, stop_atr=stop_atr,
+                                     target_r=target_r, max_bars=max_bars)
+            except Exception:
+                continue
+            if r.n_trades >= 5:
+                exps.append(r.expectancy_r)
+                totals.append(r.total_r)
+                trades_list.append(r.n_trades)
+                wins.append(r.win_rate)
+        if not exps:
+            continue
+        rows.append({
+            "scenario": name,
+            "median_exp_r": float(np.median(exps)),
+            "total_r": float(np.sum(totals)),
+            "avg_trades": float(np.mean(trades_list)),
+            "median_win_rate": float(np.median(wins)),
+            "frac_assets_positive": float(np.mean([e > 0 for e in exps])),
+        })
+    table = pd.DataFrame(rows)
+    return table.sort_values("median_exp_r", ascending=False).reset_index(drop=True)

@@ -25,7 +25,7 @@ from .events.study import StudyConfig
 from .ingest import BinanceClient, PolymarketClient
 from .journal import Prediction, TradeJournal
 from .levels import build_levels, range_stats
-from .scenarios import SCENARIOS, run_sweep
+from .scenarios import SCENARIOS, run_bracket_sweep, run_sweep
 from .scenarios.audit import audit_all
 from .signals import pvsra_vector_candles
 from .validation import validate_universe
@@ -282,6 +282,29 @@ def _confluence_stack(args) -> None:
           "A flat\ncolumn at ~50% = confluence stacking adds nothing. Not financial advice.")
 
 
+def _bracket_sweep(args) -> None:
+    table = run_bracket_sweep(args.symbols, interval=args.interval, limit=args.limit,
+                              target_r=args.target_r, stop_atr=args.stop_atr, max_bars=args.max_bars)
+    print(f"Bracket sweep — {len(SCENARIOS)} scenarios x {len(args.symbols)} assets "
+          f"({args.interval}, stop {args.stop_atr} ATR, target {args.target_r}R, "
+          f"max {args.max_bars} bars)")
+    print("Ranked by median OUT-OF-SAMPLE expectancy in R (scalper's lens: small loss, "
+          "bigger win).\n")
+    print(table.to_string(index=False, formatters={
+        "median_exp_r": "{:+.3f}".format, "total_r": "{:+.1f}".format,
+        "avg_trades": "{:.0f}".format, "median_win_rate": "{:.0%}".format,
+        "frac_assets_positive": "{:.0%}".format}))
+    if not table.empty:
+        best = table.iloc[0]
+        be = ("breakeven win rate at {:.0f}R = {:.0%}".format(
+            args.target_r, 1.0 / (1.0 + args.target_r)))
+        print(f"\nBest: {best['scenario']} (median expectancy {best['median_exp_r']:+.3f} R/trade, "
+              f"{best['median_win_rate']:.0%} win). {be}.")
+    print("\nHonest read: expectancy in R is the scalper's number. Positive median R across "
+          "MOST\nassets, with enough trades, is what counts -- a 40% win rate at 2R is "
+          "profitable.\nNot financial advice.")
+
+
 def _sweep(args) -> None:
     table = run_sweep(args.symbols, interval=args.interval, limit=args.limit, hold_n=args.hold)
     print(f"Scenario sweep — {len(SCENARIOS)} scenarios x {len(args.symbols)} assets "
@@ -445,6 +468,15 @@ def main() -> None:
     au.add_argument("--limit", type=int, default=2000)
     au.add_argument("--checks", type=int, default=60)
     au.set_defaults(func=_audit)
+
+    bs = sub.add_parser("bracket-sweep", help="rank scenarios by R expectancy (stop/target)")
+    bs.add_argument("symbols", nargs="+")
+    bs.add_argument("--interval", default="1h")
+    bs.add_argument("--limit", type=int, default=4000)
+    bs.add_argument("--target-r", type=float, default=2.0)
+    bs.add_argument("--stop-atr", type=float, default=1.0)
+    bs.add_argument("--max-bars", type=int, default=24)
+    bs.set_defaults(func=_bracket_sweep)
 
     sw = sub.add_parser("sweep", help="test the scenario battery across assets (OOS-ranked)")
     sw.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT yahoo:SPY")

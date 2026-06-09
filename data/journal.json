@@ -1,27 +1,14 @@
 [
   {
-    "symbol": "ZECUSDT",
-    "kind": "reach_above",
-    "level": 477.02,
-    "deadline_days": 7,
-    "setup": "above_cloud_continuation",
-    "timeframe": "15m",
-    "note": "KudbeeX: High probability Zcash continues from this range. Price above/at EMA cloud, markup structure; confirmation = break of range high / YDay Hi 477.02.",
-    "created_at": "2026-06-09T00:05:34.732452+00:00",
-    "id": "c25373c3",
-    "status": "open",
-    "resolved_at": null
-  },
-  {
-    "symbol": "ZECUSDT",
-    "kind": "touch",
-    "level": 445.0,
-    "deadline_days": 7,
-    "setup": "vector_daily_open_recovery",
+    "symbol": "SOLUSDT",
+    "kind": "reach_below",
+    "level": 64.5,
+    "deadline_days": 2,
+    "setup": "short_scalp_dopen_reject",
     "timeframe": "1h",
-    "note": "KudbeeX 1h read: red vector pinning the daily open (~445, coincides with psych high + pivot) will be recovered this week.",
-    "created_at": "2026-06-09T00:05:34.732789+00:00",
-    "id": "b7c592aa",
+    "note": "KudbeeX SOL 1h: rejected YDay Hi / NY range high (~68.2), rejected + broke below daily open (~66.8). Short scalp targeting psychological high ~64.5 at minimum (then psy-low ~62). Green candle ~25pct imbalance to resolve.",
+    "created_at": "2026-06-09T00:37:20.564821+00:00",
+    "id": "7e0d2e94",
     "status": "open",
     "resolved_at": null
   }
