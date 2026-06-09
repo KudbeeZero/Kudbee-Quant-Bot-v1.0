@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'" />
+  <title>The Lab — Kudbee Quant</title>
+  <meta name="description" content="The Kudbee Quant research lab: real backtest charts — position-sizing on $100, TP1-vs-TP2 hit rates, fee sensitivity, and the double-top/bottom edge. Risk shown as loudly as return." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://kudbeequant.com/lab.html" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .lab { max-width: 1080px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
+    .lab__hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2.4rem; margin:0 0 .4rem; }
+    .lab__hero p { color:#9AA6BC; max-width:60ch; line-height:1.6; }
+    .lab__hero .tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.72rem;
+      color:#2DD4BF; border:1px solid rgba(45,212,191,.4); border-radius:999px; padding:.2rem .7rem; margin-bottom:1rem; }
+    .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.9rem; margin:2rem 0; }
+    .stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:1rem 1.1rem; }
+    .stat__v { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700; color:#EAF0FA; }
+    .stat__l { font-size:.78rem; color:#9AA6BC; margin-top:.2rem; }
+    .panel { background:#0d1320; border:1px solid rgba(255,255,255,.09); border-radius:18px;
+      padding:1.4rem 1.5rem; margin:1.6rem 0; }
+    .panel h2 { font-family:'Space Grotesk',sans-serif; font-size:1.25rem; margin:0 0 .2rem; }
+    .panel .sub { color:#9AA6BC; font-size:.9rem; margin:0 0 1rem; line-height:1.55; }
+    .panel .takeaway { margin-top:1rem; font-size:.88rem; color:#c4d0e6; border-left:3px solid #F5A623;
+      padding:.5rem .9rem; background:rgba(245,166,35,.05); border-radius:0 8px 8px 0; }
+    .chart-wrap { width:100%; overflow-x:auto; }
+    .lab__disc { margin-top:2rem; font-size:.82rem; color:#7a88aa; border-left:3px solid #F45B69; padding-left:.9rem; line-height:1.6; }
+    .lab__foot { margin-top:1.5rem; font-size:.75rem; color:#6A7488; font-family:'JetBrains Mono',monospace; }
+  </style>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="live-signals.html">Live Signals</a>
+        <a href="lab.html" aria-current="page">The Lab</a>
+        <a href="blog/">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="lab">
+    <section class="lab__hero">
+      <span class="tag">REAL BACKTEST DATA · NOT A SIMULATION OF HOPE</span>
+      <h1>The Lab</h1>
+      <p>Every chart below is generated from the live engine on real market data —
+        the validated config (1-hour, ≥50% confluence, 1.5-ATR stop, 3R target,
+        0.25-ATR limit-retrace maker entry) across the top crypto majors and a
+        basket of commission-free stocks. We show risk as loudly as return,
+        because that is the only honest way to show an edge.</p>
+    </section>
+
+    <div class="stats">
+      <div class="stat"><div class="stat__v" id="stat-exp">—</div><div class="stat__l">net expectancy / trade (last 300)</div></div>
+      <div class="stat"><div class="stat__v" id="stat-win">—</div><div class="stat__l">win rate (3R asymmetric)</div></div>
+      <div class="stat"><div class="stat__v" id="stat-stop">—</div><div class="stat__l">avg stop size (% of price)</div></div>
+      <div class="stat"><div class="stat__v" id="stat-n">—</div><div class="stat__l">trades in the sample</div></div>
+    </div>
+
+    <section class="panel">
+      <h2>$100 over 300 trades — sizing is everything</h2>
+      <p class="sub">The exact same 300 trades, with the exact same positive edge.
+        The only thing that changes is how much you bet per trade. At 10× full
+        notional, a winning system still wipes the account out — variance ruins
+        you before the edge can pay. Note the log scale.</p>
+      <div class="chart-wrap"><div id="chart-equity"></div></div>
+      <div class="takeaway">10× leverage is a <strong>cap</strong>, not a bet size.
+        To risk ~2% of the account with a ~1.4% stop you use roughly <strong>1.4×</strong>
+        your equity in position — not 10×. On crypto we'd run <strong>1% risk per
+        trade</strong>; the drawdowns are real even then.</div>
+    </section>
+
+    <section class="panel">
+      <h2>First target vs full target — TP1 / TP2 hit rates</h2>
+      <p class="sub">How often price reaches each reward multiple before the stop.
+        This is just counting, so it's rock-solid. The first target (1.5R) prints
+        about <strong>twice as often</strong> as the full 3R target — which is why
+        "take something off the table" is a real option (it raises your win rate,
+        at the cost of some expectancy).</p>
+      <div class="chart-wrap"><div id="chart-survival"></div></div>
+      <div class="takeaway">Partial profit-taking is a <strong>psychology tool</strong>,
+        not an edge booster: letting the full position run to 3R keeps the highest
+        expectancy, but banking half at TP1 smooths the ride.</div>
+    </section>
+
+    <section class="panel">
+      <h2>The edge is fee-sensitive — this is the whole game</h2>
+      <p class="sub">Mean expectancy per trade at different round-trip costs. The
+        edge is real at maker fees (0–0.04%) and <strong>nearly dies at taker
+        fees (0.20%)</strong>. This is why the entry is a limit/maker order and why
+        low-fee venues matter more than any indicator setting.</p>
+      <div class="chart-wrap"><div id="chart-fee"></div></div>
+      <div class="takeaway">Trade as a <strong>maker</strong>, or don't trade this
+        edge at all. Commission-free stocks and 0%-maker crypto venues are where
+        it lives.</div>
+    </section>
+
+    <section class="panel">
+      <h2>Double-top / double-bottom — the neckline break</h2>
+      <p class="sub">Trading the classic M/W pattern honestly: fading the equal
+        highs/lows barely beats random, but waiting for the <strong>neckline
+        break</strong> (a confirmed close through structure) is a genuine, if
+        secondary, edge — tested with the same maker execution.</p>
+      <div class="stats" style="margin:.4rem 0 0;">
+        <div class="stat"><div class="stat__v" id="stat-pattern">—</div><div class="stat__l">mean expectancy / trade</div></div>
+        <div class="stat"><div class="stat__v" id="stat-pattern-pos">—</div><div class="stat__l">of assets positive</div></div>
+        <div class="stat"><div class="stat__v" id="stat-assets">—</div><div class="stat__l">universe tested</div></div>
+      </div>
+      <div class="takeaway">Confirms the project's core lesson: trade the
+        <strong>break</strong>, not the touch. The confirmation <em>is</em> the edge.</div>
+    </section>
+
+    <p class="lab__disc">
+      <strong>Read this.</strong> These are backtests and forward paper results, not
+      a track record of real money. The edge is modest, regime-dependent, and
+      execution-gated — it survives only at maker fees and only with disciplined
+      position sizing. Drawdowns of 40–65% appear even in the "good" sizing. Past
+      performance does not predict future results. Nothing here is financial advice.
+      Markets do not offer high return at low risk, and anyone who tells you
+      otherwise is selling something.
+    </p>
+    <p class="lab__foot">Generated from live data on <span id="gen-date">—</span> ·
+      Kudbee Quant engine · the honesty layer is the product.</p>
+  </main>
+
+  <script src="assets/js/lab-data.js"></script>
+  <script src="assets/js/lab.js"></script>
+</body>
+</html>

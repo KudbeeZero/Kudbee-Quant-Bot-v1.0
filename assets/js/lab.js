@@ -1,0 +1,172 @@
+/* Kudbee Lab — self-contained SVG charts (no external libs; CSP-safe).
+   Renders the REAL backtest data in window.KUDBEE_LAB into interactive charts. */
+(function () {
+  "use strict";
+  var D = window.KUDBEE_LAB;
+  if (!D) return;
+  var NS = "http://www.w3.org/2000/svg";
+  var C = { honey: "#F5A623", honeyLt: "#FFD45E", mint: "#2DD4BF", red: "#F45B69",
+            blue: "#5B8DEF", text: "#EAF0FA", muted: "#9AA6BC", grid: "rgba(255,255,255,.08)" };
+
+  function el(tag, attrs) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    return e;
+  }
+  function svg(w, h) {
+    var s = el("svg", { viewBox: "0 0 " + w + " " + h, width: "100%", height: h,
+      preserveAspectRatio: "xMidYMid meet", role: "img" });
+    return s;
+  }
+  function txt(x, y, s, opts) {
+    opts = opts || {};
+    var t = el("text", { x: x, y: y, fill: opts.fill || C.muted,
+      "font-size": opts.size || 11, "font-family": "JetBrains Mono, monospace",
+      "text-anchor": opts.anchor || "start" });
+    t.textContent = s;
+    return t;
+  }
+
+  /* ---- Equity line chart (log scale; the 300-trade $100 sizing story) ---- */
+  function equityChart(host) {
+    var eq = D.equity, W = 720, H = 380, padL = 56, padR = 130, padT = 20, padB = 34;
+    var s = svg(W, H);
+    var names = Object.keys(eq.curves);
+    var maxLen = 0, maxV = 1, minV = 1e9;
+    names.forEach(function (n) {
+      var c = eq.curves[n].curve; maxLen = Math.max(maxLen, c.length);
+      c.forEach(function (v) { maxV = Math.max(maxV, v); minV = Math.min(minV, Math.max(v, 1)); });
+    });
+    var loMin = Math.max(1, Math.min(minV, 1)); // floor at $1 for log
+    var lo = Math.log10(loMin), hi = Math.log10(maxV * 1.15);
+    function X(i, len) { return padL + (W - padL - padR) * (i / (len - 1)); }
+    function Y(v) { return padT + (H - padT - padB) * (1 - (Math.log10(Math.max(v, 1)) - lo) / (hi - lo)); }
+    // gridlines at $1,10,100,1k,10k
+    [1, 10, 100, 1000, 10000].forEach(function (g) {
+      if (g < loMin || g > maxV * 1.15) return;
+      var y = Y(g);
+      s.appendChild(el("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: C.grid }));
+      s.appendChild(txt(padL - 8, y + 3, "$" + (g >= 1000 ? g / 1000 + "k" : g), { anchor: "end" }));
+    });
+    // $100 start reference
+    var y100 = Y(100);
+    s.appendChild(el("line", { x1: padL, y1: y100, x2: W - padR, y2: y100,
+      stroke: C.muted, "stroke-dasharray": "2 4", "stroke-width": 1 }));
+    var palette = { "10x full notional": C.red, "10% risk / trade": C.honey,
+      "2% risk / trade": C.mint, "1% risk / trade": C.blue };
+    var legendY = padT + 6;
+    names.forEach(function (n) {
+      var c = eq.curves[n].curve, col = palette[n] || C.text, d = "";
+      c.forEach(function (v, i) { d += (i ? "L" : "M") + X(i, c.length).toFixed(1) + " " + Y(v).toFixed(1) + " "; });
+      s.appendChild(el("path", { d: d, fill: "none", stroke: col, "stroke-width": 2,
+        "stroke-linejoin": "round", opacity: eq.curves[n].ruined ? 0.85 : 1 }));
+      // end marker + label
+      var info = eq.curves[n];
+      var lx = W - padR + 8;
+      s.appendChild(el("circle", { cx: X(c.length - 1, c.length), cy: Y(c[c.length - 1]),
+        r: 3, fill: col }));
+      s.appendChild(txt(lx, legendY, n, { fill: col, size: 11.5 }));
+      s.appendChild(txt(lx, legendY + 14, (info.ruined ? "BLOWN  " : "$" + info.final.toLocaleString()) +
+        "  " + (info.ret >= 0 ? "+" : "") + info.ret + "%", { fill: info.ruined ? C.red : C.text, size: 11 }));
+      legendY += 38;
+    });
+    s.appendChild(txt(padL, H - 8, "trade # (most recent 300)", { fill: C.muted }));
+    host.appendChild(s);
+  }
+
+  /* ---- Survival curve: P(reach X R) — TP1 vs TP2 ---- */
+  function survivalChart(host) {
+    var W = 720, H = 340, padL = 46, padR = 24, padT = 18, padB = 40;
+    var s = svg(W, H);
+    var series = [["crypto", D.survival.crypto, C.honey], ["stocks", D.survival.stocks, C.mint]];
+    var xs = D.survival.crypto.pts.map(function (p) { return p[0]; });
+    var xmin = xs[0], xmax = xs[xs.length - 1];
+    function X(r) { return padL + (W - padL - padR) * ((r - xmin) / (xmax - xmin)); }
+    function Y(p) { return padT + (H - padT - padB) * (1 - p / 100); }
+    [0, 25, 50, 75, 100].forEach(function (g) {
+      var y = Y(g);
+      s.appendChild(el("line", { x1: padL, y1: y, x2: W - padR, y2: y, stroke: C.grid }));
+      s.appendChild(txt(padL - 8, y + 3, g + "%", { anchor: "end" }));
+    });
+    xs.forEach(function (r) { s.appendChild(txt(X(r), H - 16, r + "R", { anchor: "middle" })); });
+    // highlight TP1 (1.5R) and TP2 (3R)
+    [[1.5, "TP1"], [3, "TP2"]].forEach(function (m) {
+      s.appendChild(el("line", { x1: X(m[0]), y1: padT, x2: X(m[0]), y2: H - padB,
+        stroke: C.muted, "stroke-dasharray": "2 4" }));
+      s.appendChild(txt(X(m[0]), padT - 4, m[1], { anchor: "middle", fill: C.muted, size: 10 }));
+    });
+    series.forEach(function (ser) {
+      var pts = ser[1].pts, col = ser[2], d = "";
+      pts.forEach(function (p, i) { d += (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1) + " "; });
+      s.appendChild(el("path", { d: d, fill: "none", stroke: col, "stroke-width": 2.5, "stroke-linejoin": "round" }));
+      pts.forEach(function (p) { s.appendChild(el("circle", { cx: X(p[0]), cy: Y(p[1]), r: 2.6, fill: col })); });
+    });
+    // legend
+    series.forEach(function (ser, i) {
+      var lx = W - padR - 120, ly = padT + 6 + i * 16;
+      s.appendChild(el("rect", { x: lx, y: ly - 8, width: 10, height: 10, fill: ser[2], rx: 2 }));
+      s.appendChild(txt(lx + 16, ly, ser[0] + " (n=" + ser[1].n + ")", { fill: C.text, size: 11 }));
+    });
+    host.appendChild(s);
+  }
+
+  /* ---- Expectancy by fee: grouped bars ---- */
+  function feeChart(host) {
+    var W = 720, H = 320, padL = 52, padR = 20, padT = 20, padB = 46;
+    var s = svg(W, H);
+    var fees = Object.keys(D.expfee.crypto);
+    var groups = [["crypto", C.honey], ["stocks", C.mint]];
+    var vals = [];
+    fees.forEach(function (f) { groups.forEach(function (g) { vals.push(D.expfee[g[0]][f]); }); });
+    var vmax = Math.max(0.25, Math.max.apply(null, vals));
+    var vmin = Math.min(0, Math.min.apply(null, vals));
+    function Y(v) { return padT + (H - padT - padB) * (1 - (v - vmin) / (vmax - vmin)); }
+    var zeroY = Y(0);
+    s.appendChild(el("line", { x1: padL, y1: zeroY, x2: W - padR, y2: zeroY, stroke: C.border2 || "rgba(255,255,255,.2)" }));
+    [vmin, 0, 0.1, 0.2].forEach(function (g) {
+      if (g < vmin - 1e-9 || g > vmax + 1e-9) return;
+      var y = Y(g);
+      s.appendChild(txt(padL - 8, y + 3, (g > 0 ? "+" : "") + g.toFixed(2) + "R", { anchor: "end" }));
+    });
+    var gw = (W - padL - padR) / fees.length;
+    fees.forEach(function (f, i) {
+      var x0 = padL + i * gw;
+      s.appendChild(txt(x0 + gw / 2, H - 22, f, { anchor: "middle", fill: C.text, size: 11 }));
+      groups.forEach(function (g, j) {
+        var v = D.expfee[g[0]][f], bw = gw * 0.30, bx = x0 + gw * 0.18 + j * (bw + 6);
+        var yTop = Math.min(Y(v), zeroY), hgt = Math.abs(Y(v) - zeroY);
+        s.appendChild(el("rect", { x: bx, y: yTop, width: bw, height: Math.max(1, hgt),
+          fill: v < 0 ? C.red : g[1], rx: 3, opacity: v < 0 ? 0.85 : 1 }));
+        s.appendChild(txt(bx + bw / 2, yTop - 4, (v > 0 ? "+" : "") + v.toFixed(2),
+          { anchor: "middle", fill: v < 0 ? C.red : C.text, size: 9.5 }));
+      });
+    });
+    s.appendChild(txt(padL, H - 6, "round-trip fee  →  taker (0.20%) nearly kills the edge",
+      { fill: C.muted, size: 10.5 }));
+    // legend
+    groups.forEach(function (g, i) {
+      var lx = padL + 4 + i * 90, ly = padT + 4;
+      s.appendChild(el("rect", { x: lx, y: ly - 8, width: 10, height: 10, fill: g[1], rx: 2 }));
+      s.appendChild(txt(lx + 15, ly, g[0], { fill: C.text, size: 11 }));
+    });
+    host.appendChild(s);
+  }
+
+  function fill(id, fn) { var h = document.getElementById(id); if (h) try { fn(h); } catch (e) { h.textContent = "chart error"; } }
+  function setText(id, v) { var e = document.getElementById(id); if (e) e.textContent = v; }
+
+  document.addEventListener("DOMContentLoaded", function () {
+    fill("chart-equity", equityChart);
+    fill("chart-survival", survivalChart);
+    fill("chart-fee", feeChart);
+    var sm = D.equity.sample;
+    setText("stat-exp", (sm.exp >= 0 ? "+" : "") + sm.exp + "R");
+    setText("stat-win", sm.win + "%");
+    setText("stat-stop", sm.stop + "%");
+    setText("stat-n", sm.n);
+    setText("stat-pattern", "+" + D.pattern.mean + "R");
+    setText("stat-pattern-pos", D.pattern.pos + "%");
+    setText("stat-assets", D.assets.crypto + " crypto + " + D.assets.stocks + " stocks");
+    setText("gen-date", D.generated);
+  });
+})();
