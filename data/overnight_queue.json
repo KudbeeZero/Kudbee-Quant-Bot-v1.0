@@ -15,7 +15,9 @@
     "exit_trail_3atr",
     "exit_mae_giveup",
     "exit_time_decay",
-    "bb_band_reject"
+    "bb_band_reject",
+    "exit_showme",
+    "exit_tight_showme"
   ],
   "done": [
     "vol_regime_mid",

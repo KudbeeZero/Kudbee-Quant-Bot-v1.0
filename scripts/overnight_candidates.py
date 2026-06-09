@@ -485,6 +485,21 @@ def c_bb_band_reject(df, scored, base_sig):
     return sig, None, {}
 
 
+def c_exit_showme(df, scored, base_sig):
+    """KudbeeX 'fast-fail' theory (MEMORY §21): keep the 1.5-ATR stop but EXIT
+    EARLY if the trade hasn't shown >=0.5R in our favor by bar 3 ('you should know
+    quickly if it's working'). Measured win: structurally smaller losses + ~15%
+    lower variance (risk-efficiency for leverage), at ~flat expectancy."""
+    return base_sig, None, {"mae_giveup": (3, 0.0, 0.5)}
+
+
+def c_exit_tight_showme(df, scored, base_sig):
+    """KudbeeX fast-fail, aggressive: tighter 1.0-ATR stop + give up if not +0.3R
+    by bar 2. Highest expectancy of the variants but a wider worst-case (gap risk
+    on the tight stop) — the A/B partner to c_exit_showme."""
+    return base_sig, None, {"stop_atr": 1.0, "mae_giveup": (2, 0.0, 0.3)}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -537,4 +552,6 @@ REGISTRY: dict[str, tuple] = {
     "exit_mae_giveup": (c_exit_mae_giveup, "Execution: MAE give-up (0.8R offside by bar 6, no 0.5R fav)"),
     "exit_time_decay": (c_exit_time_decay, "Execution: target decays 3R->1.5R over 24 bars"),
     "bb_band_reject": (c_bb_band_reject, "KudbeeX read: shooting-star@upper / hammer@lower BB(26,2) reversal"),
+    "exit_showme": (c_exit_showme, "KudbeeX fast-fail: exit if not +0.5R by bar 3 (cuts loss tail)"),
+    "exit_tight_showme": (c_exit_tight_showme, "KudbeeX fast-fail: 1.0 stop + exit if not +0.3R by bar 2"),
 }

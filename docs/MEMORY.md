@@ -535,3 +535,31 @@ HONEST RISK NOTE (project duty, §13/§14): this is 20x leverage. A positive-edg
 setup still BLOWS UP at high leverage — liq here is only ~16% away (76.77). The
 trade is green and the read is clean; the flag is about SIZE, not the setup. The
 documented stance remains ~1% risk/trade, leverage as a tool not the bet size.
+
+## 21. KudbeeX 'fast-fail' early-exit theory — measured — 2026-06-09
+
+His theory: with higher leverage, cut the loss small by EXITING EARLY if the trade
+isn't going your way within the first few candles (keep a stop for a bad candle).
+"You should know quickly if it's working." Tested on the validated 1h (his "1-3
+minute" gut is a 1m idea; 1m is dead for us, §2 — the principle maps to the first
+2-3 bars of whatever TF you trade). Built on the resolver's mae_giveup exit.
+
+RESULT (top-10, 1h, ~2000 trades):
+                              expR    win   avgLoss  worst   std
+  baseline (1.5 stop/3R)     +0.158   38%   -0.99   -1.20   1.63
+  show-me: not +0.5R by bar3 +0.113   38%   -0.76   -1.18   1.38
+  show-me: not +0.3R by bar2 +0.116   37%   -0.74   -1.17   1.38
+  tight 1.0 stop             +0.185   34%   -1.04   -1.30   1.78
+  tight1.0 + show-me bar2    +0.175   34%   -0.92   -1.30   1.67
+HONEST VERDICT (applying §20-era anti-luck discipline):
+- The EXPECTANCY differences (~0.04R) are WITHIN NOISE (SE≈0.047 at n≈2000) — do
+  NOT claim fast-fail raises return.
+- What IS real + structural (not statistical luck): it SHRINKS the loss (avg loss
+  -0.99 -> -0.76R) and cuts VARIANCE ~15% (std 1.63 -> 1.38). Edge/variance
+  (Kelly-ish) is flat-to-better -> you can SIZE UP for the same risk-of-ruin. So
+  this is a RISK-EFFICIENCY lever, exactly right for a leverage style — not a
+  bigger-return edge.
+- The TIGHT 1.0 stop raises expectancy but ALSO worst-case (-1.30R, gap-through)
+  and variance -> it FIGHTS leverage safety. Keep the 1.5 stop + the show-me exit.
+QUEUED for the full significance gauntlet (bootstrap p + both-halves): candidates
+exit_showme, exit_tight_showme (scripts/overnight_candidates.py).
