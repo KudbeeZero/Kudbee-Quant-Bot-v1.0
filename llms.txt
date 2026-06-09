@@ -1,39 +1,52 @@
 # Kudbee Quant
 
-> Kudbee Quant is a quantitative trading research platform that combines real-time,
-> confidence-scored trade signals, institutional-grade market analytics, and a no-code
-> engine to build, backtest, and optimize trading strategies across crypto, equities,
-> and forex. It is a research and analytics tool — it does not place trades or provide
-> financial advice; the trader always stays in control of execution.
+> Kudbee Quant is an honest quantitative research toolkit for crypto and prediction
+> markets. It takes the discretionary Traders Reality PVSRA method (vector candles and
+> market-maker-cycle context), quantifies it as testable features, and validates it with
+> an event-driven backtester, walk-forward analysis, and Monte Carlo — reporting risk as
+> loudly as return. It is the deliberate inverse of "AI trading terminal" screenshots:
+> no hardcoded performance numbers, every figure computed from real data, every signal a
+> hypothesis. Not financial advice; markets do not offer high return at low risk.
 
 ## Key facts
 
 - Name: Kudbee Quant
-- Category: Quantitative trading signals, analytics, and backtesting platform
-- Audience: Active, systematic, discretionary, and learning traders
-- Coding required: None — the strategy builder is fully visual / no-code
-- Markets: Cryptocurrencies, equities, and forex (rolling out)
+- Category: Honest quantitative trading research toolkit
+- Method: Tino's Traders Reality "Hybrid System" — PVSRA + Beat-the-Market-Maker (BTMM)
+- Markets: Crypto (Binance) and prediction markets (Polymarket); equities/FX via Yahoo for uncorrelated validation
+- Default mode: Paper-trading; live capital is a guarded opt-in with hard drawdown limits
+- Differentiator: radical honesty about uncertainty — risk reported as loudly as return
 - Status: Private beta with an open early-access waitlist (free to join)
 - Not financial advice; trading involves substantial risk of loss
 
 ## What it does
 
-- Real-time signals: confidence-scored long / short / exit calls with plain-English reasoning
-- Analytics: Sharpe ratio, maximum drawdown, win rate, exposure, and market-regime detection
-- No-code strategy builder: compose strategies from indicators, filters, and risk rules
-- Backtesting: tick-accurate historical replay modeling fees, slippage, and funding, with
-  walk-forward, out-of-sample, and Monte Carlo validation
+- Signal: PVSRA vector candles (Pine Script ported to Python), treated as hypotheses
+- Context: market-maker layer — sessions (Asian/London/NY), Asian range, PDH/PDL/PWH/PWL,
+  liquidity sweeps, weekly MM cycle, monthly open (M0 pivot)
+- Backtest: event-driven, fees + slippage, no lookahead
+- Risk engine: Sharpe, Sortino, max drawdown, VaR/CVaR, Calmar, risk-of-ruin, fractional Kelly
+- Validation: walk-forward out-of-sample, Monte Carlo, and correlation-adjusted multi-asset
 
-## How it works (four steps)
+## How it works (Scan, Detect, Validate, Size)
 
-1. Connect your markets (crypto, equities, or forex)
-2. Build a strategy from a template or from scratch in the visual builder
-3. Backtest and optimize against historical data
-4. Receive real-time, confidence-scored signals from your validated strategy
+1. Scan: ingest OHLCV from Binance and Yahoo, plus Polymarket prediction-market prices
+2. Detect: quantify PVSRA vector candles and market-maker context as testable features
+3. Validate: backtest with fees/slippage/no-lookahead, then walk-forward and Monte Carlo
+4. Size: only if an edge survives — capped fractional Kelly, hard drawdown limits, paper-first
+
+## The honesty contract (enforced in code)
+
+1. No hardcoded performance numbers — if it can't be computed from real data, it doesn't render
+2. Paper-trading is the default; live is a guarded opt-in
+3. Every signal is a hypothesis to be measured, never a promise
+4. Risk is reported as loudly as return
+5. Validation is adversarial — walk-forward and Monte Carlo by default
 
 ## Pages
 
 - Home: https://kudbeequant.com/
+- Methodology (the Traders Reality × quant honesty system): https://kudbeequant.com/methodology.html
 - About (mission & story): https://kudbeequant.com/about.html
 - Start Here (beginner's guide to quant trading): https://kudbeequant.com/start-here.html
 - Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html

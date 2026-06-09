@@ -134,25 +134,30 @@
     }, 1800);
   })();
 
-  /* ---- Equity curve (static, upward-drifting) ---- */
+  /* ---- Equity curve (illustrative losing run — choppy, net-down) ---- */
   (function equity() {
     var line = document.getElementById('eqLine');
     var fill = document.getElementById('eqFill');
     if (!line) return;
+    // honesty: the showcased naive backtest lost money, so the curve drifts DOWN.
     var W = 460, H = 240, N = 60;
     var pts = [];
-    var v = 210, drift = (210 - 30) / N;
+    var v = 60, drift = (190 - 60) / N; // start high (low y), end low (high y)
     for (var i = 0; i < N; i++) {
-      v -= drift;
-      v += (Math.random() - 0.5) * 22;
-      v = Math.max(20, Math.min(232, v));
+      v += drift;
+      v += (Math.random() - 0.5) * 26; // chop, including a deeper drawdown mid-run
+      v = Math.max(28, Math.min(220, v));
       pts.push([i / (N - 1) * W, v]);
     }
-    // enforce a strong finish near the top
-    pts[N - 1][1] = 34;
+    pts[N - 1][1] = 196; // finish near the lows
     var d = smoothPath(pts);
     line.setAttribute('d', d);
+    line.setAttribute('stroke', '#F45B69'); // red — this run lost money
     fill.setAttribute('d', d + ' L' + W + ',' + H + ' L0,' + H + ' Z');
+    if (fill.parentNode) {
+      var grad = document.getElementById('eqfill');
+      if (grad) grad.querySelector('stop').setAttribute('stop-color', 'rgba(244,91,105,.28)');
+    }
   })();
 
   /* ---- Live signal badge flip ---- */
@@ -160,10 +165,10 @@
     var badge = document.getElementById('signalBadge');
     if (!badge || reduceMotion) return;
     var states = [
-      { t: '▲ LONG · 86% conf.', c: 'badge--up' },
-      { t: '▲ LONG · 79% conf.', c: 'badge--up' },
-      { t: '● WATCH · 61% conf.', c: 'badge--neutral' },
-      { t: '▲ LONG · 88% conf.', c: 'badge--up' }
+      { t: 'hypothesis · measuring', c: 'badge--neutral' },
+      { t: 'walk-forward · pending', c: 'badge--neutral' },
+      { t: 'P(noise) · 21%', c: 'badge--neutral' },
+      { t: 'edge · not yet proven', c: 'badge--neutral' }
     ];
     var idx = 0;
     setInterval(function () {

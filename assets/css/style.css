@@ -242,6 +242,17 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .faq__more { text-align: center; color: var(--muted); margin-top: 24px; font-size: .98rem; }
 .faq__more a { color: var(--honey-lt); font-weight: 600; border-bottom: 1px solid rgba(245,166,35,.4); }
 
+/* ===== Honest dashboard / equity notes ===== */
+.dash__note { margin-top: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted-2); border-top: 1px solid var(--border); padding-top: 12px; }
+.dash__stats .ci { color: var(--muted); font-size: 12px; }
+
+/* ===== Honesty contract grid ===== */
+.grid--features.honesty-grid { grid-template-columns: repeat(3, 1fr); }
+.honesty-grid .card { position: relative; }
+.honesty__n { font-family: var(--font-head); font-weight: 700; font-size: 1rem; color: transparent; -webkit-text-stroke: 1.2px var(--honey); margin-bottom: 10px; }
+.honesty-grid__cta { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; background: linear-gradient(160deg, rgba(245,166,35,.10), rgba(255,255,255,.02)); border-color: rgba(245,166,35,.25); }
+.honesty-grid__cta .btn { margin-top: 14px; }
+
 /* ===== About / values / principles ===== */
 .values { display: grid; gap: 14px; margin-top: 26px; }
 .values li { color: var(--muted); padding-left: 28px; position: relative; }
@@ -496,6 +507,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .hero__inner { grid-template-columns: 1fr; gap: 48px; }
   .hero__visual { max-width: 480px; }
   .grid--features, .steps, .grid--personas { grid-template-columns: repeat(2, 1fr); }
+  .grid--features.honesty-grid { grid-template-columns: repeat(2, 1fr); }
   .grid--pricing { grid-template-columns: 1fr; max-width: 460px; margin-inline: auto; }
   .grid--posts { grid-template-columns: repeat(2, 1fr); }
   .price__desc { min-height: 0; }
@@ -518,6 +530,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .hero { padding-top: 120px; }
   .hero__trust { gap: 24px; }
   .grid--features, .steps, .band__inner, .grid--personas, .define__facts, .grid--posts { grid-template-columns: 1fr; }
+  .grid--features.honesty-grid { grid-template-columns: 1fr; }
   .compare { overflow-x: auto; }
   .compare table { min-width: 520px; }
   .footer__inner { grid-template-columns: 1fr; }

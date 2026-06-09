@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Methodology — The Traders Reality × Quant Honesty System | Kudbee Quant</title>
+  <meta name="description" content="How Kudbee Quant works: it keeps the discretionary Traders Reality PVSRA read (vector candles + market-maker cycle) but subjects it to an event-driven backtester, walk-forward, and Monte Carlo — reporting the edge with a confidence interval and the probability it's just noise." />
+  <meta name="keywords" content="PVSRA methodology, vector candles, Traders Reality, Beat the Market Maker, BTMM, Wyckoff, Volume Spread Analysis, walk-forward, Monte Carlo, risk of ruin, quant validation" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/methodology.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Methodology — The Traders Reality × Quant Honesty System" />
+  <meta property="og:description" content="Keep the discretionary PVSRA read; subject it to real statistics. The edge isn't a promise — it's the honesty about uncertainty." />
+  <meta property="og:url" content="https://kudbeequant.com/methodology.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og/og-methodology.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "TechArticle",
+        "headline": "The Traders Reality × Quant Honesty System",
+        "description": "How Kudbee Quant quantifies and validates the discretionary PVSRA method with an event-driven backtester, walk-forward, and Monte Carlo.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/methodology.html",
+        "image": "https://kudbeequant.com/assets/img/og/og-methodology.svg",
+        "about": [
+          { "@type": "Thing", "name": "PVSRA" },
+          { "@type": "Thing", "name": "Volume Spread Analysis" },
+          { "@type": "Thing", "name": "Beat the Market Maker" },
+          { "@type": "Thing", "name": "Walk-forward analysis" },
+          { "@type": "Thing", "name": "Monte Carlo simulation" }
+        ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Methodology", "item": "https://kudbeequant.com/methodology.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="index.html#how">How it works</a>
+        <a href="methodology.html" aria-current="page">Methodology</a>
+        <a href="glossary.html">Glossary</a>
+        <a href="blog/">Blog</a>
+        <a href="index.html#faq">FAQ</a>
+      </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="section glossary-hero">
+      <div class="container container--narrow">
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href="index.html">Home</a> <span aria-hidden="true">/</span> <span>Methodology</span>
+        </nav>
+        <span class="eyebrow">Methodology</span>
+        <h1>Keep the read. Question everything else.</h1>
+        <p class="glossary-hero__sub">Kudbee Quant's competitive advantage is radical honesty about uncertainty. We keep the discretionary Traders Reality signal — and subject it to statistics that try their hardest to prove it wrong.</p>
+      </div>
+    </section>
+
+    <section class="section" style="padding-top:24px;">
+      <div class="container container--narrow">
+        <div class="prose">
+          <h2>The thesis</h2>
+          <p>The viral "AI trading terminal" screenshots — Sharpe 4.9, 41,000% APY, "LIQ RISK 1.7/10 · SAFE", 99.1% success — are <strong>marketing aesthetics, not track records</strong>. The numbers don't reconcile with each other, the Sharpe ratios exceed the best fund in history, and "high return at low risk" is the one thing efficient-ish markets structurally do not hand out.</p>
+          <p>We build the inverse. The flashy tools optimize for looking right; Kudbee optimizes for <em>being</em> right and surviving when it's wrong.</p>
+
+          <h2>The hybrid system</h2>
+          <p>The signal layer comes from <strong>Tino's Traders Reality</strong> "Hybrid System," which itself fuses two older methods: <strong>PVSRA</strong> (Price, Volume, Support &amp; Resistance Analysis) and Steve Mauro's <strong>Beat the Market Maker (BTMM)</strong> cycle. Both descend from the "read the market maker" school — Richard Wyckoff's supply/demand work, Tom Williams' <a href="glossary.html">Volume Spread Analysis</a>, and Richard Ney's market-maker theory.</p>
+          <p>It's a <em>discretionary</em> school: it reads where large players act via volume and spread climaxes — the "vector candles." The retail community treats those reads as certainties. We don't.</p>
+
+          <div class="callout"><p><strong>Honesty flag.</strong> The school's core premise — that an identifiable market maker deliberately hunts retail stops — is an assertion inferred from the same price and volume it explains. No source identifies actors or cites order-flow data. We treat it as a <em>lens</em>, not a fact.</p></div>
+
+          <h2>Layer 1 — PVSRA vector candles</h2>
+          <p>Vector candles colour each bar by comparing its volume and spread to recent history; a "climax" bar (e.g. volume ≥ 2× average) marks a likely zone of large-player activity. The logic is mechanical and open-source, ported faithfully from Pine Script to Python so it can be tested rather than eyeballed.</p>
+
+          <h2>Layer 2 — Market-maker context</h2>
+          <p>A raw vector means little without context, so Kudbee adds the regime layer the Traders Reality method relies on:</p>
+          <ul>
+            <li>Trading sessions — Asian, London, New York — and the Asian-range box</li>
+            <li>Previous-day and previous-week highs and lows (PDH/PDL/PWH/PWL)</li>
+            <li>Liquidity-sweep detection (stop runs beyond prior levels)</li>
+            <li>The weekly market-maker cycle phase</li>
+            <li>Reference levels like the monthly open (the "M0 pivot")</li>
+          </ul>
+
+          <h2>Layer 3 — Adversarial validation</h2>
+          <p>This is where the honesty lives. The discretionary read is quantified as features, then run through:</p>
+          <ol>
+            <li><strong>An event-driven backtester</strong> with realistic fees and slippage and <em>no lookahead</em>.</li>
+            <li><strong>A risk engine</strong> — Sharpe, Sortino, max drawdown, VaR/CVaR, Calmar, risk-of-ruin, and capped fractional Kelly sizing.</li>
+            <li><strong>Walk-forward analysis</strong> — optimize in-sample, test out-of-sample, repeat.</li>
+            <li><strong>Monte Carlo</strong> — bootstrap the outcome distribution to estimate the probability the edge is just noise.</li>
+            <li><strong>Multi-asset validation</strong> that is <em>correlation-adjusted</em>, so correlated assets count as fewer independent tests and the harness can't fool itself.</li>
+          </ol>
+          <p>The output is never "this is a buy." It's: <em>"on this asset and timeframe, this rule historically produced X edge, with this drawdown profile and this probability the edge is noise."</em></p>
+
+          <h2>An honest example</h2>
+          <p>The naive PVSRA read (long bull-climax, short bear-climax, held as a regime) on ~1000 hours of BTCUSDT returned <strong>-12.9%</strong>, Sharpe <strong>-2.79</strong>, with only ~12% probability of profit in the Monte Carlo band. That's the engine working — it reported a losing strategy honestly instead of cherry-picking a screenshot.</p>
+          <p>Filtering those climaxes by market-maker context flipped the same sample:</p>
+
+          <div class="compare" style="margin:24px 0;">
+            <table>
+              <thead><tr><th scope="col">Same 1000h BTC sample</th><th scope="col">Naive PVSRA</th><th scope="col" class="compare__us">PVSRA + MM context</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Total return</th><td>-13.3%</td><td>+11.3%</td></tr>
+                <tr><th scope="row">Sharpe</th><td>-2.88</td><td>+2.53</td></tr>
+                <tr><th scope="row">Max drawdown</th><td>-18.8%</td><td>-11.1%</td></tr>
+                <tr><th scope="row">MC prob. of profit</th><td>10.5%</td><td>79.7%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="key-takeaway">
+            <h2>…and the caveats, louder than the result</h2>
+            <p>1000 hours ≈ 42 days, one asset, one market regime. That is <strong>not enough to trust</strong>. It's an illustrative research example, not a track record or a promise. The honesty layer requires naming the caveats more loudly than the win — which is exactly why we publish them here.</p>
+          </div>
+
+          <h2>The honesty contract</h2>
+          <p>Five rules the engine holds itself to, enforced in code:</p>
+          <ol>
+            <li><strong>No hardcoded performance numbers.</strong> If a figure can't be computed from real data, it does not render.</li>
+            <li><strong>Paper-trading is the default.</strong> Live capital is a guarded opt-in with hard drawdown limits.</li>
+            <li><strong>Every signal is a hypothesis</strong> — a feature to be measured, never a promise.</li>
+            <li><strong>Risk is reported as loudly as return</strong> — drawdown, risk-of-ruin, CVaR, and out-of-sample decay next to every PnL figure.</li>
+            <li><strong>Validation is adversarial</strong> — walk-forward and Monte Carlo by default.</li>
+          </ol>
+          <p>Nothing here is financial advice. Markets do not offer high return at low risk. This tool exists to help you measure edge honestly — including discovering when there isn't any.</p>
+        </div>
+
+        <div class="glossary-cta glass" style="margin-top:44px;">
+          <h2>Measure your edge honestly.</h2>
+          <p>Join the waitlist, or get fluent first with the <a href="glossary.html" style="color:var(--honey-lt)">quant glossary</a>.</p>
+          <a href="index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="index.html" style="color:var(--honey-lt)">Home</a> · <a href="glossary.html" style="color:var(--honey-lt)">Glossary</a> · <a href="blog/" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="assets/js/main.js" defer></script>
+</body>
+</html>
