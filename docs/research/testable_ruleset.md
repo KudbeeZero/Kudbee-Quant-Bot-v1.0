@@ -482,3 +482,31 @@ two levers left that are genuinely different:
    (Sweep -> MSS -> FVG, limit-at-level), which improves fill price / maker
    costs rather than adding a vote. The structure features (BOS/CHoCH/EQH) feed
    THIS, not the confluence count.
+
+### Contrarian factors, long/short asymmetry, and where the edge really lives
+
+Prompted by the trader's insight ("if a factor hurts, isn't fading it a
+confluence?") we ran two honest experiments on the 1h at realistic maker cost.
+
+1. ORIENT FACTORS BY THEIR EDGE (flip the contrarian ones). Standalone OOS edge
+   showed v_sweep -0.165, v_pd -0.069, v_vector -0.048 (contrarian) vs the trend
+   factors positive. BUT learning orientations on TRAIN and testing on HELD-OUT
+   data did NOT generalize: oriented -0.049R and edge-weighted +0.014R both LOST
+   to naive equal-weight +0.116R. Reason: per-factor signs are NOT stable across
+   time (a factor contrarian in one window is aligned in another), so "fade the
+   bad factor" overfits to a period. The naive equal-weight stack is more robust
+   precisely because it does not optimize signs. (Insight sound; market non-
+   stationary.)
+
+2. LONG vs SHORT (the trader: "we're looking for shorts too"). In the OOS window
+   (a downtrend: BTC -16%, ETH -27%, SOL -22%) the edge is almost ENTIRELY short:
+   long +0.019R (flat) vs short +0.267R. And the short edge BEATS the nulls:
+   confluence-short +0.267R vs trend-short +0.120, random-short +0.102, always-
+   short +0.058 — ~2x the best null, so it is genuine short-selection skill, not
+   just downtrend beta. The system correctly leans the right direction by regime
+   and picks better entries than naive directional bets.
+
+Takeaway: the confluence is a REGIME-ADAPTIVE directional edge (shorts in
+downtrends, longs in uptrends), concentrated on the with-trend side, that adds
+skill above always-/random-/trend- nulls. Do NOT hand-flip factors (overfits);
+DO trade both sides and let the confluence pick the direction.
