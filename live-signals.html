@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'" />
+  <title>Live Signals — Kudbee Quant</title>
+  <meta name="description" content="Live confluence signals from the Kudbee Quant engine: 1h, ≥50% confluence, 3R limit-retrace setup. Directional reads, not advice." />
+  <meta name="robots" content="noindex, follow" />
+  <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    .signals-wrap { max-width: 1080px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
+    .signals-head { display:flex; flex-wrap:wrap; gap:1rem; align-items:baseline; justify-content:space-between; }
+    .signals-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1rem; margin-top:1.5rem; }
+    .signal-card { background:#111726; border:1px solid #1e2740; border-radius:14px; padding:1.1rem 1.2rem; }
+    .signal-card__head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:.6rem; }
+    .signal-card__sym { font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:1.1rem; }
+    .signal-card__price { font-family:'JetBrains Mono',monospace; color:#9fb0d0; }
+    .signal-card__row { display:flex; justify-content:space-between; font-size:.92rem; padding:.22rem 0; color:#c4d0e6; }
+    .signal-card__muted { color:#6f7da0; }
+    .signal-card__bracket { margin-top:.6rem; padding-top:.6rem; border-top:1px dashed #2a3550; font-family:'JetBrains Mono',monospace; font-size:.85rem; }
+    .signal-card__bracket div { display:flex; justify-content:space-between; padding:.15rem 0; color:#c4d0e6; }
+    .dir--up { color:#3ddc84; } .dir--down { color:#ff5d5d; } .dir--flat { color:#9fb0d0; }
+    .signals-disc { margin-top:1.6rem; font-size:.85rem; color:#7a88aa; border-left:3px solid #F5A623; padding-left:.9rem; }
+  </style>
+</head>
+<body>
+  <header class="nav" id="nav">
+    <div class="container nav__inner">
+      <a href="index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="index.html#features">Features</a>
+        <a href="methodology.html">Methodology</a>
+        <a href="live-signals.html" aria-current="page">Live Signals</a>
+        <a href="blog/">Blog</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="signals-wrap">
+    <div class="signals-head">
+      <div>
+        <h1>Live Signals</h1>
+        <p id="signals-status">Loading live signals…</p>
+      </div>
+      <button id="signals-refresh" class="btn btn--primary btn--sm">Refresh</button>
+    </div>
+
+    <div id="signals-grid" class="signals-grid"></div>
+
+    <p class="signals-disc">
+      These are the engine's directional reads on the 1-hour timeframe using the
+      validated config (≥50% confluence, 3R target, 0.25-ATR limit-retrace entry,
+      maker fills). A read is <strong>not a trade signal and not advice</strong>.
+      The edge is modest, regime-dependent, and execution-gated; size small and
+      paper-test before risking capital. Markets do not offer high return at low
+      risk.
+    </p>
+  </main>
+
+  <script src="assets/js/live-signals.js"></script>
+</body>
+</html>

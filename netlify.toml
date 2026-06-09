@@ -27,3 +27,12 @@
   from = "/*"
   to = "/404.html"
   status = 404
+
+# --- Backend API proxy (Live Signals) -------------------------------------
+# The static site calls same-origin /api/* (keeps CSP connect-src 'self').
+# Netlify rewrites it to the FastAPI engine. Replace the host with yours.
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-API-HOST/api/:splat"
+  status = 200
+  force = true
