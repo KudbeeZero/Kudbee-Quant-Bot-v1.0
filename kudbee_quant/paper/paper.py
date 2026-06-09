@@ -6,6 +6,21 @@ from ..ingest import BinanceClient
 from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
 
+# Bar duration in minutes for each supported interval — lets the trade horizon
+# scale with the timeframe (a 5m scalp resolves in hours; a 4h swing in days).
+_INTERVAL_MIN = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30,
+                 "1h": 60, "2h": 120, "3h": 180, "4h": 240, "6h": 360,
+                 "8h": 480, "12h": 720, "1d": 1440}
+# Horizon in BARS (calibrated to the validated 1h: 72 bars = 3 days deadline,
+# 12 bars = 0.5 day fill window). Applied uniformly so every timeframe gets a
+# proportional, bar-count-equivalent window.
+_DEADLINE_BARS = 72
+_FILL_BARS = 12
+
+
+def _bars_to_days(interval: str, bars: int) -> float:
+    return bars * _INTERVAL_MIN.get(interval, 60) / 1440.0
+
 
 def paper_scan(
     symbols: list[str],
@@ -14,9 +29,9 @@ def paper_scan(
     stop_atr: float = 1.5,  # validated: wider stop avoids noise stop-outs (keep ~3:1)
     retrace_atr: float = 0.25,  # limit entry pullback (validated execution)
     interval: str = "1h",
-    intervals: list[str] | None = None,  # multi-timeframe scan (1h core; 2h/4h also viable)
-    deadline_days: float = 3.0,
-    fill_deadline_days: float = 0.5,
+    intervals: list[str] | None = None,  # multi-timeframe scan (1h core; 5m/15m/2h/4h also)
+    deadline_days: float | None = None,   # None = scale with the timeframe (recommended)
+    fill_deadline_days: float | None = None,
     journal: TradeJournal | None = None,
     client: BinanceClient | None = None,
     biases=None,
@@ -44,6 +59,9 @@ def paper_scan(
 
     logged = []
     for interval in tf_list:
+      # Trade horizon scales with the timeframe unless explicitly overridden.
+      tf_deadline = deadline_days if deadline_days is not None else _bars_to_days(interval, _DEADLINE_BARS)
+      tf_fill = fill_deadline_days if fill_deadline_days is not None else _bars_to_days(interval, _FILL_BARS)
       for sym in symbols:
         sym = sym.upper()
         if (sym, interval) in open_keys:
@@ -77,8 +95,8 @@ def paper_scan(
             symbol=sym, kind="bracket", level=limit, entry=limit, stop=stop,
             target=target, direction=direction, target_r=target_r,
             tp1=tp1, tp1_frac=tp1_frac,
-            deadline_days=deadline_days, timeframe=interval,
-            pending_limit=True, signal_price=signal_price, fill_deadline_days=fill_deadline_days,
+            deadline_days=tf_deadline, timeframe=interval,
+            pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct",
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +

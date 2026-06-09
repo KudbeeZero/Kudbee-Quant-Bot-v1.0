@@ -1,9 +1,12 @@
 name: Forward paper-trade (confluence-R)
 
 # Automated FORWARD paper trading of the validated strategy:
-# 1h, >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides.
-# Runs hourly: logs new setups, resolves pending/open trades, commits the
-# journal so a real forward track record accumulates with no babysitting.
+# >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides,
+# across the top-10 crypto majors on 5m/15m/1h/2h/4h (each timeframe gets a
+# horizon scaled to its bar size). Runs hourly: logs new setups, resolves
+# pending/open trades, commits the journal so a real forward track record
+# accumulates with no babysitting. Lower TFs (5m/15m) are cost-sensitive — they
+# are here to FORWARD-TEST, not because they are proven.
 
 on:
   schedule:
@@ -32,7 +35,9 @@ jobs:
 
       - name: Scan for new setups + resolve open trades
         run: |
-          python -m kudbee_quant.cli paper-scan SOLUSDT BTCUSDT ETHUSDT BNBUSDT --intervals 1h 2h 4h || true
+          python -m kudbee_quant.cli paper-scan \
+            BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
+            --intervals 5m 15m 1h 2h 4h || true
           python -m kudbee_quant.cli journal-check || true
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true

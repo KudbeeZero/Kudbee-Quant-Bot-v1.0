@@ -446,15 +446,17 @@ def _tf_survey(args) -> None:
 def _paper_scan(args) -> None:
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
-                        stop_atr=args.stop_atr, intervals=args.intervals)
+                        stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:
         print(f"Logged {len(logged)} paper trade(s):")
         for p in logged:
             side = "LONG" if p.direction > 0 else "SHORT"
-            print(f"  {p.id} {p.symbol} {side} [{p.setup}] entry {p.entry:.4g} "
-                  f"stop {p.stop:.4g} target {p.target:.4g} ({p.target_r}R) by {p.deadline.date()}")
+            tp1 = f" TP1 {p.tp1:.4g}" if p.tp1 is not None else ""
+            print(f"  {p.id} {p.symbol} [{p.timeframe}] {side} [{p.setup}] entry {p.entry:.4g} "
+                  f"stop {p.stop:.4g} target {p.target:.4g} ({p.target_r}R){tp1} "
+                  f"by {p.deadline:%Y-%m-%d %H:%M}")
     print("\nRun `journal-check` later to resolve them, `journal-score` for forward R "
           "expectancy.\nThis accumulates a FORWARD record on unseen data. Not financial advice.")
 
@@ -629,11 +631,15 @@ def main() -> None:
     ps = sub.add_parser("paper-scan", help="log live confluence-R signals as paper trades")
     ps.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
     ps.add_argument("--intervals", nargs="+", default=["1h"],
-                    help="timeframes to scan, e.g. 1h 2h 4h (1h is the core; 2h/4h viable)")
+                    help="timeframes to scan, e.g. 5m 15m 1h 2h 4h (1h is the validated core; "
+                         "lower TFs are cost-sensitive — forward-test before trusting)")
     ps.add_argument("--min-pct", type=float, default=0.5,
                     help="confluence percentage threshold (0.5 = validated floor)")
     ps.add_argument("--target-r", type=float, default=3.0)
-    ps.add_argument("--stop-atr", type=float, default=1.0)
+    ps.add_argument("--stop-atr", type=float, default=1.5,
+                    help="stop distance in ATR (1.5 = validated)")
+    ps.add_argument("--tp1-r", type=float, default=None,
+                    help="optional TARGET ONE (partial bank), e.g. 1.5; default off (full target)")
     ps.set_defaults(func=_paper_scan)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
