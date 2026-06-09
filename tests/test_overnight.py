@@ -55,9 +55,12 @@ def test_every_candidate_returns_valid_triple(frame):
         sig = pd.Series(sig, index=frame.index)
         assert len(sig) == len(frame), f"{name}: signal length mismatch"
         assert set(np.unique(sig.fillna(0.0))) <= {-1.0, 0.0, 1.0}, f"{name}: non {{-1,0,1}} signal"
-        # a gating candidate must be a SUBSET of the baseline entries
+        # Most candidates are FILTERS (a subset of the baseline entries). Some are
+        # STANDALONE signals (e.g. bb_band_reject — a fresh setup tested on its own
+        # merits vs the baseline), which legitimately fire outside the baseline.
+        _STANDALONE = {"bb_band_reject"}
         nonzero_outside_base = ((sig != 0) & (base == 0)).sum()
-        if not overrides and size is None:
+        if not overrides and size is None and name not in _STANDALONE:
             assert nonzero_outside_base == 0, f"{name}: introduced entries outside baseline"
         assert isinstance(overrides, dict), f"{name}: overrides must be a dict"
         if size is not None:

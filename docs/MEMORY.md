@@ -500,3 +500,38 @@ ANTI-RECURRENCE (so §18's "lucky winners" never happen again): the overnight
 harness verdict now REQUIRES a bootstrap p<0.05 on ΔR (plus both-halves robust)
 to call anything a WINNER; the memory testing-ledger re-grades the whole family
 under BH-FDR. Luck no longer earns the word "winner".
+
+## 20. KudbeeX live read — BB-upper rejection short (SOL) + the setup, recorded — 2026-06-09
+
+The user supplied a REAL annotated trade (two screenshots) and asked to record the
+setup so we can measure and adjust the logic. This is the §0 operating model in
+action: human reads direction, machine records + scores it.
+
+THE TRADE (logged: journal id 84dcb6ce, source='human', scored forward):
+- SOLUSD Perp SHORT, 20x, real fill 66.43 @ 06/08/2026 22:10 (UTC-5), #32007241.
+- Live at log: price 66.14, PnL +7.88% (20x), liq 76.77, position $410.73.
+- Logged as SOLUSDT 1h short, entry 66.43, target 64.5 (then 62), structural stop
+  ~68.1 (reclaim of the upper band — inferred; he didn't state an explicit stop).
+
+THE SETUP (his words, distilled) — "Bollinger-upper rejection / stopping candle":
+1. A STOPPING CANDLE prints ABOVE the BB basis (mid), up near the UPPER band
+   (chart: BOLL 26,2 → mid 66.91, upper 68.06; price had run to ~68.3).
+2. Two "REVERSE HAMMERS" at the top = inverted-hammer / shooting-star candles
+   (long UPPER wick, small body, little/no lower wick); one was green.
+3. The NEXT bar GAPS DOWN (lower open / first bid lower), prints a solid body with
+   a long upper wick and ~no lower wick → sellers in control.
+4. ENTER short on the OPEN of that confirmation bar.
+5. Confluence stack he cited: MACD bearish (DIF 0.04 < DEA 0.17, hist −0.25); KDJ
+   bearish (K 40.25 < D 49.06, J 22.62); order book 65% sell / 35% buy.
+
+MECHANIZED FOR TESTING: scripts/overnight_candidates.py `bb_band_reject` — a
+STANDALONE BB(26,2) rejection reversal (shooting-star@upper → short, hammer@lower
+→ long), enqueued for the overnight harness so we measure honestly whether the
+mechanical core beats the shipping baseline. (If it doesn't, the edge is in his
+READ/timing, not the rule — consistent with the whole project; we keep scoring his
+calls via source='human'.)
+
+HONEST RISK NOTE (project duty, §13/§14): this is 20x leverage. A positive-edge
+setup still BLOWS UP at high leverage — liq here is only ~16% away (76.77). The
+trade is green and the read is clean; the flag is about SIZE, not the setup. The
+documented stance remains ~1% risk/trade, leverage as a tool not the bet size.

@@ -14,7 +14,8 @@
     "contraction_reclaim",
     "exit_trail_3atr",
     "exit_mae_giveup",
-    "exit_time_decay"
+    "exit_time_decay",
+    "bb_band_reject"
   ],
   "done": [
     "vol_regime_mid",

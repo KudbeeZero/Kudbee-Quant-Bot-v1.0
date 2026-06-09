@@ -461,6 +461,30 @@ def c_exit_time_decay(df, scored, base_sig):
     return base_sig, None, {"time_decay": (24, 1.5)}
 
 
+def c_bb_band_reject(df, scored, base_sig):
+    """KudbeeX's READ, mechanized for testing (docs/MEMORY §20): a STANDALONE
+    Bollinger-band rejection reversal. Short when a shooting-star / 'reverse
+    hammer' (long UPPER wick, small body, ~no lower wick) prints AT or ABOVE the
+    upper band; long on the mirror (hammer at/below the lower band). BOLL(26,2),
+    matching his chart. This is NOT a gate on the confluence signal — it is his
+    setup as its own hypothesis, measured against the shipping baseline so we learn
+    whether the discretionary read has a mechanical edge or is pure reasoning."""
+    c = df["close"]
+    mid = c.rolling(26, min_periods=26).mean()
+    sd = c.rolling(26, min_periods=26).std()
+    upper, lower = mid + 2 * sd, mid - 2 * sd
+    o, h, l = df["open"], df["high"], df["low"]
+    body = (c - o).abs()
+    upper_wick = h - pd.concat([o, c], axis=1).max(axis=1)
+    lower_wick = pd.concat([o, c], axis=1).min(axis=1) - l
+    star = (h >= upper) & (upper_wick >= 1.5 * body) & (lower_wick <= 0.5 * body)
+    hammer = (l <= lower) & (lower_wick >= 1.5 * body) & (upper_wick <= 0.5 * body)
+    sig = pd.Series(0.0, index=df.index)
+    sig[star] = -1.0
+    sig[hammer] = 1.0
+    return sig, None, {}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -512,4 +536,5 @@ REGISTRY: dict[str, tuple] = {
     "exit_trail_3atr": (c_exit_trail_3atr, "Execution: 3-ATR chandelier trailing stop"),
     "exit_mae_giveup": (c_exit_mae_giveup, "Execution: MAE give-up (0.8R offside by bar 6, no 0.5R fav)"),
     "exit_time_decay": (c_exit_time_decay, "Execution: target decays 3R->1.5R over 24 bars"),
+    "bb_band_reject": (c_bb_band_reject, "KudbeeX read: shooting-star@upper / hammer@lower BB(26,2) reversal"),
 }
