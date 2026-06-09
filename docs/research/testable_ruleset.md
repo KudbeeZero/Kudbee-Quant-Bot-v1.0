@@ -288,3 +288,36 @@ discretionary trader reading live context (as in the DOT imbalance call, which
 is playing out directionally) may outperform the naive mechanical rule — that
 is real discretionary skill, not a systematic edge we can yet encode or trust
 blindly.
+
+## Full ICT/Hybrid batch (30 scenarios, Vol 1-3) — comprehensive null
+
+After integrating research Vol 1-3 we added the price-only microstructure
+primitives (session VWAP, premium/discount dealing range, Fair Value Gaps,
+macro/Silver-Bullet/Brinks time windows) and five ICT setups (vwap_reversion,
+turtle_soup, fvg_fill, silver_bullet, judas_thirds). All 30 scenarios pass the
+lookahead audit (0% leak). Sweep (BTC/ETH/SOL/BNB, 1h, OOS):
+
+- Positive: `ema_trend` +2.66, `ema_trend_pullback` +1.48 — crypto
+  trend-following BETA, not alpha.
+- Marginal/noise: `ema_cross_13_50` +0.21, `brinks_orb` +0.13.
+- Every "smart money" setup is NEGATIVE OOS: silver_bullet -0.14, turtle_soup
+  -1.69, judas_thirds -1.98, fvg_fill -2.91, vwap_reversion -3.95, plus all the
+  Vol-1/2 setups from before.
+
+**Conclusion:** none of the individually-mechanized PVSRA/BTMM/ICT setups beat
+the null on 1h crypto majors. The only systematic positive is trend-following
+beta.
+
+### The one faithful test still outstanding: CONFLUENCE STACKING
+
+Crucially, the research's *own* thesis (Vol 2 §14) is not that any single
+setup wins — it is that **stacked confluence** wins (Tier 1 = kill zone + AMD
+phase + macro window + sweep+MSS + FVG-over-breaker + 50 EMA + HTF bias +
+premium/discount + day-of-week, ALL aligned). We have been testing factors in
+ISOLATION. We now hold the full factor library (FVG, premium/discount, sweep,
+EMA, macro, sessions, day-of-week, vectors) needed to build the Tier confluence
+score and test the actual claim: *do high-confluence bars outperform
+low-confluence bars, out-of-sample?* That is the next, and most faithful, test
+— and it is the methodology's real hypothesis, still unfalsified either way.
+(Note: full Tier-1 also needs funding/OI/liquidation/CVD data not yet wired,
+and HTF/4h-weekly timeframes where the trader actually applies these.)
