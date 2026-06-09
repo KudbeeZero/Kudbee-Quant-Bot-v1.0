@@ -35,6 +35,7 @@
 
 - Home: https://kudbeequant.com/
 - Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html
+- Compare (vs. signal groups & spreadsheets): https://kudbeequant.com/compare.html
 - Blog (quant trading guides): https://kudbeequant.com/blog/
 - Early-access waitlist: https://kudbeequant.com/#waitlist
 - FAQ: https://kudbeequant.com/#faq
@@ -44,6 +45,8 @@
 - What Is Backtesting? A Trader's Plain-English Guide: https://kudbeequant.com/blog/what-is-backtesting.html
 - How to Read a Sharpe Ratio (Without a Math Degree): https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html
 - Trade Signals vs. Trading Strategies: https://kudbeequant.com/blog/signals-vs-strategies.html
+- Momentum vs. Mean Reversion: Two Ways to Trade an Edge: https://kudbeequant.com/blog/momentum-vs-mean-reversion.html
+- Position Sizing & Risk Management: https://kudbeequant.com/blog/position-sizing-and-risk-management.html
 
 ## Contact
 

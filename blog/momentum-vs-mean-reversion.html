@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0e17" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+  <title>Momentum vs. Mean Reversion: Two Ways to Trade an Edge | Kudbee Quant</title>
+  <meta name="description" content="Momentum bets that trends continue; mean reversion bets that prices snap back. Learn how the two core families of trading strategies work, when each thrives, and how to tell which market regime you're in." />
+  <meta name="keywords" content="momentum vs mean reversion, momentum trading, mean reversion strategy, trend following, market regime, trading strategy types" />
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
+  <link rel="canonical" href="https://kudbeequant.com/blog/momentum-vs-mean-reversion.html" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="Kudbee Quant" />
+  <meta property="og:title" content="Momentum vs. Mean Reversion: Two Ways to Trade an Edge" />
+  <meta property="og:description" content="How the two core families of trading strategies work, and when each one thrives." />
+  <meta property="og:url" content="https://kudbeequant.com/blog/momentum-vs-mean-reversion.html" />
+  <meta property="og:image" content="https://kudbeequant.com/assets/img/og-cover.svg" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" type="image/svg+xml" href="../assets/img/favicon.svg" />
+  <link rel="manifest" href="../site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../assets/css/style.css" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "BlogPosting",
+        "headline": "Momentum vs. Mean Reversion: Two Ways to Trade an Edge",
+        "description": "Momentum bets that trends continue; mean reversion bets that prices snap back. How the two core strategy families work and when each thrives.",
+        "datePublished": "2026-06-09",
+        "dateModified": "2026-06-09",
+        "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeequant.com/" },
+        "publisher": { "@type": "Organization", "name": "Kudbee Quant", "logo": { "@type": "ImageObject", "url": "https://kudbeequant.com/assets/img/favicon.svg" } },
+        "mainEntityOfPage": "https://kudbeequant.com/blog/momentum-vs-mean-reversion.html",
+        "image": "https://kudbeequant.com/assets/img/og-cover.svg",
+        "articleSection": "Strategy",
+        "wordCount": 740,
+        "about": [ { "@type": "Thing", "name": "Momentum" }, { "@type": "Thing", "name": "Mean reversion" } ]
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeequant.com/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://kudbeequant.com/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "Momentum vs. Mean Reversion", "item": "https://kudbeequant.com/blog/momentum-vs-mean-reversion.html" }
+        ]
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <header class="nav scrolled" id="nav">
+    <div class="container nav__inner">
+      <a href="../index.html" class="brand" aria-label="Kudbee Quant home">
+        <span class="brand__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="28" height="28">
+            <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+          </svg>
+        </span>
+        <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
+      </a>
+      <nav class="nav__links" aria-label="Primary">
+        <a href="../index.html#features">Features</a>
+        <a href="../index.html#how">How it works</a>
+        <a href="../index.html#pricing">Pricing</a>
+        <a href="../glossary.html">Glossary</a>
+        <a href="./">Blog</a>
+        <a href="../index.html#faq">FAQ</a>
+      </nav>
+      <a href="../index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <article class="section article">
+      <div class="container container--narrow">
+        <header class="article__head">
+          <nav class="crumbs" aria-label="Breadcrumb">
+            <a href="../index.html">Home</a> <span aria-hidden="true">/</span>
+            <a href="./">Blog</a> <span aria-hidden="true">/</span> <span>Momentum vs. Mean Reversion</span>
+          </nav>
+          <span class="article__tag">Strategy</span>
+          <h1>Momentum vs. Mean Reversion: Two Ways to Trade an Edge</h1>
+          <p class="article__meta">June 9, 2026 · 6 min read · Kudbee Quant</p>
+        </header>
+
+        <div class="prose">
+          <p><strong>Nearly every trading strategy is a variation on one of two ideas: momentum, which bets that a trend will continue, or mean reversion, which bets that a price stretched to an extreme will snap back.</strong> Understand these two and you understand the skeleton of almost everything else.</p>
+
+          <p>They're opposites — and that's the point. They tend to work in different market conditions, which is exactly why knowing the difference matters.</p>
+
+          <h2>Momentum: the trend is your friend</h2>
+          <p><a href="../glossary.html">Momentum</a> strategies buy what's going up and sell what's going down, on the assumption that strength begets strength. A classic example is a moving-average crossover: go long when a fast average crosses above a slow one.</p>
+          <ul>
+            <li><strong>Bets on:</strong> trends persisting.</li>
+            <li><strong>Thrives in:</strong> strong, trending markets — think a sustained bull run.</li>
+            <li><strong>Struggles in:</strong> choppy, sideways markets that whipsaw you in and out.</li>
+            <li><strong>Typical profile:</strong> lower win rate, but big winners that pay for many small losses.</li>
+          </ul>
+
+          <h2>Mean reversion: what goes up comes back</h2>
+          <p><a href="../glossary.html">Mean reversion</a> strategies do the opposite: they sell strength and buy weakness, assuming prices oscillate around an average. A classic example is buying when an asset becomes statistically oversold and selling when it returns to normal.</p>
+          <ul>
+            <li><strong>Bets on:</strong> extremes correcting.</li>
+            <li><strong>Thrives in:</strong> range-bound, stable markets.</li>
+            <li><strong>Struggles in:</strong> strong trends, where "oversold" just keeps getting more oversold.</li>
+            <li><strong>Typical profile:</strong> higher win rate, but occasional large losses when a trend runs away.</li>
+          </ul>
+
+          <blockquote>Momentum makes a little, often loses a little, and occasionally wins big. Mean reversion wins often, then occasionally gives a chunk back.</blockquote>
+
+          <h2>It all comes down to regime</h2>
+          <p>The reason neither works all the time is the <a href="../glossary.html">market regime</a> — the prevailing environment. Trending regimes feed momentum; ranging regimes feed mean reversion. The hard part isn't picking a strategy; it's recognizing which regime you're in, because the market doesn't announce the switch.</p>
+
+          <div class="callout"><p><strong>This is why backtesting matters:</strong> testing a strategy across many years forces it through multiple regimes, so you see how it behaves when conditions turn against it — not just when they're favorable. (More on that in <a href="what-is-backtesting.html">our backtesting guide</a>.)</p></div>
+
+          <h2>Can you use both?</h2>
+          <p>Yes — and many of the most robust systems do. Combining a momentum strategy with a mean-reversion strategy can smooth your overall <a href="how-to-read-a-sharpe-ratio.html">risk-adjusted returns</a>, because the two tend to win at different times. When one is struggling, the other is often in its element.</p>
+
+          <div class="key-takeaway">
+            <h2>Key takeaway</h2>
+            <p>Momentum rides trends; mean reversion fades extremes. Each shines in a different market regime, so the edge isn't in the strategy alone — it's in matching the strategy to conditions, and validating both across history.</p>
+          </div>
+
+          <p>Kudbee Quant ships templates for both families and lets you backtest them side by side, no code required. <a href="../index.html#waitlist">Join the waitlist</a> to experiment with your own.</p>
+        </div>
+
+        <nav class="article-nav" aria-label="More articles">
+          <a href="./">← All articles</a>
+          <a href="position-sizing-and-risk-management.html">Next: Position sizing &amp; risk →</a>
+        </nav>
+
+        <div class="article-cta glass">
+          <h2>Test both. Trust the data.</h2>
+          <p>Join the Kudbee Quant waitlist and backtest momentum and mean reversion side by side.</p>
+          <a href="../index.html#waitlist" class="btn btn--primary btn--lg">Join the waitlist</a>
+        </div>
+      </div>
+    </article>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__bottom" style="border:0;padding-top:0;">
+      <p>© <span id="year">2026</span> Kudbee Quant. All rights reserved. · <a href="../index.html" style="color:var(--honey-lt)">Home</a> · <a href="./" style="color:var(--honey-lt)">Blog</a></p>
+      <p class="footer__risk">Trading involves substantial risk of loss and is not suitable for every investor. Kudbee Quant provides research and analytics tools only and does not provide financial advice. Past performance and backtested results are not indicative of future results.</p>
+    </div>
+  </footer>
+
+  <script src="../assets/js/main.js" defer></script>
+</body>
+</html>
