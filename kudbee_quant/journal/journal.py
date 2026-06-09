@@ -11,6 +11,7 @@ import pandas as pd
 
 from ..backtest.resolver import resolve_bracket
 from ..ingest import RouterClient
+from .fees import fee_in_r
 
 # Prediction kinds and how each is verified against OHLCV over the window:
 #   touch        : a bar's [low, high] contains the level             -> hit
@@ -208,19 +209,33 @@ class TradeJournal:
         return changed
 
     def scorecard(self) -> pd.DataFrame:
-        """Per-setup record over RESOLVED predictions: hit rate + R expectancy."""
+        """Per-setup record over RESOLVED predictions: hit rate + R expectancy.
+
+        Reports BOTH gross R and R net of the per-venue round-trip fee (MEMORY
+        §26): crypto pays the assumed maker cost, TradFi (the 0-fee promo) pays
+        nothing — so ``net_expectancy_r`` is where the zero-fee edge becomes
+        visible (TradFi: net == gross; crypto: net = gross − fee_R per trade).
+        """
+        cols = ["setup", "n", "hits", "hit_rate", "expectancy_r", "total_r",
+                "net_expectancy_r", "net_total_r"]
         resolved = [p for p in self.predictions if p.status in ("hit", "miss")]
         if not resolved:
-            return pd.DataFrame(columns=["setup", "n", "hits", "hit_rate", "expectancy_r", "total_r"])
+            return pd.DataFrame(columns=cols)
         df = pd.DataFrame([{"setup": p.setup or "(unlabeled)", "hit": p.status == "hit",
-                            "r": p.outcome_r} for p in resolved])
+                            "r": p.outcome_r,
+                            "net_r": (p.outcome_r - fee_in_r(p.symbol, p.entry, p.stop))
+                                     if p.outcome_r is not None else None}
+                           for p in resolved])
         rows = []
         for setup, g in df.groupby("setup"):
             rs = g["r"].dropna()
+            nets = g["net_r"].dropna()
             rows.append({"setup": setup, "n": len(g), "hits": int(g["hit"].sum()),
                          "hit_rate": g["hit"].mean(),
                          "expectancy_r": float(rs.mean()) if len(rs) else float("nan"),
-                         "total_r": float(rs.sum()) if len(rs) else float("nan")})
+                         "total_r": float(rs.sum()) if len(rs) else float("nan"),
+                         "net_expectancy_r": float(nets.mean()) if len(nets) else float("nan"),
+                         "net_total_r": float(nets.sum()) if len(nets) else float("nan")})
         return pd.DataFrame(rows).sort_values("n", ascending=False).reset_index(drop=True)
 
     def source_record(self) -> dict:

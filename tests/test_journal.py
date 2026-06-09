@@ -81,3 +81,42 @@ def test_scorecard_counts_resolved(tmp_path):
     j.check_open()
     sc = j.scorecard()
     assert sc.loc[sc["setup"] == "s1", "n"].iloc[0] == 2
+
+
+def _resolved_bracket(symbol, setup, outcome_r, entry=100.0, stop=99.0):
+    """A pre-resolved bracket prediction (skip the price-check path)."""
+    return Prediction(symbol=symbol, kind="bracket", level=entry, entry=entry,
+                      stop=stop, target=entry + 3.0, direction=1.0, target_r=3.0,
+                      status="hit" if outcome_r > 0 else "miss", outcome_r=outcome_r,
+                      setup=setup, deadline_days=1.0)
+
+
+def test_fee_in_r_charges_crypto_but_not_tradfi():
+    from kudbee_quant.config.validated_defaults import CRYPTO_FEE_ROUNDTRIP
+    from kudbee_quant.journal.fees import fee_in_r, round_trip_fee_pct
+    # Venue read from the spec: bare/binance pays, yahoo: (TradFi promo) is free.
+    assert round_trip_fee_pct("BTCUSDT") == CRYPTO_FEE_ROUNDTRIP
+    assert round_trip_fee_pct("YAHOO:GC=F") == 0.0
+    # 1R = |100 - 99| = 1.0, so fee_R = fee_pct * entry / risk.
+    assert fee_in_r("BTCUSDT", 100.0, 99.0) == pytest.approx(CRYPTO_FEE_ROUNDTRIP * 100.0)
+    assert fee_in_r("YAHOO:GC=F", 100.0, 99.0) == 0.0
+    # No risk width (non-bracket) -> can't charge -> 0.
+    assert fee_in_r("BTCUSDT", None, None) == 0.0
+
+
+def test_scorecard_net_of_fee_per_venue(tmp_path):
+    from kudbee_quant.config.validated_defaults import CRYPTO_FEE_ROUNDTRIP
+    j = _journal(tmp_path)
+    # Same +1.0R gross outcome on each venue; entry 100 / stop 99 => 1R = 1.0.
+    j.add(_resolved_bracket("BTCUSDT", "confluence_r", outcome_r=1.0))
+    j.add(_resolved_bracket("YAHOO:GC=F", "confluence_r_tradfi", outcome_r=1.0))
+    sc = j.scorecard().set_index("setup")
+    fee_r = CRYPTO_FEE_ROUNDTRIP * 100.0  # entry/risk = 100
+    # Crypto: net = gross - fee. TradFi (0-fee promo): net == gross.
+    assert sc.loc["confluence_r", "expectancy_r"] == pytest.approx(1.0)
+    assert sc.loc["confluence_r", "net_expectancy_r"] == pytest.approx(1.0 - fee_r)
+    assert sc.loc["confluence_r_tradfi", "net_expectancy_r"] == pytest.approx(1.0)
+    # The zero-fee edge is exactly the crypto fee drag.
+    edge = (sc.loc["confluence_r_tradfi", "net_expectancy_r"]
+            - sc.loc["confluence_r", "net_expectancy_r"])
+    assert edge == pytest.approx(fee_r)

@@ -397,10 +397,14 @@ def _journal_score(args) -> None:
         return
     print("Your measured track record (resolved predictions only):")
     fmt = {"hit_rate": "{:.0%}".format, "expectancy_r": "{:+.3f}".format,
-           "total_r": "{:+.1f}".format}
+           "total_r": "{:+.1f}".format, "net_expectancy_r": "{:+.3f}".format,
+           "net_total_r": "{:+.1f}".format}
     print(table.to_string(index=False, formatters={k: v for k, v in fmt.items() if k in table.columns}))
     print("\nThis is the honest number: hits / total logged, no cherry-picking. For "
-          "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
+          "bracket\n(paper) trades, expectancy_r is the forward edge in R. "
+          "net_expectancy_r\nsubtracts the per-venue round-trip fee (MEMORY §26): "
+          "TradFi rows (the 0-fee\npromo, '*_tradfi') keep net == gross; crypto rows "
+          "pay the maker cost — so the\ngap between the two columns IS the zero-fee edge.")
 
 
 def _read_add(args) -> None:

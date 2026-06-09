@@ -22,6 +22,17 @@ FEE_PCT = 0.0004          # round-trip MAKER cost assumption (fraction of price)
 INTERVAL = "1h"           # core timeframe
 TREND_FILTER = True       # HTF 800-EMA trend alignment (tested edge booster, §16)
 
+# Per-VENUE round-trip fee used to score the journal NET of fees (MEMORY §26).
+# These are SCORING constants only — they do NOT touch FEE_PCT (the backtest's
+# fill-cost assumption, deliberately left alone per the §1 walk-forward).
+#   CRYPTO: maker round-trip assumption for the validated limit-retrace fills.
+#     Set to 0.0008 — above FEE_PCT's 0.0004 backtest figure and BELOW the §25
+#     MEASURED taker (0.0009 round-trip), i.e. a conservative maker estimate.
+#     One number to change if a real limit fill confirms the true maker rate.
+#   TRADFI: 0 — rides the §26 BTCC zero-fee TradFi promo, so net == gross there.
+CRYPTO_FEE_ROUNDTRIP = 0.0008   # crypto perps still pay (no promo)
+TRADFI_FEE_ROUNDTRIP = 0.0      # gold/S&P/oil/FX during the 0-fee campaign
+
 # Convenience bundles for the two common call shapes.
 VALIDATED_BASELINE = {
     "min_pct": MIN_PCT, "target_r": TARGET_R, "stop_atr": STOP_ATR,
