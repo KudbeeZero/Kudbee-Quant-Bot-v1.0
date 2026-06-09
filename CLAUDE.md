@@ -29,6 +29,15 @@ labelled parts:
 Keep it honest over optimistic: if something failed or is unverified, say so in
 the Summary rather than burying it.
 
+## Standing preference: surface decisions as one-tap choices
+When the **Next** step (or any fork) is genuinely the user's call, present it with
+the `AskUserQuestion` tool so he can approve with a button instead of typing — put
+your recommended option first, labelled. Default the prompt to a clear
+**"move forward" vs. "stand by"** style choice. Proactively offer to **wrap up the
+chat and start a fresh one** when context/token budget is getting tight or a unit
+of work is complete (this protocol is built around one-chat-one-PR handoffs, so a
+clean stopping point is cheap to take).
+
 ## Project norms (the thesis)
 - The edge is honesty + execution, not more signals. Don't over-claim. A result
   isn't "validated" unless a test or the significance-gated harness backs it.
