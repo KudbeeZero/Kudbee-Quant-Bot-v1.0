@@ -27,7 +27,7 @@ jobs:
       - name: Install deps
         run: |
           pip install -q -r requirements.txt
-          pip install -q ruff
+          pip install -q ruff pytest
       - name: Ruff (non-blocking for now)
         continue-on-error: true
         run: ruff check kudbee_quant scripts
