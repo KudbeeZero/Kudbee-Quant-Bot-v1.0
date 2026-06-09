@@ -10,10 +10,13 @@ intervals from backtests — not advice, not a guarantee.
 """
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+import os
 
+from fastapi import Depends, FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel, Field
+
+from .api_security import RateLimiter, require_token, safe_symbol
 from .confluence.stack import confluence_score
 from .ingest import BinanceClient
 from .journal import Prediction, TradeJournal
@@ -21,11 +24,20 @@ from .levels import build_levels
 
 app = FastAPI(title="Kudbee Quant API", version="1.0.0",
               description="Honest Traders Reality PVSRA quant engine — read-only signals.")
-app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["GET", "POST"],
+# CORS: scope to the site origin if configured (KUDBEE_SITE_ORIGIN), else permissive
+# for local/dev. Reads are public by design (the Live Signals page); writes are
+# additionally token-gated (see require_token).
+_origins = [o for o in os.environ.get("KUDBEE_SITE_ORIGIN", "").split(",") if o] or ["*"]
+app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"],
                    allow_headers=["*"])
+
+# Rate limiters: generous for public reads, tight for journal writes.
+_write_limit = RateLimiter(limit=10, window=60.0, scope="write")
+_read_limit = RateLimiter(limit=120, window=60.0, scope="read")
 
 # Validated default config (see docs/research/testable_ruleset.md).
 CONFIG = {"min_pct": 0.5, "target_r": 3.0, "stop_atr": 1.5, "retrace_atr": 0.25, "interval": "1h"}
+_ALLOWED_TF = {"1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12h", "1d"}
 
 
 @app.get("/api/health")
@@ -34,12 +46,17 @@ def health() -> dict:
 
 
 @app.get("/api/signal/{symbol}")
-def signal(symbol: str, interval: str = "1h") -> dict:
+def signal(symbol: str, interval: str = "1h", _rl: None = Depends(_read_limit)) -> dict:
     """Current confluence signal + the validated limit-retrace 3R bracket."""
+    sym = safe_symbol(symbol)               # whitelist (SSRF/traversal guard)
+    if interval not in _ALLOWED_TF:
+        raise HTTPException(status_code=422, detail="invalid interval")
     try:
-        f = build_levels(BinanceClient().klines(symbol.upper(), interval=interval, limit=600))
-    except Exception as e:  # network / bad symbol
-        raise HTTPException(status_code=502, detail=f"data error: {e}")
+        f = build_levels(BinanceClient().klines(sym, interval=interval, limit=600))
+    except HTTPException:
+        raise
+    except Exception:                       # network / upstream — no detail leak
+        raise HTTPException(status_code=502, detail="upstream data error")
     last = confluence_score(f).iloc[-1]
     price, atr = float(last["close"]), float(last["atr"])
     direction, pct = int(last["direction"]), float(last["confluence_pct"])
@@ -49,7 +66,7 @@ def signal(symbol: str, interval: str = "1h") -> dict:
     actionable = pct >= CONFIG["min_pct"] and direction != 0
     side = "long" if direction > 0 else ("short" if direction < 0 else "flat")
     return {
-        "symbol": symbol.upper(), "interval": interval,
+        "symbol": sym, "interval": interval,
         "timestamp": str(last["timestamp"]), "price": round(price, 6),
         "confluence_pct": round(pct, 3), "strength": strength, "n_factors": nf,
         "net_score": int(last["net_score"]), "direction": direction, "side": side,
@@ -85,22 +102,24 @@ def journal() -> dict:
 
 
 class AlertPayload(BaseModel):
-    symbol: str
-    direction: float
-    entry: float
-    stop: float
-    target: float
-    target_r: float = 3.0
-    conf: float | None = None
-    tf: str = "1h"
-    note: str = ""
+    symbol: str = Field(..., min_length=1, max_length=20, pattern=r"^[A-Za-z0-9._=^-]+$")
+    direction: float = Field(..., ge=-1.0, le=1.0)
+    entry: float = Field(..., gt=0)
+    stop: float = Field(..., gt=0)
+    target: float = Field(..., gt=0)
+    target_r: float = Field(default=3.0, ge=0.5, le=10.0)
+    conf: float | None = Field(default=None, ge=0.0, le=1.0)
+    tf: str = Field(default="1h", pattern=r"^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$")
+    note: str = Field(default="", max_length=500)
 
 
 @app.post("/api/alert")
-def alert_webhook(a: AlertPayload) -> dict:
+def alert_webhook(a: AlertPayload, _auth: None = Depends(require_token),
+                  _rl: None = Depends(_write_limit)) -> dict:
     """Receive a TradingView indicator alert (JSON) and log it as a paper trade.
 
     Closes the loop: chart setup fires -> webhook -> journal -> forward score.
+    Token-gated + rate-limited + field-validated (see api_security.py).
     """
     j = TradeJournal()
     open_keys = {(p.symbol, p.timeframe) for p in j.predictions
@@ -119,13 +138,15 @@ def alert_webhook(a: AlertPayload) -> dict:
 
 
 class ScanRequest(BaseModel):
-    symbols: list[str]
+    symbols: list[str] = Field(..., min_length=1, max_length=25)
 
 
 @app.post("/api/paper/scan")
-def paper_scan_endpoint(req: ScanRequest) -> dict:
+def paper_scan_endpoint(req: ScanRequest, _auth: None = Depends(require_token),
+                        _rl: None = Depends(_write_limit)) -> dict:
     from .paper import paper_scan
-    logged = paper_scan(req.symbols, min_pct=CONFIG["min_pct"], target_r=CONFIG["target_r"],
+    symbols = [safe_symbol(s) for s in req.symbols]   # whitelist every symbol
+    logged = paper_scan(symbols, min_pct=CONFIG["min_pct"], target_r=CONFIG["target_r"],
                         stop_atr=CONFIG["stop_atr"], retrace_atr=CONFIG["retrace_atr"],
                         interval=CONFIG["interval"])
     return {"logged": [{"id": p.id, "symbol": p.symbol, "setup": p.setup,
