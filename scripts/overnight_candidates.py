@@ -33,6 +33,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from kudbee_quant.confluence.stack import confluence_position
+
 # --- small helpers -----------------------------------------------------------
 
 
@@ -300,6 +302,51 @@ def c_target_5r(df, scored, base_sig):
     return base_sig, None, {"target_r": 5.0}
 
 
+def c_vol_dryup_coil(df, scored, base_sig):
+    """Accumulation tell: a range coil (prior bar narrow) AND a volume dry-up
+    (prior bar volume in the bottom quartile of trailing-50) — quiet-then-go."""
+    rng = df["high"] - df["low"]
+    coil = _rolling_pctrank(rng, 50).shift(1) <= 0.25
+    dry = _rolling_pctrank(df["volume"], 50).shift(1) <= 0.25
+    return _gate(base_sig, coil & dry), None, {}
+
+
+def c_inside_bar(df, scored, base_sig):
+    """Inside-bar compression: take the signal only when the prior bar was an
+    inside bar (high<prev-high AND low>prev-low) — a coiled-spring entry."""
+    inside = (df["high"].shift(1) < df["high"].shift(2)) & (df["low"].shift(1) > df["low"].shift(2))
+    return _gate(base_sig, inside), None, {}
+
+
+def c_conf_60(df, scored, base_sig):
+    """Stricter confluence threshold: require >=60% agreement (vs the 50%
+    baseline) — a subset of the baseline entries with higher conviction."""
+    return confluence_position(df, min_pct=0.60, trend_align=True), None, {}
+
+
+def c_trend_strong_sep(df, scored, base_sig):
+    """Strong-trend gate: 13/800-EMA separation >= 2 ATR — only the most clearly
+    trending tape (a stronger cut than clean_trend's 50/800 >= 1 ATR)."""
+    mask = (df["ema_13"] - df["ema_800"]).abs() >= 2.0 * df["atr"]
+    return _gate(base_sig, mask), None, {}
+
+
+def c_two_bar_momentum(df, scored, base_sig):
+    """Momentum confirmation: take longs only when the last two closes both rose
+    (mirror for shorts) — enter into demonstrated, not hoped-for, momentum."""
+    up2 = (df["close"] > df["close"].shift(1)) & (df["close"].shift(1) > df["close"].shift(2))
+    dn2 = (df["close"] < df["close"].shift(1)) & (df["close"].shift(1) < df["close"].shift(2))
+    return _gate(base_sig, ((base_sig > 0) & up2) | ((base_sig < 0) & dn2)), None, {}
+
+
+def c_range_expansion(df, scored, base_sig):
+    """Expansion (opposite of coil): take the signal only when the trigger bar's
+    range is > 1.5x the trailing-20 average range — momentum already releasing."""
+    rng = df["high"] - df["low"]
+    mask = rng > 1.5 * rng.rolling(20, min_periods=10).mean()
+    return _gate(base_sig, mask), None, {}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -334,4 +381,10 @@ REGISTRY: dict[str, tuple] = {
     "entry_window_long": (c_entry_window_long, "Execution: 12-bar limit-fill window"),
     "entry_window_short": (c_entry_window_short, "Execution: 3-bar limit-fill window"),
     "target_5r": (c_target_5r, "Execution: 5R target everywhere"),
+    "vol_dryup_coil": (c_vol_dryup_coil, "Coil + volume dry-up (accumulation tell)"),
+    "inside_bar": (c_inside_bar, "Prior bar is an inside bar (compression)"),
+    "conf_60": (c_conf_60, "Stricter >=60% confluence threshold"),
+    "trend_strong_sep": (c_trend_strong_sep, "Strong trend: 13/800-EMA gap >= 2 ATR"),
+    "two_bar_momentum": (c_two_bar_momentum, "Two consecutive with-direction closes"),
+    "range_expansion": (c_range_expansion, "Trigger-bar range > 1.5x trailing-20 avg"),
 }

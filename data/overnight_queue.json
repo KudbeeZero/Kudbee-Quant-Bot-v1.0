@@ -6,7 +6,13 @@
     "tighter_stop",
     "entry_window_long",
     "entry_window_short",
-    "target_5r"
+    "target_5r",
+    "vol_dryup_coil",
+    "inside_bar",
+    "conf_60",
+    "trend_strong_sep",
+    "two_bar_momentum",
+    "range_expansion"
   ],
   "done": [
     "vol_regime_mid",
