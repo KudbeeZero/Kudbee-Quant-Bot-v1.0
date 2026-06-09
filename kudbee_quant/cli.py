@@ -572,7 +572,7 @@ def main() -> None:
     ps.add_argument("--interval", default="1h")
     ps.add_argument("--min-pct", type=float, default=0.5,
                     help="confluence percentage threshold (0.5 = validated floor)")
-    ps.add_argument("--target-r", type=float, default=2.0)
+    ps.add_argument("--target-r", type=float, default=3.0)
     ps.add_argument("--stop-atr", type=float, default=1.0)
     ps.set_defaults(func=_paper_scan)
 

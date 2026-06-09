@@ -10,7 +10,7 @@ from ..levels import build_levels
 def paper_scan(
     symbols: list[str],
     min_pct: float = 0.5,
-    target_r: float = 2.0,
+    target_r: float = 3.0,   # 3R validated to beat 2R with the limit-retrace entry
     stop_atr: float = 1.0,
     interval: str = "1h",
     deadline_days: float = 2.0,

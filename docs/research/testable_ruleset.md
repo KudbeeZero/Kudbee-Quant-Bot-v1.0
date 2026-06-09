@@ -557,3 +557,25 @@ Honest caveats: the held-out window was downtrend-FAVORABLE (full-year thinner
 at +0.092R), so the edge is regime-dependent and short-led; drawdowns are
 sizeable (size small per trade); limit-fill assumes touch=fill. Consistent with
 the cross-asset walk-forward (SOL +0.174R median). Real, modest, regime-aware.
+
+### R:R curve — 3R beats 2R with the limit-retrace entry (validated)
+
+The trader's asymmetric philosophy ("losses < wins") motivated testing higher
+R:R. With the LIMIT-RETRACE entry (which gives price room to reach a bigger
+target), higher R:R now WINS (it did not at market entry). Walk-forward, 6 folds
+x 4 crypto, limit-retrace 0.25 ATR, maker:
+
+| R:R | % positive cells | median exp | avg win% | med DD |
+|-----|------------------|------------|----------|--------|
+| 2.0 | 88% | +0.183R | 41% | -7.4R |
+| 2.5 | 83% | +0.242R | 36% | -8.8R |
+| 3.0 | 83% | +0.237R | 34% | -8.3R |
+| 3.5 | 83% | +0.294R | 32% | -7.6R |
+| 5.0 | 83% | +0.305R | 28% | -9.2R |
+
+Expectancy rises with R:R, robustness barely dips. 2R = most consistent (88%,
+41% win); 3-3.5R = ~30% more edge/trade at 83% positive but lower win rate
+(32-34% -> longer losing streaks, needs discipline). SOL 1h held-out: 2R +0.176R
+-> 3R +0.205R -> 4R +0.283R. 3R adopted as the default (paper-scan), best fit for
+the asymmetric small-loss/big-win style. Trade-off is psychological (win rate),
+not edge.
