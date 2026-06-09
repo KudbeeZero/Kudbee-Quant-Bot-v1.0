@@ -109,15 +109,25 @@ not more indicators.
 
 | ID | Title | Transcript |
 |---|---|---|
-| aYnclx5ZI6U | Market Open Game Plan: Key Levels & What to Expect | ❌ blocked (captions not retrievable server-side) |
-| 8h3Q6ZS3zZ8 | HOW TO TRADE BITCOIN (NEW YORK SESSION) July 06 | ⏳ pending |
-| msOFp7XP1EY | Clues For Moves In BITCOIN | ⏳ pending |
-| wNJ1oGVUoSI | How To Project Bitcoin Price? (30Min Lesson) | ⏳ pending |
+| aYnclx5ZI6U | Market Open Game Plan: Key Levels & What to Expect | ❌ blocked |
+| 8h3Q6ZS3zZ8 | HOW TO TRADE BITCOIN (NEW YORK SESSION) July 06 | ❌ blocked (live session video) |
+| msOFp7XP1EY | Clues For Moves In BITCOIN | ❌ blocked — topic: "clues" = **vector candles** |
+| wNJ1oGVUoSI | How To Project Bitcoin Price? (30Min Lesson) | ❌ blocked — topic: **unrecovered-vector projection** |
 
-> **Limitation:** I cannot watch video/audio, and YouTube + transcript services
-> are blocked from this environment (captcha / JS-rendered captions). The
-> reliable path is: open the video → "…more" → **Show transcript** → paste it
-> here, and I'll read and distill it into this memory layer.
+> **Limitation confirmed twice:** I cannot watch video/audio, and YouTube +
+> every transcript service are blocked from this environment (captcha /
+> JS-rendered captions). Reliable path: open the video → "…more" → **Show
+> transcript** → paste it here, and I'll distill the *reasoning* into this file.
+
+**Key cross-reference (what the two lessons teach vs. what we measured):**
+- "Clues For Moves" teaches **vector candles** as the clue to MM intent. We tested
+  vectors as a confluence factor and as a recovery magnet → no edge over null.
+- "How To Project Price" teaches **unrecovered-vector targets** ("recovers the red
+  vector like clockwork"). **We measured this directly:** vectors recover at the
+  SAME rate as a random equidistant zone (≈92% vs 93% over 60d) — no projection
+  edge. So the *mechanical* claim of this lesson is already a NULL in our tests.
+  The value Tino adds is the *discretionary* choice of WHICH zone, in WHAT
+  context — the reasoning, not the rule.
 
 ---
 
