@@ -834,3 +834,40 @@ TradFi 0); journal `scorecard()` net columns + `venue_record()`; `/api/journal`
 resolved trades are crypto (TradFi book open) so the "TradFi net≈gross" contrast can't
 be SHOWN yet; and the `FEE_PCT 0.0004` maker vs `0.0009` measured taker contradiction
 needs one real limit fill to settle (net-crypto is conservative until then).
+
+## 29. TradFi daily levels need exchange TRADE DATES — calendar dates create a Sunday stub that poisons Monday — 2026-06-10
+
+VERIFIED ON LIVE DATA, THEN FIXED (PR for `claude/handoff-audit-hvuuab`). The
+NY/UTC calendar-date groupings in the levels pipeline assume 24/7 bars. On
+session-gapped venues (CME futures open Sun 18:00 ET; FX ~17:00 ET) they carve
+the Sunday evening into a tiny stub day, and every "previous day" level on
+Monday derived from it: pivots off by 0.15-4.0 ATR vs Friday-based (measured:
+GC=F/SI=F/CL=F/EURUSD/GBPUSD, 3mo of 1h bars), PDH/PDL from a 1-2-bar UTC
+stub, ADR biased LOW 6-16% all week. Re-scoring with the two stub-fed votes
+(v_pivot, v_sweep) zeroed flipped **40-75% of Monday `_tradfi` signals** —
+Mondays are ~20% of signal days. Full findings:
+`docs/research/tradfi_session_levels.md`.
+
+FIX (opt-in, validated path untouched): `context/calendar.trade_date()` =
+NY wall clock **+6h** → date, i.e. the day boundary is the 18:00-ET Globex
+open; Sunday evening belongs to MONDAY's trade date; identity for RTH-only
+instruments. Threaded as `trade_dates: bool = False` through
+`build_features`/`reference_levels`/`build_levels`/`range_stats`; wired
+venue-aware in `paper_scan` (`is_tradfi`), `bracket_validation`, scenario
+sweeps. Default = calendar dates, bit-identical for crypto (§1 untouched;
+full suite passed unchanged). 7 tests in `tests/test_tradfi_sessions.py`.
+
+LESSON (the trap, for reuse): the boundary must be **18:00 ET (+6h), NOT
+17:00 ET (+7h)**. +7h looked equally right on paper but on live FX data
+Yahoo's Friday 17:00 close print became a one-bar "Saturday" trade date and
+Monday's PDH-PDL went to literally ZERO — a worse artifact than the one being
+fixed. Caught only by re-running the live-data diagnostic after the fix:
+verify level logic against REAL venue data, not just synthetic frames.
+
+STILL OPEN: (a) `_tradfi` journal entries logged BEFORE this fix were
+signalled off stub-contaminated levels (especially Monday entries) — the
+forward record needs a taint audit before the 0-fee venue read is trusted.
+(b) Yahoo FX 1h has zero volume → `v_vwap`/`v_vector` can never vote → FX
+confluence is capped at 8/10, so the 50% gate is ~stricter for FX (conservative
+skew, unfixed). (c) RTH index FVG votes partly encode overnight gaps; index
+ATR absorbs opening gaps into stop sizing — noted, accepted as venue reality.
