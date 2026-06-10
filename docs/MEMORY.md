@@ -809,3 +809,28 @@ STANDING REPLY FORMAT (his ask, now in `CLAUDE.md`): every working reply ends wi
 a **Summary** (what was actually done — honest, with test/commit state and anything
 skipped) and a **Next** (the exact concrete action he should take next, recommended
 default first). Honesty over optimism — surface failures in the Summary, don't bury.
+
+## 28. A stale baton causes DUPLICATE builds — keep the baton current — 2026-06-10
+
+Two parallel chats BOTH built net-of-fee scoring (§26 follow-up): an earlier chat in
+PR #3 (`claude/handoff-audit-fee-scoring-p0yg4n`, fee constants `CRYPTO_FEE_ROUNDTRIP
+=0.0008` assumed maker, logic in a new `journal/fees.py`) and this chat in PR #4
+(`venue_of`/`fee_r_of`/`venue_record` in `journal.py`, crypto = MEASURED §25 taker
+`0.0009`). PR #4 merged first; PR #3 was closed as superseded. ROOT CAUSE: the baton
+(`docs/HANDOFF.md`) still listed net-of-fee as the open NEXT scope after PR #3 had
+already built it — so a second chat picked up the same scope. This is the exact
+"branch-stack tangle" §27's invariant warns about, realized.
+
+LESSON (process): the baton is only useful if it's CURRENT. `/closeout` MUST flip the
+scope the moment work lands; a chat that merges its own PR (as PR #4 did, user-
+authorized) must update the baton in the SAME turn, or the next chat re-does the work.
+When two PRs target one scope, prefer the one with the MEASURED input (taker 0.0009 is
+a §25 fact; 0.0008 maker was an assumption) and the wider surface, close the other with
+a comment, don't silently abandon it.
+
+BUILT (net-of-fee, §26 now CLOSED): `VENUE_FEE_PCT` in config (crypto taker 0.0009 /
+TradFi 0); journal `scorecard()` net columns + `venue_record()`; `/api/journal`
+`by_venue`; `cli journal-score` per-venue gross→net line. 6 tests. STILL OPEN: all 14
+resolved trades are crypto (TradFi book open) so the "TradFi net≈gross" contrast can't
+be SHOWN yet; and the `FEE_PCT 0.0004` maker vs `0.0009` measured taker contradiction
+needs one real limit fill to settle (net-crypto is conservative until then).
