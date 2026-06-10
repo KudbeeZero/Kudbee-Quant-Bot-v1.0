@@ -6,6 +6,8 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from .calendar import complete_period_mask
+
 # Day-of-week index -> weekly MM-template phase (Tino's rough template).
 # Monday/Tuesday often set the weekly extreme (accumulation / first move),
 # midweek reverses, late week continues. A heuristic, labelled honestly.
@@ -96,13 +98,18 @@ def reference_levels(df: pd.DataFrame) -> pd.DataFrame:
     daily = (
         out.assign(_p=day)
         .groupby("_p")
-        .agg(dh=("high", "max"), dl=("low", "min"))
+        .agg(dh=("high", "max"), dl=("low", "min"), n=("high", "size"))
         .sort_index()
     )
-    daily["pdh"] = daily["dh"].shift(1)
-    daily["pdl"] = daily["dl"].shift(1)
-    out["pdh"] = day.map(daily["pdh"]).astype(float)
-    out["pdl"] = day.map(daily["pdl"]).astype(float)
+    # Prior FULL day only: TradFi stub days (Sunday Globex reopen, holidays —
+    # §29) must not become the next day's PDH/PDL liquidity rails; stub-day
+    # bars inherit the last full day's extremes. No-op on 24/7 data.
+    full = complete_period_mask(daily["n"])
+    fd = daily[full]
+    for col, src in (("pdh", "dh"), ("pdl", "dl")):
+        s = (fd[src].shift(1).reindex(daily.index).ffill()
+             .where(full, fd[src].reindex(daily.index).ffill()))
+        out[col] = day.map(s).astype(float)
 
     week = naive.dt.to_period("W")
     weekly = (

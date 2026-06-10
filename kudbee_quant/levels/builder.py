@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..context.calendar import NY, ny_session_date
+from ..context.calendar import NY, complete_period_mask, ny_session_date
 from ..events.features import build_features
 
 # The canonical set of horizontal levels used for confluence scoring. Only
@@ -24,11 +24,21 @@ LEVEL_COLUMNS = [
 
 
 def _per_date_range_avg(out: pd.DataFrame, n: int) -> pd.Series:
-    """Average of the prior ``n`` completed daily ranges, mapped back to bars."""
-    by_date = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"))
-    by_date["_range"] = by_date["_dh"] - by_date["_dl"]
-    by_date["_adr"] = by_date["_range"].shift(1).rolling(n, min_periods=1).mean()
-    return out["ny_date"].map(by_date["_adr"]).astype(float)
+    """Average of the prior ``n`` FULL daily ranges, mapped back to bars.
+
+    Only complete days inform the average: TradFi stub days (Sunday Globex
+    reopen, holidays — §29) would drag it down. Bars on a stub day inherit
+    the average as of the last full day. On 24/7 data this reduces exactly
+    to the plain shift(1).rolling(n) of every day's range.
+    """
+    by_date = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"),
+                                         _n=("high", "size"))
+    full = complete_period_mask(by_date["_n"])
+    rng = (by_date["_dh"] - by_date["_dl"])[full]
+    incl = rng.rolling(n, min_periods=1).mean()   # last n full days INCLUDING the day
+    prior = incl.shift(1)                          # ... strictly BEFORE the day
+    adr = prior.reindex(by_date.index).ffill().where(full, incl.reindex(by_date.index).ffill())
+    return out["ny_date"].map(adr).astype(float)
 
 
 def _round_step(price: pd.Series) -> pd.Series:
@@ -119,17 +129,28 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFr
     out["ema_cloud_pos"] = np.where(out["close"] > cloud_hi, 1,
                                     np.where(out["close"] < cloud_lo, -1, 0))
 
-    # Classic floor pivots from the PRIOR completed NY day (no lookahead).
-    dd = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"), _dc=("close", "last"))
-    pdh, pdl, pdc = dd["_dh"].shift(1), dd["_dl"].shift(1), dd["_dc"].shift(1)
-    pp = (pdh + pdl + pdc) / 3.0
-    piv = pd.DataFrame({
-        "pivot_pp": pp,
-        "pivot_r1": 2 * pp - pdl, "pivot_s1": 2 * pp - pdh,
-        "pivot_r2": pp + (pdh - pdl), "pivot_s2": pp - (pdh - pdl),
-    }, index=dd.index)
-    for col in piv.columns:
-        out[col] = out["ny_date"].map(piv[col]).astype(float)
+    # Classic floor pivots from the PRIOR completed FULL NY day (no lookahead).
+    # A TradFi stub day (Sunday Globex reopen — §29) must not set Monday's
+    # pivots; stub-day bars themselves take pivots from the last full day.
+    dd = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"),
+                                    _dc=("close", "last"), _n=("close", "size"))
+    full_day = complete_period_mask(dd["_n"])
+    fd = dd[full_day]
+
+    def _floor_pivots(h, l, c):
+        pp = (h + l + c) / 3.0
+        return pd.DataFrame({
+            "pivot_pp": pp,
+            "pivot_r1": 2 * pp - l, "pivot_s1": 2 * pp - h,
+            "pivot_r2": pp + (h - l), "pivot_s2": pp - (h - l),
+        }, index=h.index)
+
+    piv_prior = _floor_pivots(fd["_dh"].shift(1), fd["_dl"].shift(1), fd["_dc"].shift(1))
+    piv_own = _floor_pivots(fd["_dh"], fd["_dl"], fd["_dc"])
+    for col in piv_prior.columns:
+        s = (piv_prior[col].reindex(dd.index).ffill()
+             .where(full_day, piv_own[col].reindex(dd.index).ffill()))
+        out[col] = out["ny_date"].map(s).astype(float)
 
     # ICT/Hybrid microstructure (VWAP, premium/discount, FVGs, macro windows).
     from .microstructure import add_microstructure
