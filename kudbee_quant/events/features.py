@@ -11,7 +11,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..context.calendar import NY, add_time_context, ny_session_date, trade_date
+from ..context.calendar import NY, add_time_context, ny_session_date
 from ..context.market_holidays import add_holiday_flags
 from ..context.mm_cycle import add_mm_context
 from ..signals import pvsra_vector_candles
@@ -25,25 +25,18 @@ def average_true_range(df: pd.DataFrame, period: int = 14) -> pd.Series:
     return tr.rolling(period, min_periods=1).mean()
 
 
-def _reference_opens(df: pd.DataFrame, trade_dates: bool = False) -> pd.DataFrame:
+def _reference_opens(df: pd.DataFrame) -> pd.DataFrame:
     """Add daily 'midnight ET' open and weekly 'Sun 18:00 ET' open (no lookahead)."""
     out = df.copy()
     ts = pd.to_datetime(out["timestamp"], utc=True)
     ny = ts.dt.tz_convert(NY)
-    # Session-gapped TradFi venues group days by the exchange trade date
-    # (18:00-ET Globex boundary; Sunday evening belongs to Monday) so no Sunday stub
-    # day forms; 24/7 crypto keeps the NY calendar date (validated default).
-    out["ny_date"] = trade_date(out["timestamp"]) if trade_dates else ny_session_date(out["timestamp"])
+    out["ny_date"] = ny_session_date(out["timestamp"])
     # UTC calendar date — the daily-open anchor (00:00 UTC), matching the
     # TradingView default the trader reads off their chart.
     out["utc_date"] = ts.dt.date
 
     # Daily open = open of the first bar of each UTC calendar date (00:00 UTC).
-    # In trade-date mode, the first bar of the trade date instead — the actual
-    # exchange daily open (Globex 18:00 ET / RTH 09:30 ET), since 00:00 UTC
-    # falls mid-gap or mid-evening on session-gapped venues.
-    day_key = "ny_date" if trade_dates else "utc_date"
-    out["daily_open"] = out.groupby(day_key)["open"].transform("first")
+    out["daily_open"] = out.groupby("utc_date")["open"].transform("first")
 
     # Weekly open = open of the first bar on/after Sunday 18:00 NY each ICT week.
     # Define the ICT week id as the date of the most recent Sunday-18:00 anchor.
@@ -56,21 +49,15 @@ def _reference_opens(df: pd.DataFrame, trade_dates: bool = False) -> pd.DataFram
     return out.drop(columns="_week_id")
 
 
-def build_features(df: pd.DataFrame, pvsra_config=None, trade_dates: bool = False) -> pd.DataFrame:
-    """Return ``df`` annotated with the full event-study context feature set.
-
-    ``trade_dates``: anchor daily groupings (PDH/PDL, daily open, ny_date) to
-    the exchange trade date instead of calendar dates — for session-gapped
-    TradFi venues only (see context/calendar.trade_date). Default False keeps
-    the validated 24/7 crypto behavior bit-identical.
-    """
+def build_features(df: pd.DataFrame, pvsra_config=None) -> pd.DataFrame:
+    """Return ``df`` annotated with the full event-study context feature set."""
     if "timestamp" not in df.columns:
         raise ValueError("build_features requires a 'timestamp' column (UTC)")
     # mm_context first, then time_context, so the DST-correct NY 'session'
     # from the calendar overwrites mm_cycle's UTC-based label.
-    out = add_mm_context(df, trade_dates=trade_dates)
+    out = add_mm_context(df)
     out = add_time_context(out)
-    out = _reference_opens(out, trade_dates=trade_dates)
+    out = _reference_opens(out)
     out = add_holiday_flags(out, date_col="ny_date")
     out = pvsra_vector_candles(out, pvsra_config)
 

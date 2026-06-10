@@ -79,16 +79,11 @@ def label_sessions(df: pd.DataFrame, windows: SessionWindows | None = None) -> p
     return out
 
 
-def reference_levels(df: pd.DataFrame, trade_dates: bool = False) -> pd.DataFrame:
+def reference_levels(df: pd.DataFrame) -> pd.DataFrame:
     """Add previous-day and previous-week high/low (PDH/PDL/PWH/PWL).
 
     These are the resting-liquidity levels MM cycles target. Each is the
     extreme of the *previous completed* period, so no lookahead.
-
-    ``trade_dates``: group days by the exchange trade date (18:00-ET Globex boundary)
-    instead of the UTC calendar date — for session-gapped TradFi venues, where
-    the UTC Sunday holds only 1-2 bars and would otherwise become Monday's
-    "previous day". Leave False for 24/7 crypto.
     """
     _require_timestamp(df)
     out = df.copy()
@@ -97,11 +92,7 @@ def reference_levels(df: pd.DataFrame, trade_dates: bool = False) -> pd.DataFram
     # so day/week boundaries are UTC midnight, not local-with-a-warning).
     naive = ts.dt.tz_localize(None)
 
-    if trade_dates:
-        from .calendar import trade_date
-        day = trade_date(out["timestamp"])
-    else:
-        day = naive.dt.to_period("D")
+    day = naive.dt.to_period("D")
     daily = (
         out.assign(_p=day)
         .groupby("_p")
@@ -168,11 +159,10 @@ def weekly_cycle_phase(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def add_mm_context(df: pd.DataFrame, windows: SessionWindows | None = None,
-                   trade_dates: bool = False) -> pd.DataFrame:
+def add_mm_context(df: pd.DataFrame, windows: SessionWindows | None = None) -> pd.DataFrame:
     """Apply the full MM-context pipeline in dependency order."""
     out = label_sessions(df, windows)
-    out = reference_levels(out, trade_dates=trade_dates)
+    out = reference_levels(out)
     out = detect_sweeps(out)
     out = weekly_cycle_phase(out)
     return out

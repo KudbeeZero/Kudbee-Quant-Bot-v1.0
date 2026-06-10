@@ -4,7 +4,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ..context.calendar import NY, ny_session_date, trade_date
+from ..context.calendar import NY, ny_session_date
 from ..events.features import build_features
 
 # The canonical set of horizontal levels used for confluence scoring. Only
@@ -37,11 +37,10 @@ def _round_step(price: pd.Series) -> pd.Series:
     return np.power(10.0, np.floor(np.log10(safe)) - 1)
 
 
-def range_stats(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 6,
-                trade_dates: bool = False) -> dict:
+def range_stats(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 6) -> dict:
     """Summary range statistics (ADR/AWR/AMR) over the sample, for reporting."""
-    out = build_features(df, trade_dates=trade_dates)
-    out["ny_date"] = trade_date(out["timestamp"]) if trade_dates else ny_session_date(out["timestamp"])
+    out = build_features(df)
+    out["ny_date"] = ny_session_date(out["timestamp"])
     ny = pd.to_datetime(out["timestamp"], utc=True).dt.tz_convert(NY)
     daily = out.groupby("ny_date").apply(lambda g: g["high"].max() - g["low"].min())
     week_id = ny.dt.tz_localize(None).dt.to_period("W")
@@ -58,19 +57,10 @@ def range_stats(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 
     }
 
 
-def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
-                 trade_dates: bool = False) -> pd.DataFrame:
-    """Annotate bars with the full reference-level set + range-completion stats.
-
-    ``trade_dates``: group daily levels (ADR, pivots, PDH/PDL, session opens)
-    by the exchange trade date (18:00-ET Globex boundary) instead of calendar dates.
-    OPT-IN for session-gapped TradFi venues — without it, Monday's pivots and
-    PDH/PDL derive from the few-bar Sunday-evening stub (artifacts measured at
-    0.15-4 ATR; docs/research/tradfi_session_levels.md). Default False keeps
-    the validated 24/7 crypto behavior unchanged.
-    """
-    out = build_features(df, trade_dates=trade_dates)  # daily_open, weekly_open, atr, sessions, asian_*, PDH/PDL...
-    out["ny_date"] = trade_date(out["timestamp"]) if trade_dates else ny_session_date(out["timestamp"])
+def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFrame:
+    """Annotate bars with the full reference-level set + range-completion stats."""
+    out = build_features(df)  # gives daily_open, weekly_open, atr, sessions, asian_*, PDH/PDL...
+    out["ny_date"] = ny_session_date(out["timestamp"])
     ny = pd.to_datetime(out["timestamp"], utc=True).dt.tz_convert(NY)
 
     # Monthly open = open of the first bar of each NY month.
