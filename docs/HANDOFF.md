@@ -6,56 +6,68 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE` — bootstrap merged; protocol hardened (§27) for the
-  harness-assigned-branch + already-merged realities.
-- **Last branch:** `claude/handoff-audit-xtn2bz`
-- **Last PR:** #4 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/4
-- **Audit status:** `MERGED (user-authorized, CI green)` — PR #4 was merged by this
-  chat at the user's explicit direction after CI passed (172). It was NOT
-  independently audit-gated (the merge predated the next chat's `/handoff-audit`),
-  so the **next chat should run a post-hoc `/handoff-audit` on PR #4** to keep the
-  record honest. Base→head for that diff: `48415f33..26eef3f`.
-- **Duplicate resolved:** PR #3 (a parallel-chat net-of-fee build) was **closed as
-  superseded** by #4 — see the §28 lesson below.
+- **Protocol status:** `ACTIVE`.
+- **Last branch:** `claude/fable-5-release-review-mow58s`
+- **Last PR:** #5 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/5
+- **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
+  merge gate. The PR body carries a specific audit checklist.
+- PR #4's post-hoc audit is CLOSED: **PASS** (`docs/audits/claude-handoff-audit-xtn2bz.md`).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **Net-of-fee scoring (MEMORY §26 follow-up — DONE):** per-venue NET-of-fee in the
-  journal. `venue_of()` routes by symbol spec (`yahoo:`→tradfi 0-fee, else crypto);
-  `fee_r_of()` converts the round-trip fee to R via the same model as
-  `backtest/bracket.py` (`fee_pct·entry/risk`, +½ round-trip if TP1 banked);
-  `net_outcome_r()`. `scorecard()` gained `net_expectancy_r`/`net_total_r`; new
-  `venue_record()` splits gross→net by venue. Crypto fee = MEASURED §25 taker
-  `0.0009`; TradFi = `0`. Surfaced in `cli journal-score` + `/api/journal`
-  (`by_venue`). 6 new tests; `_EmptyJournal` API stub updated. **Full suite: 172
-  passed.** MEMORY §26 updated to mark the follow-up CLOSED.
-- Also in PR #4: the §27 relay-protocol hardening + PR #2 post-hoc audit (docs/config).
-- Closed duplicate PR #3; recorded the lesson as MEMORY §28.
+- **PR #4 post-hoc audit (PASS)** — independent subagent, real diff
+  `48415f33..26eef3f`, every claim supported, 172 reproduced. Report committed;
+  baton reconciled. (Docs only.)
+- **TradFi session/RTH verification (the scoped work) — suspicion CONFIRMED, fixed
+  (MEMORY §29):**
+  1. **Stub-day level poisoning:** Sunday Globex reopen = ~6-bar "day"; measured on
+     CL=F 1h: ADR −17%, Monday pivots/PDH/PDL from the stub (feeding live
+     `v_pivot`/`v_sweep`). Fixed via `complete_period_mask()` (full days = bar count
+     ≥ 0.5×median) gating ADR / floor pivots / PDH-PDL; stub bars inherit the last
+     full day's levels. A test pins EXACT equality with the naive computation on
+     24/7 data — crypto behavior untouched.
+  2. **Yahoo synthetic tick row** (o=h=l=c pseudo-bar at last-trade time) dropped at
+     `_parse` when its spacing is sub-interval (conservative no-drop on unknown
+     granularity).
+  3. **Pending-limit false-fill bug (all venues):** empty bar-window no longer flips
+     pending→open (24 journal trades had fictitious `filled_at` stamps); bar-less
+     fill-window lapse → `cancelled` (not `miss`); fills stamp the fill BAR's time.
+- **11 new tests** (`tests/test_tradfi_sessions.py`); full suite **183 passed**,
+  re-run green after merging latest `main`.
+- Also: live-book readout mid-session (+27.8R unrealized across 22 shorts) was
+  CONFIRMED by the bot's next run — 4× +3R crypto hits (AVAX/BTC/SOL/BNB) and the
+  WTI −1R booked, exactly as marked.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/tradfi-session-levels` — harness assigns the
+- **Slug hint (ADVISORY only):** `claude/jarvis-dashboard` — harness assigns the
   real branch name; the *scope* below is what binds.
-- **Scope (one priority):** verify TradFi `build_levels` **session/RTH handling**. The
-  NY-date range / killzone logic assumes 24/7 crypto, but the zero-fee TradFi pairs
-  (gold, S&P, oil, FX) have session gaps / RTH hours — confirm the levels aren't
-  artifacts across those gaps before trusting any `_tradfi` signal. (First audit PR #4
-  post-hoc, then work this.)
+- **Scope (one priority, user-requested):** build the **Jarvis-style mission-control
+  dashboard** — a one-page interactive board served by the existing FastAPI app.
+  Style: DISTINCT (not a generic Jarvis clone) — dark purple/blue base, accents of
+  yellow + a little green, particle background, interactive. Wire in live data from
+  the existing `/api` endpoints (journal scorecard + `by_venue`, open book, biases)
+  and host CPU/memory metrics (note: of the machine serving the app). Keep it
+  dependency-light and consistent with the existing API security posture.
 - **Open risks / watch-items for next session:**
-  - Resolved-trade scorecard is under **censoring bias** (fast stop-outs resolve;
-    3R winners stay open) — do NOT reverse-engineer an "inverse edge" off it. The
-    net columns make crypto look worse (now −1.015R vs −0.846R gross), but it's
-    still all fast stop-outs; let open winners resolve first.
-  - **Maker-vs-taker fee contradiction (still open):** net scoring charges crypto the
-    MEASURED taker `0.0009`, but `FEE_PCT=0.0004` (the validated-strategy maker
-    assumption) is 2× lower. One real LIMIT (maker) fill is needed to confirm the
-    true rate; until then net-crypto is a conservative (cost-heavy) read.
-  - TradFi level logic (`build_levels`) assumes 24/7 — the scope above.
-  - The hourly paper-trade Action commits to `main` every hour. It owns
-    `data/journal.json`; sessions should NOT commit journal refreshes (they race the bot).
+  - **§29 data caveat:** pre-fix `filled_at` timestamps in `data/journal.json`
+    (≤ 2026-06-10) are unreliable as fill TIMES; statuses/outcomes are fine. Don't
+    "clean" the journal — the hourly bot owns it.
+  - **§29 documented-not-fixed:** wall-clock `deadline_days`/`fill_deadline_days`
+    tick through closed TradFi sessions; W-SUN weekly grouping counts Sunday-evening
+    Globex bars into the prior week; FVGs can form across session gaps; ATR spikes on
+    the first bar after a gap. Judged minor — revisit only with evidence.
+  - **Maker-vs-taker fee contradiction (still open):** net scoring charges the
+    measured taker `0.0009`; `FEE_PCT=0.0004` (maker assumption) is 2× lower. One
+    real LIMIT fill settles it.
+  - Censoring bias is unwinding in the right direction (4× +3R just resolved) but
+    the scorecard is still not an edge readout — let the book mature.
+  - GitHub cron throttles the "hourly" Action to ~2–4h cadence (runs all succeed) —
+    marks go stale between runs; resolution self-corrects via bar replay.
 - **Off-limits:** don't touch the validated strategy defaults (§1) or the `FEE_PCT`
-  value without a walk-forward (the new `VENUE_FEE_PCT` scoring constants are separate
-  and fair game); don't delete the redundant stale `claude/*` branches without explicit OK.
+  value without a walk-forward (`VENUE_FEE_PCT` scoring constants are separate and
+  fair game); don't commit `data/journal.json`; don't delete stale `claude/*`
+  branches without explicit OK.
 
 ## Baton history
 
@@ -66,3 +78,6 @@
 - `2026-06-10` — PR #4 merged (user-authorized, CI green): net-of-fee scoring (§26
   DONE) + protocol hardening. Duplicate PR #3 closed as superseded (§28). Next scope:
   TradFi session/RTH level verification.
+- `2026-06-10` — PR #5 opened (`claude/fable-5-release-review-mow58s`): PR #4
+  post-hoc audit PASS + TradFi session fixes (§29) — stub-day levels, Yahoo tick
+  row, pending false-fills; 183 tests. Next scope: Jarvis mission-control dashboard.

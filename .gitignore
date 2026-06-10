@@ -1,5 +1,6 @@
 __pycache__/
 *.pyc
+*.egg-info/
 .cache/
 *.parquet
 # Overnight research runtime cache + loop log (regenerable; not source)

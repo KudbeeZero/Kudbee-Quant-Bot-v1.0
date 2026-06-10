@@ -834,3 +834,58 @@ TradFi 0); journal `scorecard()` net columns + `venue_record()`; `/api/journal`
 resolved trades are crypto (TradFi book open) so the "TradFi net≈gross" contrast can't
 be SHOWN yet; and the `FEE_PCT 0.0004` maker vs `0.0009` measured taker contradiction
 needs one real limit fill to settle (net-crypto is conservative until then).
+
+---
+
+## 29. TradFi session/RTH audit: stub-day levels WERE artifacts (now fixed) + the false-fill journal bug — 2026-06-10
+
+The §26 watch-item ("does `build_levels` survive TradFi session gaps?") is now
+VERIFIED — the suspicion was CORRECT, on three fronts. All three fixed, 183 tests.
+
+**1. Stub-day level poisoning (TradFi-only, CONFIRMED + FIXED).** Globex futures
+days group on NY/UTC calendar dates, so the Sunday-evening reopen forms a ~6-bar
+"day" (holidays similar). Measured on CL=F 1h: ADR depressed **17%** (4.08 vs 4.89
+honest), and Monday's floor pivots + PDH/PDL derived from the Sunday stub — feeding
+the LIVE confluence votes `v_pivot` and (via sweeps) `v_sweep`. FIX:
+`complete_period_mask()` (context/calendar.py) — a day informs prior-day levels
+(ADR `_per_date_range_avg`, floor pivots in `levels/builder.py`, PDH/PDL in
+`context/mm_cycle.py`) only if its bar count ≥ 0.5×median; stub-day bars inherit
+the last FULL day's levels. **Provably a no-op on 24/7 crypto** (test pins exact
+equality with the naive computation), so the validated §1 behavior is untouched.
+Verified on real CL=F: ADR 4.08→4.81; Monday pp == Friday (H+L+C)/3 exactly.
+
+**2. Yahoo synthetic "tick row" (TradFi-only, FIXED).** While the market is open,
+Yahoo's chart API appends a last-quote pseudo-bar (o=h=l=c=last trade, timestamped
+at the last TRADE time, off the interval grid). It flowed into `build_levels` as a
+real bar — the live signal was computed ON it (degenerate range → slightly
+depressed ATR → tighter stops than validated). FIX: `YahooClient._parse` drops a
+trailing row whose spacing from the previous bar is sub-interval (granularity from
+the payload's `dataGranularity`; unknown granularity = conservative no-drop).
+
+**3. Pending-limit FALSE-FILL bug (ALL venues, FIXED).** Seconds after a scan logs
+a pending limit, no completed bar ≥ `created_at` exists, `_evaluate` returned
+"open" for the empty window, and `check_open` stamped `filled_at` — a fictitious
+instant fill. **24 of the journal's bracket trades carry such stamps** (filled_at
+within ~seconds of created_at), including 2 in the contradictory state
+`status=pending` + `filled_at` set (pending↔open oscillation). Because the fill is
+RE-derived from bars on every later run, final hit/miss outcomes self-corrected —
+the rot was state/timestamps, not R. FIX: empty window + pending → stays pending
+(or **cancelled**, not "miss", if the fill window lapses bar-less — matters for
+TradFi limits logged into a closed session); fills now stamp the fill BAR's
+timestamp, not wall-clock. DATA CAVEAT: pre-fix `filled_at` values in
+`data/journal.json` (≤ 2026-06-10) are unreliable as fill TIMES; statuses are
+fine. Do not "clean" the journal manually — the hourly bot owns it.
+
+**Still OPEN / known limitations (documented, NOT fixed — judged minor):**
+- Wall-clock horizons: `deadline_days` / `fill_deadline_days` tick through closed
+  TradFi sessions (a Friday-evening limit can cancel over a weekend unfilled).
+  Shrinks the TradFi sample; doesn't corrupt outcomes.
+- Weekly levels: builder's `_week_id` uses W-SUN periods, so Sunday-evening Globex
+  bars count into the PRIOR week's AWR/PWH/PWL (features.py's `weekly_open` uses
+  the Sun-18:00-ET anchor and is already correct). Small effect (6 bars vs ~115).
+- FVG votes can form across session gaps (a weekend gap looks like a giant FVG);
+  ATR spikes on the first bar after a gap (true-range vs Friday close) → wider
+  stops on Sunday/Monday entries. Both are "real price gap" judgement calls.
+- GitHub cron throttling: the "hourly" paper Action actually fires every ~2-4h
+  (all runs succeed; GitHub schedule delay). Resolution latency only — the bar
+  replay re-derives everything — but stale marks persist between runs.

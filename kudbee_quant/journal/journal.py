@@ -139,6 +139,14 @@ class TradeJournal:
         window = df[pd.to_datetime(df["timestamp"], utc=True) >= datetime.fromisoformat(p.created_at)]
         deadline_passed = now >= p.deadline
         if window.empty:
+            # No completed bar since creation. An unfilled limit CANNOT have
+            # traded yet — returning "open" here used to make check_open stamp
+            # a fictitious fill seconds after creation (§29). It stays pending
+            # (or cancels if the fill window lapses with no bars at all).
+            if p.status == "pending":
+                fill_deadline = (datetime.fromisoformat(p.created_at)
+                                 + timedelta(days=p.fill_deadline_days))
+                return ("cancelled", None) if now >= fill_deadline else ("pending", None)
             return ("miss", None) if deadline_passed else ("open", None)
 
         if p.kind == "bracket":
@@ -197,6 +205,8 @@ class TradeJournal:
                 if datetime.now(timezone.utc) >= fill_deadline:
                     return ("cancelled", None)   # limit never filled -> no trade
                 return ("pending", None)
+            if p.filled_at is None:              # record the BAR time of the fill
+                p.filled_at = str(rows["timestamp"].iloc[fill_i])
         else:
             fill_i = -1   # resolve from the start
 
@@ -226,10 +236,11 @@ class TradeJournal:
             if p.status not in ("open", "pending"):
                 continue
             tp1_before = p.tp1_filled_at
-            status, outcome_r = self._evaluate(p)   # may bank TP1 as a side-effect
+            fill_before = p.filled_at
+            status, outcome_r = self._evaluate(p)   # may bank TP1/fill as side-effects
             if status == p.status:
-                if p.tp1_filled_at != tp1_before:   # TP1 just banked; trade still open
-                    changed.append(p)
+                if p.tp1_filled_at != tp1_before or p.filled_at != fill_before:
+                    changed.append(p)               # banked TP1 / recorded a fill
                 continue
             prev, p.status = p.status, status
             now = datetime.now(timezone.utc).isoformat()
@@ -237,7 +248,7 @@ class TradeJournal:
                 p.outcome_r = outcome_r
                 p.resolved_at = now
             elif status == "open" and prev == "pending":
-                p.filled_at = now          # limit just filled; trade is live
+                p.filled_at = p.filled_at or now   # bar time from _evaluate; now is fallback
             changed.append(p)
         if changed:
             self.save()
