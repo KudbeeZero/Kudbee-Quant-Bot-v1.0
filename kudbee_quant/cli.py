@@ -397,10 +397,19 @@ def _journal_score(args) -> None:
         return
     print("Your measured track record (resolved predictions only):")
     fmt = {"hit_rate": "{:.0%}".format, "expectancy_r": "{:+.3f}".format,
-           "total_r": "{:+.1f}".format}
+           "total_r": "{:+.1f}".format, "net_expectancy_r": "{:+.3f}".format,
+           "net_total_r": "{:+.1f}".format}
     print(table.to_string(index=False, formatters={k: v for k, v in fmt.items() if k in table.columns}))
     print("\nThis is the honest number: hits / total logged, no cherry-picking. For "
-          "bracket\n(paper) trades, expectancy_r is the forward edge in R.")
+          "bracket\n(paper) trades, expectancy_r is the forward edge in R; net_* "
+          "subtracts the\nper-venue round-trip fee (§26).")
+    venues = {v: r for v, r in j.venue_record().items() if r["n"]}
+    if venues:
+        print("\nBy venue (gross -> net of fees):")
+        for v, r in venues.items():
+            print(f"  {v:6} n={r['n']:<3} hit={r['hit_rate']:.0%}  "
+                  f"exp {r['expectancy_r']:+.3f}R -> net {r['net_expectancy_r']:+.3f}R  "
+                  f"(fee {r['fee_pct_roundtrip']*100:.2f}%/rt = {r['avg_fee_r']:.3f}R/trade)")
 
 
 def _read_add(args) -> None:

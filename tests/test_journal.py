@@ -4,7 +4,9 @@ from datetime import datetime, timedelta, timezone
 import pandas as pd
 import pytest
 
+from kudbee_quant.config.validated_defaults import TAKER_FEE_PCT
 from kudbee_quant.journal import Prediction, TradeJournal
+from kudbee_quant.journal.journal import fee_r_of, net_outcome_r, venue_of
 
 
 class _FakeClient:
@@ -81,3 +83,67 @@ def test_scorecard_counts_resolved(tmp_path):
     j.check_open()
     sc = j.scorecard()
     assert sc.loc[sc["setup"] == "s1", "n"].iloc[0] == 2
+
+
+# --- net-of-fee / per-venue scoring (MEMORY §26) ---------------------------
+
+def _bracket(symbol, outcome_r, status="hit", entry=100.0, stop=99.0):
+    """A resolved bracket trade; entry/stop give risk=1 so fee_r == fee_pct*entry."""
+    return Prediction(symbol=symbol, kind="bracket", level=entry, deadline_days=7,
+                      entry=entry, stop=stop, target=103.0, direction=1.0,
+                      target_r=3.0, status=status, outcome_r=outcome_r)
+
+
+def test_venue_classification():
+    crypto = Prediction(symbol="ZECUSDT", kind="touch", level=1.0, deadline_days=1)
+    tradfi = Prediction(symbol="yahoo:GC=F", kind="touch", level=1.0, deadline_days=1)
+    explicit = Prediction(symbol="binance:BTCUSDT", kind="touch", level=1.0, deadline_days=1)
+    assert venue_of(crypto) == "crypto"
+    assert venue_of(tradfi) == "tradfi"
+    assert venue_of(explicit) == "crypto"
+
+
+def test_fee_r_and_net_by_venue():
+    expected_fee = TAKER_FEE_PCT * 100.0 / 1.0   # fee_pct * entry / risk(=1)
+    crypto = _bracket("BTCUSDT", outcome_r=3.0)
+    tradfi = _bracket("yahoo:GC=F", outcome_r=3.0)
+    assert fee_r_of(crypto) == pytest.approx(expected_fee)
+    assert fee_r_of(tradfi) == 0.0                       # zero-fee promo venue
+    assert net_outcome_r(crypto) == pytest.approx(3.0 - expected_fee)
+    assert net_outcome_r(tradfi) == pytest.approx(3.0)   # net == gross on TradFi
+
+
+def test_fee_r_zero_for_non_bracket():
+    p = Prediction(symbol="BTCUSDT", kind="touch", level=100.0, deadline_days=1)
+    assert fee_r_of(p) == 0.0          # no entry/stop -> no R-denominated fee
+    assert net_outcome_r(p) is None    # unresolved / carries no R
+
+
+def test_tp1_fill_adds_a_half_round_trip(tmp_path):
+    base = _bracket("BTCUSDT", outcome_r=2.0)
+    base.tp1, base.tp1_frac = 102.0, 0.5
+    no_tp1 = fee_r_of(base)
+    base.tp1_filled_at = "2026-06-09T00:00:00+00:00"     # TP1 banked -> extra exit leg
+    assert fee_r_of(base) == pytest.approx(no_tp1 * (1 + 0.5 * 0.5))
+
+
+def test_scorecard_has_net_columns(tmp_path):
+    j = _journal(tmp_path)
+    j.predictions = [_bracket("BTCUSDT", outcome_r=3.0)]
+    sc = j.scorecard()
+    assert {"net_expectancy_r", "net_total_r"} <= set(sc.columns)
+    assert sc.iloc[0]["net_expectancy_r"] == pytest.approx(3.0 - TAKER_FEE_PCT * 100.0)
+
+
+def test_venue_record_splits_gross_and_net(tmp_path):
+    j = _journal(tmp_path)
+    j.predictions = [_bracket("BTCUSDT", outcome_r=3.0),
+                     _bracket("yahoo:GC=F", outcome_r=3.0)]
+    rec = j.venue_record()
+    fee = TAKER_FEE_PCT * 100.0
+    assert rec["crypto"]["n"] == 1 and rec["tradfi"]["n"] == 1
+    # TradFi 0-fee venue: net expectancy == gross. Crypto bleeds exactly the taker.
+    assert rec["tradfi"]["net_expectancy_r"] == pytest.approx(rec["tradfi"]["expectancy_r"])
+    assert rec["crypto"]["net_expectancy_r"] == pytest.approx(rec["crypto"]["expectancy_r"] - fee)
+    assert rec["crypto"]["avg_fee_r"] == pytest.approx(fee)
+    assert rec["tradfi"]["avg_fee_r"] == 0.0
