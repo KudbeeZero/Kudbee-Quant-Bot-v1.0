@@ -8,7 +8,8 @@
 
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/handoff-audit-hvuuab`
-- **Last PR:** #6 — docs-only (audits + findings + memory §30 + this baton).
+- **Last PR:** #6 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/6
+  (docs-only: audits + findings + memory §30 + this baton).
 - **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
   merge gate. Note the PR is docs-only; its code work was REVERTED in-branch
   (superseded by PR #5 — see below), so the auditor should verify the net diff
