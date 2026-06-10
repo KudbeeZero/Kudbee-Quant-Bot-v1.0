@@ -40,5 +40,8 @@ class _EmptyJournal:
     def source_record(self):
         return {"bot": {"n": 0}, "human": {"n": 0}}
 
+    def venue_record(self):
+        return {"crypto": {"n": 0}, "tradfi": {"n": 0}}
+
     def resolved_series(self):
         return []
