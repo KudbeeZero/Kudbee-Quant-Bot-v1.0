@@ -835,39 +835,91 @@ resolved trades are crypto (TradFi book open) so the "TradFi net≈gross" contra
 be SHOWN yet; and the `FEE_PCT 0.0004` maker vs `0.0009` measured taker contradiction
 needs one real limit fill to settle (net-crypto is conservative until then).
 
-## 29. TradFi daily levels need exchange TRADE DATES — calendar dates create a Sunday stub that poisons Monday — 2026-06-10
+---
 
-VERIFIED ON LIVE DATA, THEN FIXED (PR for `claude/handoff-audit-hvuuab`). The
-NY/UTC calendar-date groupings in the levels pipeline assume 24/7 bars. On
-session-gapped venues (CME futures open Sun 18:00 ET; FX ~17:00 ET) they carve
-the Sunday evening into a tiny stub day, and every "previous day" level on
-Monday derived from it: pivots off by 0.15-4.0 ATR vs Friday-based (measured:
-GC=F/SI=F/CL=F/EURUSD/GBPUSD, 3mo of 1h bars), PDH/PDL from a 1-2-bar UTC
-stub, ADR biased LOW 6-16% all week. Re-scoring with the two stub-fed votes
-(v_pivot, v_sweep) zeroed flipped **40-75% of Monday `_tradfi` signals** —
-Mondays are ~20% of signal days. Full findings:
-`docs/research/tradfi_session_levels.md`.
+## 29. TradFi session/RTH audit: stub-day levels WERE artifacts (now fixed) + the false-fill journal bug — 2026-06-10
 
-FIX (opt-in, validated path untouched): `context/calendar.trade_date()` =
-NY wall clock **+6h** → date, i.e. the day boundary is the 18:00-ET Globex
-open; Sunday evening belongs to MONDAY's trade date; identity for RTH-only
-instruments. Threaded as `trade_dates: bool = False` through
-`build_features`/`reference_levels`/`build_levels`/`range_stats`; wired
-venue-aware in `paper_scan` (`is_tradfi`), `bracket_validation`, scenario
-sweeps. Default = calendar dates, bit-identical for crypto (§1 untouched;
-full suite passed unchanged). 7 tests in `tests/test_tradfi_sessions.py`.
+The §26 watch-item ("does `build_levels` survive TradFi session gaps?") is now
+VERIFIED — the suspicion was CORRECT, on three fronts. All three fixed, 183 tests.
 
-LESSON (the trap, for reuse): the boundary must be **18:00 ET (+6h), NOT
-17:00 ET (+7h)**. +7h looked equally right on paper but on live FX data
-Yahoo's Friday 17:00 close print became a one-bar "Saturday" trade date and
-Monday's PDH-PDL went to literally ZERO — a worse artifact than the one being
-fixed. Caught only by re-running the live-data diagnostic after the fix:
-verify level logic against REAL venue data, not just synthetic frames.
+**1. Stub-day level poisoning (TradFi-only, CONFIRMED + FIXED).** Globex futures
+days group on NY/UTC calendar dates, so the Sunday-evening reopen forms a ~6-bar
+"day" (holidays similar). Measured on CL=F 1h: ADR depressed **17%** (4.08 vs 4.89
+honest), and Monday's floor pivots + PDH/PDL derived from the Sunday stub — feeding
+the LIVE confluence votes `v_pivot` and (via sweeps) `v_sweep`. FIX:
+`complete_period_mask()` (context/calendar.py) — a day informs prior-day levels
+(ADR `_per_date_range_avg`, floor pivots in `levels/builder.py`, PDH/PDL in
+`context/mm_cycle.py`) only if its bar count ≥ 0.5×median; stub-day bars inherit
+the last FULL day's levels. **Provably a no-op on 24/7 crypto** (test pins exact
+equality with the naive computation), so the validated §1 behavior is untouched.
+Verified on real CL=F: ADR 4.08→4.81; Monday pp == Friday (H+L+C)/3 exactly.
 
-STILL OPEN: (a) `_tradfi` journal entries logged BEFORE this fix were
-signalled off stub-contaminated levels (especially Monday entries) — the
-forward record needs a taint audit before the 0-fee venue read is trusted.
-(b) Yahoo FX 1h has zero volume → `v_vwap`/`v_vector` can never vote → FX
-confluence is capped at 8/10, so the 50% gate is ~stricter for FX (conservative
-skew, unfixed). (c) RTH index FVG votes partly encode overnight gaps; index
-ATR absorbs opening gaps into stop sizing — noted, accepted as venue reality.
+**2. Yahoo synthetic "tick row" (TradFi-only, FIXED).** While the market is open,
+Yahoo's chart API appends a last-quote pseudo-bar (o=h=l=c=last trade, timestamped
+at the last TRADE time, off the interval grid). It flowed into `build_levels` as a
+real bar — the live signal was computed ON it (degenerate range → slightly
+depressed ATR → tighter stops than validated). FIX: `YahooClient._parse` drops a
+trailing row whose spacing from the previous bar is sub-interval (granularity from
+the payload's `dataGranularity`; unknown granularity = conservative no-drop).
+
+**3. Pending-limit FALSE-FILL bug (ALL venues, FIXED).** Seconds after a scan logs
+a pending limit, no completed bar ≥ `created_at` exists, `_evaluate` returned
+"open" for the empty window, and `check_open` stamped `filled_at` — a fictitious
+instant fill. **24 of the journal's bracket trades carry such stamps** (filled_at
+within ~seconds of created_at), including 2 in the contradictory state
+`status=pending` + `filled_at` set (pending↔open oscillation). Because the fill is
+RE-derived from bars on every later run, final hit/miss outcomes self-corrected —
+the rot was state/timestamps, not R. FIX: empty window + pending → stays pending
+(or **cancelled**, not "miss", if the fill window lapses bar-less — matters for
+TradFi limits logged into a closed session); fills now stamp the fill BAR's
+timestamp, not wall-clock. DATA CAVEAT: pre-fix `filled_at` values in
+`data/journal.json` (≤ 2026-06-10) are unreliable as fill TIMES; statuses are
+fine. Do not "clean" the journal manually — the hourly bot owns it.
+
+**Still OPEN / known limitations (documented, NOT fixed — judged minor):**
+- Wall-clock horizons: `deadline_days` / `fill_deadline_days` tick through closed
+  TradFi sessions (a Friday-evening limit can cancel over a weekend unfilled).
+  Shrinks the TradFi sample; doesn't corrupt outcomes.
+- Weekly levels: builder's `_week_id` uses W-SUN periods, so Sunday-evening Globex
+  bars count into the PRIOR week's AWR/PWH/PWL (features.py's `weekly_open` uses
+  the Sun-18:00-ET anchor and is already correct). Small effect (6 bars vs ~115).
+- FVG votes can form across session gaps (a weekend gap looks like a giant FVG);
+  ATR spikes on the first bar after a gap (true-range vs Friday close) → wider
+  stops on Sunday/Monday entries. Both are "real price gap" judgement calls.
+- GitHub cron throttling: the "hourly" paper Action actually fires every ~2-4h
+  (all runs succeed; GitHub schedule delay). Resolution latency only — the bar
+  replay re-derives everything — but stale marks persist between runs.
+
+## 30. §28 RECURRED — parallel chats built the same scope again; gate held this time + complementary TradFi findings — 2026-06-10
+
+THE RECURRENCE: two parallel chats both worked the baton's "TradFi session/RTH"
+scope. One shipped PR #5 (`complete_period_mask` + Yahoo tick row + false-fill
+fix, 3 defects); this chat (`claude/handoff-audit-hvuuab`) independently verified
+the same artifacts on live data and built an ALTERNATIVE fix (exchange trade-date
+regrouping, NY+6h Globex boundary, opt-in flag). Difference from §28: the
+duplicate was caught BEFORE this chat opened its PR — PR #5 was independently
+audited (PASS, incl. live-data cross-validation of all four measured artifacts)
+and merged through the gate; the trade-date alternative was REVERTED (preserved
+in git history, commit `ae9463b`) — one mechanism on main, not two. Per §28:
+wider surface won.
+LESSON (new, beyond §28): check `list_pull_requests` for an open PR covering your
+scope BEFORE building, not at closeout — this chat only discovered PR #5 when
+`/closeout` listed open PRs. The baton can't warn about a chat that hasn't closed
+out yet; the open-PR list can.
+
+COMPLEMENTARY MEASUREMENTS (this chat's verification, beyond §29's; full report
+`docs/research/tradfi_session_levels.md`):
+- Monday stub pivots were off by **0.15-4.0 ATR** vs Friday-based (GC/SI/CL/EUR/GBP);
+  re-scoring with the two stub-fed votes zeroed flipped **40-75% of Monday
+  `_tradfi` signals** (GC=F 16/40, GBPUSD 6/8) — Mondays ≈20% of signal days. So
+  pre-fix Monday `_tradfi` journal entries are the taint hotspot.
+- **FX dead votes (still OPEN, not in §29):** Yahoo FX 1h volume is ALL ZERO →
+  session VWAP is NaN and PVSRA can never fire → `v_vwap`/`v_vector` are silent
+  0s for EURUSD/GBPUSD. FX confluence is capped at 8/10, so the 50% gate is
+  effectively stricter for FX. Conservative skew; fix = per-venue n_factors or
+  accept.
+- **Stale-cache transient (from the PR #5 audit):** `~/.cache/kudbee_quant`
+  (TTL 86400s) can serve PRE-fix frames up to a day after the fix merged. CI
+  runners are fresh → live bot unaffected; local runs may briefly disagree.
+- Indices (^GSPC/^NDX/^DJI) were verified CLEAN pre-fix (no stubs; asian/brinks
+  NaN degrade to zero votes) — the artifact was futures+FX only.

@@ -53,17 +53,29 @@ then computed from that stub on Mondays.
   timestamp, volume 0); Binance klines do the same, so signaling on
   `iloc[-1]` is cross-venue parity, not a TradFi bug.
 
-## Fix direction (if/when fixed)
+## Fix — landed via PR #5 (`complete_period_mask`); this chat's alternative superseded
 
-Exchange convention already solves this: the CME/FX **trade date** assigns the
-Sunday-evening session to Monday (Globex day = 18:00 ET → 17:00 ET next day).
-`trade_date = (NY wall clock + 7h).date()` reproduces it for both futures and
-FX (17:00 rollover) and is the identity for any 00:00-anchored 24/7 series
-only where sessions don't cross 17:00 ET — so it MUST be opt-in (venue-aware,
-`paper.py` knows `is_tradfi`), never a silent change to the validated crypto
-path (§1 off-limits). Using it for the daily groupings (pivots, PDH/PDL, ADR)
-kills artifacts 1-4 in one move. Artifact 5 needs either per-venue `n_factors`
-or acceptance as a conservative skew.
+Two parallel chats fixed this scope (MEMORY §30). The SURVIVING mechanism is PR
+#5's `complete_period_mask()` (`context/calendar.py`): a day informs prior-day
+levels (ADR, floor pivots, PDH/PDL) only if its bar count >= 0.5 x median;
+stub-day bars inherit the last FULL day's levels. Provably a no-op on 24/7
+crypto (exact-equality test). PR #5 also fixed two defects this report did not:
+Yahoo's synthetic last-quote tick row (dropped in `_parse`) and the
+pending-limit false-fill journal bug. This chat audited PR #5 (PASS — see
+`docs/audits/claude-fable-5-release-review-mow58s.md`) including live GC=F
+cross-validation against the artifacts measured above.
+
+This chat's ALTERNATIVE fix — exchange trade-date regrouping (`(NY+6h).date()`,
+the 18:00-ET Globex boundary; opt-in `trade_dates` flag wired venue-aware) —
+was built, tested (179 passed) and then REVERTED as superseded; it survives in
+git history at commit `ae9463b` should the mask approach ever prove
+insufficient. One durable lesson from it: the boundary must be 18:00 ET, NOT
+17:00 ET — a 17:00 boundary turns Yahoo FX's Friday 17:00 close print into a
+one-bar "Saturday" and zeroes Monday's PDH-PDL. And the meta-lesson: verify
+session logic against REAL venue data, not just synthetic frames.
+
+Artifact 5 (FX dead vwap/vector votes) remains OPEN (also §30): per-venue
+`n_factors` or acceptance as a conservative skew.
 
 ## Reproduction
 

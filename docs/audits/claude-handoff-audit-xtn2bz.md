@@ -1,38 +1,46 @@
-# Post-hoc audit — PR #4 (`claude/handoff-audit-xtn2bz`)
+# Audit — PR #4 `claude/handoff-audit-xtn2bz`
 
-**Verdict: PASS (post-hoc — PR already merged 2026-06-10T01:30Z by KudbeeZero)**
+- **Verdict:** PASS (post-hoc — PR was already merged before this audit ran)
+- **Date:** 2026-06-10
+- **PR:** [#4](https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/4) — "Protocol hardening + PR #2 audit + per-venue net-of-fee scoring" — state at audit time: **MERGED** (by KudbeeZero, 2026-06-10T01:30Z; merge commit `9011566`)
+- **CI:** green — 2× `test` check runs success on head `26eef3f`
+- **Diff audited:** `48415f3..26eef3f` (base → head SHAs; 14 files, +413/−83)
+- **Auditor:** independent subagent, fresh read, claims-vs-diff
 
-- Date: 2026-06-10 · PR: https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/4 (state: merged)
-- Diff audited: `48415f3..26eef3f` (base..head SHAs from the API), 14 files, +413/−83 — matches claim (h).
-- Merge landed: `git diff 26eef3f origin/main` differs only in `data/journal.json` (later bot commits) and `docs/HANDOFF.md`/`docs/MEMORY.md` (later closeout commit `286616a`). PR content fully on main.
-- Auditor: independent in-session subagent (per `docs/SESSION_PROTOCOL.md`).
+## Claim verification — Part 1 (process)
 
-## Claim-by-claim
+- **Harness-assigned branch discovery (no `git checkout -b`): SUPPORTED.** `.claude/skills/closeout/SKILL.md:13-15` ("Discover this chat's branch (`git rev-parse --abbrev-ref HEAD`)… you do NOT rename it"); `.claude/skills/handoff-audit/SKILL.md:13-15` ("do NOT `git checkout -b` a new one"); old step-5 `git checkout -b <next-branch>` removed. Hook also prints the branch (`.claude/hooks/session-start.sh:11-12`).
+- **`/handoff-audit` checks REAL PR state + post-hoc path: SUPPORTED.** SKILL.md step 1 reads actual state via `pull_request_read` ("never assume the baton's `Audit status` is current"); step 4 has explicit OPEN / ALREADY-MERGED / CLOSED-unmerged branches, with "post-hoc record, not a merge decision" and fix-forward on non-PASS.
+- **"One open PR" invariant rewritten for parallel chats: SUPPORTED.** `docs/SESSION_PROTOCOL.md` invariant 1 now reads "Each chat owns exactly one branch + one PR — its own… `main` is the only integration point. Parallel chats *can* exist", plus a new "When the gate can't hold" section and a 4-column verdict table (open vs already-merged actions).
+- **Baton reconciled to terminal values: SUPPORTED.** handoff-audit SKILL.md step 5 ("Never leave it at `AWAITING_AUDIT` once you've audited"); `docs/HANDOFF.md` updated to `MERGED (post-hoc audit PASS)`.
+- **Auditor diffs base..head SHAs: SUPPORTED.** handoff-audit SKILL.md step 2: "`git diff <base_sha>..<head_sha>`… not `origin/main...origin/<branch>` — once the PR is merged the three-dot range… collapses to an empty diff." (This very audit exercised that path successfully.)
+- **PR #2 post-hoc audit record, verdict PASS: SUPPORTED.** `docs/audits/claude-sol-short-position-0eytax.md` added (+62 lines), header "Verdict: PASS (post-hoc…)", diff `f4be0e0..ff164c6`, claims/tests/security sections present.
+- **CLAUDE.md AskUserQuestion standing preference: SUPPORTED.** New "Standing preference: surface decisions as one-tap choices" section (CLAUDE.md, +9 lines).
 
-| Claim | Verdict | Evidence |
-|---|---|---|
-| (a) `VENUE_FEE_PCT` crypto 0.0009 / tradfi 0 | SUPPORTED | `kudbee_quant/config/validated_defaults.py:29-32`; 0.0009 is backed by MEMORY §25 ("Taker 0.045%/side… Round-trip taker ≈ 0.09%", measured on 5 live fills) |
-| (b) `venue_of` / `fee_r_of` / `net_outcome_r` | SUPPORTED | `kudbee_quant/journal/journal.py:74-107`. "Same cost model" claim VERIFIED by comparison: `fee_pct * entry / risk * (1 + 0.5 * extra_exit)` (journal.py:100-101) is character-for-character the formula at `backtest/bracket.py:150` (`fee_pct * entry / sd * (1 + 0.5 * extra_exit)`) |
-| (c) `scorecard()` net columns + `venue_record()` | SUPPORTED | journal.py:246-294 (`net_expectancy_r`/`net_total_r` cols; venue split with gross/net/avg_fee_r) |
-| (d) CLI + API surfacing, `_EmptyJournal` stub | SUPPORTED | `cli.py:405-412` (per-venue gross→net line), `api.py:102` (`"by_venue"`), `tests/test_api.py:43-44` |
-| (e) 6 new tests | SUPPORTED | `tests/test_journal.py:88-149` — exactly 6: venue classification, fee/net by venue, non-bracket zero fee, TP1 half round-trip, scorecard net columns, venue_record split |
-| (f) Protocol hardening + PR #2 audit report | SUPPORTED | `docs/SESSION_PROTOCOL.md` (+95 lines), `handoff-audit/SKILL.md` (real-state check + post-hoc path + base..head SHA diffing), `closeout/SKILL.md` (harness-assigned branch), `CLAUDE.md` (AskUserQuestion pref), `.claude/hooks/session-start.sh` (prints branch), `docs/audits/claude-sol-short-position-0eytax.md` (new, 62 lines) |
-| (g) MEMORY §26 closed / §27 / §28 | PARTIAL | §26 follow-up closed: SUPPORTED (MEMORY diff). But §27 **pre-existed at base** (PR #2 added it) and §28 is **not in this PR** — it landed in post-merge closeout commit `286616a` pushed directly to main. The PR body itself only claims §26, so this is a baton/memory conflation, not a PR over-claim |
-| (h) 14 files +413/−83 | SUPPORTED | `git diff --stat` exact match |
-| Tests "172 passed" | SUPPORTED | Local `python -m pytest -q`: 172 tests, 0 failures (only FutureWarnings). CI on head `26eef3f`: 2× `test` check runs, both `success` |
+## Claim verification — Part 2 (product, MEMORY §26 follow-up)
 
-## Fee-math correctness
+- **`VENUE_FEE_PCT` with crypto 0.0009 / tradfi 0: SUPPORTED.** `kudbee_quant/config/validated_defaults.py:29-32` — `TAKER_FEE_PCT = 0.0009`, `TRADFI_FEE_PCT = 0.0`, `VENUE_FEE_PCT = {"crypto": …, "tradfi": …}`.
+- **Crypto 0.0009 consistent with MEMORY §25: VERIFIED.** §25 (`docs/MEMORY.md:688-691`): "Taker = 0.045% per side (4.5 bps)… Verified on ALL 5 fills… Round-trip taker ≈ 0.09%." 2 × 0.00045 = 0.0009. The "MEASURED" label is accurate per §25's own evidence record.
+- **`venue_of()` / `fee_r_of()` / `net_outcome_r()`: SUPPORTED.** `kudbee_quant/journal/journal.py:74-107`. `venue_of` routes via `parse_spec` (`yahoo:` → tradfi, else crypto); `parse_spec` exists at `kudbee_quant/ingest/router.py:33` with SSRF-hardened symbol validation.
+- **Fee model matches `backtest/bracket.py`: SUPPORTED, with one honest nuance.** Formula is identical: bracket.py:150 `fee_pct * entry / sd * (1 + 0.5 * extra_exit)` vs journal.py `fee_pct_of(p) * p.entry / risk * (1 + 0.5 * extra_exit)`. Nuance: the backtest charges the extra half round-trip whenever `tp1_r` is *configured* (bracket.py:147, unconditional in the partial path), while `fee_r_of` charges it only when TP1 *actually filled* (`tp1_filled_at is not None`). The journal version is the more accurate one (it knows the real fill); same model, slightly different trigger condition. Not an over-claim — noting for the record.
+- **`scorecard()` net columns + `venue_record()`: SUPPORTED.** journal.py — `net_expectancy_r`/`net_total_r` in scorecard cols; `venue_record()` returns per-venue n/hits/hit_rate/fee_pct_roundtrip/avg_fee_r/gross/net.
+- **CLI + API surfacing: SUPPORTED.** `kudbee_quant/cli.py:397-412` (by-venue gross→net line in `journal-score`); `kudbee_quant/api.py:102` (`"by_venue": j.venue_record()`); `tests/test_api.py:43-44` (`_EmptyJournal.venue_record` stub).
+- **6 new tests: SUPPORTED.** `tests/test_journal.py:88-149` — exactly 6: `test_venue_classification`, `test_fee_r_and_net_by_venue`, `test_fee_r_zero_for_non_bracket`, `test_tp1_fill_adds_a_half_round_trip`, `test_scorecard_has_net_columns`, `test_venue_record_splits_gross_and_net`. They cover venue routing, fee math, TP1 leg, scorecard columns, and venue split with exact `pytest.approx` values keyed to `TAKER_FEE_PCT`.
 
-- Dimensionally sound: fee (price-fraction) × entry (price) / risk (price per R) = fee in R. Crypto 0.0009 round-trip applied once per trade, +½ round-trip on `tp1_frac` only when `tp1_filled_at` is set — matches the backtest model and §25's taker measurement.
-- Edge cases: `risk <= 0` and non-bracket/missing entry/stop → fee 0 (journal.py:96-99); unresolved → `net_outcome_r` is None. Sane.
-- Honest caveat correctly carried: all 14 resolved trades are crypto, so the "TradFi net≈gross" contrast is asserted by tests, not yet shown by live data — the PR says so explicitly.
+## Tests
 
-## Findings (minor, none blocking)
+- **Claim: 172 passed. Local audit run: `172 passed, 70 warnings in 32.29s` — MATCHES.** (Env note: pytest had to be installed into the system python; the standalone uv `pytest` tool lacks project deps and errors on collection — environment artifact, not a repo defect. The prior audit's broken-pyarrow failure did not reproduce.)
 
-- **Stale doc inside the PR:** the PR's own `docs/HANDOFF.md` says net-of-fee is "still open; the xtn2bz chat spent its turn hardening the relay protocol instead" — contradicted by the same PR shipping it. Fixed forward by closeout commit `286616a`, but that commit was pushed **directly to main**, a deviation from "don't push straight to main" (docs-only baton update, post-merge; pragmatically necessary, and §28 memorializes the lesson).
-- **Untested surfacing:** the CLI per-venue print block (`cli.py:405-412`) has no test; the API test asserts only `{"counts","scorecard","open"} ⊆ body` (test_api.py:30), so `by_venue` presence is covered only indirectly (the endpoint would 500 without the stub). Core math/venue logic is well tested, including the TP1-banked path and `venue_record`.
-- **Scope:** two units in one PR, but disclosed up front in the PR body as user-authorized; all 14 files map to the two stated units. No creep beyond that.
-- **Security:** no network, write-endpoint, or secret changes; `by_venue` is a read-only addition to an existing GET endpoint.
-- **Duplicate-build context:** parallel PR #3 built the same scope with an *assumed* 0.0008 maker fee; PR #4 (measured 0.0009 taker, wider surface) correctly won and PR #3 was closed as superseded — already recorded in §28.
+## Scope / security / honesty
 
-**Rationale:** every code claim in the PR body is supported with evidence, the fee model genuinely mirrors the backtest, tests (172/172) and CI are green, and the only inaccuracies are a stale in-PR baton (fixed forward) and a §27/§28 attribution that belongs to the closeout commit, not the PR.
+- **Scope: clean.** All 14 changed files map to the two stated goals (5 process/skills/docs files, 1 new audit record, 4 product files, 2 test files, HANDOFF/MEMORY baton updates). No strategy-signal changes, no journal-data commits, no workflow changes.
+- **Security: no exposure.** New code is read-only computation; `venue_of` reuses the SSRF-validated `parse_spec`; the API change adds one read-only key to an existing GET endpoint; no secrets, no network surface, no write endpoints.
+- **Honesty: good.** MEMORY §26 update explicitly flags that all 14 resolved trades are crypto so the "TradFi net≈gross" contrast cannot be shown yet, keeps the censoring-bias caveat, and leaves the TradFi RTH item OPEN. The 0.0004-maker vs 0.0009-taker tension is acknowledged in config comments rather than papered over.
+- **Minor gaps (non-blocking):**
+  - The CLI by-venue print block (`cli.py:404-412`) has no test of its own (formatting-only; underlying `venue_record()` is tested).
+  - `tests/test_api.py:31` asserts only `>= {"counts", "scorecard", "open"}` — `by_venue` is exercised via the stub but never asserted present in the response.
+  - Head commit message says "fix CI," implying CI was red mid-PR until the `_EmptyJournal` stub landed — resolved within the PR, fine.
+
+## Net
+
+Diff fully matches both halves of the PR's claims; the fee math genuinely mirrors the backtest cost model (with the journal's TP1 condition being the more accurate variant); the 0.0009 taker is the §25 measured fact; 172 tests pass locally exactly as claimed; scope is tight and the memory update is honest about what is NOT yet shown. Two trivial test-coverage nits only → **PASS**.

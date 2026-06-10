@@ -88,3 +88,18 @@ def add_time_context(df: pd.DataFrame) -> pd.DataFrame:
 def ny_session_date(ts_utc: pd.Series) -> pd.Series:
     """The New-York calendar date of each UTC timestamp (for daily grouping)."""
     return pd.to_datetime(ts_utc, utc=True).dt.tz_convert(NY).dt.date
+
+
+def complete_period_mask(counts: pd.Series, min_frac: float = 0.5) -> pd.Series:
+    """True for periods whose bar count is "full" (>= ``min_frac`` x median).
+
+    24/7 crypto periods all pass, so this is a no-op there. TradFi session
+    calendars produce STUB periods — the Globex Sunday-evening reopen (~6 1h
+    bars), holiday half-days — whose truncated ranges poison any prior-period
+    reference level built from them (ADR, floor pivots, PDH/PDL): measured on
+    CL=F the Sunday stubs depress ADR ~17% and hand Monday a 6-bar "prior day"
+    (§29). Median-based so it adapts to the instrument and bar interval.
+    """
+    if counts.empty:
+        return counts.astype(bool)
+    return counts >= min_frac * float(counts.median())

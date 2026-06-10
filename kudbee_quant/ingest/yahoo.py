@@ -23,6 +23,14 @@ from .validation import validate_ohlcv
 _BASE = "https://query1.finance.yahoo.com/v8/finance/chart/"
 _HEADERS = {"User-Agent": "Mozilla/5.0"}
 
+# Yahoo's dataGranularity -> bar duration in seconds (for spotting the
+# synthetic trailing "tick row" — see _parse).
+_GRANULARITY_S = {
+    "1m": 60, "2m": 120, "5m": 300, "15m": 900, "30m": 1800,
+    "60m": 3600, "90m": 5400, "1h": 3600,
+    "1d": 86_400, "5d": 432_000, "1wk": 604_800, "1mo": 2_592_000,
+}
+
 
 class YahooClient:
     def __init__(self, cache: DataCache | None = None, session: requests.Session | None = None):
@@ -83,4 +91,14 @@ class YahooClient:
         # Yahoo emits nulls on non-trading gaps; drop rows without a close.
         df = df.dropna(subset=["close"]).reset_index(drop=True)
         df["volume"] = df["volume"].fillna(0.0).astype(float)
+        # While the market is open Yahoo appends a synthetic "tick row": a
+        # last-quote pseudo-bar (o=h=l=c=last) timestamped at the last TRADE
+        # time, not on the interval grid. It is not a bar — it duplicates the
+        # in-progress bar and would flow into levels/ATR/fill checks (§29).
+        # Detect it by sub-interval spacing from the previous bar and drop it.
+        gran = _GRANULARITY_S.get(res.get("meta", {}).get("dataGranularity"))
+        if gran and len(df) >= 2:
+            last_gap = (df["timestamp"].iloc[-1] - df["timestamp"].iloc[-2]).total_seconds()
+            if last_gap < gran:
+                df = df.iloc[:-1].reset_index(drop=True)
         return df
