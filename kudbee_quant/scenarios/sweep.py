@@ -17,6 +17,7 @@ from ..backtest import BacktestConfig, walk_forward
 from ..backtest.bracket import bracket_backtest
 from ..backtest.metrics import infer_periods_per_year
 from ..ingest import load_ohlcv
+from ..ingest.router import parse_spec
 from ..levels import build_levels
 from .library import hold
 
@@ -48,7 +49,8 @@ def run_sweep(
     if scenarios is None:
         from . import SCENARIOS  # full registry (base + BTMM); runtime import avoids cycle
         scenarios = SCENARIOS
-    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit)) for spec in specs}
+    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit),
+                                 trade_dates=parse_spec(spec)[0] == "yahoo") for spec in specs}
 
     results = []
     for name, fn in scenarios.items():
@@ -103,7 +105,8 @@ def run_bracket_sweep(
     if scenarios is None:
         from . import SCENARIOS
         scenarios = SCENARIOS
-    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit)) for spec in specs}
+    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit),
+                                 trade_dates=parse_spec(spec)[0] == "yahoo") for spec in specs}
 
     rows = []
     for name, fn in scenarios.items():

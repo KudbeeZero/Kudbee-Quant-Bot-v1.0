@@ -55,7 +55,7 @@ def test_paper_scan_respects_symbol_risk_cap(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
     fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
                          "direction": [1.0], "confluence_pct": [0.6]})
-    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "build_levels", lambda df, **kw: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
 
     class C:

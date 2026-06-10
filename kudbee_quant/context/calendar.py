@@ -88,3 +88,23 @@ def add_time_context(df: pd.DataFrame) -> pd.DataFrame:
 def ny_session_date(ts_utc: pd.Series) -> pd.Series:
     """The New-York calendar date of each UTC timestamp (for daily grouping)."""
     return pd.to_datetime(ts_utc, utc=True).dt.tz_convert(NY).dt.date
+
+
+def trade_date(ts_utc: pd.Series) -> pd.Series:
+    """The exchange TRADE DATE of each UTC timestamp (CME Globex / FX rollover).
+
+    Session-gapped venues stamp the overnight session with the date it
+    SETTLES: the Globex day runs 18:00 ET -> ~17:00 ET next day, so Sunday
+    18:00 opens MONDAY's trade date. Shifting the NY wall clock +6h puts the
+    day boundary at 18:00 ET — the Globex open — and is the identity for
+    RTH-only instruments (09:30-16:00 ET). Grouping daily levels by calendar
+    date instead creates a tiny Sunday "stub day" whose range poisons Monday's
+    PDH/PDL/pivots/ADR (see docs/research/tradfi_session_levels.md).
+    NOT +7h (a 17:00-ET boundary): Yahoo FX prints a Friday 17:00 close bar
+    that a 17:00 boundary turns into a one-bar "Saturday" — Monday's previous
+    day would then have zero range. Bars in [17:00, 18:00) belong to the
+    closing day. For 24/7 crypto this would move the day boundary to 18:00 ET,
+    so it is OPT-IN and never the default.
+    """
+    ny = pd.to_datetime(ts_utc, utc=True).dt.tz_convert(NY)
+    return (ny.dt.tz_localize(None) + pd.Timedelta(hours=6)).dt.date

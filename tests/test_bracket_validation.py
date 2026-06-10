@@ -33,7 +33,7 @@ def test_validate_bracket_summary(monkeypatch):
     frames = {"A": _df_with_atr(seed=1), "B": _df_with_atr(seed=2)}
     # Patch loaders so build_levels/load_ohlcv aren't needed (frames already have atr).
     monkeypatch.setattr(bv, "load_ohlcv", lambda spec, **k: frames[spec])
-    monkeypatch.setattr(bv, "build_levels", lambda df: df)
+    monkeypatch.setattr(bv, "build_levels", lambda df, **kw: df)
     pos = lambda d: pd.Series(np.where(np.arange(len(d)) % 8 == 0, 1.0, 0.0), index=d.index)
     cells, summary = bv.validate_bracket(["A", "B"], pos, n_folds=4)
     assert summary["n_cells"] == 8  # 2 assets x 4 folds

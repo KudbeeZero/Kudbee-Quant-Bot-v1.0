@@ -81,7 +81,10 @@ def paper_scan(
         venue_tag = "_tradfi" if is_tradfi else ""
         if (sym, interval) in open_keys:
             continue  # already in a paper trade on this symbol+timeframe
-        f = build_levels(client.klines(sym, interval=interval, limit=600))
+        # TradFi groups daily levels by exchange trade date so Monday's
+        # pivots/PDH/PDL come from Friday, not the Sunday-evening stub.
+        f = build_levels(client.klines(sym, interval=interval, limit=600),
+                         trade_dates=is_tradfi)
         last = confluence_score(f).iloc[-1]
         pct, direction = float(last["confluence_pct"]), float(last["direction"])
         strength = float(last["strength"])

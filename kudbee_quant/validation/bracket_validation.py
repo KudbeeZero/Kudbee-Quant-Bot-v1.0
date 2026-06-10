@@ -15,6 +15,7 @@ import pandas as pd
 
 from ..backtest.bracket import bracket_backtest
 from ..ingest import load_ohlcv
+from ..ingest.router import parse_spec
 from ..levels import build_levels
 
 PositionFn = Callable[[pd.DataFrame], pd.Series]
@@ -66,7 +67,8 @@ def validate_bracket(
     fraction of sufficient cells that are positive, median expectancy, and the
     cross-asset return correlation for honesty about independence).
     """
-    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit)) for spec in specs}
+    frames = {spec: build_levels(load_ohlcv(spec, interval=interval, limit=limit),
+                                 trade_dates=parse_spec(spec)[0] == "yahoo") for spec in specs}
     rows = []
     for spec, df in frames.items():
         sig = position_fn(df)

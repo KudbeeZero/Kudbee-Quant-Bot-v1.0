@@ -26,7 +26,7 @@ def test_paper_scan_only_trades_with_bias(tmp_path, monkeypatch):
     # Engine wants to go LONG (direction +1, 60% confluence).
     fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
                          "direction": [1.0], "confluence_pct": [0.6]})
-    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "build_levels", lambda df, **kw: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
 
     class C:
@@ -48,7 +48,7 @@ def test_require_bias_skips_unbiased_symbols(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
     fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
                          "direction": [-1.0], "confluence_pct": [0.6]})
-    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "build_levels", lambda df, **kw: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
 
     class C:

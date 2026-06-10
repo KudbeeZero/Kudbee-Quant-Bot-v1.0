@@ -140,7 +140,7 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     # Force a strong long confluence signal (60% of factors aligned).
     fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
                                 "direction": [1.0], "confluence_pct": [0.6]})
-    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "build_levels", lambda df, **kw: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
 
     class C:
@@ -170,7 +170,7 @@ def test_paper_scan_tags_tradfi_venue(tmp_path, monkeypatch):
     import kudbee_quant.paper.paper as pp
     fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
                                 "direction": [1.0], "confluence_pct": [0.6]})
-    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "build_levels", lambda df, **kw: df)
     monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
 
     class C:

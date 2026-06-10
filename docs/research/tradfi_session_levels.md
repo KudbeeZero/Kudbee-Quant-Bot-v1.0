@@ -53,17 +53,35 @@ then computed from that stub on Mondays.
   timestamp, volume 0); Binance klines do the same, so signaling on
   `iloc[-1]` is cross-venue parity, not a TradFi bug.
 
-## Fix direction (if/when fixed)
+## Fix — IMPLEMENTED (same chat, opt-in `trade_dates` flag)
 
-Exchange convention already solves this: the CME/FX **trade date** assigns the
-Sunday-evening session to Monday (Globex day = 18:00 ET → 17:00 ET next day).
-`trade_date = (NY wall clock + 7h).date()` reproduces it for both futures and
-FX (17:00 rollover) and is the identity for any 00:00-anchored 24/7 series
-only where sessions don't cross 17:00 ET — so it MUST be opt-in (venue-aware,
-`paper.py` knows `is_tradfi`), never a silent change to the validated crypto
-path (§1 off-limits). Using it for the daily groupings (pivots, PDH/PDL, ADR)
-kills artifacts 1-4 in one move. Artifact 5 needs either per-venue `n_factors`
-or acceptance as a conservative skew.
+Exchange convention solves artifacts 1-4 in one move: the CME **trade date**
+assigns the Sunday-evening session to Monday (Globex day = 18:00 ET → ~17:00
+ET next day). `context/calendar.trade_date()` = `(NY wall clock + 6h).date()`
+— the day boundary sits at 18:00 ET, the Globex open, and is the identity for
+RTH-only instruments. **Not +7h** (a 17:00-ET boundary): tried first, and on
+live FX data Yahoo's Friday 17:00 ET close print became a one-bar "Saturday"
+trade date, making Monday's PDH−PDL literally zero — a worse artifact than
+the one being fixed. Bars in [17:00, 18:00) belong to the closing day.
+
+Threaded as `trade_dates: bool = False` through `build_features` →
+`add_mm_context`/`reference_levels` (PDH/PDL) and `build_levels`/`range_stats`
+(ny_date → ADR, pivots, session opens, daily_open anchor). OPT-IN only: the
+default is bit-identical to the validated crypto path (§1 untouched; full
+suite passes unchanged). Wired venue-aware at the three mixed-universe call
+sites: `paper/paper.py` (`trade_dates=is_tradfi`),
+`validation/bracket_validation.py`, `scenarios/sweep.py` (per-spec
+`parse_spec(spec)[0] == "yahoo"`).
+
+Verified on live Yahoo data post-fix (all 6 paper-bot TradFi symbols): no
+stub days (futures interior min 17 bars = Friday's real shortened session;
+FX 23), Monday PDH−PDL now full-day ranges (GC=F 107.6 vs 23.5; EURUSD
+0.0056 vs 0.0007), ^GSPC bit-identical (RTH identity). 7 tests in
+`tests/test_tradfi_sessions.py` (synthetic Globex/RTH frames + paper-scan
+venue wiring); full suite 179 passed.
+
+Artifact 5 (FX dead vwap/vector votes) is NOT fixed here — it needs either
+per-venue `n_factors` or acceptance as a conservative skew; left open.
 
 ## Reproduction
 
