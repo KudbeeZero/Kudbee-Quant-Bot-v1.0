@@ -155,3 +155,24 @@ def paper_scan_endpoint(req: ScanRequest, _auth: None = Depends(require_token),
     return {"logged": [{"id": p.id, "symbol": p.symbol, "setup": p.setup,
                         "entry_limit": p.entry, "stop": p.stop, "target": p.target,
                         "status": p.status} for p in logged]}
+
+
+@app.get("/api/metrics")
+def system_metrics(_rl: None = Depends(_read_limit)) -> dict:
+    """Host CPU and memory usage — displayed on the mission-control dashboard."""
+    try:
+        import psutil
+        cpu = psutil.cpu_percent(interval=0.1)
+        vm = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+        return {
+            "cpu_pct": round(cpu, 1),
+            "mem_used_gb": round(vm.used / 1e9, 2),
+            "mem_total_gb": round(vm.total / 1e9, 2),
+            "mem_pct": round(vm.percent, 1),
+            "disk_used_gb": round(disk.used / 1e9, 1),
+            "disk_total_gb": round(disk.total / 1e9, 1),
+            "disk_pct": round(disk.percent, 1),
+        }
+    except ImportError:
+        return {"error": "psutil not installed"}

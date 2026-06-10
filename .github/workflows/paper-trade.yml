@@ -36,8 +36,9 @@ jobs:
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
+          # ZECUSDT added: strong PVSRA fit, limit-entry orderbook-fill edge confirmed.
           python -m kudbee_quant.cli paper-scan \
-            BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
+            BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT ZECUSDT \
             --intervals 5m 15m 1h 2h 4h --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — gold,
           # silver, S&P, Nasdaq, Dow, WTI, Brent, nat-gas, EUR/GBP-USD. 1h only:
