@@ -9,8 +9,7 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/fable-5-release-review-mow58s`
 - **Last PR:** #5 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/5
-- **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
-  merge gate. The PR body carries a specific audit checklist.
+- **Audit status:** `MERGED (post-hoc audit PASS)` — `docs/audits/claude-fable-5-release-review-mow58s.md`
 - PR #4's post-hoc audit is CLOSED: **PASS** (`docs/audits/claude-handoff-audit-xtn2bz.md`).
 
 ## What this chat did (for the auditor to verify against the diff)
