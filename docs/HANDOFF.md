@@ -10,11 +10,11 @@
   harness-assigned-branch + already-merged realities.
 - **Last branch:** `claude/handoff-audit-xtn2bz`
 - **Last PR:** #4 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/4
-- **Audit status:** `MERGED (user-authorized, CI green)` — PR #4 was merged by this
-  chat at the user's explicit direction after CI passed (172). It was NOT
-  independently audit-gated (the merge predated the next chat's `/handoff-audit`),
-  so the **next chat should run a post-hoc `/handoff-audit` on PR #4** to keep the
-  record honest. Base→head for that diff: `48415f33..26eef3f`.
+- **Audit status:** `MERGED (post-hoc audit PASS)` — PR #4 was merged at the user's
+  direction with CI green (172); the independent post-hoc audit ran 2026-06-10
+  against `48415f33..26eef3f` and returned **PASS** (every claim diff-supported;
+  172 passed reproduced; scope/security clean; two trivial test-coverage nits).
+  Full report: `docs/audits/claude-handoff-audit-xtn2bz.md`.
 - **Duplicate resolved:** PR #3 (a parallel-chat net-of-fee build) was **closed as
   superseded** by #4 — see the §28 lesson below.
 
