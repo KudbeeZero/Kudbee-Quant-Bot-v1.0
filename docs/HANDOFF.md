@@ -10,10 +10,12 @@
 - **Last branch:** `claude/handoff-audit-hvuuab`
 - **Last PR:** #6 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/6
   (docs-only: audits + findings + memory §30 + this baton).
-- **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
-  merge gate. Note the PR is docs-only; its code work was REVERTED in-branch
-  (superseded by PR #5 — see below), so the auditor should verify the net diff
-  contains NO code changes.
+- **Audit status:** `MERGED (audit PASS)` — audited 2026-06-11 by the
+  `claude/hello-1lje1b` chat (report: `docs/audits/claude-handoff-audit-hvuuab.md`;
+  independent subagent, 183/183 reproduced in an isolated worktree, net diff
+  provably 5 doc files / zero code, in-branch revert exact). Merged through the
+  gate at `dd809c9`. One blemish recorded: §30's "40–75% Monday flip" lower bound
+  is actually ~33% (SI=F 13/39).
 - **PR #5 is CLOSED OUT: `MERGED (audit PASS)`** — this chat independently
   audited PR #5 pre-merge (report: `docs/audits/claude-fable-5-release-review-mow58s.md`,
   incl. live GC=F cross-validation of the fix) and merged it through the gate.
@@ -92,3 +94,6 @@
   (gate held). §28 recurred: that chat's duplicate trade-date fix reverted as
   superseded (§30). PR #6 opened (docs-only). Next scope: `_tradfi` taint audit +
   universe expansion (+11 assets); Jarvis dashboard queued after.
+- `2026-06-11` — PR #6 **audited (PASS) and merged** at `dd809c9` by
+  `claude/hello-1lje1b` (gate held again). Blemish: §30 Monday-flip lower bound
+  ~33%, not 40%.
