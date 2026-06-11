@@ -7,71 +7,60 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/handoff-audit-hvuuab`
-- **Last PR:** #6 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/6
-  (docs-only: audits + findings + memory §30 + this baton).
-- **Audit status:** `MERGED (audit PASS)` — audited 2026-06-11 by the
-  `claude/hello-1lje1b` chat (report: `docs/audits/claude-handoff-audit-hvuuab.md`;
-  independent subagent, 183/183 reproduced in an isolated worktree, net diff
-  provably 5 doc files / zero code, in-branch revert exact). Merged through the
-  gate at `dd809c9`. One blemish recorded: §30's "40–75% Monday flip" lower bound
-  is actually ~33% (SI=F 13/39).
-- **PR #5 is CLOSED OUT: `MERGED (audit PASS)`** — this chat independently
-  audited PR #5 pre-merge (report: `docs/audits/claude-fable-5-release-review-mow58s.md`,
-  incl. live GC=F cross-validation of the fix) and merged it through the gate.
-  The gate HELD this time. CI note: no check runs existed on #5's head (docs-only
-  `[skip ci]` tip); the verification basis was a 183-pass isolated-worktree run.
-- **§28 recurred (now §30):** two parallel chats built the TradFi-session scope.
-  PR #5 (3 fixes, wider surface) won; this chat's alternative trade-date fix was
-  reverted (git history `ae9463b`), its verification/measurements kept as docs.
+- **Last branch:** `claude/hello-1lje1b`
+- **Last PR:** #7 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/7
+- **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
+  merge gate. The PR body carries a specific audit checklist. Note: no
+  `kudbee_quant/**` or `tests/**` changes — the diff is audits/docs/script +
+  the workflow's TradFi symbol list.
+- PR #6 is CLOSED OUT: **`MERGED (audit PASS)`** at `dd809c9`
+  (report: `docs/audits/claude-handoff-audit-hvuuab.md`). The gate has held
+  two PRs in a row (#5, #6).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **Post-hoc audit of PR #4 → PASS** (parallel record:
-  `docs/audits/claude-handoff-audit-xtn2bz-parallel.md`; the canonical PASS
-  report landed via PR #5 — two independent audits agreed).
-- **Verified the TradFi session scope on live data** (`docs/research/
-  tradfi_session_levels.md`): Monday pivots 0.15-4 ATR off, PDH/PDL from 1-2-bar
-  stubs, ADR −6-16%, 40-75% of Monday signals flipped by the stub-fed votes.
-- **Built then REVERTED a trade-date fix** (superseded by PR #5's
-  `complete_period_mask`; revert is in-branch so the PR's net diff is docs-only).
-- **Audited PR #5 → PASS and merged it** (gate held; see audit report).
-- **MEMORY §30** — §28 recurrence + lesson (check open PRs BEFORE building),
-  complementary measurements, FX dead-vote skew, cache transient.
-- **Universe probe (user-requested):** live data-quality test of 18 candidate
-  assets — 11 pass (HG/PL/PA/ZW/ZC/ZS/ZN/ZB at full Globex quality;
-  SB/KC/CC RTH-like), cotton CT=F broken, tea/plastics not tradable anywhere.
+- **PR #6 audit gate → PASS, merged** (`dd809c9`): independent subagent, net
+  diff provably 5 doc files / zero code, in-branch revert exact, 183/183
+  reproduced in an isolated worktree. Blemish recorded: §30's Monday-flip
+  lower bound is ~33% (SI=F 13/39), not 40%.
+- **Taint audit (baton scope 1) — VERDICT: pre-fix `_tradfi` book is CLEAN
+  (MEMORY §31):** `scripts/taint_audit.py` replayed all 8 pre-fix entries
+  fixed-vs-prefix on the same bars (mask monkeypatch verified to bite:
+  92/600 GC=F Monday bars shift pivots, ADR −2.1%). 0 TAINTED / 5 CLEAN /
+  3 NOT_REPRODUCED (live-edge artifacts, all −1R misses, kept in the record).
+  All 8 were Tue/Wed — the Monday hotspot never coincided with a logged trade.
+  Full report: `docs/research/tradfi_taint_audit.md`. Journal untouched.
+- **Universe +11 (baton scope 2):** `HG/PL/PA ZW/ZC/ZS ZN/ZB SB/KC/CC` added
+  to the workflow's 1h TradFi scan; CT=F excluded. All 11 smoke-tested
+  end-to-end. UNPROVEN forward.
+- Suite **183 passed** at head after merging latest `main`.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/tradfi-taint-audit-universe` — harness
-  assigns the real name; the *scope* below is what binds.
-- **Scope (user-chosen, two small units):**
-  1. **Taint audit of pre-fix `_tradfi` journal entries** — every TradFi trade
-     logged before PR #5 merged (2026-06-10) was signalled off stub-contaminated
-     levels; Monday entries are the hotspot (§30: 40-75% of Monday signals were
-     vote-dependent on artifacts). Quantify which open/resolved `_tradfi` trades
-     would NOT have signalled under fixed levels; annotate/tag them (do NOT edit
-     the journal file manually — the bot owns it; tag via code path or a report).
-  2. **Expand the TradFi universe** (+11, user-approved): add
-     `yahoo:HG=F PL=F PA=F ZW=F ZC=F ZS=F ZN=F ZB=F SB=F KC=F CC=F`
-     to the paper-trade workflow's TradFi scan (1h). Exclude CT=F (broken feed).
-     One-line `paper-trade.yml` change + universe.py if listed there.
-- **QUEUED after that (from the parallel chat's baton, user-requested there):**
-  the **Jarvis-style mission-control dashboard** (FastAPI-served one-pager, dark
-  purple/blue + yellow/green accents, particle background, live `/api` data +
-  host CPU/mem). Not dropped — sequenced behind the data-integrity work.
+- **Slug hint (ADVISORY only):** `claude/jarvis-dashboard` — harness assigns
+  the real name; the *scope* below is what binds.
+- **Scope (one priority, user-confirmed):** build the **Jarvis-style
+  mission-control dashboard** — a one-page interactive board served by the
+  existing FastAPI app. Style: DISTINCT (not a generic Jarvis clone) — dark
+  purple/blue base, accents of yellow + a little green, particle background,
+  interactive. Wire in live data from the existing `/api` endpoints (journal
+  scorecard + `by_venue`, open book, biases) and host CPU/memory metrics (of
+  the machine serving the app). Dependency-light; keep the existing API
+  security posture.
 - **Open risks / watch-items:**
+  - **NEW (§31):** the 11 added TradFi symbols are UNPROVEN forward — softs
+    (SB/KC/CC) are RTH-like with bigger session gaps; watch for §29-style edge
+    cases. 3 pre-fix entries are live-edge NOT_REPRODUCED (noted in the taint
+    report, kept in the record).
   - **§29 data caveat:** pre-fix `filled_at` timestamps (≤ 2026-06-10) unreliable
     as fill TIMES; statuses/outcomes fine. Don't "clean" the journal.
-  - **§30:** FX dead votes (confluence capped 8/10 for EURUSD/GBPUSD); stale-cache
-    transient (≤1 day, local only); §29's documented-not-fixed list (wall-clock
-    deadlines through closed sessions, W-SUN weekly grouping, gap FVGs/ATR,
-    cron throttling to ~2-4h).
+  - **§30:** FX dead votes (confluence capped 8/10 for EURUSD/GBPUSD); §29's
+    documented-not-fixed list (wall-clock deadlines through closed sessions,
+    W-SUN weekly grouping, gap FVGs/ATR, cron throttling to ~2-4h).
   - **Maker-vs-taker fee contradiction (still open):** measured taker 0.0009 vs
     `FEE_PCT=0.0004` maker assumption — one real LIMIT fill settles it.
-  - Censoring bias unwinding in the right direction (crypto book −0.086R avg over
-    33 resolved, 4× +3R hits landed) but still not an edge readout.
+  - Censoring bias unwinding in the right direction but the scorecard is still
+    not an edge readout — let the book mature.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT` (no change
   without walk-forward); `data/journal.json` (bot-owned — no session commits);
   crypto daily grouping stays calendar-dated (the §29 mask is provably a no-op
@@ -97,3 +86,6 @@
 - `2026-06-11` — PR #6 **audited (PASS) and merged** at `dd809c9` by
   `claude/hello-1lje1b` (gate held again). Blemish: §30 Monday-flip lower bound
   ~33%, not 40%.
+- `2026-06-11` — PR #7 opened (`claude/hello-1lje1b`): PR #6 audit + taint-audit
+  verdict (pre-fix `_tradfi` book CLEAN, §31) + universe +11. Next scope: Jarvis
+  dashboard.
