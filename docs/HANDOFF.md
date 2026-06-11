@@ -9,15 +9,14 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/hello-1lje1b`
 - **Last PR:** #7 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/7
-- **Audit status:** `MERGED (audit PASS — SELF-AUDIT, see caveat)` — the user
-  invoked `/verify and /handoff-audit` in the AUTHORING session itself, so the
-  gate ran early: independent subagent audit (report:
-  `docs/audits/claude-hello-1lje1b.md` — every claim reproduced incl. the
-  92/600 monkeypatch sanity figures and 183/183 in an isolated worktree) plus
-  a live `/verify` pass (taint script + the exact 21-symbol scan command in an
-  isolated worktree; ZC=F logged a real tagged trade; CT=F exclusion probed =
-  broken granularity). CAVEAT: same-session audit — the next chat may
-  spot-check rather than treat this as arm's-length.
+- **Audit status:** `MERGED (post-hoc PASS — arm's-length spot-check confirmed
+  the self-audit)` — 2026-06-11, this chat ran the independent spot-check the
+  self-audit caveat invited: fresh auditor subagent, every claim reproduced
+  against `dd809c9..42069c8` (taint script re-run live, table byte-identical;
+  exact +11 workflow delta; no code/journal changes; 183/183). Report:
+  `docs/audits/claude-hello-1lje1b-posthoc.md`. One enumeration omission found
+  (PR body's file list missed its own self-audit report file; totals honest).
+  Original self-audit record: `docs/audits/claude-hello-1lje1b.md`.
 - PR #6 is CLOSED OUT: **`MERGED (audit PASS)`** at `dd809c9`
   (report: `docs/audits/claude-handoff-audit-hvuuab.md`). The gate has held
   two PRs in a row (#5, #6).
