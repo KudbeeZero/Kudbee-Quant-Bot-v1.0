@@ -52,6 +52,15 @@
   scorecard + `by_venue`, open book, biases) and host CPU/memory metrics (of
   the machine serving the app). Dependency-light; keep the existing API
   security posture.
+- **QUEUED after the dashboard (user-chosen 2026-06-11):** a **TradingView
+  alert-webhook endpoint** — small secured POST route on the FastAPI app that
+  receives TradingView alert webhooks (e.g. from our shipped
+  `pinescript/pvsra_vector_candles.pine` running on a TV chart) and logs them
+  as human-bias signals/notifications. Context: TradingView has NO official
+  market-data API (data stays Binance+Yahoo — §1 untouched); webhooks need a
+  TV paid plan and the API reachable from the internet — same hosting
+  consideration as the dashboard. Postman was evaluated and adds nothing
+  (tooling, not a data source).
 - **Open risks / watch-items:**
   - **NEW (§31):** the 11 added TradFi symbols are UNPROVEN forward — softs
     (SB/KC/CC) are RTH-like with bigger session gaps; watch for §29-style edge
