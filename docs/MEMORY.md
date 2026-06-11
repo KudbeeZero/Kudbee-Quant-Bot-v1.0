@@ -889,3 +889,37 @@ fine. Do not "clean" the journal manually — the hourly bot owns it.
 - GitHub cron throttling: the "hourly" paper Action actually fires every ~2-4h
   (all runs succeed; GitHub schedule delay). Resolution latency only — the bar
   replay re-derives everything — but stale marks persist between runs.
+
+## 30. §28 RECURRED — parallel chats built the same scope again; gate held this time + complementary TradFi findings — 2026-06-10
+
+THE RECURRENCE: two parallel chats both worked the baton's "TradFi session/RTH"
+scope. One shipped PR #5 (`complete_period_mask` + Yahoo tick row + false-fill
+fix, 3 defects); this chat (`claude/handoff-audit-hvuuab`) independently verified
+the same artifacts on live data and built an ALTERNATIVE fix (exchange trade-date
+regrouping, NY+6h Globex boundary, opt-in flag). Difference from §28: the
+duplicate was caught BEFORE this chat opened its PR — PR #5 was independently
+audited (PASS, incl. live-data cross-validation of all four measured artifacts)
+and merged through the gate; the trade-date alternative was REVERTED (preserved
+in git history, commit `ae9463b`) — one mechanism on main, not two. Per §28:
+wider surface won.
+LESSON (new, beyond §28): check `list_pull_requests` for an open PR covering your
+scope BEFORE building, not at closeout — this chat only discovered PR #5 when
+`/closeout` listed open PRs. The baton can't warn about a chat that hasn't closed
+out yet; the open-PR list can.
+
+COMPLEMENTARY MEASUREMENTS (this chat's verification, beyond §29's; full report
+`docs/research/tradfi_session_levels.md`):
+- Monday stub pivots were off by **0.15-4.0 ATR** vs Friday-based (GC/SI/CL/EUR/GBP);
+  re-scoring with the two stub-fed votes zeroed flipped **40-75% of Monday
+  `_tradfi` signals** (GC=F 16/40, GBPUSD 6/8) — Mondays ≈20% of signal days. So
+  pre-fix Monday `_tradfi` journal entries are the taint hotspot.
+- **FX dead votes (still OPEN, not in §29):** Yahoo FX 1h volume is ALL ZERO →
+  session VWAP is NaN and PVSRA can never fire → `v_vwap`/`v_vector` are silent
+  0s for EURUSD/GBPUSD. FX confluence is capped at 8/10, so the 50% gate is
+  effectively stricter for FX. Conservative skew; fix = per-venue n_factors or
+  accept.
+- **Stale-cache transient (from the PR #5 audit):** `~/.cache/kudbee_quant`
+  (TTL 86400s) can serve PRE-fix frames up to a day after the fix merged. CI
+  runners are fresh → live bot unaffected; local runs may briefly disagree.
+- Indices (^GSPC/^NDX/^DJI) were verified CLEAN pre-fix (no stubs; asian/brinks
+  NaN degrade to zero votes) — the artifact was futures+FX only.
