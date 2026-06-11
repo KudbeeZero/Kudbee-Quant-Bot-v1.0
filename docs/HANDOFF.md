@@ -9,10 +9,15 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/hello-1lje1b`
 - **Last PR:** #7 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/7
-- **Audit status:** `AWAITING_AUDIT` — the next chat's `/handoff-audit` is the
-  merge gate. The PR body carries a specific audit checklist. Note: no
-  `kudbee_quant/**` or `tests/**` changes — the diff is audits/docs/script +
-  the workflow's TradFi symbol list.
+- **Audit status:** `MERGED (audit PASS — SELF-AUDIT, see caveat)` — the user
+  invoked `/verify and /handoff-audit` in the AUTHORING session itself, so the
+  gate ran early: independent subagent audit (report:
+  `docs/audits/claude-hello-1lje1b.md` — every claim reproduced incl. the
+  92/600 monkeypatch sanity figures and 183/183 in an isolated worktree) plus
+  a live `/verify` pass (taint script + the exact 21-symbol scan command in an
+  isolated worktree; ZC=F logged a real tagged trade; CT=F exclusion probed =
+  broken granularity). CAVEAT: same-session audit — the next chat may
+  spot-check rather than treat this as arm's-length.
 - PR #6 is CLOSED OUT: **`MERGED (audit PASS)`** at `dd809c9`
   (report: `docs/audits/claude-handoff-audit-hvuuab.md`). The gate has held
   two PRs in a row (#5, #6).
@@ -89,3 +94,6 @@
 - `2026-06-11` — PR #7 opened (`claude/hello-1lje1b`): PR #6 audit + taint-audit
   verdict (pre-fix `_tradfi` book CLEAN, §31) + universe +11. Next scope: Jarvis
   dashboard.
+- `2026-06-11` — PR #7 **audited (PASS) and merged** — SELF-AUDIT (user-invoked
+  in the authoring session; independent subagent + live `/verify`; caveat in
+  the report). Gate streak: #5, #6, #7.
