@@ -923,3 +923,33 @@ COMPLEMENTARY MEASUREMENTS (this chat's verification, beyond §29's; full report
   runners are fresh → live bot unaffected; local runs may briefly disagree.
 - Indices (^GSPC/^NDX/^DJI) were verified CLEAN pre-fix (no stubs; asian/brinks
   NaN degrade to zero votes) — the artifact was futures+FX only.
+
+## 31. Taint audit VERDICT: the pre-fix `_tradfi` book is CLEAN at the signal level + 11-symbol universe expansion — 2026-06-11
+
+The §30 "pre-fix Monday entries are the taint hotspot" worry RESOLVED by replay
+(`scripts/taint_audit.py`, report `docs/research/tradfi_taint_audit.md`): all 8
+pre-fix `_tradfi` entries (created ≤ PR #5 merge, 2026-06-10T14:59Z) re-scored on
+their signal bars under fixed vs pre-fix levels (mask monkeypatched off at both
+import sites; patch verified to bite — 92/600 GC=F Monday bars shift pivots, ADR
+−2.1%). **Result: 0 TAINTED — vote-for-vote identical both ways on all 8.**
+Mechanism: the TradFi book only started Tuesday 06-09; all 8 entries are Tue/Wed,
+whose prior-day pivots/PDH-PDL come from FULL sessions — the Monday hotspot never
+coincided with a logged trade. ADR bias couldn't flip signals (ADR feeds
+`adr_high/low`, which carry no confluence vote). The one profitable pre-fix trade
+(SI=F +3R) is CLEAN; the forward record needs NO exclusions.
+
+CAVEAT (recorded, not actioned): 3 of the 8 (all −1R misses) score 40% < the 50%
+gate on completed bars under BOTH variants — their signals existed only in the
+bot's live view (§29 tick row, since fixed, and/or legitimate mid-hour bar state,
+which is still today's behavior). Replay cannot separate the two. They stay in
+the record — excising reproducible losses would be survivorship cleanup.
+
+UNIVERSE +11 (user-approved, §30 probe): `HG=F PL=F PA=F ZW=F ZC=F ZS=F ZN=F
+ZB=F SB=F KC=F CC=F` added to the hourly 1h TradFi scan (CT=F excluded — broken
+feed). All 11 smoke-tested end-to-end (600×1h fetch → build_levels →
+confluence_score). UNPROVEN forward — softs (SB/KC/CC) are RTH-like with bigger
+session gaps; expect more §29-style edge cases there. Watch, don't trust.
+
+Protocol note: the audit gate has now held TWO PRs in a row (#5, #6 — reports in
+`docs/audits/`). §30's blemish corrected in passing: the Monday-flip range's
+honest lower bound is ~33% (SI=F 13/39), not 40%.
