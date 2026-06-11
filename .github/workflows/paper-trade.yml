@@ -39,13 +39,18 @@ jobs:
           python -m kudbee_quant.cli paper-scan \
             BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
             --intervals 5m 15m 1h 2h 4h --trend-filter || true
-          # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — gold,
-          # silver, S&P, Nasdaq, Dow, WTI, Brent, nat-gas, EUR/GBP-USD. 1h only:
-          # the validated timeframe, Yahoo-supported, and avoids session-gap
-          # noise on sub-hourly bars. Tagged "*_tradfi" so it scores separately.
+          # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
+          # indices, energy, FX, grains, rates, softs. 1h only: the validated
+          # timeframe, Yahoo-supported, and avoids session-gap noise on
+          # sub-hourly bars. Tagged "*_tradfi" so it scores separately.
+          # +11 symbols (§30 probe, user-approved): HG/PL/PA metals, ZW/ZC/ZS
+          # grains, ZN/ZB rates at full Globex quality; SB/KC/CC softs are
+          # RTH-like. CT=F excluded (broken feed).
           python -m kudbee_quant.cli paper-scan \
             yahoo:GC=F yahoo:SI=F yahoo:^GSPC yahoo:^NDX yahoo:^DJI \
             yahoo:CL=F yahoo:BZ=F yahoo:NG=F yahoo:EURUSD=X yahoo:GBPUSD=X \
+            yahoo:HG=F yahoo:PL=F yahoo:PA=F yahoo:ZW=F yahoo:ZC=F yahoo:ZS=F \
+            yahoo:ZN=F yahoo:ZB=F yahoo:SB=F yahoo:KC=F yahoo:CC=F \
             --intervals 1h --trend-filter || true
           python -m kudbee_quant.cli journal-check || true
           echo "---- scorecard ----"
