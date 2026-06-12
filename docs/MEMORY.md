@@ -953,3 +953,34 @@ session gaps; expect more §29-style edge cases there. Watch, don't trust.
 Protocol note: the audit gate has now held TWO PRs in a row (#5, #6 — reports in
 `docs/audits/`). §30's blemish corrected in passing: the Monday-flip range's
 honest lower bound is ~33% (SI=F 13/39), not 40%.
+
+## 32. Branch-sweep verdict: no journal data lives outside `main` + the salvage lesson — 2026-06-12
+
+User worry ("trades are out there on other branches") DISPROVED by ID-level
+check: every remote branch's `data/journal.json` is a strict, stale SUBSET of
+main's (0 unique trade IDs across all 11 `claude/*` branches). The bot pushes
+only to main; branch copies are snapshots from their fork point. Don't re-check
+journals on branches — check main.
+
+SALVAGE LESSON (tested): the zcash branch's "finished" dashboard (commit
+`6632c48`, claimed working + "183 tests pass") was wired to IMAGINED API field
+names — scorecard `n_resolved`/`n_wins` (real: `n`/`hits`), counts `win`/`loss`
+(real: `hit`/`miss`), `resolved_series` as numbers (real: dicts with `.r`) —
+and had zero HTML escaping. It would have rendered zeros/NaN in 3 of 6 panels.
+Its tests passed because it ADDED none. Rule: salvaged work from a parallel
+chat gets re-verified against the live API contract before shipping; "tests
+pass" means nothing if the diff has no tests. (Fixed version shipped with a
+regression guard pinning the real field names: `tests/test_dashboard.py`.)
+
+Branch hygiene facts: this remote-exec environment CANNOT delete branches
+(403 — push scoped to the session branch; GitHub MCP has no ref-delete).
+Deletions must be done from the GitHub UI. Verified safe to delete (merged or
+content-confirmed-in-main): handoff-audit-hvuuab, hello-1lje1b,
+overnight-algo-research-plan-hyqzf6, sol-short-position-0eytax,
+fable-5-release-review-mow58s, handoff-audit-fee-scoring-p0yg4n,
+handoff-audit-xtn2bz. Held for salvage: zcash-backtest-orderbook-shjg5o
+(dashboard source — delete after the salvage PR merges),
+crypto-confluences-research-cxrtp3 (research Vols 7–10),
+website-design-seo-067ci3 (site pages),
+market-trading-tools-analysis-l2rnr1 (29 ahead; headline content in main but
+not commit-by-commit verified).
