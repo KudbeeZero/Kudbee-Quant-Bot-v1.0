@@ -11,9 +11,6 @@ dependencies = { file = ["requirements.txt"] }
 [tool.setuptools.packages.find]
 include = ["kudbee_quant*"]
 
-[tool.setuptools.package-data]
-kudbee_quant = ["static/*.html"]
-
 [tool.ruff]
 line-length = 100
 target-version = "py311"

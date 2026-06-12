@@ -320,9 +320,14 @@ class TradeJournal:
         return out
 
     def resolved_series(self) -> list[dict]:
-        """Resolved bracket outcomes in time order — the forward equity curve input."""
+        """Resolved bracket outcomes in time order — the forward equity curve input.
+
+        ``id``/``symbol``/``timeframe`` are carried so the trade-flow replay
+        picker can list resolved trades (additive; existing consumers ignore them).
+        """
         rows = [{"t": p.resolved_at or p.created_at, "r": p.outcome_r,
-                 "source": p.source, "setup": p.setup or "(unlabeled)"}
+                 "source": p.source, "setup": p.setup or "(unlabeled)",
+                 "id": p.id, "symbol": p.symbol, "timeframe": p.timeframe}
                 for p in self.predictions
                 if p.status in ("hit", "miss") and p.outcome_r is not None]
         return sorted(rows, key=lambda x: x["t"])

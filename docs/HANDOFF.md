@@ -103,6 +103,10 @@
   `claude/handoff-audit-tradingview-6sswe1` (gate held; arm's-length). Nits
   carried to hosting: `/api/metrics` public host-info disclosure, `?token=`
   log exposure. Gate streak: #5, #6, #7, #9.
+- `2026-06-12` — PR #10 opened (`claude/trade-viz-draggable-indicators-yncx2t`):
+  Trade Flow visualizer (trace/sandbox/replay + CLI, §33), 201 tests,
+  AWAITING_AUDIT. Parallel chat opened PR #9 (dashboard + webhook, §32 claim)
+  mid-session — next scope: audit + land BOTH, #9 first, resolve conflicts.
 - `2026-06-12` — PR #11 opened (`claude/handoff-audit-tradingview-6sswe1`):
   PR #9 gate report + hosting unit (Render Starter blueprint + TV alert inbox,
   §34; 200 tests; deployment UNPROVEN until the Render service exists). Next

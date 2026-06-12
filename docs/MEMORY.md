@@ -985,10 +985,28 @@ website-design-seo-067ci3 (site pages),
 market-trading-tools-analysis-l2rnr1 (29 ahead; headline content in main but
 not commit-by-commit verified).
 
-## 34. Hosting architecture: the host is a disposable MIRROR; the repo journal stays the record; alerts travel via a create-only inbox — 2026-06-12
+## 33. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
 
-(§33 is reserved — open PR #10 pre-claimed it on its branch for the trace/replay
-layer; do not reuse the number.)
+The confluence stack is now introspectable without forking it:
+`confluence/trace.py` decorates `factor_votes()` with per-factor labels /
+human-readable details (parity with `factor_votes`/`confluence_score` is
+pinned by test — `tests/test_trace.py`), `replay.py` replays any journal
+bracket bar-by-bar (read-only, 600-bar warmup matching the live scan), and
+they're surfaced three ways: `GET /api/trace/{spec}`, `POST /api/sandbox/trace`
+(UNVALIDATED what-if: EMA spans 2..2000 + factor subset + display gate — pure
+compute, never journals), `GET /api/replay/{trade_id}`, the `trade-flow.html`
+node-graph page, and the `trade-trace` CLI. `safe_spec()` was added because
+`safe_symbol()` drops the `yahoo:` prefix — meaning **`/api/signal` was always
+crypto-only** (left unchanged deliberately; use `/api/trace` for TradFi).
+
+LESSON (the §29/§31 recompute gap is now per-trade visible): replaying
+0bee2b4a (YAHOO:CL=F, logged at ≥50% confluence live) recomputes to **20% at
+the SIGNAL bar** from refetched Yahoo data. Replay output is for studying
+factor EVOLUTION around a trade, not for re-verifying the entry gate — never
+read a replay pct as the live-edge pct. The caveat ships in every replay
+response/CLI footer; keep it there.
+
+## 34. Hosting architecture: the host is a disposable MIRROR; the repo journal stays the record; alerts travel via a create-only inbox — 2026-06-12
 
 DECIDED (user, 2026-06-12): Render **Starter** ($7/mo, `render.yaml`) hosts the
 FastAPI app. Free tier was rejected for a measured reason: 15-min idle
@@ -1016,3 +1034,80 @@ Verified locally (200/200 tests; uvicorn live: fail-closed 503 / 401 / logged
 pending; ingest CLI idempotent end-to-end from a temp dir; repo journal
 untouched). UNPROVEN as a live deployment until the Render service exists —
 the smoke-test for that is in `docs/HOSTING.md`.
+
+## 35. Execution-sweep over the first 102 live signals: NO entry tweak rescues this week's signal; fees poison the 5m book — 2026-06-12
+
+
+Research (chat artifact, read-only; refetched bars + the shared
+`backtest/resolver.py`, journal semantics mirrored exactly — sanity check:
+**81/81 resolved+cancelled trades reproduced their logged outcome**, zero §33
+drift this time). Sample: 102 brackets, 2026-06-09 → 06-12. CAVEATS FIRST:
+3.5 days, ONE regime (June-9 alt-short wave then reversal), trades heavily
+correlated, all in-sample — this is hypothesis-generation, NOT validation.
+
+- **Miss autopsy (61 misses):** 38 were simply wrong (never +0.5R). But 13 ran
+  ≥+1R unbanked (7 of them ≥+2R with a 3R target), and **19 hit the stop and
+  then ran to the original 3R target anyway**. The pain is exit/banking, not
+  entry timing.
+- **Entry-slider sweep** (retrace 0→0.60 ATR, market entry, stop 1.0→3.0 ATR,
+  layered halves): EVERY variant is net-negative. Filling MORE (market,
+  retrace 0/0.10 — the "layer in sooner" idea) is monotonically WORSE
+  (−51R net at retrace 0 vs −34R current); only a DEEPER pullback gate
+  (0.60 ATR: −7R net, +2.4R gross on 79 fills) approaches breakeven. Wider
+  stops also did NOT pay despite the 19 stop-then-ran trades (3R target moves
+  away faster than the stop saves). Execution tweaks shuffle the loss; they
+  cannot manufacture edge the signal doesn't have this week.
+- **Attribution:** 5m crypto book −18.6R net over 31 fills with **~0.24R/trade
+  burned in fees alone** (tiny 5m ATR ⇒ huge fee in R) — structurally
+  fee-poisoned at FEE_PCT 0.04%/side. TradFi 1h −10.0R (June-11 FX/grain
+  shorts). Confluence level did NOT rank edge (60% bucket WORSE than 50%;
+  70/80 n too small to read).
+- **Unbuilt but proven feasible:** the "sliders → instant re-backtest over
+  saved live trades" loop the user wants — this analysis IS that engine
+  (recover ATR from `|signal−entry|/0.25`, rebuild brackets, shared resolver).
+  Queued as the Execution Lab scope; TP1 partial-banking is the variant the
+  autopsy says to test first.
+
+## 36. REGISTERED HYPOTHESIS — fading the signal was net-positive this week, but NOT significant — 2026-06-12
+
+
+User's idea (the right way around): if "layering in sooner makes it worse,"
+the signal may be marking exhaustion — confluence clusters where the crowd
+decides price is shifting, and in a macro uptrend those counter-moves are
+continuation fuel. Tested on the same 102-signal engine as §35 (flip
+direction, identical 0.25-ATR-retrace/1.5-ATR-stop/3R bracket, same fees):
+
+- **FADE everything: +8.7R net (88 fills, +0.10R/trade)** vs −34.3R as traded.
+  Robust to execution choice in-sample (market entry +7.5R, 2.5-ATR stop
+  +9.3R, fade-only-5m +0.22R/trade, fade-only-60%-bucket +0.18R/trade).
+- **Asymmetry lesson:** a −34R book inverts to only +9R, not +34R — the
+  3R:1R bracket geometry doesn't mirror and fees hit both sides. "It's
+  losing" does NOT mean "the inverse wins big."
+- **Significance — the gate FAILS:** naive t=0.55; clustered by 6h scan
+  window (simultaneous signals = one market bet) only **12 independent-ish
+  bets**, t=0.73, cluster bootstrap **P(no edge) ≈ 23%**. One regime (the
+  June-9 alt flush → V-reversal). And inversion-after-seeing-the-loss is the
+  textbook in-sample trap.
+- **Honest test = forward, not backward:** run a SHADOW FADE BOOK — the
+  hourly scan also logs the mirrored bracket of every signal under its own
+  setup tag (paper, journal-scored like everything else) and let live data
+  accumulate. Sharper variant worth tagging: fade only signals OPPOSING the
+  macro (HTF) trend. Needs a small bot change ⇒ its own PR + user sign-off;
+  queued with the Execution Lab.
+
+**§36 ADDENDUM — OUT-OF-SAMPLE VERDICT (same day): the blanket fade FAILS.**
+Re-ran the journal test (reproduces exactly: orig −34.3R / fade +8.7R), then
+took the fade rule to data it had never seen — history strictly BEFORE
+2026-06-09 (15m ~31d, 1h ~4mo, 4h ~8mo), 10 journaled coins + 6 never-traded
+coins (LTC/BCH/TRX/NEAR/ATOM/UNI) + 4 TradFi, same gate
+(`confluence_position(min_pct=.5, trend_align=True)`) and same execution via
+`bracket_backtest` (0.25-ATR limit/12-bar window/1.5-ATR stop/3R/72-bar
+time-stop, fee_pct 2×FEE_PCT): **fade positive in only 16/52 symbol-TF cells
+(pooled ≈ −500R); the ORIGINAL is positive in 39/52** — consistent with its
+§1 validation. Last week's fade win was the June-9 V-reversal regime, not an
+edge. HYPOTHESIS REJECTED as a blanket rule; shadow fade book is now
+OPTIONAL/low-priority. Real watch-item found instead: **journaled crypto on
+1h was orig −91.9R / fade +89.8R over the recent ~4 months** — possible edge
+DECAY on the 1h crypto book recently (regime-dependence, §22-style honesty:
+n large but one window; check again as forward data accrues). Full grid:
+chat artifact `oos_fade_test.csv`.
