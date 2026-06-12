@@ -14,13 +14,16 @@ import os
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
-from .api_security import RateLimiter, require_token, safe_symbol
+from .api_security import RateLimiter, require_token, safe_spec, safe_symbol
 from .confluence.stack import confluence_score
-from .ingest import BinanceClient
+from .confluence.trace import (EMA_SPAN_MAX, EMA_SPAN_MIN, FACTOR_KEYS,
+                               factor_trace, sandbox_score)
+from .ingest import BinanceClient, RouterClient
 from .journal import Prediction, TradeJournal
 from .levels import build_levels
+from .replay import ReplayTooOld, ReplayUnsupported, replay_trade
 
 app = FastAPI(title="Kudbee Quant API", version="1.0.0",
               description="Honest Traders Reality PVSRA quant engine — read-only signals.")
@@ -31,9 +34,11 @@ _origins = [o for o in os.environ.get("KUDBEE_SITE_ORIGIN", "").split(",") if o]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"],
                    allow_headers=["*"])
 
-# Rate limiters: generous for public reads, tight for journal writes.
+# Rate limiters: generous for public reads, tight for journal writes. The
+# sandbox recompute gets its own scope so what-if spam can't starve the reads.
 _write_limit = RateLimiter(limit=10, window=60.0, scope="write")
 _read_limit = RateLimiter(limit=120, window=60.0, scope="read")
+_sandbox_limit = RateLimiter(limit=30, window=60.0, scope="sandbox")
 
 # Validated default config — single source of truth (config/validated_defaults.py).
 from .config.validated_defaults import VALIDATED_BASELINE
@@ -45,6 +50,21 @@ _ALLOWED_TF = {"1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "6h", "8h", "12
 @app.get("/api/health")
 def health() -> dict:
     return {"status": "ok", "config": CONFIG}
+
+
+def _bracket_for(last) -> dict | None:
+    """The validated limit-retrace bracket from a scored last bar (None when
+    not actionable). Shared by /api/signal and /api/trace so they can't drift."""
+    price, atr = float(last["close"]), float(last["atr"])
+    direction, pct = int(last["direction"]), float(last["confluence_pct"])
+    if not (pct >= CONFIG["min_pct"] and direction != 0):
+        return None
+    sd = atr * CONFIG["stop_atr"]
+    limit = price - direction * CONFIG["retrace_atr"] * atr
+    return {"entry_limit": round(limit, 6),
+            "stop": round(limit - direction * sd, 6),
+            "target": round(limit + direction * sd * CONFIG["target_r"], 6),
+            "target_r": CONFIG["target_r"]}
 
 
 @app.get("/api/signal/{symbol}")
@@ -60,11 +80,9 @@ def signal(symbol: str, interval: str = "1h", _rl: None = Depends(_read_limit)) 
     except Exception:                       # network / upstream — no detail leak
         raise HTTPException(status_code=502, detail="upstream data error")
     last = confluence_score(f).iloc[-1]
-    price, atr = float(last["close"]), float(last["atr"])
+    price = float(last["close"])
     direction, pct = int(last["direction"]), float(last["confluence_pct"])
     strength, nf = int(last["strength"]), int(last["n_factors"])
-    sd = atr * CONFIG["stop_atr"]
-    limit = price - direction * CONFIG["retrace_atr"] * atr
     actionable = pct >= CONFIG["min_pct"] and direction != 0
     side = "long" if direction > 0 else ("short" if direction < 0 else "flat")
     return {
@@ -73,12 +91,108 @@ def signal(symbol: str, interval: str = "1h", _rl: None = Depends(_read_limit)) 
         "confluence_pct": round(pct, 3), "strength": strength, "n_factors": nf,
         "net_score": int(last["net_score"]), "direction": direction, "side": side,
         "actionable": bool(actionable),
-        "bracket": ({"entry_limit": round(limit, 6),
-                     "stop": round(limit - direction * sd, 6),
-                     "target": round(limit + direction * sd * CONFIG["target_r"], 6),
-                     "target_r": CONFIG["target_r"]} if actionable else None),
+        "bracket": _bracket_for(last),
         "disclaimer": "Directional read, not advice. Enter via LIMIT (maker), size small.",
     }
+
+
+@app.get("/api/trace/{spec}")
+def trace(spec: str, interval: str = "1h", bars: int = 64,
+          _rl: None = Depends(_read_limit)) -> dict:
+    """Per-factor confluence flow for a symbol: each bar's 10 votes with
+    human-readable details, for the trade-flow visualizer. Unlike /api/signal
+    this accepts full specs (yahoo:GC=F) and routes TradFi correctly."""
+    spec = safe_spec(spec)                  # whitelist, keeps the source prefix
+    if interval not in _ALLOWED_TF:
+        raise HTTPException(status_code=422, detail="invalid interval")
+    if not 1 <= bars <= 200:
+        raise HTTPException(status_code=422, detail="bars must be 1..200")
+    try:
+        f = build_levels(RouterClient().klines(spec, interval=interval, limit=600))
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=502, detail="upstream data error")
+    return {
+        "symbol": spec, "interval": interval,
+        "bars": factor_trace(f, bars=bars),
+        "config": {"min_pct": CONFIG["min_pct"]},
+        "bracket": _bracket_for(confluence_score(f).iloc[-1]),
+        "disclaimer": "Directional read, not advice. Enter via LIMIT (maker), size small.",
+    }
+
+
+class SandboxRequest(BaseModel):
+    symbol: str = Field(..., min_length=1, max_length=30)
+    interval: str = Field(default="1h", pattern=r"^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$")
+    bars: int = Field(default=64, ge=1, le=200)
+    ema: dict[str, int] | None = None
+    factors: list[str] | None = Field(default=None, max_length=10)
+    min_pct: float = Field(default=0.5, ge=0.0, le=1.0)
+
+    @field_validator("ema")
+    @classmethod
+    def _ema_bounds(cls, v):
+        if v is None:
+            return v
+        bad = set(v) - {"ema_13", "ema_50", "ema_800"}
+        if bad:
+            raise ValueError(f"unknown EMA keys: {sorted(bad)}")
+        for k, span in v.items():
+            if not EMA_SPAN_MIN <= span <= EMA_SPAN_MAX:
+                raise ValueError(f"{k} span must be {EMA_SPAN_MIN}..{EMA_SPAN_MAX}")
+        return v
+
+    @field_validator("factors")
+    @classmethod
+    def _factor_keys(cls, v):
+        if v is None:
+            return v
+        unknown = set(v) - set(FACTOR_KEYS)
+        if unknown:
+            raise ValueError(f"unknown factors: {sorted(unknown)}")
+        if not v:
+            raise ValueError("at least one factor must be enabled")
+        return v
+
+
+@app.post("/api/sandbox/trace")
+def sandbox_trace(req: SandboxRequest, _rl: None = Depends(_sandbox_limit)) -> dict:
+    """UNVALIDATED what-if recompute: custom EMA spans / factor subset / display
+    threshold. Compute-only — it never trades, never journals, never touches
+    the validated config (which is why it needs no token)."""
+    spec = safe_spec(req.symbol)
+    try:
+        f = build_levels(RouterClient().klines(spec, interval=req.interval, limit=600))
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=502, detail="upstream data error")
+    try:
+        out = sandbox_score(f, ema_spans=req.ema, enabled=req.factors,
+                            min_pct=req.min_pct, bars=req.bars)
+    except ValueError as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    out.update(symbol=spec, interval=req.interval,
+               sandbox_note="UNVALIDATED SANDBOX — display-only; never trades, never journals.")
+    return out
+
+
+@app.get("/api/replay/{trade_id}")
+def replay(trade_id: str, _rl: None = Depends(_read_limit)) -> dict:
+    """Replay a journal trade through the confluence stack (read-only). The
+    response carries an honesty caveat: bars are recomputed from current data
+    and may differ from live-edge conditions (MEMORY §29/§31)."""
+    try:
+        return replay_trade(trade_id, journal=TradeJournal(), client=RouterClient())
+    except KeyError:
+        raise HTTPException(status_code=404, detail="trade not found")
+    except (ReplayUnsupported, ReplayTooOld, ValueError) as e:
+        raise HTTPException(status_code=422, detail=str(e))
+    except HTTPException:
+        raise
+    except Exception:
+        raise HTTPException(status_code=502, detail="upstream data error")
 
 
 @app.get("/api/journal")

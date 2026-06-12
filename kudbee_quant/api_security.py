@@ -38,6 +38,16 @@ def safe_symbol(symbol: str) -> str:
     return sym.upper()
 
 
+def safe_spec(spec: str) -> str:
+    """Like safe_symbol but PRESERVES the source prefix, so TradFi specs route:
+    'yahoo:gc=f' -> 'yahoo:GC=F', 'btcusdt' -> 'BTCUSDT'. 422 on bad input."""
+    try:
+        src, sym = parse_spec(spec)
+    except ValueError:
+        raise HTTPException(status_code=422, detail="invalid symbol")
+    return sym.upper() if src == "binance" else f"{src}:{sym.upper()}"
+
+
 # --- token auth (fail-closed) ------------------------------------------------
 
 

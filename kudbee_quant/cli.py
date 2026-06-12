@@ -518,6 +518,77 @@ def _polymarkets(args) -> None:
     print(df[cols].to_string(index=False))
 
 
+def _trace_glyphs() -> tuple[str, str, str]:
+    """(agree, oppose, neutral) glyphs, ASCII fallback if stdout can't encode."""
+    import sys
+    try:
+        "✓×·".encode(sys.stdout.encoding or "utf-8")
+        return "✓", "×", "·"
+    except (UnicodeEncodeError, LookupError):
+        return "+", "x", "."
+
+
+def _print_trace(rows: list[dict], events: dict[str, list[str]], ref_dir: float,
+                 ref_label: str = "the trade direction") -> None:
+    """One row per bar, one cell per factor: agree/oppose/neutral vs ``ref_dir``."""
+    from .confluence.trace import FACTOR_SPECS
+    ok, no, dot = _trace_glyphs()
+    ref = ref_dir if ref_dir != 0 else 1.0
+    head = "  ".join(s.short for s in FACTOR_SPECS)
+    stamp_w = max((len(str(r["timestamp"])[:16]) for r in rows), default=16)
+    print(f"{'':{stamp_w}}  {head} | net  pct")
+    for k, row in enumerate(rows):
+        cells = []
+        votes = {f["key"]: f["vote"] for f in row["factors"]}
+        for s in FACTOR_SPECS:
+            v = votes.get(s.key)
+            if v is None:
+                cells.append(" " * len(s.short))
+            else:
+                g = dot if v == 0 else (ok if v * ref > 0 else no)
+                cells.append(f" {g}" + " " * (len(s.short) - 2))
+        mark = "  ◄ " + ", ".join(events[str(k)]) if str(k) in events else ""
+        pre = " (pre)" if row.get("pre") else ""
+        print(f"{str(row['timestamp'])[:16]:{stamp_w}}  {'  '.join(cells)} | "
+              f"{row['net_score']:+3d}  {row['confluence_pct']:4.0%}{mark}{pre}")
+    print(f"\nkey: {ok} agrees / {no} opposes / {dot} neutral (vs {ref_label}"
+          f"{'' if ref_dir != 0 else ', flat -> long'}); "
+          "columns: " + ", ".join(f"{s.short.strip()}={s.label}" for s in FACTOR_SPECS))
+
+
+def _trade_trace(args) -> None:
+    """ASCII per-bar factor timeline — replay a journal trade, or live mode."""
+    if bool(args.trade_id) == bool(args.symbol):
+        print("Provide exactly one of: a trade id, or --symbol SPEC for live mode.")
+        return
+    if args.symbol:
+        from .confluence.trace import factor_trace
+        from .ingest import RouterClient
+        f = build_levels(RouterClient().klines(args.symbol.upper(),
+                                               interval=args.interval, limit=600))
+        rows = factor_trace(f, bars=args.bars)
+        last = rows[-1]
+        side = "LONG" if last["direction"] > 0 else ("SHORT" if last["direction"] < 0 else "FLAT")
+        print(f"live {args.symbol.upper()} {args.interval} — last bar {side} "
+              f"{last['confluence_pct']:.0%} confluence (net {last['net_score']:+d})\n")
+        _print_trace(rows, {}, ref_dir=last["direction"],
+                     ref_label="the final bar's direction")
+        print("\nHonest read: a directional vote map, not advice; the validated gate is "
+              ">=50% confluence WITH the 800-EMA trend.")
+    else:
+        from .replay import replay_trade
+        rep = replay_trade(args.trade_id)
+        t = rep["trade"]
+        side = "LONG" if t["direction"] > 0 else "SHORT"
+        res = (f" -> {t['status'].upper()}"
+               + (f" {t['outcome_r']:+g}R" if t["outcome_r"] is not None else ""))
+        print(f"trade {t['id']}  {t['symbol']} {t['timeframe']} {side}  "
+              f"entry {t['entry']:g}  stop {t['stop']:g}  target {t['target']:g} "
+              f"({t['target_r']:g}R){res}\n")
+        _print_trace(rep["bars"], rep["events"], ref_dir=t["direction"])
+        print(f"\nHonest read: {rep['caveat']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(prog="kudbee_quant")
     sub = parser.add_subparsers(dest="cmd", required=True)
@@ -718,6 +789,16 @@ def main() -> None:
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=_polymarkets)
+
+    tt = sub.add_parser("trade-trace",
+                        help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")
+    tt.add_argument("trade_id", nargs="?", default=None,
+                    help="journal trade id (8 hex chars) to replay")
+    tt.add_argument("--symbol", default=None,
+                    help="live mode: trace a symbol spec instead (e.g. BTCUSDT, yahoo:GC=F)")
+    tt.add_argument("--interval", default="1h", help="live mode timeframe")
+    tt.add_argument("--bars", type=int, default=48, help="live mode: bars of history")
+    tt.set_defaults(func=_trade_trace)
 
     args = parser.parse_args()
     args.func(args)
