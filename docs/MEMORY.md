@@ -1010,3 +1010,29 @@ correlated, all in-sample — this is hypothesis-generation, NOT validation.
   (recover ATR from `|signal−entry|/0.25`, rebuild brackets, shared resolver).
   Queued as the Execution Lab scope; TP1 partial-banking is the variant the
   autopsy says to test first.
+
+## 35. REGISTERED HYPOTHESIS — fading the signal was net-positive this week, but NOT significant — 2026-06-12
+
+User's idea (the right way around): if "layering in sooner makes it worse,"
+the signal may be marking exhaustion — confluence clusters where the crowd
+decides price is shifting, and in a macro uptrend those counter-moves are
+continuation fuel. Tested on the same 102-signal engine as §34 (flip
+direction, identical 0.25-ATR-retrace/1.5-ATR-stop/3R bracket, same fees):
+
+- **FADE everything: +8.7R net (88 fills, +0.10R/trade)** vs −34.3R as traded.
+  Robust to execution choice in-sample (market entry +7.5R, 2.5-ATR stop
+  +9.3R, fade-only-5m +0.22R/trade, fade-only-60%-bucket +0.18R/trade).
+- **Asymmetry lesson:** a −34R book inverts to only +9R, not +34R — the
+  3R:1R bracket geometry doesn't mirror and fees hit both sides. "It's
+  losing" does NOT mean "the inverse wins big."
+- **Significance — the gate FAILS:** naive t=0.55; clustered by 6h scan
+  window (simultaneous signals = one market bet) only **12 independent-ish
+  bets**, t=0.73, cluster bootstrap **P(no edge) ≈ 23%**. One regime (the
+  June-9 alt flush → V-reversal). And inversion-after-seeing-the-loss is the
+  textbook in-sample trap.
+- **Honest test = forward, not backward:** run a SHADOW FADE BOOK — the
+  hourly scan also logs the mirrored bracket of every signal under its own
+  setup tag (paper, journal-scored like everything else) and let live data
+  accumulate. Sharper variant worth tagging: fade only signals OPPOSING the
+  macro (HTF) trend. Needs a small bot change ⇒ its own PR + user sign-off;
+  queued with the Execution Lab.
