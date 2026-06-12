@@ -11,9 +11,11 @@ intervals from backtests — not advice, not a guarantee.
 from __future__ import annotations
 
 import os
+from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
 from .api_security import RateLimiter, require_token, safe_symbol
@@ -155,3 +157,34 @@ def paper_scan_endpoint(req: ScanRequest, _auth: None = Depends(require_token),
     return {"logged": [{"id": p.id, "symbol": p.symbol, "setup": p.setup,
                         "entry_limit": p.entry, "stop": p.stop, "target": p.target,
                         "status": p.status} for p in logged]}
+
+
+@app.get("/api/metrics")
+def system_metrics(_rl: None = Depends(_read_limit)) -> dict:
+    """Host CPU/memory/disk of the machine serving the app — dashboard panel."""
+    try:
+        import psutil
+        cpu = psutil.cpu_percent(interval=0.1)
+        vm = psutil.virtual_memory()
+        disk = psutil.disk_usage("/")
+        return {
+            "cpu_pct": round(cpu, 1),
+            "mem_used_gb": round(vm.used / 1e9, 2),
+            "mem_total_gb": round(vm.total / 1e9, 2),
+            "mem_pct": round(vm.percent, 1),
+            "disk_used_gb": round(disk.used / 1e9, 1),
+            "disk_total_gb": round(disk.total / 1e9, 1),
+            "disk_pct": round(disk.percent, 1),
+        }
+    except ImportError:
+        return {"error": "psutil not installed"}
+
+
+_DASHBOARD_FILE = Path(__file__).resolve().parent / "static" / "dashboard.html"
+
+
+@app.get("/", include_in_schema=False)
+@app.get("/dashboard", include_in_schema=False)
+def dashboard(_rl: None = Depends(_read_limit)) -> HTMLResponse:
+    """Mission-control dashboard — static one-pager, read-only data only."""
+    return HTMLResponse(_DASHBOARD_FILE.read_text(encoding="utf-8"))
