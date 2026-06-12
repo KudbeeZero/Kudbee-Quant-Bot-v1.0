@@ -41,16 +41,22 @@ def safe_symbol(symbol: str) -> str:
 # --- token auth (fail-closed) ------------------------------------------------
 
 
-def require_token(x_api_token: str | None = Header(default=None)) -> None:
-    """Dependency for write endpoints. Requires the X-API-Token header to match
-    the configured KUDBEE_API_TOKEN. If no token is configured, writes are
-    disabled entirely (503) — fail closed, never fail open."""
+def check_token(provided: str | None) -> None:
+    """Fail-closed token check shared by all write auth paths. Raises 503 when
+    no token is configured (writes disabled), 401 on mismatch."""
     configured = get_secret("KUDBEE_API_TOKEN", required=False)
     if not configured:
         raise HTTPException(status_code=503, detail="writes disabled (no API token configured)")
     secret = configured.reveal() if hasattr(configured, "reveal") else str(configured)
-    if not x_api_token or not hmac.compare_digest(str(x_api_token), secret):
+    if not provided or not hmac.compare_digest(str(provided), secret):
         raise HTTPException(status_code=401, detail="unauthorized")
+
+
+def require_token(x_api_token: str | None = Header(default=None)) -> None:
+    """Dependency for write endpoints. Requires the X-API-Token header to match
+    the configured KUDBEE_API_TOKEN. If no token is configured, writes are
+    disabled entirely (503) — fail closed, never fail open."""
+    check_token(x_api_token)
 
 
 # --- rate limiting (in-memory sliding window) --------------------------------

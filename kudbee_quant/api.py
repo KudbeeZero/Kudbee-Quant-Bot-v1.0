@@ -13,12 +13,12 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
-from .api_security import RateLimiter, require_token, safe_symbol
+from .api_security import RateLimiter, check_token, require_token, safe_symbol
 from .confluence.stack import confluence_score
 from .ingest import BinanceClient
 from .journal import Prediction, TradeJournal
@@ -116,16 +116,34 @@ class AlertPayload(BaseModel):
     conf: float | None = Field(default=None, ge=0.0, le=1.0)
     tf: str = Field(default="1h", pattern=r"^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$")
     note: str = Field(default="", max_length=500)
+    # TradingView cannot send custom headers, so the shared secret may ride in
+    # the alert's JSON body instead of X-API-Token. Never logged or echoed.
+    token: str | None = Field(default=None, max_length=256)
 
 
 @app.post("/api/alert")
-def alert_webhook(a: AlertPayload, _auth: None = Depends(require_token),
+def alert_webhook(a: AlertPayload,
+                  x_api_token: str | None = Header(default=None),
+                  token: str | None = Query(default=None),
                   _rl: None = Depends(_write_limit)) -> dict:
     """Receive a TradingView indicator alert (JSON) and log it as a paper trade.
 
     Closes the loop: chart setup fires -> webhook -> journal -> forward score.
-    Token-gated + rate-limited + field-validated (see api_security.py).
+    Logged with source="human" — TV alerts are the trader's chart read, and the
+    bot-vs-human provenance split (journal.source_record) must stay honest.
+
+    Auth (fail-closed, see api_security.py): the KUDBEE_API_TOKEN may arrive as
+    the X-API-Token header, a ?token= query param, or a "token" field in the
+    JSON body — TradingView supports no custom headers, so put it in the alert
+    message body (preferred; query strings can end up in access logs).
+    TV alert message template:
+        {"symbol": "{{ticker}}", "direction": 1, "entry": {{close}},
+         "stop": ..., "target": ..., "tf": "1h", "note": "...",
+         "token": "<KUDBEE_API_TOKEN>"}
     """
+    check_token(x_api_token or token or a.token)
+    if a.direction == 0:
+        raise HTTPException(status_code=422, detail="direction must be non-zero (long>0, short<0)")
     j = TradeJournal()
     open_keys = {(p.symbol, p.timeframe) for p in j.predictions
                  if p.status in ("open", "pending") and p.kind == "bracket"}
@@ -137,6 +155,7 @@ def alert_webhook(a: AlertPayload, _auth: None = Depends(require_token),
         deadline_days=3.0, timeframe=a.tf, pending_limit=True, signal_price=a.entry,
         setup="tv_alert" + (f"_{int(round(a.conf*100))}pct" if a.conf else ""),
         note=f"TradingView alert: {a.note}. conf={a.conf}.",
+        source="human",
     ))
     return {"logged": True, "id": p.id, "symbol": p.symbol, "entry": p.entry,
             "stop": p.stop, "target": p.target, "status": p.status}
