@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -307,6 +308,36 @@ class TradeJournal:
                 "net_expectancy_r": (sum(net) / n) if n else None,
                 "net_total_r": float(sum(net)) if n else 0.0,
             }
+        return out
+
+    def conviction_record(self) -> dict:
+        """Resolved record split by the confluence tier baked into the setup tag
+        (``confluence_r_<pct>pct...``): the high-conviction ``>=70%`` tier vs the
+        ``50-60%`` base tier. This is the FORWARD test of the conf_70 lead
+        (overnight harness 2026-06-12: Δ+0.195R, both halves +, boot p=0.035 —
+        but NOT a family-wide FDR survivor, so this record is what decides it).
+        Costs nothing: the tier is already in every bot trade's setup tag."""
+        out = {}
+        tiers = {"high_conviction_70plus": lambda pct: pct >= 70,
+                 "base_50_60": lambda pct: 50 <= pct < 70}
+        for tier, want in tiers.items():
+            ps = []
+            for p in self.predictions:
+                if p.status not in ("hit", "miss") or p.outcome_r is None:
+                    continue
+                m = re.search(r"(\d+)pct", p.setup or "")
+                if m and want(int(m.group(1))):
+                    ps.append(p)
+            n = len(ps)
+            hits = sum(1 for p in ps if p.status == "hit")
+            rs = [float(p.outcome_r) for p in ps]
+            net = [net_outcome_r(p) for p in ps]
+            out[tier] = {"n": n, "hits": hits,
+                         "hit_rate": (hits / n) if n else None,
+                         "expectancy_r": (sum(rs) / n) if n else None,
+                         "total_r": float(sum(rs)) if n else 0.0,
+                         "net_expectancy_r": (sum(net) / n) if n else None,
+                         "net_total_r": float(sum(net)) if n else 0.0}
         return out
 
     def source_record(self) -> dict:

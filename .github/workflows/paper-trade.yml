@@ -2,11 +2,12 @@ name: Forward paper-trade (confluence-R)
 
 # Automated FORWARD paper trading of the validated strategy:
 # >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides,
-# across the top-10 crypto majors on 5m/15m/1h/2h/4h (each timeframe gets a
-# horizon scaled to its bar size). Runs hourly: logs new setups, resolves
-# pending/open trades, commits the journal so a real forward track record
-# accumulates with no babysitting. Lower TFs (5m/15m) are cost-sensitive — they
-# are here to FORWARD-TEST, not because they are proven.
+# across the top-10 crypto majors on 1h/2h/4h (each timeframe gets a horizon
+# scaled to its bar size). Runs hourly: logs new setups, resolves pending/open
+# trades, commits the journal so a real forward track record accumulates with
+# no babysitting. The 5m/15m forward experiment ENDED 2026-06-12 (-9R/49,
+# confirming §9); every trade's setup tag carries its confluence %, so the
+# >=70% high-conviction tier (conf_70 lead) scores separately for free.
 
 on:
   schedule:
@@ -36,9 +37,12 @@ jobs:
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
+          # 5m/15m DROPPED 2026-06-12: their forward test concluded — 49 resolved
+          # trades, -9R, 20% win, matching the §9 backtest verdict that sub-1h
+          # fails standalone. Validated TFs only; fewer, better trades (§34).
           python -m kudbee_quant.cli paper-scan \
             BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
-            --intervals 5m 15m 1h 2h 4h --trend-filter || true
+            --intervals 1h 2h 4h --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
           # indices, energy, FX, grains, rates, softs. 1h only: the validated
           # timeframe, Yahoo-supported, and avoids session-gap noise on

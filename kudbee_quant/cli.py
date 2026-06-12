@@ -410,6 +410,13 @@ def _journal_score(args) -> None:
             print(f"  {v:6} n={r['n']:<3} hit={r['hit_rate']:.0%}  "
                   f"exp {r['expectancy_r']:+.3f}R -> net {r['net_expectancy_r']:+.3f}R  "
                   f"(fee {r['fee_pct_roundtrip']*100:.2f}%/rt = {r['avg_fee_r']:.3f}R/trade)")
+    tiers = {t: r for t, r in j.conviction_record().items() if r["n"]}
+    if tiers:
+        print("\nBy conviction tier (the conf_70 forward test — fewer, better trades):")
+        for t, r in tiers.items():
+            print(f"  {t:22} n={r['n']:<3} hit={r['hit_rate']:.0%}  "
+                  f"exp {r['expectancy_r']:+.3f}R  net {r['net_expectancy_r']:+.3f}R  "
+                  f"total {r['total_r']:+.1f}R")
 
 
 def _read_add(args) -> None:

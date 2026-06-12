@@ -43,5 +43,8 @@ class _EmptyJournal:
     def venue_record(self):
         return {"crypto": {"n": 0}, "tradfi": {"n": 0}}
 
+    def conviction_record(self):
+        return {"high_conviction_70plus": {"n": 0}, "base_50_60": {"n": 0}}
+
     def resolved_series(self):
         return []

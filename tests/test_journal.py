@@ -135,6 +135,25 @@ def test_scorecard_has_net_columns(tmp_path):
     assert sc.iloc[0]["net_expectancy_r"] == pytest.approx(3.0 - TAKER_FEE_PCT * 100.0)
 
 
+def test_conviction_record_splits_by_confluence_tier(tmp_path):
+    j = _journal(tmp_path)
+    hi = _bracket("BTCUSDT", outcome_r=3.0)
+    hi.setup = "confluence_r_70pct_tf"
+    hi2 = _bracket("ETHUSDT", outcome_r=3.0)
+    hi2.setup = "confluence_r_80pct_tf"
+    lo = _bracket("SOLUSDT", outcome_r=-1.0, status="miss")
+    lo.setup = "confluence_r_50pct_tf"
+    untagged = _bracket("XRPUSDT", outcome_r=-1.0, status="miss")
+    untagged.setup = "my_read"                  # no pct tag -> in neither tier
+    j.predictions = [hi, hi2, lo, untagged]
+    rec = j.conviction_record()
+    assert rec["high_conviction_70plus"]["n"] == 2
+    assert rec["high_conviction_70plus"]["hits"] == 2
+    assert rec["high_conviction_70plus"]["expectancy_r"] == pytest.approx(3.0)
+    assert rec["base_50_60"]["n"] == 1
+    assert rec["base_50_60"]["total_r"] == pytest.approx(-1.0)
+
+
 def test_venue_record_splits_gross_and_net(tmp_path):
     j = _journal(tmp_path)
     j.predictions = [_bracket("BTCUSDT", outcome_r=3.0),
