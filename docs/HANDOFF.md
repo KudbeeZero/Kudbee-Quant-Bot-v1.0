@@ -62,7 +62,12 @@
   trades). First experiments per the §34 autopsy: TP1 partial-banking (13
   misses ran ≥+1R unbanked; 19 stopped then ran to target), and the 5m-book
   fee question (~0.24R/trade fee drag — pausing 5m in the workflow is a USER
-  decision, present the §34 numbers and ask).
+  decision, present the §34 numbers and ask). **Plus §35 (user's hypothesis,
+  registered 2026-06-12): a SHADOW FADE BOOK** — log the mirrored bracket of
+  every signal under its own setup tag so the fade idea gets a true forward
+  test (+8.7R net in-sample but only ~12 independent bets, P(no edge)≈23% —
+  NOT validated; do not size it, just log it). Variant to tag separately:
+  fade only signals opposing the macro/HTF trend.
 - **Open risks / watch-items:**
   - **NEW (§33):** replay pct ≠ live-edge pct is now visible per trade — never
     read a replay's confluence pct as a re-verification of the entry gate; the
