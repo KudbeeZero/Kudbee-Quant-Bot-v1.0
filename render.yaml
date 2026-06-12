@@ -1,0 +1,33 @@
+# Render blueprint — the FastAPI app (dashboard + /api, incl. the TradingView
+# alert webhook). One always-on Starter instance: free-tier spin-down (15 min
+# idle, 30-60s cold start) would drop TV webhook POSTs, so Starter is the
+# floor for this service. Auto-deploy on push is Render's default and is load-
+# bearing here: every hourly journal commit redeploys the app, which is how
+# the dashboard's journal data stays fresh (the checkout IS the data store).
+# Runbook: docs/HOSTING.md
+services:
+  - type: web
+    name: kudbee-quant-api
+    runtime: python
+    plan: starter
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn kudbee_quant.api:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      # Shared secret for write endpoints (/api/alert, /api/paper/scan).
+      # Set in the Render dashboard — never committed.
+      - key: KUDBEE_API_TOKEN
+        sync: false
+      # CORS allowlist for the Netlify site origin, e.g. https://example.com
+      - key: KUDBEE_SITE_ORIGIN
+        sync: false
+      # Fine-grained GitHub PAT, THIS repo only, Contents read/write — lets
+      # /api/alert commit alerts to data/alert_inbox/ so the hourly Action can
+      # score them (kudbee_quant/alert_inbox.py). Optional: without it, alerts
+      # are host-local and lost on redeploy (response carries "inbox": false).
+      - key: KUDBEE_GH_TOKEN
+        sync: false
+      - key: KUDBEE_GH_REPO
+        value: KudbeeZero/Kudbee-Quant-Bot-v1.0

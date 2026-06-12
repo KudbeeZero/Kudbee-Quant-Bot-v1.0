@@ -18,10 +18,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
 from .api_security import RateLimiter, check_token, require_token, safe_symbol
 from .confluence.stack import confluence_score
 from .ingest import BinanceClient
-from .journal import Prediction, TradeJournal
+from .journal import TradeJournal
 from .levels import build_levels
 
 app = FastAPI(title="Kudbee Quant API", version="1.0.0",
@@ -140,25 +141,25 @@ def alert_webhook(a: AlertPayload,
         {"symbol": "{{ticker}}", "direction": 1, "entry": {{close}},
          "stop": ..., "target": ..., "tf": "1h", "note": "...",
          "token": "<KUDBEE_API_TOKEN>"}
+
+    Persistence (see alert_inbox.py): the host's journal is an ephemeral
+    checkout, so the alert is ALSO committed to the repo's alert inbox for the
+    hourly Action to ingest and score. "inbox": false in the response means
+    that push didn't happen (no KUDBEE_GH_TOKEN, or GitHub unreachable) — the
+    alert then lives only until the next redeploy.
     """
     check_token(x_api_token or token or a.token)
     if a.direction == 0:
         raise HTTPException(status_code=422, detail="direction must be non-zero (long>0, short<0)")
+    alert = {k: v for k, v in a.model_dump().items() if k != "token"}
+    entry = inbox_entry(alert)
     j = TradeJournal()
-    open_keys = {(p.symbol, p.timeframe) for p in j.predictions
-                 if p.status in ("open", "pending") and p.kind == "bracket"}
-    if (a.symbol.upper(), a.tf) in open_keys:
+    p = log_alert(j, alert, entry["id"])
+    if p is None:
         return {"logged": False, "reason": "already in a trade on this symbol+timeframe"}
-    p = j.add(Prediction(
-        symbol=a.symbol.upper(), kind="bracket", level=a.entry, entry=a.entry, stop=a.stop,
-        target=a.target, direction=1.0 if a.direction > 0 else -1.0, target_r=a.target_r,
-        deadline_days=3.0, timeframe=a.tf, pending_limit=True, signal_price=a.entry,
-        setup="tv_alert" + (f"_{int(round(a.conf*100))}pct" if a.conf else ""),
-        note=f"TradingView alert: {a.note}. conf={a.conf}.",
-        source="human",
-    ))
     return {"logged": True, "id": p.id, "symbol": p.symbol, "entry": p.entry,
-            "stop": p.stop, "target": p.target, "status": p.status}
+            "stop": p.stop, "target": p.target, "status": p.status,
+            "inbox": push_inbox_entry(entry)}
 
 
 class ScanRequest(BaseModel):

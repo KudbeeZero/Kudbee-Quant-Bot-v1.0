@@ -30,9 +30,11 @@
 
 # --- Backend API proxy (Live Signals) -------------------------------------
 # The static site calls same-origin /api/* (keeps CSP connect-src 'self').
-# Netlify rewrites it to the FastAPI engine. Replace the host with yours.
+# Netlify rewrites it to the FastAPI engine on Render (render.yaml; runbook
+# docs/HOSTING.md). If Render assigns a different subdomain (name collision),
+# update the host here to match the one shown in the Render dashboard.
 [[redirects]]
   from = "/api/*"
-  to = "https://YOUR-API-HOST/api/:splat"
+  to = "https://kudbee-quant-api.onrender.com/api/:splat"
   status = 200
   force = true

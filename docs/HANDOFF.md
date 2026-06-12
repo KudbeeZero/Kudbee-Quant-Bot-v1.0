@@ -7,77 +7,66 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/hello-7olm3u`
-- **Last PR:** #9 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/9
+- **Last branch:** `claude/handoff-audit-tradingview-6sswe1`
+- **Last PR:** #11 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/11
 - **Audit status:** `AWAITING_AUDIT`.
-- PR #7 is CLOSED OUT: **`MERGED (post-hoc PASS)`** — this chat ran the
-  arm's-length spot-check the self-audit invited; every claim reproduced
-  (report: `docs/audits/claude-hello-1lje1b-posthoc.md`). Gate streak: #5,
-  #6, #7.
+- PR #9 is CLOSED OUT: **`MERGED (audit PASS)`** at `8b1677e` (report:
+  `docs/audits/claude-hello-7olm3u.md` — arm's-length, 191/191, §32
+  spot-checked at trade-ID level, auth verified). Gate streak: #5, #6, #7, #9.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #7 post-hoc audit → PASS** (report committed): live taint-script re-run
-  byte-identical, exact +11 workflow delta, 183/183, no code/journal changes.
-  One nit: PR #7's body omitted its own self-audit file from the enumeration.
-- **Branch sweep (user-requested, §32):** 0 journal trade IDs exist outside
-  `main` (all 11 branches are stale subsets). 7 branches verified safe to
-  delete — env can't delete refs (403), so the USER must do it from the GitHub
-  UI. 4 held for salvage (zcash / research-vols / website / market-tools).
-- **Dashboard (baton scope) — salvaged from zcash `6632c48`, FIXED, shipped:**
-  the original was wired to imagined API fields (would render zeros/NaN in 3
-  of 6 panels) and had no HTML escaping. Rewired to the real `/api/journal`
-  contract, `esc()` on all server-derived strings + status-class allowlist,
-  net-of-fee numbers first, bot-vs-human chips, served same-origin at `GET /`
-  and `/dashboard` (read-only, `_read_limit`), `/api/metrics` (psutil, graceful
-  fallback). ZEC pieces NOT brought over. New dep: psutil only.
-- Suite **191 passed** (4 dashboard tests + 4 alert tests new). Verified live
-  under uvicorn (incl. `/api/alert` fail-closed 503 with no token configured;
-  journal untouched).
-- **TV webhook (PULLED FORWARD, user-directed, same PR):** the queued
-  TradingView scope was absorbed into PR #9 at the user's explicit request.
-  `/api/alert` now accepts the token via `?token=` or a `"token"` body field
-  (TV can't send headers) through shared fail-closed `check_token`; TV alerts
-  log `source="human"` (was polluting bot-vs-human provenance as `"bot"`);
-  `direction=0` now 422 (used to coerce to SHORT). TV alert message template
-  in the endpoint docstring.
+- **PR #9 audit gate → PASS, merged** (`8b1677e`): independent subagent vs the
+  `b28c483..6c8116b` diff; report committed. Nits carried (not fixed):
+  `?token=` log exposure, public `/api/metrics`, one unescaped `e.message`.
+- **Hosting unit (baton scope; user picked Render Starter + inbox via
+  one-tap):** `render.yaml` (always-on Starter; free tier's spin-down would
+  drop TV webhooks — pricing verified 2026-06-12); **alert inbox**
+  (`kudbee_quant/alert_inbox.py`): `/api/alert` also commits each alert to
+  `data/alert_inbox/<id>.json` (create-only content-hash paths, repo-scoped
+  PAT, token never serialized) and the hourly Action's new `ingest-alerts`
+  step drains it into the journal (`source="human"`, idempotent) — so chart
+  reads SCORE against the bot; response carries `"inbox": true/false`.
+  Workflow commit step widened (`-A` + rebase-before-push). `netlify.toml`
+  proxy → `kudbee-quant-api.onrender.com`; `docs/HOSTING.md` runbook.
+- Suite **200 passed** (191 + 9 new). Live-verified under uvicorn from a temp
+  dir (503/401/logged-pending, dashboard, metrics, idempotent ingest CLI);
+  repo journal untouched.
+- **MEMORY §34** added (hosting architecture fact; §33 left reserved for
+  PR #10, which pre-claimed it).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/hosting` — harness assigns the real
-  name; the *scope* below is what binds.
-- **Scope (one priority, user-confirmed 2026-06-12):** **HOSTING** — get the
-  FastAPI app (dashboard + webhook) actually reachable on the internet. It is
-  the prerequisite for both things PR #9 shipped: the dashboard is
-  localhost-only and TradingView webhooks can't reach an unhosted API. Keep
-  the security posture (fail-closed writes, rate limits, CORS scoping via
-  `KUDBEE_SITE_ORIGIN`); HTTPS required (the token rides in the TV alert
-  body). Dependency-light; the user decides the provider trade-off
-  (cost/maintenance) — present options with a recommendation before building.
+- **Slug hint (ADVISORY only):** `claude/audit-pr10-live-deploy` — harness
+  assigns the real name; the *scope* below is what binds.
+- **Scope (user-confirmed 2026-06-12):** **(1) audit gate on PR #10** (Trade
+  Flow visualizer, `claude/trade-viz-draggable-indicators-yncx2t`) — it is
+  based on pre-#9 main and WILL conflict with merged #9 in `api.py` /
+  `api_security.py` / `docs/MEMORY.md` (its body's checklist covers the
+  resolution; preserve BOTH features and the §32/§33/§34 numbering); merge
+  only on PASS. **(2) Live deploy walkthrough:** once the user creates the
+  Render service (runbook `docs/HOSTING.md`), smoke-test the live host
+  (health, dashboard, a real `/api/alert` with `"inbox": true`, the alert
+  commit appearing in `data/alert_inbox/` and ingested by the next hourly
+  run), then fix anything the live environment reveals.
 - **Open risks / watch-items:**
-  - **Hosting gap:** dashboard + webhook both need the FastAPI app actually
-    hosted/reachable; today it's localhost-only. Verified locally, UNPROVEN
-    as a deployment.
-  - **Branch deletions pending (user action, §32):** 7 safe via GitHub UI:
-    `handoff-audit-hvuuab`, `hello-1lje1b`, `overnight-algo-research-plan-hyqzf6`,
-    `sol-short-position-0eytax`, `fable-5-release-review-mow58s`,
-    `handoff-audit-fee-scoring-p0yg4n`, `handoff-audit-xtn2bz`. Held: zcash
-    (delete after PR #9 merges), research-vols, website, market-tools.
-  - **§31:** the 11 added TradFi symbols UNPROVEN forward (first pending
-    signals appeared 2026-06-11: ZW/ZC/ZS/ZB, ^NDX); watch softs for
-    §29-style edge cases.
-  - **§29/§30 standing caveats:** pre-fix `filled_at` times unreliable; FX dead
-    votes; documented-not-fixed list (wall-clock deadlines, W-SUN grouping,
-    gap FVGs/ATR, cron throttling).
-  - **Maker-vs-taker fee contradiction (still open):** one real LIMIT fill
-    settles it.
-  - Scorecard still not an edge readout — let the book mature (last 24h was
-    net −11R on 23 resolutions; small sample, no action).
+  - **Deployment UNPROVEN:** render.yaml + inbox tested locally only; no live
+    Render instance exists yet (user action: create Blueprint + set
+    `KUDBEE_API_TOKEN` / `KUDBEE_SITE_ORIGIN` / `KUDBEE_GH_TOKEN`).
+  - **PR #10 open + conflicted** with merged #9 (see scope).
+  - **Branch deletions pending (user action, §32):** 7 safe via GitHub UI;
+    zcash branch deletable now that PR #9 is merged.
+  - **Accepted disclosures (documented in HOSTING.md):** public
+    `/api/metrics`, `?token=` supported for TV compatibility.
+  - **§31:** 11 added TradFi symbols UNPROVEN forward; watch softs.
+  - **§29/§30 standing caveats** + maker-vs-taker fee contradiction (one real
+    LIMIT fill settles it); scorecard still not an edge readout.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`;
-  `data/journal.json` (bot-owned — no session commits); crypto daily grouping
-  stays calendar-dated; do NOT delete `claude/zcash-backtest-orderbook-shjg5o`
-  until PR #9 is merged (it's the dashboard's source-of-record); other held
-  branches only with explicit user OK.
+  `data/journal.json` (bot-owned — no session commits); **`data/alert_inbox/`
+  (host+Action-owned — no manual session commits there either)**; crypto
+  daily grouping stays calendar-dated; held salvage branches
+  (crypto-confluences-research / website / market-tools) only with explicit
+  user OK.
 
 ## Baton history
 
@@ -110,3 +99,11 @@
   API fields, XSS escaping) + §32; TV-webhook scope then PULLED FORWARD into
   the same PR (user-directed, disclosed in the PR body) — `/api/alert` made
   TV-usable + `source="human"`. 191 tests. Next scope: hosting.
+- `2026-06-12` — PR #9 **audited (PASS) and merged** at `8b1677e` by
+  `claude/handoff-audit-tradingview-6sswe1` (gate held; arm's-length). Nits
+  carried to hosting: `/api/metrics` public host-info disclosure, `?token=`
+  log exposure. Gate streak: #5, #6, #7, #9.
+- `2026-06-12` — PR #11 opened (`claude/handoff-audit-tradingview-6sswe1`):
+  PR #9 gate report + hosting unit (Render Starter blueprint + TV alert inbox,
+  §34; 200 tests; deployment UNPROVEN until the Render service exists). Next
+  scope: audit PR #10 + live deploy walkthrough.

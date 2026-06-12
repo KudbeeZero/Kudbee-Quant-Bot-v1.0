@@ -984,3 +984,35 @@ crypto-confluences-research-cxrtp3 (research Vols 7–10),
 website-design-seo-067ci3 (site pages),
 market-trading-tools-analysis-l2rnr1 (29 ahead; headline content in main but
 not commit-by-commit verified).
+
+## 34. Hosting architecture: the host is a disposable MIRROR; the repo journal stays the record; alerts travel via a create-only inbox — 2026-06-12
+
+(§33 is reserved — open PR #10 pre-claimed it on its branch for the trace/replay
+layer; do not reuse the number.)
+
+DECIDED (user, 2026-06-12): Render **Starter** ($7/mo, `render.yaml`) hosts the
+FastAPI app. Free tier was rejected for a measured reason: 15-min idle
+spin-down + 30-60s cold start would drop TradingView webhook POSTs (TV doesn't
+retry). Verified pricing 2026-06-12, not assumed.
+
+THE ARCHITECTURE FACT (honor this; don't "improve" it):
+- The hosted app's checkout is **ephemeral and disposable** — auto-deploy on
+  every push means every hourly journal commit redeploys it. That is the
+  *feature* that keeps the dashboard fresh: the checkout IS the data store.
+- Therefore the host must NEVER be treated as a source of journal truth, and
+  must never push `data/journal.json` (bot-owned, §29-era rule stands).
+- TV alerts reach the scored record via `data/alert_inbox/` (alert_inbox.py):
+  the host commits one **create-only, content-hash-named** file per alert via
+  a Contents-RW-this-repo-only PAT — unique paths can't race the bot — and the
+  hourly Action's `ingest-alerts` step drains them into the journal
+  (`source="human"`, `inbox=<id>` note marker = idempotency). `"inbox": false`
+  in the `/api/alert` response means the alert is host-local only and WILL be
+  lost on the next redeploy.
+- The Action's commit step now stages `data/alert_inbox` too and does
+  `git pull --rebase` before push (an alert landing mid-run would otherwise
+  bounce the push).
+
+Verified locally (200/200 tests; uvicorn live: fail-closed 503 / 401 / logged
+pending; ingest CLI idempotent end-to-end from a temp dir; repo journal
+untouched). UNPROVEN as a live deployment until the Render service exists —
+the smoke-test for that is in `docs/HOSTING.md`.

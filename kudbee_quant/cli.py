@@ -366,6 +366,14 @@ def _journal_add(args) -> None:
           f"[{p.setup}] -> deadline {p.deadline.date()}")
 
 
+def _ingest_alerts(args) -> None:
+    """Drain data/alert_inbox/ (hosted TV alerts) into the repo journal."""
+    from .alert_inbox import ingest_inbox
+    j = TradeJournal()
+    added = ingest_inbox(j)
+    print(f"{len(added)} alert(s) ingested from the inbox.")
+
+
 def _journal_check(args) -> None:
     j = TradeJournal()
     changed = j.check_open()
@@ -654,6 +662,8 @@ def main() -> None:
     ja.add_argument("--note", default="")
     ja.set_defaults(func=_journal_add)
 
+    ia = sub.add_parser("ingest-alerts", help="ingest hosted TV alerts (data/alert_inbox/) into the journal")
+    ia.set_defaults(func=_ingest_alerts)
     jc = sub.add_parser("journal-check", help="re-evaluate open predictions vs price")
     jc.set_defaults(func=_journal_check)
     jl = sub.add_parser("journal-list", help="list all predictions")
