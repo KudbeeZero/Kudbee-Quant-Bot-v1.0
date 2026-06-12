@@ -1,0 +1,1 @@
+# keeps data/alert_inbox/ present so the paper-trade Action can always `git add` it

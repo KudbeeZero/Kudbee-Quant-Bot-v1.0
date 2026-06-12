@@ -366,6 +366,14 @@ def _journal_add(args) -> None:
           f"[{p.setup}] -> deadline {p.deadline.date()}")
 
 
+def _ingest_alerts(args) -> None:
+    """Drain data/alert_inbox/ (hosted TV alerts) into the repo journal."""
+    from .alert_inbox import ingest_inbox
+    j = TradeJournal()
+    added = ingest_inbox(j)
+    print(f"{len(added)} alert(s) ingested from the inbox.")
+
+
 def _journal_check(args) -> None:
     j = TradeJournal()
     changed = j.check_open()
@@ -512,12 +520,6 @@ def _paper_scan(args) -> None:
           "expectancy.\nThis accumulates a FORWARD record on unseen data. Not financial advice.")
 
 
-def _polymarkets(args) -> None:
-    df = PolymarketClient().markets(limit=args.limit)
-    cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
-    print(df[cols].to_string(index=False))
-
-
 def _trace_glyphs() -> tuple[str, str, str]:
     """(agree, oppose, neutral) glyphs, ASCII fallback if stdout can't encode."""
     import sys
@@ -587,6 +589,12 @@ def _trade_trace(args) -> None:
               f"({t['target_r']:g}R){res}\n")
         _print_trace(rep["bars"], rep["events"], ref_dir=t["direction"])
         print(f"\nHonest read: {rep['caveat']}")
+
+
+def _polymarkets(args) -> None:
+    df = PolymarketClient().markets(limit=args.limit)
+    cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
+    print(df[cols].to_string(index=False))
 
 
 def main() -> None:
@@ -725,6 +733,8 @@ def main() -> None:
     ja.add_argument("--note", default="")
     ja.set_defaults(func=_journal_add)
 
+    ia = sub.add_parser("ingest-alerts", help="ingest hosted TV alerts (data/alert_inbox/) into the journal")
+    ia.set_defaults(func=_ingest_alerts)
     jc = sub.add_parser("journal-check", help="re-evaluate open predictions vs price")
     jc.set_defaults(func=_journal_check)
     jl = sub.add_parser("journal-list", help="list all predictions")

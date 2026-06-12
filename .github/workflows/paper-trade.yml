@@ -33,6 +33,12 @@ jobs:
       - name: Install deps
         run: pip install -q -r requirements.txt
 
+      - name: Ingest TradingView alert inbox
+        # Hosted /api/alert commits alerts to data/alert_inbox/ (the host's own
+        # journal is ephemeral — see kudbee_quant/alert_inbox.py). Drain them
+        # into the journal of record BEFORE the scan so this run resolves them.
+        run: python -m kudbee_quant.cli ingest-alerts || true
+
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
@@ -60,9 +66,13 @@ jobs:
         run: |
           git config user.name "kudbee-paper-bot"
           git config user.email "actions@users.noreply.github.com"
-          if ! git diff --quiet -- data/journal.json; then
-            git add data/journal.json
+          # -A so consumed inbox files (deletions/renames) are staged too.
+          git add -A data/journal.json data/alert_inbox
+          if ! git diff --cached --quiet; then
             git commit -m "paper-trade: update journal [skip ci]"
+            # An alert can land in the inbox mid-run — rebase so the push
+            # doesn't bounce (inbox files are create-only; never conflicts).
+            git pull --rebase origin main
             git push
           else
             echo "No journal changes this run."

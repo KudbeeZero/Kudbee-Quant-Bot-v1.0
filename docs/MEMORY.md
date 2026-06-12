@@ -954,11 +954,38 @@ Protocol note: the audit gate has now held TWO PRs in a row (#5, #6 — reports 
 `docs/audits/`). §30's blemish corrected in passing: the Monday-flip range's
 honest lower bound is ~33% (SI=F 13/39), not 40%.
 
-## 33. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
+## 32. Branch-sweep verdict: no journal data lives outside `main` + the salvage lesson — 2026-06-12
 
-> Numbered §33 because parallel-chat PR #9 (claude/hello-7olm3u, open at the
-> time of this closeout) already claims §32 for its branch-sweep findings.
-> If #9 lands with a different number, renumber THIS section, not its content.
+User worry ("trades are out there on other branches") DISPROVED by ID-level
+check: every remote branch's `data/journal.json` is a strict, stale SUBSET of
+main's (0 unique trade IDs across all 11 `claude/*` branches). The bot pushes
+only to main; branch copies are snapshots from their fork point. Don't re-check
+journals on branches — check main.
+
+SALVAGE LESSON (tested): the zcash branch's "finished" dashboard (commit
+`6632c48`, claimed working + "183 tests pass") was wired to IMAGINED API field
+names — scorecard `n_resolved`/`n_wins` (real: `n`/`hits`), counts `win`/`loss`
+(real: `hit`/`miss`), `resolved_series` as numbers (real: dicts with `.r`) —
+and had zero HTML escaping. It would have rendered zeros/NaN in 3 of 6 panels.
+Its tests passed because it ADDED none. Rule: salvaged work from a parallel
+chat gets re-verified against the live API contract before shipping; "tests
+pass" means nothing if the diff has no tests. (Fixed version shipped with a
+regression guard pinning the real field names: `tests/test_dashboard.py`.)
+
+Branch hygiene facts: this remote-exec environment CANNOT delete branches
+(403 — push scoped to the session branch; GitHub MCP has no ref-delete).
+Deletions must be done from the GitHub UI. Verified safe to delete (merged or
+content-confirmed-in-main): handoff-audit-hvuuab, hello-1lje1b,
+overnight-algo-research-plan-hyqzf6, sol-short-position-0eytax,
+fable-5-release-review-mow58s, handoff-audit-fee-scoring-p0yg4n,
+handoff-audit-xtn2bz. Held for salvage: zcash-backtest-orderbook-shjg5o
+(dashboard source — delete after the salvage PR merges),
+crypto-confluences-research-cxrtp3 (research Vols 7–10),
+website-design-seo-067ci3 (site pages),
+market-trading-tools-analysis-l2rnr1 (29 ahead; headline content in main but
+not commit-by-commit verified).
+
+## 33. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
 
 The confluence stack is now introspectable without forking it:
 `confluence/trace.py` decorates `factor_votes()` with per-factor labels /
@@ -979,7 +1006,37 @@ factor EVOLUTION around a trade, not for re-verifying the entry gate — never
 read a replay pct as the live-edge pct. The caveat ships in every replay
 response/CLI footer; keep it there.
 
-## 34. Execution-sweep over the first 102 live signals: NO entry tweak rescues this week's signal; fees poison the 5m book — 2026-06-12
+## 34. Hosting architecture: the host is a disposable MIRROR; the repo journal stays the record; alerts travel via a create-only inbox — 2026-06-12
+
+DECIDED (user, 2026-06-12): Render **Starter** ($7/mo, `render.yaml`) hosts the
+FastAPI app. Free tier was rejected for a measured reason: 15-min idle
+spin-down + 30-60s cold start would drop TradingView webhook POSTs (TV doesn't
+retry). Verified pricing 2026-06-12, not assumed.
+
+THE ARCHITECTURE FACT (honor this; don't "improve" it):
+- The hosted app's checkout is **ephemeral and disposable** — auto-deploy on
+  every push means every hourly journal commit redeploys it. That is the
+  *feature* that keeps the dashboard fresh: the checkout IS the data store.
+- Therefore the host must NEVER be treated as a source of journal truth, and
+  must never push `data/journal.json` (bot-owned, §29-era rule stands).
+- TV alerts reach the scored record via `data/alert_inbox/` (alert_inbox.py):
+  the host commits one **create-only, content-hash-named** file per alert via
+  a Contents-RW-this-repo-only PAT — unique paths can't race the bot — and the
+  hourly Action's `ingest-alerts` step drains them into the journal
+  (`source="human"`, `inbox=<id>` note marker = idempotency). `"inbox": false`
+  in the `/api/alert` response means the alert is host-local only and WILL be
+  lost on the next redeploy.
+- The Action's commit step now stages `data/alert_inbox` too and does
+  `git pull --rebase` before push (an alert landing mid-run would otherwise
+  bounce the push).
+
+Verified locally (200/200 tests; uvicorn live: fail-closed 503 / 401 / logged
+pending; ingest CLI idempotent end-to-end from a temp dir; repo journal
+untouched). UNPROVEN as a live deployment until the Render service exists —
+the smoke-test for that is in `docs/HOSTING.md`.
+
+## 35. Execution-sweep over the first 102 live signals: NO entry tweak rescues this week's signal; fees poison the 5m book — 2026-06-12
+
 
 Research (chat artifact, read-only; refetched bars + the shared
 `backtest/resolver.py`, journal semantics mirrored exactly — sanity check:
@@ -1011,12 +1068,13 @@ correlated, all in-sample — this is hypothesis-generation, NOT validation.
   Queued as the Execution Lab scope; TP1 partial-banking is the variant the
   autopsy says to test first.
 
-## 35. REGISTERED HYPOTHESIS — fading the signal was net-positive this week, but NOT significant — 2026-06-12
+## 36. REGISTERED HYPOTHESIS — fading the signal was net-positive this week, but NOT significant — 2026-06-12
+
 
 User's idea (the right way around): if "layering in sooner makes it worse,"
 the signal may be marking exhaustion — confluence clusters where the crowd
 decides price is shifting, and in a macro uptrend those counter-moves are
-continuation fuel. Tested on the same 102-signal engine as §34 (flip
+continuation fuel. Tested on the same 102-signal engine as §35 (flip
 direction, identical 0.25-ATR-retrace/1.5-ATR-stop/3R bracket, same fees):
 
 - **FADE everything: +8.7R net (88 fills, +0.10R/trade)** vs −34.3R as traded.
@@ -1037,7 +1095,7 @@ direction, identical 0.25-ATR-retrace/1.5-ATR-stop/3R bracket, same fees):
   macro (HTF) trend. Needs a small bot change ⇒ its own PR + user sign-off;
   queued with the Execution Lab.
 
-**§35 ADDENDUM — OUT-OF-SAMPLE VERDICT (same day): the blanket fade FAILS.**
+**§36 ADDENDUM — OUT-OF-SAMPLE VERDICT (same day): the blanket fade FAILS.**
 Re-ran the journal test (reproduces exactly: orig −34.3R / fade +8.7R), then
 took the fade rule to data it had never seen — history strictly BEFORE
 2026-06-09 (15m ~31d, 1h ~4mo, 4h ~8mo), 10 journaled coins + 6 never-traded
