@@ -1022,3 +1022,15 @@ record is concerned. Re-audit independently and land the report post-hoc
 land BEFORE the merge, not "to follow". Also: a `[skip ci]` head commit means
 the gate's CI leg has no evidence — check what CI actually ran, not just that
 nothing is red.
+
+SUPERSEDED (same day, user decision): a parallel session had already built the
+hosting scope as **PR #11** (Render Starter + create-only GitHub-contents
+"alert inbox", Action stays the journal's ONLY writer) — the stale baton on
+main caused a §28-style duplicate build. The user chose #11's architecture
+(better aligned with "the Action owns journal.json"); THIS chat opened no PR
+and this branch is held as salvage (Fly config, `deploy/journal_sync.py` +
+its 7 tests, `KUDBEE_JOURNAL_PATH` override). Root cause for the protocol:
+the #9 gate session reconciled the baton on ITS BRANCH, not main — until a
+gate chat's PR merges, main's baton stays stale, so /handoff-audit must ALSO
+list open PRs before re-doing "missing" work (this chat checked only the
+report's absence on main).

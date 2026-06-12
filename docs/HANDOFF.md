@@ -9,7 +9,7 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/hello-7olm3u`
 - **Last PR:** #9 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/9
-- **Audit status:** **`MERGED (post-hoc PASS)`** — independent re-audit by
+- **Audit status (this branch's view — superseded, see PR #11):** **`MERGED (post-hoc PASS)`** — independent re-audit by
   `claude/handoff-audit-rk3gn7`; all 12 PR-body claims reproduced, 191/191
   (report: `docs/audits/claude-hello-7olm3u.md`). Process anomalies recorded:
   the prior audit session merged claiming PASS but never committed its report,
@@ -120,3 +120,7 @@
   record. Nits only: `dashboard.html:614` interpolates `e.message` unescaped
   (defense-in-depth, not exploitable today); the dashboard field-contract test
   is a string-pin, not a live-contract check. Next scope: hosting.
+- `2026-06-12` — THIS BRANCH (`claude/handoff-audit-rk3gn7`) closed WITHOUT a
+  PR (user decision): its Fly.io hosting build duplicated PR #11's Render
+  build (stale-baton §28 recurrence). Branch held as salvage. Next chat:
+  /handoff-audit PRs #10 and #11 in order.
