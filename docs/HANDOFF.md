@@ -31,24 +31,29 @@
   net-of-fee numbers first, bot-vs-human chips, served same-origin at `GET /`
   and `/dashboard` (read-only, `_read_limit`), `/api/metrics` (psutil, graceful
   fallback). ZEC pieces NOT brought over. New dep: psutil only.
-- Suite **187 passed** (4 new in `tests/test_dashboard.py`, incl. a regression
-  guard pinning the real field names). Verified live under uvicorn.
+- Suite **191 passed** (4 dashboard tests + 4 alert tests new). Verified live
+  under uvicorn (incl. `/api/alert` fail-closed 503 with no token configured;
+  journal untouched).
+- **TV webhook (PULLED FORWARD, user-directed, same PR):** the queued
+  TradingView scope was absorbed into PR #9 at the user's explicit request.
+  `/api/alert` now accepts the token via `?token=` or a `"token"` body field
+  (TV can't send headers) through shared fail-closed `check_token`; TV alerts
+  log `source="human"` (was polluting bot-vs-human provenance as `"bot"`);
+  `direction=0` now 422 (used to coerce to SHORT). TV alert message template
+  in the endpoint docstring.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/tradingview-webhook` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (one priority, user-confirmed):** the **TradingView alert-webhook
-  endpoint** — secured POST route on the FastAPI app receiving TradingView
-  alert webhooks (e.g. from `pinescript/pvsra_vector_candles.pine` on a TV
-  chart), logged as human-bias signals/notifications. **IMPORTANT:** a
-  token-gated `alert_webhook` endpoint ALREADY EXISTS at `kudbee_quant/api.py:120`
-  — extend/verify it for the TradingView payload shape (TV sends a plain-text
-  or JSON body you define in the alert; no auth header support on TV's side, so
-  the token likely needs to ride in the URL or body), do NOT build a duplicate.
-  Context: TV has NO market-data API (data stays Binance+Yahoo, §1 untouched);
-  webhooks need a TV paid plan + the API internet-reachable — same hosting
-  question as the dashboard.
+- **Slug hint (ADVISORY only):** `claude/hosting` — harness assigns the real
+  name; the *scope* below is what binds.
+- **Scope (one priority, user-confirmed 2026-06-12):** **HOSTING** — get the
+  FastAPI app (dashboard + webhook) actually reachable on the internet. It is
+  the prerequisite for both things PR #9 shipped: the dashboard is
+  localhost-only and TradingView webhooks can't reach an unhosted API. Keep
+  the security posture (fail-closed writes, rate limits, CORS scoping via
+  `KUDBEE_SITE_ORIGIN`); HTTPS required (the token rides in the TV alert
+  body). Dependency-light; the user decides the provider trade-off
+  (cost/maintenance) — present options with a recommendation before building.
 - **Open risks / watch-items:**
   - **Hosting gap:** dashboard + webhook both need the FastAPI app actually
     hosted/reachable; today it's localhost-only. Verified locally, UNPROVEN
@@ -102,4 +107,6 @@
 - `2026-06-12` — PR #7 post-hoc spot-check **PASS** by `claude/hello-7olm3u`
   (arm's-length; caveat discharged). Branch sweep: no journal data off `main`
   (§32). PR #9 opened: dashboard salvaged from zcash `6632c48` + fixed (real
-  API fields, XSS escaping) + §32. Next scope: TradingView alert-webhook.
+  API fields, XSS escaping) + §32; TV-webhook scope then PULLED FORWARD into
+  the same PR (user-directed, disclosed in the PR body) — `/api/alert` made
+  TV-usable + `source="human"`. 191 tests. Next scope: hosting.
