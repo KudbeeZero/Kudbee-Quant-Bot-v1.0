@@ -1,0 +1,29 @@
+# Fly.io config for the hosted Kudbee API (docs/DEPLOY.md).
+# Always-on on purpose: TradingView gives webhook receivers ~3s to respond
+# (cold starts would drop alerts), and the dashboard should just be up.
+app = "kudbee-quant"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  KUDBEE_REPO_DIR = "/data/repo"
+  KUDBEE_SYNC_INTERVAL = "60"
+  # CORS scope; the dashboard is same-origin so this is belt-and-braces.
+  KUDBEE_SITE_ORIGIN = "https://kudbee-quant.fly.dev"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "off"   # never scale to zero — webhook latency budget
+  auto_start_machines = true
+  min_machines_running = 1
+
+[[mounts]]
+  source = "kudbee_data"
+  destination = "/data"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"             # pandas+sklearn import footprint; 256mb is too tight

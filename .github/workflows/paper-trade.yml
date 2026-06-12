@@ -63,7 +63,15 @@ jobs:
           if ! git diff --quiet -- data/journal.json; then
             git add data/journal.json
             git commit -m "paper-trade: update journal [skip ci]"
-            git push
+            # The hosted API's journal-sync (deploy/journal_sync.py) may push a
+            # TV-alert commit between our checkout and this push. Rebase+retry
+            # instead of losing the hour; a real conflict still fails loudly.
+            ok=0
+            for i in 1 2 3; do
+              if git push; then ok=1; break; fi
+              git pull --rebase origin main || { git rebase --abort; exit 1; }
+            done
+            [ "$ok" = "1" ]
           else
             echo "No journal changes this run."
           fi

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -107,7 +108,12 @@ def net_outcome_r(p: Prediction) -> float | None:
 
 
 class TradeJournal:
-    def __init__(self, path: Path | str = DEFAULT_PATH, client: RouterClient | None = None):
+    def __init__(self, path: Path | str | None = None, client: RouterClient | None = None):
+        # Hosted deployments keep the journal on a persistent volume outside the
+        # app image (see docs/DEPLOY.md); KUDBEE_JOURNAL_PATH points there.
+        # Unset (CI, the paper-trade Action, local dev) = repo-relative default.
+        if path is None:
+            path = os.environ.get("KUDBEE_JOURNAL_PATH") or DEFAULT_PATH
         self.path = Path(path)
         # RouterClient so a mixed crypto + TradFi (yahoo:) journal resolves each
         # trade against the RIGHT source. Bare crypto symbols still hit Binance.

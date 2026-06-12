@@ -1,0 +1,16 @@
+# Keep the image to app code only — state lives on the volume, history in git.
+.git
+.github
+.claude
+data/
+docs/
+tests/
+scripts/
+lab/
+site/
+**/__pycache__
+*.pyc
+.pytest_cache
+.dockerignore
+Dockerfile
+fly.toml
