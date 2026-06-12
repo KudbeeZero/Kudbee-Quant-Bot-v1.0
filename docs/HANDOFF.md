@@ -7,78 +7,72 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/hello-1lje1b`
-- **Last PR:** #7 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/7
-- **Audit status:** `MERGED (post-hoc PASS — arm's-length spot-check confirmed
-  the self-audit)` — 2026-06-11, this chat ran the independent spot-check the
-  self-audit caveat invited: fresh auditor subagent, every claim reproduced
-  against `dd809c9..42069c8` (taint script re-run live, table byte-identical;
-  exact +11 workflow delta; no code/journal changes; 183/183). Report:
-  `docs/audits/claude-hello-1lje1b-posthoc.md`. One enumeration omission found
-  (PR body's file list missed its own self-audit report file; totals honest).
-  Original self-audit record: `docs/audits/claude-hello-1lje1b.md`.
-- PR #6 is CLOSED OUT: **`MERGED (audit PASS)`** at `dd809c9`
-  (report: `docs/audits/claude-handoff-audit-hvuuab.md`). The gate has held
-  two PRs in a row (#5, #6).
+- **Last branch:** `claude/hello-7olm3u`
+- **Last PR:** #9 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/9
+- **Audit status:** `AWAITING_AUDIT`.
+- PR #7 is CLOSED OUT: **`MERGED (post-hoc PASS)`** — this chat ran the
+  arm's-length spot-check the self-audit invited; every claim reproduced
+  (report: `docs/audits/claude-hello-1lje1b-posthoc.md`). Gate streak: #5,
+  #6, #7.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #6 audit gate → PASS, merged** (`dd809c9`): independent subagent, net
-  diff provably 5 doc files / zero code, in-branch revert exact, 183/183
-  reproduced in an isolated worktree. Blemish recorded: §30's Monday-flip
-  lower bound is ~33% (SI=F 13/39), not 40%.
-- **Taint audit (baton scope 1) — VERDICT: pre-fix `_tradfi` book is CLEAN
-  (MEMORY §31):** `scripts/taint_audit.py` replayed all 8 pre-fix entries
-  fixed-vs-prefix on the same bars (mask monkeypatch verified to bite:
-  92/600 GC=F Monday bars shift pivots, ADR −2.1%). 0 TAINTED / 5 CLEAN /
-  3 NOT_REPRODUCED (live-edge artifacts, all −1R misses, kept in the record).
-  All 8 were Tue/Wed — the Monday hotspot never coincided with a logged trade.
-  Full report: `docs/research/tradfi_taint_audit.md`. Journal untouched.
-- **Universe +11 (baton scope 2):** `HG/PL/PA ZW/ZC/ZS ZN/ZB SB/KC/CC` added
-  to the workflow's 1h TradFi scan; CT=F excluded. All 11 smoke-tested
-  end-to-end. UNPROVEN forward.
-- Suite **183 passed** at head after merging latest `main`.
+- **PR #7 post-hoc audit → PASS** (report committed): live taint-script re-run
+  byte-identical, exact +11 workflow delta, 183/183, no code/journal changes.
+  One nit: PR #7's body omitted its own self-audit file from the enumeration.
+- **Branch sweep (user-requested, §32):** 0 journal trade IDs exist outside
+  `main` (all 11 branches are stale subsets). 7 branches verified safe to
+  delete — env can't delete refs (403), so the USER must do it from the GitHub
+  UI. 4 held for salvage (zcash / research-vols / website / market-tools).
+- **Dashboard (baton scope) — salvaged from zcash `6632c48`, FIXED, shipped:**
+  the original was wired to imagined API fields (would render zeros/NaN in 3
+  of 6 panels) and had no HTML escaping. Rewired to the real `/api/journal`
+  contract, `esc()` on all server-derived strings + status-class allowlist,
+  net-of-fee numbers first, bot-vs-human chips, served same-origin at `GET /`
+  and `/dashboard` (read-only, `_read_limit`), `/api/metrics` (psutil, graceful
+  fallback). ZEC pieces NOT brought over. New dep: psutil only.
+- Suite **187 passed** (4 new in `tests/test_dashboard.py`, incl. a regression
+  guard pinning the real field names). Verified live under uvicorn.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/jarvis-dashboard` — harness assigns
+- **Slug hint (ADVISORY only):** `claude/tradingview-webhook` — harness assigns
   the real name; the *scope* below is what binds.
-- **Scope (one priority, user-confirmed):** build the **Jarvis-style
-  mission-control dashboard** — a one-page interactive board served by the
-  existing FastAPI app. Style: DISTINCT (not a generic Jarvis clone) — dark
-  purple/blue base, accents of yellow + a little green, particle background,
-  interactive. Wire in live data from the existing `/api` endpoints (journal
-  scorecard + `by_venue`, open book, biases) and host CPU/memory metrics (of
-  the machine serving the app). Dependency-light; keep the existing API
-  security posture.
-- **QUEUED after the dashboard (user-chosen 2026-06-11):** a **TradingView
-  alert-webhook endpoint** — small secured POST route on the FastAPI app that
-  receives TradingView alert webhooks (e.g. from our shipped
-  `pinescript/pvsra_vector_candles.pine` running on a TV chart) and logs them
-  as human-bias signals/notifications. Context: TradingView has NO official
-  market-data API (data stays Binance+Yahoo — §1 untouched); webhooks need a
-  TV paid plan and the API reachable from the internet — same hosting
-  consideration as the dashboard. Postman was evaluated and adds nothing
-  (tooling, not a data source).
+- **Scope (one priority, user-confirmed):** the **TradingView alert-webhook
+  endpoint** — secured POST route on the FastAPI app receiving TradingView
+  alert webhooks (e.g. from `pinescript/pvsra_vector_candles.pine` on a TV
+  chart), logged as human-bias signals/notifications. **IMPORTANT:** a
+  token-gated `alert_webhook` endpoint ALREADY EXISTS at `kudbee_quant/api.py:120`
+  — extend/verify it for the TradingView payload shape (TV sends a plain-text
+  or JSON body you define in the alert; no auth header support on TV's side, so
+  the token likely needs to ride in the URL or body), do NOT build a duplicate.
+  Context: TV has NO market-data API (data stays Binance+Yahoo, §1 untouched);
+  webhooks need a TV paid plan + the API internet-reachable — same hosting
+  question as the dashboard.
 - **Open risks / watch-items:**
-  - **NEW (§31):** the 11 added TradFi symbols are UNPROVEN forward — softs
-    (SB/KC/CC) are RTH-like with bigger session gaps; watch for §29-style edge
-    cases. 3 pre-fix entries are live-edge NOT_REPRODUCED (noted in the taint
-    report, kept in the record).
-  - **§29 data caveat:** pre-fix `filled_at` timestamps (≤ 2026-06-10) unreliable
-    as fill TIMES; statuses/outcomes fine. Don't "clean" the journal.
-  - **§30:** FX dead votes (confluence capped 8/10 for EURUSD/GBPUSD); §29's
-    documented-not-fixed list (wall-clock deadlines through closed sessions,
-    W-SUN weekly grouping, gap FVGs/ATR, cron throttling to ~2-4h).
-  - **Maker-vs-taker fee contradiction (still open):** measured taker 0.0009 vs
-    `FEE_PCT=0.0004` maker assumption — one real LIMIT fill settles it.
-  - Censoring bias unwinding in the right direction but the scorecard is still
-    not an edge readout — let the book mature.
-- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT` (no change
-  without walk-forward); `data/journal.json` (bot-owned — no session commits);
-  crypto daily grouping stays calendar-dated (the §29 mask is provably a no-op
-  on 24/7 data — keep it that way); no deleting stale `claude/*` branches
-  without explicit OK.
+  - **Hosting gap:** dashboard + webhook both need the FastAPI app actually
+    hosted/reachable; today it's localhost-only. Verified locally, UNPROVEN
+    as a deployment.
+  - **Branch deletions pending (user action, §32):** 7 safe via GitHub UI:
+    `handoff-audit-hvuuab`, `hello-1lje1b`, `overnight-algo-research-plan-hyqzf6`,
+    `sol-short-position-0eytax`, `fable-5-release-review-mow58s`,
+    `handoff-audit-fee-scoring-p0yg4n`, `handoff-audit-xtn2bz`. Held: zcash
+    (delete after PR #9 merges), research-vols, website, market-tools.
+  - **§31:** the 11 added TradFi symbols UNPROVEN forward (first pending
+    signals appeared 2026-06-11: ZW/ZC/ZS/ZB, ^NDX); watch softs for
+    §29-style edge cases.
+  - **§29/§30 standing caveats:** pre-fix `filled_at` times unreliable; FX dead
+    votes; documented-not-fixed list (wall-clock deadlines, W-SUN grouping,
+    gap FVGs/ATR, cron throttling).
+  - **Maker-vs-taker fee contradiction (still open):** one real LIMIT fill
+    settles it.
+  - Scorecard still not an edge readout — let the book mature (last 24h was
+    net −11R on 23 resolutions; small sample, no action).
+- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`;
+  `data/journal.json` (bot-owned — no session commits); crypto daily grouping
+  stays calendar-dated; do NOT delete `claude/zcash-backtest-orderbook-shjg5o`
+  until PR #9 is merged (it's the dashboard's source-of-record); other held
+  branches only with explicit user OK.
 
 ## Baton history
 
@@ -105,3 +99,7 @@
 - `2026-06-11` — PR #7 **audited (PASS) and merged** — SELF-AUDIT (user-invoked
   in the authoring session; independent subagent + live `/verify`; caveat in
   the report). Gate streak: #5, #6, #7.
+- `2026-06-12` — PR #7 post-hoc spot-check **PASS** by `claude/hello-7olm3u`
+  (arm's-length; caveat discharged). Branch sweep: no journal data off `main`
+  (§32). PR #9 opened: dashboard salvaged from zcash `6632c48` + fixed (real
+  API fields, XSS escaping) + §32. Next scope: TradingView alert-webhook.
