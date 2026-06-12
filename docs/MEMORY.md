@@ -1034,3 +1034,63 @@ the #9 gate session reconciled the baton on ITS BRANCH, not main — until a
 gate chat's PR merges, main's baton stays stale, so /handoff-audit must ALSO
 list open PRs before re-doing "missing" work (this chat checked only the
 report's absence on main).
+
+> _Reflection 2026-06-12 19:38 UTC_: 41 candidates tried, 5 naive winners, 0 survive family-wide FDR. NO winner survives family-wide FDR — treat all as unproven. Regime: {'trend': 'flat', 'vol_regime': 'mid', 'vol_percentile': 0.562, 'choppy': False}.
+
+## 34. What the first 76 forward trades taught us → the conf_70 lead + fewer-better adjustments — 2026-06-12
+
+(NUMBERING: §34 may collide with PR #11's MEMORY additions — reconcile at merge.)
+
+USER DIRECTIVE driving this pass: "I'd rather get 4 high-probability signals a
+week than 500 trades and wish for the best." Analysed all 76 resolved forward
+trades, derived hypotheses, ran them through the significance-gated harness.
+
+**WHERE THE −21.8R ACTUALLY CAME FROM (decomposed — the headline was misread):**
+- crypto 1h/4h (the VALIDATED config): **−3R on n=11** — small-sample noise,
+  NOT a verdict on the strategy.
+- crypto 5m/15m (forward EXPERIMENT, never validated): **−9R on n=49** — 64% of
+  all trade volume. Forward verdict now AGREES with the §9 backtest (sub-1h
+  fails standalone). **Experiment concluded → 5m/15m dropped from the hourly
+  Action** (validated 1h/2h/4h remain).
+- tradfi 1h (0-fee experiment): −10R on n=14 (1/14). Young + §31 caveats —
+  left running, watch.
+
+**THE CONF_70 LEAD (the "fewer, better" gate, tested three ways):**
+- Live forward book: ≥70% confluence = 5 trades, 3 wins, **+1.40R/trade, +7R**;
+  50–60% = 69 trades, −0.42R/trade, −29R. (Corroborates §16's lab slice.)
+- Harness (full history, top-10 1h): `conf_70` **WINNER** — Δ+0.195R vs
+  baseline (+0.353 vs +0.158), BOTH halves positive (+0.151/+0.227), bootstrap
+  p=0.0355, keeps 18% of trades, Sharpe 0.10→0.20, maxDD −25.5R→−9.5R.
+- Recent regime re-fire: last 45d Δ+0.33R (+0.479 vs +0.150, maxDD −5.6 vs
+  −18.3); last 14d +1.10R/trade on 14 trades (≈7 signals/wk — the user's cadence).
+- HONEST CAP: under family-wide BH-FDR (41 candidates) conf_70 is the TOP
+  candidate but **0 survivors family-wide** — not yet "proven", the forward
+  tier record decides. It has out-of-family corroboration (live book + §16),
+  which past naive winners lacked.
+- `conf_60` HURTS both backward (Δ−0.054, p=0.79) AND forward (−0.67R/trade):
+  the conviction info lives at the TOP of the scale (≥70%), not the middle.
+  `conf_80`: THIN (n=50, h1 negative) — don't trust beyond "tier is rare".
+  `conf_70_killzone` stack: positive but adds nothing over conf_70 alone
+  (+0.321 vs +0.353 keeping fewer trades).
+
+**ADJUSTMENTS SHIPPED (the cheap, honest kind — no validated default touched):**
+- `TradeJournal.conviction_record()`: scores the ≥70% tier vs the 50–60% base
+  from the setup tags ALREADY on every bot trade → the conf_70 forward test
+  accrues for free, no behavior change. Surfaced in `cli journal-score` +
+  `/api/journal` (`by_conviction`). The Action keeps scanning at ≥50% so the
+  baseline forward experiment continues uninterrupted; the tier is a lens.
+- 5m/15m removed from the Action's crypto scan (experiment concluded, above).
+
+**BASKET-CORRELATION FINDING (tested and REJECTED as a signal filter):** 13
+same-bar same-direction entry clusters (≥3 symbols) account for −16R of the
+live −21.8R (worst: 11 simultaneous crypto shorts = −11R in one bar). BUT
+mechanically deduping baskets in backtest HURTS (+0.158→+0.106R, Sharpe
+0.097→0.066, no DD gain) — the same correlation pays on winning sweeps (the
++9R clusters). Verdict: basket risk is a SIZING problem (size a correlated
+basket as ~one bet, consistent with §13/§22 quarter-Kelly), NOT a signal
+problem. Do not gate entries on it.
+
+**NEXT TEST (when forward data accrues):** if the ≥70% tier holds ≥+0.3R/trade
+at n≥30 forward, it earns (a) TradingView alert wiring at the 70% threshold
+(the "4 signals/week you act on" mode) and (b) a meta-gate A/B vs §19's
+prob≥0.60 ML gate (which still awaits its forward track too).

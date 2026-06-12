@@ -1,8 +1,5 @@
 {
   "pending": [
-    "range_expansion",
-    "ret_percentile_self",
-    "near_high_recovery",
     "run_streak_gate",
     "jump_continuation",
     "atr_vs_tr_compression",
@@ -51,6 +48,12 @@
     "inside_bar",
     "conf_60",
     "trend_strong_sep",
-    "two_bar_momentum"
+    "two_bar_momentum",
+    "range_expansion",
+    "ret_percentile_self",
+    "near_high_recovery",
+    "conf_70",
+    "conf_80",
+    "conf_70_killzone"
   ]
 }

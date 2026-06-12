@@ -333,6 +333,29 @@ def c_conf_60(df, scored, base_sig):
     return confluence_position(df, min_pct=0.60, trend_align=True), None, {}
 
 
+def c_conf_70(df, scored, base_sig):
+    """High-conviction tier: >=70% confluence (vs the 50% baseline). The live
+    forward book corroborates the §16 lab here (>=70%: 3/5 wins, +7R, while
+    50-60% bled), and conf_60 already tested HURTS — the conviction info may be
+    concentrated at the top of the scale, not spread linearly across it."""
+    return confluence_position(df, min_pct=0.70, trend_align=True), None, {}
+
+
+def c_conf_80(df, scored, base_sig):
+    """Very-high-conviction tier: >=80% confluence. Live forward book is 2/2
+    (+6R) — almost certainly THIN in backtest, but it pins down where on the
+    confluence scale the live winners actually live."""
+    return confluence_position(df, min_pct=0.80, trend_align=True), None, {}
+
+
+def c_conf_70_killzone(df, scored, base_sig):
+    """STACK (§16): the >=70% conviction tier AND a session killzone (London /
+    NY-brinks / macro). The two strongest single lab filters combined — the
+    'few high-probability trades in premium windows' thesis as one gate."""
+    sig = confluence_position(df, min_pct=0.70, trend_align=True)
+    return _gate(sig, df["killzone"] != "none"), None, {}
+
+
 def c_trend_strong_sep(df, scored, base_sig):
     """Strong-trend gate: 13/800-EMA separation >= 2 ATR — only the most clearly
     trending tape (a stronger cut than clean_trend's 50/800 >= 1 ATR)."""
@@ -537,6 +560,9 @@ REGISTRY: dict[str, tuple] = {
     "vol_dryup_coil": (c_vol_dryup_coil, "Coil + volume dry-up (accumulation tell)"),
     "inside_bar": (c_inside_bar, "Prior bar is an inside bar (compression)"),
     "conf_60": (c_conf_60, "Stricter >=60% confluence threshold"),
+    "conf_70": (c_conf_70, "High-conviction >=70% confluence tier"),
+    "conf_80": (c_conf_80, "Very-high-conviction >=80% confluence tier"),
+    "conf_70_killzone": (c_conf_70_killzone, "Stack: >=70% confluence AND session killzone"),
     "trend_strong_sep": (c_trend_strong_sep, "Strong trend: 13/800-EMA gap >= 2 ATR"),
     "two_bar_momentum": (c_two_bar_momentum, "Two consecutive with-direction closes"),
     "range_expansion": (c_range_expansion, "Trigger-bar range > 1.5x trailing-20 avg"),
