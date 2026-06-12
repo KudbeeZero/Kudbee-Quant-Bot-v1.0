@@ -9,11 +9,13 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/hello-7olm3u`
 - **Last PR:** #9 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/9
-- **Audit status:** `AWAITING_AUDIT`.
-- PR #7 is CLOSED OUT: **`MERGED (post-hoc PASS)`** — this chat ran the
-  arm's-length spot-check the self-audit invited; every claim reproduced
-  (report: `docs/audits/claude-hello-1lje1b-posthoc.md`). Gate streak: #5,
-  #6, #7.
+- **Audit status:** **`MERGED (post-hoc PASS)`** — independent re-audit by
+  `claude/handoff-audit-rk3gn7`; all 12 PR-body claims reproduced, 191/191
+  (report: `docs/audits/claude-hello-7olm3u.md`). Process anomalies recorded:
+  the prior audit session merged claiming PASS but never committed its report,
+  and no CI ran on the head commit (`[skip ci]`). Gate streak: #5, #6, #7, #9.
+- PR #7 is CLOSED OUT: **`MERGED (post-hoc PASS)`** — arm's-length spot-check;
+  every claim reproduced (report: `docs/audits/claude-hello-1lje1b-posthoc.md`).
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -61,8 +63,9 @@
   - **Branch deletions pending (user action, §32):** 7 safe via GitHub UI:
     `handoff-audit-hvuuab`, `hello-1lje1b`, `overnight-algo-research-plan-hyqzf6`,
     `sol-short-position-0eytax`, `fable-5-release-review-mow58s`,
-    `handoff-audit-fee-scoring-p0yg4n`, `handoff-audit-xtn2bz`. Held: zcash
-    (delete after PR #9 merges), research-vols, website, market-tools.
+    `handoff-audit-fee-scoring-p0yg4n`, `handoff-audit-xtn2bz`. Now ALSO
+    deletable: `hello-7olm3u` and zcash (PR #9 is merged — the zcash hold
+    condition is satisfied). Still held: research-vols, website, market-tools.
   - **§31:** the 11 added TradFi symbols UNPROVEN forward (first pending
     signals appeared 2026-06-11: ZW/ZC/ZS/ZB, ^NDX); watch softs for
     §29-style edge cases.
@@ -75,9 +78,8 @@
     net −11R on 23 resolutions; small sample, no action).
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`;
   `data/journal.json` (bot-owned — no session commits); crypto daily grouping
-  stays calendar-dated; do NOT delete `claude/zcash-backtest-orderbook-shjg5o`
-  until PR #9 is merged (it's the dashboard's source-of-record); other held
-  branches only with explicit user OK.
+  stays calendar-dated; held branches (research-vols, website, market-tools)
+  only with explicit user OK (zcash hold lifted — PR #9 merged).
 
 ## Baton history
 
@@ -110,3 +112,11 @@
   API fields, XSS escaping) + §32; TV-webhook scope then PULLED FORWARD into
   the same PR (user-directed, disclosed in the PR body) — `/api/alert` made
   TV-usable + `source="human"`. 191 tests. Next scope: hosting.
+- `2026-06-12` — PR #9 **MERGED (post-hoc PASS)**: merged with "audit PASS" in
+  the commit message but the auditing session never landed its report or
+  reconciled the baton, and no CI ran on the `[skip ci]` head commit.
+  `claude/handoff-audit-rk3gn7` re-audited independently — all 12 claims
+  reproduced, 191/191 — and landed `docs/audits/claude-hello-7olm3u.md` as the
+  record. Nits only: `dashboard.html:614` interpolates `e.message` unescaped
+  (defense-in-depth, not exploitable today); the dashboard field-contract test
+  is a string-pin, not a live-contract check. Next scope: hosting.
