@@ -7,79 +7,68 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/hello-1lje1b`
-- **Last PR:** #7 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/7
-- **Audit status:** `MERGED (audit PASS — SELF-AUDIT, see caveat)` — the user
-  invoked `/verify and /handoff-audit` in the AUTHORING session itself, so the
-  gate ran early: independent subagent audit (report:
-  `docs/audits/claude-hello-1lje1b.md` — every claim reproduced incl. the
-  92/600 monkeypatch sanity figures and 183/183 in an isolated worktree) plus
-  a live `/verify` pass (taint script + the exact 21-symbol scan command in an
-  isolated worktree; ZC=F logged a real tagged trade; CT=F exclusion probed =
-  broken granularity). CAVEAT: same-session audit — the next chat may
-  spot-check rather than treat this as arm's-length.
-- PR #6 is CLOSED OUT: **`MERGED (audit PASS)`** at `dd809c9`
-  (report: `docs/audits/claude-handoff-audit-hvuuab.md`). The gate has held
-  two PRs in a row (#5, #6).
+- **Last branch:** `claude/trade-viz-draggable-indicators-yncx2t`
+- **Last PR:** #10 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/10
+- **Audit status:** `AWAITING_AUDIT`.
+- ⚠️ **TWO open PRs (parallel-chat collision, §28/§30 pattern again):**
+  PR **#9** (`claude/hello-7olm3u` — mission-control dashboard + TV-usable
+  alert webhook + its own MEMORY "§32") was opened by a PARALLEL chat during
+  this one. Both PRs touch `kudbee_quant/api.py`, `kudbee_quant/api_security.py`
+  and append to `docs/MEMORY.md` — whichever merges second has real conflicts.
+  This chat pre-renumbered its memory section to **§33** to dodge #9's §32.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #6 audit gate → PASS, merged** (`dd809c9`): independent subagent, net
-  diff provably 5 doc files / zero code, in-branch revert exact, 183/183
-  reproduced in an isolated worktree. Blemish recorded: §30's Monday-flip
-  lower bound is ~33% (SI=F 13/39), not 40%.
-- **Taint audit (baton scope 1) — VERDICT: pre-fix `_tradfi` book is CLEAN
-  (MEMORY §31):** `scripts/taint_audit.py` replayed all 8 pre-fix entries
-  fixed-vs-prefix on the same bars (mask monkeypatch verified to bite:
-  92/600 GC=F Monday bars shift pivots, ADR −2.1%). 0 TAINTED / 5 CLEAN /
-  3 NOT_REPRODUCED (live-edge artifacts, all −1R misses, kept in the record).
-  All 8 were Tue/Wed — the Monday hotspot never coincided with a logged trade.
-  Full report: `docs/research/tradfi_taint_audit.md`. Journal untouched.
-- **Universe +11 (baton scope 2):** `HG/PL/PA ZW/ZC/ZS ZN/ZB SB/KC/CC` added
-  to the workflow's 1h TradFi scan; CT=F excluded. All 11 smoke-tested
-  end-to-end. UNPROVEN forward.
-- Suite **183 passed** at head after merging latest `main`.
+- **Trade Flow visualizer (PR #10), the user-confirmed scope:** node-graph
+  confluence view — live flow / UNVALIDATED sandbox (drag factors out of the
+  stack, EMA span overrides 2..2000, display-only gate) / journal-trade replay
+  with SIGNAL/FILLED/TP1/RESOLVED event mapping — plus `trade-trace` CLI.
+- New: `kudbee_quant/confluence/trace.py` (decorates `factor_votes`, parity
+  pinned by test; `stack.py` zero-diff), `kudbee_quant/replay.py` (read-only,
+  600-bar warmup = live-scan context), `trade-flow.html` + `assets/js/trade-flow.js`
+  (vanilla JS, CSP 'self', Pointer-Events drag), `tests/test_trace.py` +
+  `tests/test_trace_api.py` (18 tests).
+- API: `GET /api/trace/{spec}`, `POST /api/sandbox/trace` (own 30/min scope,
+  no token — compute-only), `GET /api/replay/{trade_id}`; `safe_spec()` added
+  because `safe_symbol()` drops `yahoo:` → **/api/signal was always
+  crypto-only** (documented, deliberately unchanged). `resolved_series` rows
+  now carry `id`/`symbol`/`timeframe` (additive).
+- **201 tests pass** at the merged-main head; live-verified on Binance+Yahoo
+  data and driven in headless Chromium (drag-to-disable re-scored the gate to
+  /9 live). `data/journal.json` and `validated_defaults.py` zero-diff.
+- MEMORY **§33**: trace/replay layer + lesson — replay pct ≠ live-edge pct
+  (trade `0bee2b4a`: ≥50% logged live, 20% recomputed at the SIGNAL bar).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/jarvis-dashboard` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (one priority, user-confirmed):** build the **Jarvis-style
-  mission-control dashboard** — a one-page interactive board served by the
-  existing FastAPI app. Style: DISTINCT (not a generic Jarvis clone) — dark
-  purple/blue base, accents of yellow + a little green, particle background,
-  interactive. Wire in live data from the existing `/api` endpoints (journal
-  scorecard + `by_venue`, open book, biases) and host CPU/memory metrics (of
-  the machine serving the app). Dependency-light; keep the existing API
-  security posture.
-- **QUEUED after the dashboard (user-chosen 2026-06-11):** a **TradingView
-  alert-webhook endpoint** — small secured POST route on the FastAPI app that
-  receives TradingView alert webhooks (e.g. from our shipped
-  `pinescript/pvsra_vector_candles.pine` running on a TV chart) and logs them
-  as human-bias signals/notifications. Context: TradingView has NO official
-  market-data API (data stays Binance+Yahoo — §1 untouched); webhooks need a
-  TV paid plan and the API reachable from the internet — same hosting
-  consideration as the dashboard. Postman was evaluated and adds nothing
-  (tooling, not a data source).
+- **Slug hint (ADVISORY only):** `claude/land-two-prs` — harness assigns the
+  real name; the *scope* below is what binds.
+- **Scope (one priority, user-confirmed 2026-06-12):** **audit + land BOTH
+  open PRs, in creation order** — `/handoff-audit` PR #9 first (dashboard +
+  webhook; it claims a §32 and a 191-test run), merge only on PASS; then audit
+  PR #10 (this chat), resolve the conflicts the second merge hits
+  (`api.py` imports/limiters region, `api_security.py` tail, `docs/MEMORY.md`
+  tail — keep BOTH features and the §32/§33 numbering note), re-run the full
+  suite on the resolved result, and reconcile this baton. **No new building
+  until the board is clean** — the queued "Jarvis dashboard" scope was
+  CONSUMED by PR #9; the TV-webhook queue item likewise.
 - **Open risks / watch-items:**
-  - **NEW (§31):** the 11 added TradFi symbols are UNPROVEN forward — softs
-    (SB/KC/CC) are RTH-like with bigger session gaps; watch for §29-style edge
-    cases. 3 pre-fix entries are live-edge NOT_REPRODUCED (noted in the taint
-    report, kept in the record).
-  - **§29 data caveat:** pre-fix `filled_at` timestamps (≤ 2026-06-10) unreliable
-    as fill TIMES; statuses/outcomes fine. Don't "clean" the journal.
-  - **§30:** FX dead votes (confluence capped 8/10 for EURUSD/GBPUSD); §29's
-    documented-not-fixed list (wall-clock deadlines through closed sessions,
-    W-SUN weekly grouping, gap FVGs/ATR, cron throttling to ~2-4h).
-  - **Maker-vs-taker fee contradiction (still open):** measured taker 0.0009 vs
-    `FEE_PCT=0.0004` maker assumption — one real LIMIT fill settles it.
-  - Censoring bias unwinding in the right direction but the scorecard is still
-    not an edge readout — let the book mature.
-- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT` (no change
-  without walk-forward); `data/journal.json` (bot-owned — no session commits);
-  crypto daily grouping stays calendar-dated (the §29 mask is provably a no-op
-  on 24/7 data — keep it that way); no deleting stale `claude/*` branches
-  without explicit OK.
+  - **NEW (§33):** replay pct ≠ live-edge pct is now visible per trade — never
+    read a replay's confluence pct as a re-verification of the entry gate; the
+    caveat ships in every replay response/CLI footer, keep it there.
+  - `/api/signal` remains crypto-only (`safe_symbol` drops the source prefix);
+    `/api/trace` is the routed alternative. Decide in a future chat whether
+    signal should adopt `safe_spec` (breaking-change check: journal symbols).
+  - PR #9 is from a parallel chat and is UNAUDITED — treat all its claims
+    (191 tests, salvage provenance, alert-auth changes) as unverified until
+    its audit passes.
+  - §31 watch-items stand: 11 new TradFi symbols UNPROVEN forward; §29 pre-fix
+    `filled_at` unreliable; maker-vs-taker fee contradiction still open (one
+    real LIMIT fill settles it); scorecard still not an edge readout.
+- **Off-limits (standing list unchanged):** validated strategy defaults (§1)
+  and `FEE_PCT` (no change without walk-forward); `data/journal.json`
+  (bot-owned — no session commits); crypto daily grouping stays calendar-dated;
+  no deleting stale `claude/*` branches without explicit OK.
 
 ## Baton history
 
@@ -98,11 +87,9 @@
   superseded (§30). PR #6 opened (docs-only). Next scope: `_tradfi` taint audit +
   universe expansion (+11 assets); Jarvis dashboard queued after.
 - `2026-06-11` — PR #6 **audited (PASS) and merged** at `dd809c9` by
-  `claude/hello-1lje1b` (gate held again). Blemish: §30 Monday-flip lower bound
-  ~33%, not 40%.
-- `2026-06-11` — PR #7 opened (`claude/hello-1lje1b`): PR #6 audit + taint-audit
-  verdict (pre-fix `_tradfi` book CLEAN, §31) + universe +11. Next scope: Jarvis
-  dashboard.
-- `2026-06-11` — PR #7 **audited (PASS) and merged** — SELF-AUDIT (user-invoked
-  in the authoring session; independent subagent + live `/verify`; caveat in
-  the report). Gate streak: #5, #6, #7.
+  `claude/hello-1lje1b`; that chat shipped PR #7 (taint audit §31 + 11-symbol
+  universe), self-audited PASS with caveat, merged. Next scope: Jarvis dashboard.
+- `2026-06-12` — PR #10 opened (`claude/trade-viz-draggable-indicators-yncx2t`):
+  Trade Flow visualizer (trace/sandbox/replay + CLI, §33), 201 tests,
+  AWAITING_AUDIT. Parallel chat opened PR #9 (dashboard + webhook, §32 claim)
+  mid-session — next scope: audit + land BOTH, #9 first, resolve conflicts.
