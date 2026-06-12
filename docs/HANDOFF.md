@@ -38,6 +38,10 @@
   /9 live). `data/journal.json` and `validated_defaults.py` zero-diff.
 - MEMORY **§33**: trace/replay layer + lesson — replay pct ≠ live-edge pct
   (trade `0bee2b4a`: ≥50% logged live, 20% recomputed at the SIGNAL bar).
+- **Post-closeout rider (disclosed in PR #10 body):** `.claude/agents/
+  laravel-specialist.md` added at the user's request (tooling-only, other-repo
+  agent; no `kudbee_quant/**` impact). Also delivered the user a full-journal
+  spreadsheet (105 trades; 15H/62M, −21.8R gross) — chat artifact, not committed.
 
 ## NEXT chat
 
