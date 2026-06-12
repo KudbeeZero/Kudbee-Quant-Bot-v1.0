@@ -62,12 +62,13 @@
   trades). First experiments per the §34 autopsy: TP1 partial-banking (13
   misses ran ≥+1R unbanked; 19 stopped then ran to target), and the 5m-book
   fee question (~0.24R/trade fee drag — pausing 5m in the workflow is a USER
-  decision, present the §34 numbers and ask). **Plus §35 (user's hypothesis,
-  registered 2026-06-12): a SHADOW FADE BOOK** — log the mirrored bracket of
-  every signal under its own setup tag so the fade idea gets a true forward
-  test (+8.7R net in-sample but only ~12 independent bets, P(no edge)≈23% —
-  NOT validated; do not size it, just log it). Variant to tag separately:
-  fade only signals opposing the macro/HTF trend.
+  decision, present the §34 numbers and ask). **§35 UPDATE: the fade
+  hypothesis was REJECTED out-of-sample same-day** (fade positive in only
+  16/52 pre-June-9 symbol-TF cells vs 39/52 for the original — see §35
+  addendum); shadow fade book now OPTIONAL/low-priority. The live follow-up
+  it surfaced instead: **possible edge decay on the 1h crypto book** (orig
+  −91.9R / fade +89.8R over the recent ~4 months OOS window) — re-check as
+  forward data accrues before any action.
 - **Open risks / watch-items:**
   - **NEW (§33):** replay pct ≠ live-edge pct is now visible per trade — never
     read a replay's confluence pct as a re-verification of the entry gate; the

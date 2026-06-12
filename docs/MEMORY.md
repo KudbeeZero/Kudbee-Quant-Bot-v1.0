@@ -1036,3 +1036,20 @@ direction, identical 0.25-ATR-retrace/1.5-ATR-stop/3R bracket, same fees):
   accumulate. Sharper variant worth tagging: fade only signals OPPOSING the
   macro (HTF) trend. Needs a small bot change ⇒ its own PR + user sign-off;
   queued with the Execution Lab.
+
+**§35 ADDENDUM — OUT-OF-SAMPLE VERDICT (same day): the blanket fade FAILS.**
+Re-ran the journal test (reproduces exactly: orig −34.3R / fade +8.7R), then
+took the fade rule to data it had never seen — history strictly BEFORE
+2026-06-09 (15m ~31d, 1h ~4mo, 4h ~8mo), 10 journaled coins + 6 never-traded
+coins (LTC/BCH/TRX/NEAR/ATOM/UNI) + 4 TradFi, same gate
+(`confluence_position(min_pct=.5, trend_align=True)`) and same execution via
+`bracket_backtest` (0.25-ATR limit/12-bar window/1.5-ATR stop/3R/72-bar
+time-stop, fee_pct 2×FEE_PCT): **fade positive in only 16/52 symbol-TF cells
+(pooled ≈ −500R); the ORIGINAL is positive in 39/52** — consistent with its
+§1 validation. Last week's fade win was the June-9 V-reversal regime, not an
+edge. HYPOTHESIS REJECTED as a blanket rule; shadow fade book is now
+OPTIONAL/low-priority. Real watch-item found instead: **journaled crypto on
+1h was orig −91.9R / fade +89.8R over the recent ~4 months** — possible edge
+DECAY on the 1h crypto book recently (regime-dependence, §22-style honesty:
+n large but one window; check again as forward data accrues). Full grid:
+chat artifact `oos_fade_test.csv`.
