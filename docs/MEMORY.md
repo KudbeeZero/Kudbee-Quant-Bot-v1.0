@@ -954,7 +954,11 @@ Protocol note: the audit gate has now held TWO PRs in a row (#5, #6 — reports 
 `docs/audits/`). §30's blemish corrected in passing: the Monday-flip range's
 honest lower bound is ~33% (SI=F 13/39), not 40%.
 
-## 32. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
+## 33. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
+
+> Numbered §33 because parallel-chat PR #9 (claude/hello-7olm3u, open at the
+> time of this closeout) already claims §32 for its branch-sweep findings.
+> If #9 lands with a different number, renumber THIS section, not its content.
 
 The confluence stack is now introspectable without forking it:
 `confluence/trace.py` decorates `factor_votes()` with per-factor labels /
