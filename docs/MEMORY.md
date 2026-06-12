@@ -953,3 +953,24 @@ session gaps; expect more §29-style edge cases there. Watch, don't trust.
 Protocol note: the audit gate has now held TWO PRs in a row (#5, #6 — reports in
 `docs/audits/`). §30's blemish corrected in passing: the Monday-flip range's
 honest lower bound is ~33% (SI=F 13/39), not 40%.
+
+## 32. Per-factor trace/replay layer exists — and replay pct ≠ live-edge pct, now visibly — 2026-06-12
+
+The confluence stack is now introspectable without forking it:
+`confluence/trace.py` decorates `factor_votes()` with per-factor labels /
+human-readable details (parity with `factor_votes`/`confluence_score` is
+pinned by test — `tests/test_trace.py`), `replay.py` replays any journal
+bracket bar-by-bar (read-only, 600-bar warmup matching the live scan), and
+they're surfaced three ways: `GET /api/trace/{spec}`, `POST /api/sandbox/trace`
+(UNVALIDATED what-if: EMA spans 2..2000 + factor subset + display gate — pure
+compute, never journals), `GET /api/replay/{trade_id}`, the `trade-flow.html`
+node-graph page, and the `trade-trace` CLI. `safe_spec()` was added because
+`safe_symbol()` drops the `yahoo:` prefix — meaning **`/api/signal` was always
+crypto-only** (left unchanged deliberately; use `/api/trace` for TradFi).
+
+LESSON (the §29/§31 recompute gap is now per-trade visible): replaying
+0bee2b4a (YAHOO:CL=F, logged at ≥50% confluence live) recomputes to **20% at
+the SIGNAL bar** from refetched Yahoo data. Replay output is for studying
+factor EVOLUTION around a trade, not for re-verifying the entry gate — never
+read a replay pct as the live-edge pct. The caveat ships in every replay
+response/CLI footer; keep it there.
