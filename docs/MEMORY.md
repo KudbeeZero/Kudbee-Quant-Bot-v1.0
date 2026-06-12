@@ -984,3 +984,41 @@ crypto-confluences-research-cxrtp3 (research Vols 7–10),
 website-design-seo-067ci3 (site pages),
 market-trading-tools-analysis-l2rnr1 (29 ahead; headline content in main but
 not commit-by-commit verified).
+
+## 33. Hosting architecture: Fly.io + repo-as-source-of-truth journal sync — 2026-06-12
+
+PROVIDER (user decision, options researched + priced 2026-06): Fly.io —
+always-on shared-cpu-1x 512MB + 1GB volume ≈ $3–4/mo, auto-HTTPS. Always-on is
+NON-NEGOTIABLE: TradingView gives a webhook receiver ~3 seconds to respond
+(incl. DNS) and only ports 80/443 — any scale-to-zero/cold-start tier (Render
+free: 30–60s wake) silently drops alerts. 512MB not 256MB: pandas+sklearn
+import footprint.
+
+TWO-WRITER DESIGN (tested in `tests/test_journal_sync.py` + live container
+e2e): the repo stays the journal's single source of truth and the hourly
+Action stays its OWNER (only the bot resolves trades). The host is an
+append-only second writer. `deploy/journal_sync.py` reconciles on a 60s loop:
+fetch → capture local journal → `reset --hard origin/main` → union-merge
+(origin wins per id; host contributes NEW ids only, i.e. TV alerts) →
+commit+push `tv-alert: sync N [skip ci]`. No rebase anywhere, so no merge
+conflicts BY CONSTRUCTION; a lost push race self-heals next tick (tested).
+The Action's push now rebase-retries 3× (paper-trade.yml). Known accepted
+gap: no cross-process file lock — an `/api/alert` write in the few-ms
+read→reset window of a tick can be lost; a torn (mid-write) read skips the
+tick instead of wiping the file (tested). Code from the image, state on the
+volume: `KUDBEE_JOURNAL_PATH` points the app at the volume clone; unset =
+repo-relative default (Action/CI unchanged).
+
+STATUS: container-verified end-to-end (alert → volume journal → sync commit
+on a local bare origin, source="human"); the ACTUAL Fly deployment is
+UNPROVEN — runbook in `docs/DEPLOY.md`, needs the user's account + fine-
+grained PAT (contents R/W, this repo only) + secrets.
+
+PROTOCOL LESSON (PR #9 gate): a merge commit CLAIMING "audit PASS — report to
+follow" with no report committed and the baton still `AWAITING_AUDIT` means
+the auditing session died mid-gate — the audit did NOT happen as far as the
+record is concerned. Re-audit independently and land the report post-hoc
+(done: `docs/audits/claude-hello-7olm3u.md`, verdict PASS). The report must
+land BEFORE the merge, not "to follow". Also: a `[skip ci]` head commit means
+the gate's CI leg has no evidence — check what CI actually ran, not just that
+nothing is red.
