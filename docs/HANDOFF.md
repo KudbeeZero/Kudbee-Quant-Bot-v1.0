@@ -56,6 +56,13 @@
   suite on the resolved result, and reconcile this baton. **No new building
   until the board is clean** — the queued "Jarvis dashboard" scope was
   CONSUMED by PR #9; the TV-webhook queue item likewise.
+- **Queued AFTER the board is clean (user-confirmed 2026-06-12): Execution
+  Lab** — sliders (retrace/stop/target/TP1) over the SAVED live signals with
+  instant re-sim via the shared resolver (§34 proved the engine; ~1s for 102
+  trades). First experiments per the §34 autopsy: TP1 partial-banking (13
+  misses ran ≥+1R unbanked; 19 stopped then ran to target), and the 5m-book
+  fee question (~0.24R/trade fee drag — pausing 5m in the workflow is a USER
+  decision, present the §34 numbers and ask).
 - **Open risks / watch-items:**
   - **NEW (§33):** replay pct ≠ live-edge pct is now visible per trade — never
     read a replay's confluence pct as a re-verification of the entry gate; the

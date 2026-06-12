@@ -978,3 +978,35 @@ the SIGNAL bar** from refetched Yahoo data. Replay output is for studying
 factor EVOLUTION around a trade, not for re-verifying the entry gate — never
 read a replay pct as the live-edge pct. The caveat ships in every replay
 response/CLI footer; keep it there.
+
+## 34. Execution-sweep over the first 102 live signals: NO entry tweak rescues this week's signal; fees poison the 5m book — 2026-06-12
+
+Research (chat artifact, read-only; refetched bars + the shared
+`backtest/resolver.py`, journal semantics mirrored exactly — sanity check:
+**81/81 resolved+cancelled trades reproduced their logged outcome**, zero §33
+drift this time). Sample: 102 brackets, 2026-06-09 → 06-12. CAVEATS FIRST:
+3.5 days, ONE regime (June-9 alt-short wave then reversal), trades heavily
+correlated, all in-sample — this is hypothesis-generation, NOT validation.
+
+- **Miss autopsy (61 misses):** 38 were simply wrong (never +0.5R). But 13 ran
+  ≥+1R unbanked (7 of them ≥+2R with a 3R target), and **19 hit the stop and
+  then ran to the original 3R target anyway**. The pain is exit/banking, not
+  entry timing.
+- **Entry-slider sweep** (retrace 0→0.60 ATR, market entry, stop 1.0→3.0 ATR,
+  layered halves): EVERY variant is net-negative. Filling MORE (market,
+  retrace 0/0.10 — the "layer in sooner" idea) is monotonically WORSE
+  (−51R net at retrace 0 vs −34R current); only a DEEPER pullback gate
+  (0.60 ATR: −7R net, +2.4R gross on 79 fills) approaches breakeven. Wider
+  stops also did NOT pay despite the 19 stop-then-ran trades (3R target moves
+  away faster than the stop saves). Execution tweaks shuffle the loss; they
+  cannot manufacture edge the signal doesn't have this week.
+- **Attribution:** 5m crypto book −18.6R net over 31 fills with **~0.24R/trade
+  burned in fees alone** (tiny 5m ATR ⇒ huge fee in R) — structurally
+  fee-poisoned at FEE_PCT 0.04%/side. TradFi 1h −10.0R (June-11 FX/grain
+  shorts). Confluence level did NOT rank edge (60% bucket WORSE than 50%;
+  70/80 n too small to read).
+- **Unbuilt but proven feasible:** the "sliders → instant re-backtest over
+  saved live trades" loop the user wants — this analysis IS that engine
+  (recover ATR from `|signal−entry|/0.25`, rebuild brackets, shared resolver).
+  Queued as the Execution Lab scope; TP1 partial-banking is the variant the
+  autopsy says to test first.
