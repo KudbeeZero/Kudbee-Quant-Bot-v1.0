@@ -9,7 +9,16 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/hello-7olm3u`
 - **Last PR:** #9 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/9
-- **Audit status:** `AWAITING_AUDIT`.
+- **Audit status:** `MERGED (audit PASS)` at `8b1677e` — independent
+  arm's-length subagent audit by `claude/handoff-audit-tradingview-6sswe1`
+  (report: `docs/audits/claude-hello-7olm3u.md`): all four units verified
+  against the `b28c483..6c8116b` diff, 191/191 reproduced in an isolated
+  worktree, §32 spot-checked at the trade-ID level (3 branches, 0 unique IDs),
+  auth constant-time + fail-closed in all three token paths, journal untouched.
+  Non-blocking nits carried forward: `?token=` log exposure (disclosed),
+  `/api/metrics` public host-info disclosure (hosting-chat item),
+  one unescaped `e.message` in dashboard.html (cosmetic). Gate streak: #5, #6,
+  #7, #9.
 - PR #7 is CLOSED OUT: **`MERGED (post-hoc PASS)`** — this chat ran the
   arm's-length spot-check the self-audit invited; every claim reproduced
   (report: `docs/audits/claude-hello-1lje1b-posthoc.md`). Gate streak: #5,
@@ -110,3 +119,7 @@
   API fields, XSS escaping) + §32; TV-webhook scope then PULLED FORWARD into
   the same PR (user-directed, disclosed in the PR body) — `/api/alert` made
   TV-usable + `source="human"`. 191 tests. Next scope: hosting.
+- `2026-06-12` — PR #9 **audited (PASS) and merged** at `8b1677e` by
+  `claude/handoff-audit-tradingview-6sswe1` (gate held; arm's-length). Nits
+  carried to hosting: `/api/metrics` public host-info disclosure, `?token=`
+  log exposure. Gate streak: #5, #6, #7, #9.
