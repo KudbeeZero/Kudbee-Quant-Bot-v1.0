@@ -10,11 +10,14 @@
 - **Last branch:** `claude/live-trades-check-plan-5y27i8`
 - **Last PR:** #13 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/13
   (live-trades check + 5m pause §37).
-- **Audit status:** `AWAITING_AUDIT`.
-- PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (merged from UI
-  2026-06-13; report: `docs/audits/claude-live-trades-check-plan-5y27i8.md` —
-  arm's-length, 210/210, docs-only diff, all claims verified, CI green).
-  Gate streak: #5, #6, #7, #9, #11, #12.
+- **Audit status:** `MERGED (audit PASS)`.
+- PR #13 is CLOSED OUT: **`MERGED (audit PASS)`** at `c2bf507` (audit-gated merge
+  2026-06-13; report: `docs/audits/pr-13-audit.md` — arm's-length independent
+  subagent, 210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden
+  files; CI-0-checks confirmed as a `[skip ci]` tip commit, not a failure).
+  Gate streak: #5, #6, #7, #9, #11, #12, #13.
+- PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (report:
+  `docs/audits/claude-live-trades-check-plan-5y27i8.md`).
 
 ## What this chat did (for the auditor to verify against the diff)
 
