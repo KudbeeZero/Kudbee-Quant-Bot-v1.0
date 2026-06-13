@@ -9,10 +9,14 @@
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/handoff-audit-4t6op3`
 - **Last PR:** #12 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/12
-- **Audit status:** `AWAITING_AUDIT`.
-- PR #11 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `7a8b689` (report:
+- **Audit status:** `MERGED (post-hoc PASS)`.
+- PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (merged from UI
+  2026-06-13; report: `docs/audits/claude-live-trades-check-plan-5y27i8.md` —
+  arm's-length, 210/210, docs-only diff, all claims verified, CI green).
+  Gate streak: #5, #6, #7, #9, #11, #12.
+- PR #11 was CLOSED OUT: **`MERGED (post-hoc PASS)`** at `7a8b689` (report:
   `docs/audits/claude-handoff-audit-4t6op3.md` — arm's-length, 200/200, all
-  claims diff-verified). Gate streak: #5, #6, #7, #9, #11.
+  claims diff-verified).
 
 ## What this chat did (for the auditor to verify against the diff)
 
