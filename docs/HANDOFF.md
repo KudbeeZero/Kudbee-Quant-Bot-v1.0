@@ -8,7 +8,8 @@
 
 - **Protocol status:** `ACTIVE`.
 - **Last branch:** `claude/live-trades-check-plan-5y27i8`
-- **Last PR:** #PENDING — opened by this chat (live-trades check + 5m pause §37).
+- **Last PR:** #13 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/13
+  (live-trades check + 5m pause §37).
 - **Audit status:** `AWAITING_AUDIT`.
 - PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (merged from UI
   2026-06-13; report: `docs/audits/claude-live-trades-check-plan-5y27i8.md` —
