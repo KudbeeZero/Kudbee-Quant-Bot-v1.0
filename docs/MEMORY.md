@@ -1111,3 +1111,30 @@ OPTIONAL/low-priority. Real watch-item found instead: **journaled crypto on
 DECAY on the 1h crypto book recently (regime-dependence, §22-style honesty:
 n large but one window; check again as forward data accrues). Full grid:
 chat artifact `oos_fade_test.csv`.
+
+## 37. 5m crypto book PAUSED — forward-confirmed fee drag — 2026-06-13
+
+Live-trades check since the §35/§36 review (journal grew 102 → 143). The
+**clean, mechanical** finding repeated forward: over the 35 resolutions on/after
+2026-06-12 the **5m crypto book was gross-FLAT (+0.0R over 16 trades, 4/16 wins)
+but net −3.2R** — losing only to fees, not direction (~0.20R/trade fee bite at
+the measured 0.045%/side taker; tiny 5m ATR ⇒ huge fee in R, exactly the §35
+attribution). The book is structurally fee-poisoned: it cannot win net at taker
+cost because the per-trade fee in R is on the order of its edge.
+
+DECISION (user-approved 2026-06-13): **dropped `5m` from the crypto
+`--intervals` in `.github/workflows/paper-trade.yml`** (now `15m 1h 2h 4h`).
+TradFi was already 1h-only. Open 5m trades are left to resolve naturally on the
+next hourly runs; only NEW 5m signals stop. This is an EXECUTION/cost change, not
+a strategy-default change (§1 untouched). Re-enable only if a structurally
+cheaper fill (real maker/limit, or a 0-fee venue) changes the math — one real
+LIMIT fill would also settle the standing maker-vs-taker fee question (§25).
+
+Other deltas from the same check (context, NOT validation — ~5-day, one-regime,
+correlated sample): since-06-12 was −15.0R gross / ≈−21.2R net, 5/35 wins (14%),
+all bot. 1h since 06-12 was −6R but mostly TradFi grains (ZW/ZC/ZS/ZB); 1h-crypto
+was only −2R (2 trades) — too small to confirm or refute the §36 1h-decay
+watch-item either way, so it stays a watch-item. Whole-book record now: crypto
+n=89 hit 20% exp −0.212R→net −0.411R; tradfi n=18 hit 6% −0.778R. Open book had 0
+trades past deadline (resolver keeping up); 5 aging 06-09 alt-shorts still inside
+their 6–12d windows. Journal left untouched/uncommitted during the check.

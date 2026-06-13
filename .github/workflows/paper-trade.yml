@@ -2,11 +2,12 @@ name: Forward paper-trade (confluence-R)
 
 # Automated FORWARD paper trading of the validated strategy:
 # >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides,
-# across the top-10 crypto majors on 5m/15m/1h/2h/4h (each timeframe gets a
+# across the top-10 crypto majors on 15m/1h/2h/4h (each timeframe gets a
 # horizon scaled to its bar size). Runs hourly: logs new setups, resolves
 # pending/open trades, commits the journal so a real forward track record
-# accumulates with no babysitting. Lower TFs (5m/15m) are cost-sensitive — they
-# are here to FORWARD-TEST, not because they are proven.
+# accumulates with no babysitting. The 5m book was PAUSED 2026-06-13 (§37):
+# forward data confirmed it was gross-flat but net-negative purely on fees.
+# Remaining lower TF (15m) stays as a cost-sensitive FORWARD-TEST, not proven.
 
 on:
   schedule:
@@ -42,9 +43,12 @@ jobs:
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
+          # 5m PAUSED 2026-06-13 (§37): forward-confirmed fee drag — gross-flat,
+          # net-negative purely on fees (tiny 5m ATR ⇒ huge fee in R). Re-enable
+          # only if a structurally cheaper venue/maker fill changes the math.
           python -m kudbee_quant.cli paper-scan \
             BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
-            --intervals 5m 15m 1h 2h 4h --trend-filter || true
+            --intervals 15m 1h 2h 4h --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
           # indices, energy, FX, grains, rates, softs. 1h only: the validated
           # timeframe, Yahoo-supported, and avoids session-gap noise on
