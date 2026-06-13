@@ -1,0 +1,134 @@
+# Top-100 crypto trading universe (1h timeframe).
+#
+# STATIC FALLBACK list — this is a committed snapshot, NOT a live top-100 feed.
+# Rankings drift; treat the membership as UNPROVEN until a forward record exists
+# per symbol (the strategy is only walk-forward validated on the top-10 majors,
+# MEMORY §1/§31 — the long tail here is forward-test, not proven edge).
+#
+# Loader: kudbee_quant/universe_loader.py (load_universe). Each entry becomes a
+# Binance spot pair `<symbol><quote>` (e.g. BTC -> BTCUSDT) unless `pair` is set.
+# `enabled: false` entries are SKIPPED by the scanner. The timeframe is locked to
+# 1h for this foundation (no 5m — MEMORY §37 paused the fee-poisoned 5m book).
+#
+# Fields per entry (only `symbol` is required; the rest fall back to the defaults):
+#   symbol            ticker, e.g. BTC
+#   enabled           true/false (default true) — disabled symbols are never traded
+#   pair              explicit exchange pair (default: <symbol><quote>)
+#   timeframe         default: default_timeframe (MUST be 1h here)
+#   max_position_usd  per-symbol position cap in USD (default: default_max_position_usd)
+#   risk_label        free label: major | large | mid | small (informational)
+#   notes             free text
+
+quote: USDT
+default_timeframe: "1h"
+default_max_position_usd: 100
+
+symbols:
+  # --- validated majors (MEMORY §1 forward universe) ---
+  - {symbol: BTC, max_position_usd: 250, risk_label: major}
+  - {symbol: ETH, max_position_usd: 250, risk_label: major}
+  - {symbol: BNB, max_position_usd: 200, risk_label: major}
+  - {symbol: SOL, max_position_usd: 200, risk_label: major}
+  - {symbol: XRP, max_position_usd: 200, risk_label: major}
+  - {symbol: ADA, max_position_usd: 150, risk_label: major}
+  - {symbol: DOGE, max_position_usd: 150, risk_label: major}
+  - {symbol: AVAX, max_position_usd: 150, risk_label: major}
+  - {symbol: LINK, max_position_usd: 150, risk_label: major}
+  - {symbol: DOT, max_position_usd: 150, risk_label: major}
+  # --- large caps ---
+  - {symbol: TRX, risk_label: large}
+  - {symbol: MATIC, risk_label: large}
+  - {symbol: TON, risk_label: large}
+  - {symbol: LTC, risk_label: large}
+  - {symbol: BCH, risk_label: large}
+  - {symbol: UNI, risk_label: large}
+  - {symbol: ATOM, risk_label: large}
+  - {symbol: XLM, risk_label: large}
+  - {symbol: NEAR, risk_label: large}
+  - {symbol: ETC, risk_label: large}
+  - {symbol: FIL, risk_label: large}
+  - {symbol: HBAR, risk_label: large}
+  - {symbol: APT, risk_label: large}
+  - {symbol: ARB, risk_label: large}
+  - {symbol: OP, risk_label: large}
+  - {symbol: VET, risk_label: large}
+  - {symbol: INJ, risk_label: large}
+  - {symbol: AAVE, risk_label: large}
+  - {symbol: SUI, risk_label: large}
+  - {symbol: SHIB, risk_label: large, notes: "high-supply meme; size in USD not units"}
+  # --- mid caps ---
+  - {symbol: MKR, risk_label: mid}
+  - {symbol: GRT, risk_label: mid}
+  - {symbol: ALGO, risk_label: mid}
+  - {symbol: QNT, risk_label: mid}
+  - {symbol: STX, risk_label: mid}
+  - {symbol: EGLD, risk_label: mid}
+  - {symbol: IMX, risk_label: mid}
+  - {symbol: SAND, risk_label: mid}
+  - {symbol: AXS, risk_label: mid}
+  - {symbol: THETA, risk_label: mid}
+  - {symbol: FTM, risk_label: mid}
+  - {symbol: RUNE, risk_label: mid}
+  - {symbol: FLOW, risk_label: mid}
+  - {symbol: MANA, risk_label: mid}
+  - {symbol: XTZ, risk_label: mid}
+  - {symbol: CHZ, risk_label: mid}
+  - {symbol: KAVA, risk_label: mid}
+  - {symbol: SNX, risk_label: mid}
+  - {symbol: CRV, risk_label: mid}
+  - {symbol: LDO, risk_label: mid}
+  - {symbol: DYDX, risk_label: mid}
+  - {symbol: GMX, risk_label: mid}
+  - {symbol: COMP, risk_label: mid}
+  - {symbol: ENJ, risk_label: mid}
+  - {symbol: ZEC, risk_label: mid}
+  - {symbol: DASH, risk_label: mid}
+  - {symbol: ZIL, risk_label: mid}
+  - {symbol: BAT, risk_label: mid}
+  - {symbol: 1INCH, pair: 1INCHUSDT, risk_label: mid}
+  - {symbol: YFI, risk_label: mid}
+  - {symbol: SUSHI, risk_label: mid}
+  - {symbol: KSM, risk_label: mid}
+  - {symbol: WAVES, risk_label: mid}
+  - {symbol: NEO, risk_label: mid}
+  - {symbol: IOTA, risk_label: mid}
+  - {symbol: GALA, risk_label: mid}
+  - {symbol: ROSE, risk_label: mid}
+  - {symbol: CELO, risk_label: mid}
+  - {symbol: SEI, risk_label: mid}
+  - {symbol: TIA, risk_label: mid}
+  - {symbol: PYTH, risk_label: mid}
+  - {symbol: JUP, risk_label: mid}
+  - {symbol: WLD, risk_label: mid}
+  - {symbol: RNDR, risk_label: mid}
+  - {symbol: FET, risk_label: mid}
+  # --- small caps (forward-test only; higher fee/slippage risk) ---
+  - {symbol: ANKR, risk_label: small}
+  - {symbol: KNC, risk_label: small}
+  - {symbol: BAND, risk_label: small}
+  - {symbol: STORJ, risk_label: small}
+  - {symbol: CVC, risk_label: small}
+  - {symbol: SKL, risk_label: small}
+  - {symbol: RLC, risk_label: small}
+  - {symbol: NMR, risk_label: small}
+  - {symbol: BNT, risk_label: small}
+  - {symbol: BAL, risk_label: small}
+  - {symbol: OGN, risk_label: small}
+  - {symbol: ORDI, risk_label: small}
+  - {symbol: BLUR, risk_label: small}
+  - {symbol: MASK, risk_label: small}
+  - {symbol: ENS, risk_label: small}
+  - {symbol: APE, risk_label: small}
+  - {symbol: GMT, risk_label: small}
+  - {symbol: DODO, risk_label: small}
+  - {symbol: PEOPLE, risk_label: small}
+  - {symbol: JASMY, risk_label: small}
+  - {symbol: MAGIC, risk_label: small}
+  - {symbol: HIGH, risk_label: small}
+  - {symbol: ACH, risk_label: small}
+  - {symbol: CHR, risk_label: small}
+  - {symbol: ARPA, risk_label: small}
+  - {symbol: SXP, risk_label: small}
+  # --- disabled examples (delisted / illiquid — proves the skip path) ---
+  - {symbol: LUNA, enabled: false, risk_label: small, notes: "post-collapse LUNA2; disabled by default"}
+  - {symbol: WAXP, enabled: false, risk_label: small, notes: "thin USDT liquidity; disabled pending review"}

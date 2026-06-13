@@ -59,6 +59,14 @@ class Prediction:
     # provenance: "bot" (engine/paper auto signal) vs "human" (your own read).
     # Lets us score the discretionary track record SEPARATELY from the machine.
     source: str = "bot"
+    # execution-record fields (live-trading foundation; all optional + back-compat,
+    # so existing journal entries load unchanged). `mode` defaults to "paper" — the
+    # only mode that exists today; a live order would stamp "live" + an order id.
+    mode: str = "paper"                 # "paper" | "live"
+    strategy_version: str | None = None
+    position_size_usd: float | None = None
+    exchange_order_id: str | None = None   # set only for real (live) fills
+    reason_closed: str | None = None       # human-readable exit reason
 
     def __post_init__(self):
         if self.kind not in KINDS:
