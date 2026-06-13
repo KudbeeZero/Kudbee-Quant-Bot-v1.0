@@ -7,65 +7,68 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/handoff-audit-tradingview-6sswe1`
-- **Last PR:** #11 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/11
+- **Last branch:** `claude/handoff-audit-4t6op3`
+- **Last PR:** #12 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/12
 - **Audit status:** `AWAITING_AUDIT`.
-- PR #9 is CLOSED OUT: **`MERGED (audit PASS)`** at `8b1677e` (report:
-  `docs/audits/claude-hello-7olm3u.md` — arm's-length, 191/191, §32
-  spot-checked at trade-ID level, auth verified). Gate streak: #5, #6, #7, #9.
+- PR #11 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `7a8b689` (report:
+  `docs/audits/claude-handoff-audit-4t6op3.md` — arm's-length, 200/200, all
+  claims diff-verified). Gate streak: #5, #6, #7, #9, #11.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #9 audit gate → PASS, merged** (`8b1677e`): independent subagent vs the
-  `b28c483..6c8116b` diff; report committed. Nits carried (not fixed):
-  `?token=` log exposure, public `/api/metrics`, one unescaped `e.message`.
-- **Hosting unit (baton scope; user picked Render Starter + inbox via
-  one-tap):** `render.yaml` (always-on Starter; free tier's spin-down would
-  drop TV webhooks — pricing verified 2026-06-12); **alert inbox**
-  (`kudbee_quant/alert_inbox.py`): `/api/alert` also commits each alert to
-  `data/alert_inbox/<id>.json` (create-only content-hash paths, repo-scoped
-  PAT, token never serialized) and the hourly Action's new `ingest-alerts`
-  step drains it into the journal (`source="human"`, idempotent) — so chart
-  reads SCORE against the bot; response carries `"inbox": true/false`.
-  Workflow commit step widened (`-A` + rebase-before-push). `netlify.toml`
-  proxy → `kudbee-quant-api.onrender.com`; `docs/HOSTING.md` runbook.
-- Suite **200 passed** (191 + 9 new). Live-verified under uvicorn from a temp
-  dir (503/401/logged-pending, dashboard, metrics, idempotent ingest CLI);
-  repo journal untouched.
-- **MEMORY §34** added (hosting architecture fact; §33 left reserved for
-  PR #10, which pre-claimed it).
+- **PR #11 audit gate (post-hoc) → PASS**: independent subagent vs the
+  `8b1677e..7a8b689` diff; report committed as `claude-handoff-audit-4t6op3.md`.
+  200/200 tests verified. All inbox/hosting claims checked. Security (fail-closed
+  auth, check_token, rate limiters) correct. Accepted nits from PR #9: `?token=`
+  log exposure and public `/api/metrics` (both documented in HOSTING.md).
+- **PR #10 audit gate → PASS, merged** at `8c1927b`: independent subagent audit
+  PASS (201/201 at branch HEAD, all trace/sandbox/replay/CLI claims verified,
+  `stack.py` zero-diff, sandbox never journals, `safe_spec` path-traversal tested).
+  Conflict resolution: PR #10 predated PRs #9+#11 merge; resolved all 3 conflicted
+  files manually (api.py keeps both feature sets; api_security.py keeps both
+  safe_spec+check_token; MEMORY.md inserts §32+§34 from main, renumbers to
+  §35/§36). 210/210 tests pass at the merge commit. Both PRs now on `main`.
+- **Board is now clean** — no open PRs with conflicted state.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/audit-pr10-live-deploy` — harness
-  assigns the real name; the *scope* below is what binds.
-- **Scope (user-confirmed 2026-06-12):** **(1) audit gate on PR #10** (Trade
-  Flow visualizer, `claude/trade-viz-draggable-indicators-yncx2t`) — it is
-  based on pre-#9 main and WILL conflict with merged #9 in `api.py` /
-  `api_security.py` / `docs/MEMORY.md` (its body's checklist covers the
-  resolution; preserve BOTH features and the §32/§33/§34 numbering); merge
-  only on PASS. **(2) Live deploy walkthrough:** once the user creates the
-  Render service (runbook `docs/HOSTING.md`), smoke-test the live host
-  (health, dashboard, a real `/api/alert` with `"inbox": true`, the alert
-  commit appearing in `data/alert_inbox/` and ingested by the next hourly
-  run), then fix anything the live environment reveals.
+- **Slug hint (ADVISORY only):** `claude/execution-lab` — harness assigns the
+  real name; the *scope* below is what binds.
+- **Scope (user-confirmed 2026-06-12):** **Execution Lab** — sliders
+  (retrace/stop/target/TP1) over SAVED live signals with instant re-sim via the
+  shared resolver (§35 proved the engine; ~1s for 102 trades). First experiments
+  per the §35 autopsy: TP1 partial-banking (13 misses ran ≥+1R unbanked; 19
+  stopped then ran to target), and the 5m-book fee question (~0.24R/trade fee
+  drag — pausing 5m in the workflow is a USER decision, present the §35 numbers
+  and ask). **§36 UPDATE: the fade hypothesis was REJECTED out-of-sample same-day**
+  (fade positive in only 16/52 pre-June-9 symbol-TF cells vs 39/52 for the
+  original — see §36 addendum); shadow fade book now OPTIONAL/low-priority.
+- **Live deploy walkthrough (also queued):** once the user creates the Render
+  service (`docs/HOSTING.md`), smoke-test the live host — health, dashboard, a
+  real `/api/alert` with `"inbox": true`, the alert commit appearing in
+  `data/alert_inbox/` and ingested by the next hourly run.
 - **Open risks / watch-items:**
   - **Deployment UNPROVEN:** render.yaml + inbox tested locally only; no live
-    Render instance exists yet (user action: create Blueprint + set
-    `KUDBEE_API_TOKEN` / `KUDBEE_SITE_ORIGIN` / `KUDBEE_GH_TOKEN`).
-  - **PR #10 open + conflicted** with merged #9 (see scope).
-  - **Branch deletions pending (user action, §32):** 7 safe via GitHub UI;
-    zcash branch deletable now that PR #9 is merged.
-  - **Accepted disclosures (documented in HOSTING.md):** public
-    `/api/metrics`, `?token=` supported for TV compatibility.
+    Render service exists yet (user action: create Blueprint via `docs/HOSTING.md`;
+    set `KUDBEE_API_TOKEN` / `KUDBEE_SITE_ORIGIN` / `KUDBEE_GH_TOKEN`).
+  - **Possible edge decay on 1h crypto book** (§36 addendum: orig −91.9R / fade
+    +89.8R over ~4 months OOS) — re-check as forward data accrues before action.
+  - **Branch deletions pending (user action, §32):** safe to delete via GitHub UI:
+    handoff-audit-hvuuab, hello-1lje1b, overnight-algo-research-plan-hyqzf6,
+    sol-short-position-0eytax, fable-5-release-review-mow58s,
+    handoff-audit-fee-scoring-p0yg4n, handoff-audit-xtn2bz,
+    zcash-backtest-orderbook-shjg5o (salvage PR #9 merged).
+  - **Accepted disclosures (HOSTING.md):** public `/api/metrics`, `?token=`
+    supported for TV compatibility.
+  - **§33:** replay pct ≠ live-edge pct — never use a replay's confluence pct
+    to re-verify the entry gate; caveat ships in every replay response/CLI footer.
   - **§31:** 11 added TradFi symbols UNPROVEN forward; watch softs.
   - **§29/§30 standing caveats** + maker-vs-taker fee contradiction (one real
     LIMIT fill settles it); scorecard still not an edge readout.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`;
   `data/journal.json` (bot-owned — no session commits); **`data/alert_inbox/`
   (host+Action-owned — no manual session commits there either)**; crypto
-  daily grouping stays calendar-dated; held salvage branches
-  (crypto-confluences-research / website / market-tools) only with explicit
+  daily grouping stays calendar-dated; held salvage branches only with explicit
   user OK.
 
 ## Baton history
@@ -111,3 +114,8 @@
   PR #9 gate report + hosting unit (Render Starter blueprint + TV alert inbox,
   §34; 200 tests; deployment UNPROVEN until the Render service exists). Next
   scope: audit PR #10 + live deploy walkthrough.
+- `2026-06-12` — PR #11 **audited (post-hoc PASS) + PR #10 audited (PASS) and
+  merged** at `8c1927b` by `claude/handoff-audit-4t6op3` (gate held; arm's-length
+  subagent for both). Conflict resolution: all 3 conflicted files resolved, both
+  feature sets preserved, MEMORY.md §32-§36 renumbered correctly. 210/210 tests.
+  Gate streak: #5, #6, #7, #9, #11.
