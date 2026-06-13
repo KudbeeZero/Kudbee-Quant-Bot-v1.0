@@ -7,56 +7,61 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/handoff-audit-4t6op3`
-- **Last PR:** #12 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/12
-- **Audit status:** `MERGED (post-hoc PASS)`.
+- **Last branch:** `claude/live-trades-check-plan-5y27i8`
+- **Last PR:** #PENDING — opened by this chat (live-trades check + 5m pause §37).
+- **Audit status:** `AWAITING_AUDIT`.
 - PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (merged from UI
   2026-06-13; report: `docs/audits/claude-live-trades-check-plan-5y27i8.md` —
   arm's-length, 210/210, docs-only diff, all claims verified, CI green).
   Gate streak: #5, #6, #7, #9, #11, #12.
-- PR #11 was CLOSED OUT: **`MERGED (post-hoc PASS)`** at `7a8b689` (report:
-  `docs/audits/claude-handoff-audit-4t6op3.md` — arm's-length, 200/200, all
-  claims diff-verified).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #11 audit gate (post-hoc) → PASS**: independent subagent vs the
-  `8b1677e..7a8b689` diff; report committed as `claude-handoff-audit-4t6op3.md`.
-  200/200 tests verified. All inbox/hosting claims checked. Security (fail-closed
-  auth, check_token, rate limiters) correct. Accepted nits from PR #9: `?token=`
-  log exposure and public `/api/metrics` (both documented in HOSTING.md).
-- **PR #10 audit gate → PASS, merged** at `8c1927b`: independent subagent audit
-  PASS (201/201 at branch HEAD, all trace/sandbox/replay/CLI claims verified,
-  `stack.py` zero-diff, sandbox never journals, `safe_spec` path-traversal tested).
-  Conflict resolution: PR #10 predated PRs #9+#11 merge; resolved all 3 conflicted
-  files manually (api.py keeps both feature sets; api_security.py keeps both
-  safe_spec+check_token; MEMORY.md inserts §32+§34 from main, renumbers to
-  §35/§36). 210/210 tests pass at the merge commit. Both PRs now on `main`.
-- **Board is now clean** — no open PRs with conflicted state.
+- **PR #12 audit gate (post-hoc) → PASS**: independent arm's-length subagent vs
+  the real `8c1927b..4c9e2a53` diff (#12 was already merged from the UI). 210/210,
+  docs-only (2 files, +145/−44), CI green; embedded PR #11 audit-report claims
+  re-verified against actual merged source (`alert_inbox.py:44/54-55`,
+  `render.yaml:12`, `netlify.toml:38`). Report committed as
+  `docs/audits/claude-live-trades-check-plan-5y27i8.md`; baton reconciled.
+- **Live-trades check (read-only)** — ran `journal-score`/`journal-exposure` + an
+  ad-hoc delta on `data/journal.json` (journal left UNTOUCHED/uncommitted). Since
+  the 06-12 §35/§36 review: 35 new resolutions, −15R gross / ≈−21R net, 14% win,
+  all bot. 5m crypto gross-flat (+0.0R/16) but net −3.2R on fees; 1h-crypto only
+  −2R (2 trades); book current (0 opens past deadline).
+- **5m crypto book PAUSED (§37, user-approved)** — dropped `5m` from the crypto
+  `--intervals` in `.github/workflows/paper-trade.yml` (now `15m 1h 2h 4h`;
+  TradFi already 1h-only) + header-comment + new `docs/MEMORY.md` §37. Execution/
+  cost change only — §1 defaults and `FEE_PCT` untouched. 210/210 tests green.
 
 ## NEXT chat
 
 - **Slug hint (ADVISORY only):** `claude/execution-lab` — harness assigns the
   real name; the *scope* below is what binds.
+- **FIRST: verify the 5m pause landed** — after the next hourly paper-trade
+  Action runs, confirm it logs NO new `5m` signals (the §37 change is untested in
+  production); existing open 5m trades should still resolve normally.
 - **Scope (user-confirmed 2026-06-12):** **Execution Lab** — sliders
   (retrace/stop/target/TP1) over SAVED live signals with instant re-sim via the
   shared resolver (§35 proved the engine; ~1s for 102 trades). First experiments
   per the §35 autopsy: TP1 partial-banking (13 misses ran ≥+1R unbanked; 19
-  stopped then ran to target), and the 5m-book fee question (~0.24R/trade fee
-  drag — pausing 5m in the workflow is a USER decision, present the §35 numbers
-  and ask). **§36 UPDATE: the fade hypothesis was REJECTED out-of-sample same-day**
-  (fade positive in only 16/52 pre-June-9 symbol-TF cells vs 39/52 for the
-  original — see §36 addendum); shadow fade book now OPTIONAL/low-priority.
+  stopped then ran to target). The 5m-book fee question is now RESOLVED (§37:
+  paused). **§36: the fade hypothesis was REJECTED out-of-sample** (fade positive
+  in only 16/52 pre-June-9 symbol-TF cells vs 39/52 for the original — see §36
+  addendum); shadow fade book now OPTIONAL/low-priority.
 - **Live deploy walkthrough (also queued):** once the user creates the Render
   service (`docs/HOSTING.md`), smoke-test the live host — health, dashboard, a
   real `/api/alert` with `"inbox": true`, the alert commit appearing in
   `data/alert_inbox/` and ingested by the next hourly run.
 - **Open risks / watch-items:**
+  - **5m pause UNVERIFIED in production (§37):** the workflow edit was tested
+    locally (YAML + 210/210) but not yet run by the hourly Action — confirm the
+    next run logs no new 5m signals.
   - **Deployment UNPROVEN:** render.yaml + inbox tested locally only; no live
     Render service exists yet (user action: create Blueprint via `docs/HOSTING.md`;
     set `KUDBEE_API_TOKEN` / `KUDBEE_SITE_ORIGIN` / `KUDBEE_GH_TOKEN`).
   - **Possible edge decay on 1h crypto book** (§36 addendum: orig −91.9R / fade
-    +89.8R over ~4 months OOS) — re-check as forward data accrues before action.
+    +89.8R over ~4 months OOS; §37 check: only −2R/2 trades since 06-12, too small
+    to read) — re-check as forward data accrues before action.
   - **Branch deletions pending (user action, §32):** safe to delete via GitHub UI:
     handoff-audit-hvuuab, hello-1lje1b, overnight-algo-research-plan-hyqzf6,
     sol-short-position-0eytax, fable-5-release-review-mow58s,
@@ -123,3 +128,9 @@
   subagent for both). Conflict resolution: all 3 conflicted files resolved, both
   feature sets preserved, MEMORY.md §32-§36 renumbered correctly. 210/210 tests.
   Gate streak: #5, #6, #7, #9, #11.
+- `2026-06-13` — PR #12 **audited (post-hoc PASS)** by
+  `claude/live-trades-check-plan-5y27i8` (already merged from UI; arm's-length
+  subagent, docs-only diff, 210/210). Same chat ran a read-only live-trades check
+  and **paused the 5m crypto book (§37)** — forward-confirmed fee drag (net −3.2R,
+  gross-flat). PR opened. Gate streak: #5, #6, #7, #9, #11, #12. Next scope:
+  verify the 5m pause landed, then Execution Lab.
