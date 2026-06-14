@@ -105,10 +105,17 @@ def confluence_score(df: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+# Default "active" windows for the killzone gate: London killzone (ET 02-05),
+# NY Brinks (ET 08:30-09:45), and the London/NY overlap (ET 08-11). These cover
+# the London/NY/Brinks sessions and exclude the dead off-hours bleed.
+KILLZONE_GATE_FLAGS = ("in_london_kz", "in_ny_brinks", "in_overlap")
+
+
 def confluence_position(df: pd.DataFrame, min_strength: float = 4.0,
                         min_pct: float | None = None,
                         trend_align: bool = False,
-                        delta_align: bool = False) -> pd.Series:
+                        delta_align: bool = False,
+                        killzone_gate: bool | list[str] = False) -> pd.Series:
     """Strategy signal: take the confluence direction above a threshold.
 
     Threshold by raw ``min_strength`` (default) OR by ``min_pct`` (fraction of
@@ -125,6 +132,12 @@ def confluence_position(df: pd.DataFrame, min_strength: float = 4.0,
     Uses ``cvd_roll_pct`` (then ``delta_pct``) when present; a no-op otherwise so
     it never silently changes the default frame. Per the parsimony mandate this
     is a FILTER, never a confluence vote.
+
+    ``killzone_gate`` (EXPERIMENTAL, opt-in, default OFF): restrict entries to the
+    active London/NY/Brinks windows (``KILLZONE_GATE_FLAGS``), dropping the dead
+    off-hours bleed. Pass ``True`` for the default windows or a list of flag column
+    names. A no-op if none of the requested flags are present (so it never silently
+    blocks every trade on a frame that lacks the time-context columns).
     """
     scored = confluence_score(df)
     if min_pct is not None:
@@ -140,6 +153,12 @@ def confluence_position(df: pd.DataFrame, min_strength: float = 4.0,
             flow = np.sign(scored[flow_col].fillna(0.0))
             # Keep only when flow agrees with (or is neutral to) the trade direction.
             gate = gate & (np.sign(scored["direction"]) * flow >= 0)
+    if killzone_gate:
+        flags = KILLZONE_GATE_FLAGS if killzone_gate is True else tuple(killzone_gate)
+        present = [c for c in flags if c in scored.columns]
+        if present:
+            active = scored[present].astype(bool).any(axis=1)
+            gate = gate & active
     return scored["direction"].where(gate, 0.0).astype(float)
 
 
