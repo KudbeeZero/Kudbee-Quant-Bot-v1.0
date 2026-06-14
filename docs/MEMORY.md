@@ -1173,3 +1173,40 @@ has NEVER placed a real order in production** — treat as unproven live.
   journal/alert_inbox edits; no secrets. NOT wired into the hourly Action (that
   stays the documented opt-in). Doc: `docs/LIVE_TRADING_SETUP.md` (rewritten;
   testnet smoke-test runbook included).
+
+## 39. New-signals audit — 3 signals built opt-in & validated; meta-gate lift is near the noise floor — 2026-06-14
+
+Extended the entry system with genuinely-missing signals (NOT re-adding the 5
+removed votes), each opt-in/OFF and validated on real 1h data (top-10 majors,
+8000 bars, canonical bracket). Branch `claude/confluence-new-signals-audit`.
+Honest, mixed-to-negative outcome — kept as infrastructure, NOT enabled live.
+
+- **Signal #1 taker delta / CVD / delta-divergence** (`levels/delta.py`, derived
+  from `taker_buy_base` which `ingest/binance.py` parsed then DROPPED — now kept).
+  As a `confluence_position(delta_align=)` FILTER it **fails OOS** (+0.019R→−0.009R,
+  helps in-sample only — same failure mode as the 5 removed votes). As meta-model
+  FEATURES it **passes** the GBT expectancy-gate (flips to significant p=0.0073,
+  +0.094R best-threshold). Linear model sees nothing → nonlinear/tail-only.
+- **Signal #2 per-session volume profile** POC/VAH/VAL/naked POC
+  (`levels/volume_profile.py`, opt-in in `LEVEL_COLUMNS` via `OPTIONAL_LEVEL_COLUMNS`).
+  Proximity FILTER is **inconclusive** (lifts OOS +0.057R but DEGRADES in-sample and
+  halves trades — regime-dependent). FEATURES pass the gate but **near-boundary**.
+- **Signal #3 killzone gate** (`confluence_position(killzone_gate=)`): **FAILS OOS**
+  (+0.019R→−0.067R). The hour map is the real find: **in-killzone hours +0.021R vs
+  OFF-hours +0.102R (~5×)** — 16h UTC is one of the best hours and is OFF-killzone;
+  06h is a weak killzone hour. The FX London/NY/Brinks folklore does NOT hold on a
+  24/7 crypto book. (Engine walk_forward disagreed — killzone helped the always-in
+  Sharpe — but the bracket is what we trade; resolved to the bracket = discard.)
+- **KEY meta-lesson:** the GBT expectancy-gate baseline sits at p≈0.064 (right at the
+  boundary), and BOTH Signal #1's delta features AND Signal #2's vp features tip it to
+  ~p=0.005 with a near-identical best gated expectancy (~0.329R). Two unrelated feature
+  sets landing in the same place = the marginal lift is **small and near the noise
+  floor**, not a banked edge. Don't enable in live gating on one window — forward-test.
+- **60% confluence band:** the stale −31R figure does NOT reproduce — OOS the ~0.60
+  band is **+0.25R (net-positive)**, one of the better bands; `delta_align`/killzone
+  do not rescue it (they hurt it). This independently **corroborates PR #17's
+  near-miss autopsy** (don't drop the 60% band — it's net-positive OOS).
+- Files: 3 opt-in modules behind `config/features.py` flags (default OFF) + 3
+  `confluence_position` filter params (default OFF); validation scripts under
+  `scripts/validate_*`; per-signal reports under `docs/research/signal-{1,2,3}-*.md`.
+  No live-config change. Defaults §1 / `FEE_PCT` untouched.
