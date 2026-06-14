@@ -10,6 +10,7 @@ byte-identical until a flag is set.
 
 Env vars (all optional; every default is OFF / behaviour-preserving):
     ENABLE_TAKER_DELTA=false     (default: false)  bar delta + CVD + delta-div
+    ENABLE_VOLUME_PROFILE=false  (default: false)  per-day POC / VAH / VAL / naked POC
 
 Read from the environment like ``config/runtime.py`` so a flag can be flipped per
 process without touching code, and never silently turns a signal on.
@@ -33,9 +34,11 @@ class FeatureFlags:
     """Opt-in switches for experimental signals. All default to OFF."""
 
     enable_taker_delta: bool = False
+    enable_volume_profile: bool = False
 
     def as_dict(self) -> dict:
-        return {"enable_taker_delta": self.enable_taker_delta}
+        return {"enable_taker_delta": self.enable_taker_delta,
+                "enable_volume_profile": self.enable_volume_profile}
 
 
 def load_feature_flags(env: Mapping[str, str] | None = None) -> FeatureFlags:
@@ -46,4 +49,5 @@ def load_feature_flags(env: Mapping[str, str] | None = None) -> FeatureFlags:
     env = os.environ if env is None else env
     return FeatureFlags(
         enable_taker_delta=_env_bool(env, "ENABLE_TAKER_DELTA", False),
+        enable_volume_profile=_env_bool(env, "ENABLE_VOLUME_PROFILE", False),
     )

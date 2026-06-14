@@ -25,9 +25,6 @@ import sys
 import warnings
 
 import numpy as np
-import pandas as pd
-
-warnings.filterwarnings("ignore")
 
 from kudbee_quant.backtest.engine import BacktestConfig
 from kudbee_quant.backtest.walkforward import walk_forward
@@ -40,6 +37,8 @@ from kudbee_quant.ingest.binance import BinanceClient
 from kudbee_quant.levels import build_levels
 from kudbee_quant.ml.labels import build_dataset, trade_outcomes
 from kudbee_quant.ml.meta_model import evaluate
+
+warnings.filterwarnings("ignore")
 
 SYMBOLS = ["BTCUSDT", "ETHUSDT", "SOLUSDT", "BNBUSDT", "XRPUSDT",
            "ADAUSDT", "DOGEUSDT", "AVAXUSDT", "LINKUSDT", "DOTUSDT"]
@@ -85,8 +84,10 @@ def _split_expectancy(frames, signal_fn):
         eb = outc["entry_bar"].to_numpy()
         r = outc["realized_r"].to_numpy()
         is_mask = eb < cutoff
-        is_r += list(r[is_mask]); oos_r += list(r[~is_mask])
-        is_pct += list(pct[eb[is_mask]]); oos_pct += list(pct[eb[~is_mask]])
+        is_r += list(r[is_mask])
+        oos_r += list(r[~is_mask])
+        is_pct += list(pct[eb[is_mask]])
+        oos_pct += list(pct[eb[~is_mask]])
     return (np.array(is_r), np.array(oos_r),
             np.array(is_pct), np.array(oos_pct))
 
@@ -167,7 +168,8 @@ def meta_feature_analysis(frames):
     print("=" * 72)
     X, y, meta = build_dataset(frames, base_signal, **BRK)
     if len(y) == 0:
-        print("  no trades — cannot evaluate"); return
+        print("  no trades — cannot evaluate")
+        return
     delta_cols = [c for c in ("delta_pct", "delta_z", "cvd_session_pct",
                               "cvd_roll_pct", "delta_div") if c in X.columns]
     print(f"  trades={len(y)}  base_rate={y.mean():.3f}  delta_features={delta_cols}")
@@ -177,7 +179,8 @@ def meta_feature_analysis(frames):
         print(f"\n  --- {tag} ---")
         for mname, mr in rep["models"].items():
             if "error" in mr:
-                print(f"    {mname}: {mr['error']}"); continue
+                print(f"    {mname}: {mr['error']}")
+                continue
             eg = mr.get("expectancy_gate", [])
             best = max(eg, key=lambda d: d.get("gated_expectancy_r", -9)) if eg else {}
             print(f"    {mname}: AUC={mr['auc']:.4f}  "
@@ -197,7 +200,8 @@ def main():
     print("Fetching real Binance 1h data (top-10 majors)...", flush=True)
     frames = load_frames()
     if len(frames) < 3:
-        print("Not enough data fetched; aborting."); sys.exit(1)
+        print("Not enough data fetched; aborting.")
+        sys.exit(1)
     res = filter_analysis(frames)
     band_probe(*res)
     walkforward_crosscheck(frames)

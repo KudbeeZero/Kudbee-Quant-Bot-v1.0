@@ -9,7 +9,7 @@ from ..events.features import build_features
 
 # The canonical set of horizontal levels used for confluence scoring. Only
 # columns that exist after build_levels are scored; this is the catalog.
-LEVEL_COLUMNS = [
+_DEFAULT_LEVEL_COLUMNS = [
     "daily_open", "weekly_open", "monthly_open",
     "adr_high", "adr_low", "awr_high", "awr_low",
     "pdh", "pdl", "pwh", "pwl",
@@ -21,6 +21,12 @@ LEVEL_COLUMNS = [
     "pivot_pp", "pivot_r1", "pivot_s1", "pivot_r2", "pivot_s2",
     "vwap", "dealing_mid",
 ]
+# Opt-in level columns: present ONLY when their feature flag built the frame (e.g.
+# ENABLE_VOLUME_PROFILE). They live in the catalog so the scorer counts them when
+# present, but the scorer skips absent columns, so listing them is behaviour-
+# preserving by default. (Tests assert only the defaults are always present.)
+OPTIONAL_LEVEL_COLUMNS = ["vp_poc", "vp_vah", "vp_val", "vp_naked_poc"]
+LEVEL_COLUMNS = _DEFAULT_LEVEL_COLUMNS + OPTIONAL_LEVEL_COLUMNS
 
 
 def _per_date_range_avg(out: pd.DataFrame, n: int) -> pd.Series:
@@ -179,5 +185,8 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
     if features.enable_taker_delta and "taker_buy_base" in out.columns:
         from .delta import add_taker_delta
         out = add_taker_delta(out)
+    if features.enable_volume_profile:
+        from .volume_profile import add_volume_profile
+        out = add_volume_profile(out)
 
     return out.drop(columns=["_month_id", "_week_id"], errors="ignore")

@@ -59,7 +59,9 @@ def make_features(df: pd.DataFrame) -> pd.DataFrame:
               "in_macro_best", "in_silver_bullet",
               # Opt-in taker-delta features (present only when ENABLE_TAKER_DELTA
               # built the frame; absent -> silently skipped, frame unchanged).
-              "delta_pct", "delta_z", "cvd_session_pct", "cvd_roll_pct", "delta_div"):
+              "delta_pct", "delta_z", "cvd_session_pct", "cvd_roll_pct", "delta_div",
+              # Opt-in volume-profile features (ENABLE_VOLUME_PROFILE).
+              "dist_vp_poc_atr", "dist_vp_naked_poc_atr", "in_value_area", "near_vp_poc"):
         if c in df.columns:
             f[c] = pd.to_numeric(df[c], errors="coerce")
     if have("volume", "avg_volume"):
