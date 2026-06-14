@@ -27,7 +27,10 @@ and `… scripts/near_miss_oos.py` (out-of-sample walk-forward). Per-trade MFE/M
 ## 1. Near-miss list (the headline the user asked for)
 
 Many 60%-band losses were genuine **near-wins** — they ran far in our favour, then
-reversed to the stop. Top near-miss losses (full table: `data/excursion_audit.json`):
+reversed to the stop. The table below is **filtered to the 60% band** (the band under
+investigation); the full, unfiltered ranking is in `data/excursion_audit.json` (the
+single largest-MFE near-miss overall is actually a 70%-band BNBUSDT 5m at +9.67R).
+Top 60%-band near-miss losses:
 
 | symbol | tf | dir | band | MFE (R) | MAE (R) | outcome |
 |---|---|---|---|---|---|---|
