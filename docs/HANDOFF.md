@@ -7,49 +7,61 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/live-trades-5m-pause-a1wuk3`
-- **Last PR:** #14 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/14
-  (top-100 1h trading FOUNDATION + trade-review skills; paper-first, live gated/stub).
+- **Last branch:** `claude/hello-3vl2b8`
+- **Last PR:** #16 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/16
+  (live order-placement subsystem — maker-only, double-gated; paper still default).
 - **Audit status:** `AWAITING_AUDIT`.
-- PR #13 is CLOSED OUT: **`MERGED (audit PASS)`** at `c2bf507` (audit-gated merge
-  2026-06-13; report: `docs/audits/pr-13-audit.md` — arm's-length independent
-  subagent, 210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden
-  files; CI-0-checks confirmed as a `[skip ci]` tip commit, not a failure).
-  Gate streak: #5, #6, #7, #9, #11, #12, #13.
+- PR #14 CLOSED OUT: **`MERGED (post-hoc CONCERNS)`** — human-merged from the UI
+  2026-06-14T00:19Z at `c2bf507`→head `d295eed`; green CI. Independent audit
+  (`docs/audits/claude-hello-3vl2b8.md`): 9/10 claims diff-verified, ruff clean,
+  no scope/secret/forbidden issues, live-gate contract real+tested. ONE cosmetic
+  concern: "254 passed (210+44)" headline inflated — measured base=193/head=237
+  (5 skipped); +44 delta correct, totals off ~17. Gate streak: #5…#14.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #13 audit gate → PASS, merged** at `c2bf507`: independent arm's-length
-  subagent vs the real `07fe064..e6c8c08` diff (5m pause §37 + PR#12 record);
-  210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden files,
-  `[skip ci]` tip explains 0 CI checks. Report: `docs/audits/pr-13-audit.md`.
-  Baton reconciled. Gate streak: #5, #6, #7, #9, #11, #12, #13.
-- **Top-100 1h trading FOUNDATION (PR #14)** — paper-first, live gated/stubbed
-  (user-confirmed scope). NEW: `config/crypto_universe.yaml` (~100, 1h-only) +
-  `universe_loader.py` (fail-safe, skips disabled, SSRF-safe via `parse_spec`);
-  `config/runtime.py` + `execution/` (`PaperExecutor` functional; `LiveExecutor`
-  double-gated stub — `require_live_enabled`); additive `Prediction` exec fields
-  (mode/strategy_version/position_size_usd/exchange_order_id/reason_closed,
-  back-compat); `journal/excursion.py` (MFE/MAE) + `review.py` + CLI
-  `review-open-trades`/`review-trade-history` (+`--json`) + 2 skills; `flows/*.yaml`
-  Kestra scaffold (paper-pinned) + 4 docs; `PyYAML` dep. **254 passed** (+44 new),
-  new modules ruff-clean. §1 defaults / `FEE_PCT` / journal / alert_inbox untouched.
+- **PR #14 audit gate → post-hoc CONCERNS (cosmetic), recorded** — independent
+  arm's-length subagent vs the real `c2bf507..d295eed` diff; report
+  `docs/audits/claude-hello-3vl2b8.md`. (Already merged from UI; nothing to merge.)
+- **Live order-placement subsystem (PR #16)** — replaces the `LiveExecutor` stub
+  with a real, still-double-gated path (user-confirmed scope 2026-06-13/14). NEW:
+  `execution/exchange.py` (`ExchangeClient` Protocol + native HMAC-signed
+  `BinanceBrokerClient`, **maker-only `LIMIT_MAKER`, no market method**, env-only
+  keys, testnet, SSRF-safe symbols); `execution/killswitch.py` (`MAX_DAILY_LOSS_USD`,
+  honest R→USD bridge, today's live losses only); rewrote `execution/live.py`
+  (`submit` = gate→kill-switch→cap→size→rest maker limit→journal live/pending w/
+  `exchange_order_id`; `poll` stamps `filled_at` from the VENUE clock not bar time;
+  `cancel`/`reconcile`). `journal/__init__` exports `net_outcome_r`/`fee_r_of`.
+  Rewrote `docs/LIVE_TRADING_SETUP.md`. **259 passed, 5 skipped** (+24 new hermetic
+  fake-exchange tests). Ruff clean. §1/`FEE_PCT`/journal/alert_inbox untouched; no
+  secrets. NOT wired into the hourly Action. MEMORY §38 added.
+- **NOTE (honest):** the live path has **never placed a real order in production** —
+  logic-tested only; treat as unproven live. ccxt deliberately not taken (native
+  client sits behind the Protocol; ccxt can slot in later).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/live-order-placement` — harness assigns
+- **Slug hint (ADVISORY only):** `claude/near-miss-autopsy` — harness assigns
   the real name; the *scope* below is what binds.
-- **Scope (user-confirmed 2026-06-13/14):** **Live order-placement subsystem** —
-  the real exchange client behind the existing `require_live_enabled()` gate (PR
-  #14 shipped the gated stub). Authenticated venue client (ccxt / Binance), order
-  submit/cancel/poll, balance + `MAX_DAILY_LOSS_USD` kill-switch, order-id ↔
-  journal mapping (fill `exchange_order_id`/`filled_at` from the venue, not bar
-  time). KEEP paper as the default; live stays double-gated. Honor §1 / `FEE_PCT`.
-- **Also queued from PR #14:** (a) decide whether to flip the hourly Action to the
-  top-100 universe (opt-in; 10× API load, floods the bot-owned journal — see
-  `docs/TOP100_1H_UNIVERSE.md`); (b) the **Execution Lab** (TP1 partial-banking
-  re-sim over saved signals via the shared resolver — §35 autopsy) is still open
-  and low-risk if you want a research turn instead of live wiring.
+- **Scope (user-directed 2026-06-14):** **Near-miss autopsy + scenario re-sim on
+  the forward trades, with REAL price paths** (research; NO live-config change —
+  output a recommended config diff + evidence for approval; validate OOS first).
+  WHY: the 60% confluence band is −31R of the −32.57R total loss (n=43, 7% WR)
+  while 70%+/50% are ~flat-positive — need MFE/MAE from bars to tell near-misses
+  from clean rejects, and whether a different R:R rescues the bleed bands. Steps:
+  (0) confirm the backtest engine can replay one bracket over bars + report the
+  full path; (1) retroactive MFE/MAE per resolved trade → `data/excursion_audit.json`
+  + ranked near-miss table; (2) target sweep 1.0–3.0R per confluence band; (3)
+  adaptive R:R by band (+ trend-align variant); (4) **OOS discipline** — Jun 9–14
+  forward window THEN longer history via `walkforward.py`, in-sample vs OOS
+  reported SEPARATELY, overfit flagged; (5) report + proposed scan-config diff;
+  also test whether simply DROPPING the 60% band beats any target tweak.
+  NOTE: `journal/excursion.py` (MFE/MAE) already exists from PR #14 — reuse it.
+- **Also queued:** (a) decide whether to flip the hourly Action to the top-100
+  universe (opt-in; 10× API load, floods the bot-owned journal —
+  `docs/TOP100_1H_UNIVERSE.md`); (b) wire the live executor (PR #16) into a CLI /
+  the hourly Action (still the opt-in decision); (c) testnet smoke-test of the new
+  live path (`BINANCE_TESTNET=true`, `docs/LIVE_TRADING_SETUP.md`).
 - **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action
   logs NO new `5m` signals (§37 still unverified in production).
 - **Live deploy walkthrough (also queued):** once the user creates the Render
@@ -57,8 +69,10 @@
   real `/api/alert` with `"inbox": true`, the alert commit appearing in
   `data/alert_inbox/` and ingested by the next hourly run.
 - **Open risks / watch-items:**
-  - **Live execution DOES NOT EXIST yet (PR #14):** `LiveExecutor` is a gated stub
-    that raises; the real order path is the next PR. Nothing can trade real money.
+  - **Live execution EXISTS but is UNPROVEN live (PR #16):** real maker-only,
+    double-gated order path, logic-tested only — has NEVER placed a real order in
+    production. Paper still default; both flags + real keys required. Start on
+    testnet, tiny size. Not wired into the hourly Action.
   - **Top-100 membership UNPROVEN forward (§31):** only the top-10 majors are
     walk-forward validated; the long tail in `config/crypto_universe.yaml` is a
     static fallback snapshot, forward-test only. The hourly Action still runs top-10.
@@ -149,3 +163,8 @@
   (PR #14): paper-first, live double-gated + stubbed, universe loader, review
   reports (MFE/MAE), Kestra scaffold, docs; **254 passed**. Gate streak: #5, #6,
   #7, #9, #11, #12, #13. Next scope: the live order-placement subsystem.
+- `2026-06-14` — PR #14 post-hoc audit **CONCERNS (cosmetic)** recorded by
+  `claude/hello-3vl2b8` (already merged from UI). Same chat built the **live
+  order-placement subsystem** (PR #16): maker-only `LIMIT_MAKER`, double-gated,
+  `MAX_DAILY_LOSS_USD` kill-switch, venue-clock fills; **259 passed**. Gate streak
+  through #14. Next scope: near-miss autopsy + scenario re-sim (research, OOS).

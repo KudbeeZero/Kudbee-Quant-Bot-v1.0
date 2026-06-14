@@ -8,6 +8,6 @@ the trader's calls by setup type — turning discretionary skill into a number
 instead of a vibe. No cherry-picking: every logged call is scored, hit or miss.
 """
 
-from .journal import Prediction, TradeJournal
+from .journal import Prediction, TradeJournal, fee_r_of, net_outcome_r
 
-__all__ = ["Prediction", "TradeJournal"]
+__all__ = ["Prediction", "TradeJournal", "fee_r_of", "net_outcome_r"]

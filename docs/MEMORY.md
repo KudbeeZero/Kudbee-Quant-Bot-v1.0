@@ -1138,3 +1138,38 @@ watch-item either way, so it stays a watch-item. Whole-book record now: crypto
 n=89 hit 20% exp −0.212R→net −0.411R; tradfi n=18 hit 6% −0.778R. Open book had 0
 trades past deadline (resolver keeping up); 5 aging 06-09 alt-shorts still inside
 their 6–12d windows. Journal left untouched/uncommitted during the check.
+
+## 38. Live order-placement subsystem BUILT — maker-only, double-gated (untested live) — 2026-06-14
+
+The real order path behind `require_live_enabled()` now exists (PR #14 shipped
+only the stub that raised). It is **logic-complete and hermetically tested, but
+has NEVER placed a real order in production** — treat as unproven live.
+
+- **`execution/exchange.py`** — `ExchangeClient` Protocol + native HMAC-SHA256
+  signed `BinanceBrokerClient` (plain `requests`, matching `ingest/binance.py`;
+  ccxt deliberately NOT taken — it can slot behind the Protocol later). Keys read
+  from env only (`BINANCE_API_KEY/SECRET`, `BINANCE_TESTNET`), never logged;
+  construction is lazy so a missing key only fails at call time. Symbols pass the
+  same SSRF-safe `parse_spec` whitelist before any URL use.
+- **MAKER-ONLY by construction.** The order primitive is Binance `LIMIT_MAKER`;
+  there is intentionally **no** market-order method. This is the §25/§1 discipline
+  enforced in code: the venue rejects rather than fills as a taker if the limit
+  would cross, so the bot can never accidentally pay taker. (This is also the path
+  that, on a first real fill, finally settles the standing maker-rate open item
+  from §25 — `FEE_PCT 0.0004` maker assumption vs `0.0009` measured taker.)
+- **`execution/killswitch.py`** — `MAX_DAILY_LOSS_USD` checked before every live
+  submit; sums only TODAY's (UTC) realized **live** losses via an honest R→USD
+  bridge (`net_outcome_r × position_size_usd × |entry−stop|/entry`). Paper/legacy
+  trades (no `position_size_usd`) value at $0 and don't move it.
+- **`execution/live.py`** — `submit()` = gate → kill-switch → concurrency cap →
+  size (`min(req, MAX_POSITION_SIZE_USD)`) → rest maker limit → journal as
+  `mode="live"`, `status="pending"`, with `exchange_order_id`. `poll()` stamps
+  `filled_at` from the **venue clock, not bar time** (avoids the §29 fictitious
+  fill); `cancel()`/`reconcile()` round it out. Stop/target *resolution* still
+  flows through the shared OHLCV resolver, so live and backtest never disagree.
+- Paper remains the default; `build_executor()` returns live only when both flags
+  are set AND (at submit) real keys exist. 24 new no-network tests (fake exchange);
+  suite 259 passed / 5 skipped; ruff clean. §1 / `FEE_PCT` untouched; no
+  journal/alert_inbox edits; no secrets. NOT wired into the hourly Action (that
+  stays the documented opt-in). Doc: `docs/LIVE_TRADING_SETUP.md` (rewritten;
+  testnet smoke-test runbook included).
