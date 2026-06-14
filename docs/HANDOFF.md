@@ -7,16 +7,22 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/hello-3vl2b8`
-- **Last PR:** #16 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/16
-  (live order-placement subsystem — maker-only, double-gated; paper still default).
-- **Audit status:** `AWAITING_AUDIT`.
+- **Last branch:** `claude/hello-3vl2b8` (PR #16) + `claude/near-miss-autopsy` (PR #17).
+- **Last PR:** #16 + #17 — both **MERGED** into `main` at `8b92ba5`.
+- **Audit status:** `MERGED (audit PASS)` — both gated this session (user-invoked
+  `/handoff-audit`) by independent arm's-length subagents in isolated worktrees.
+  **#16** (live order-placement): PASS — maker-only `LIMIT_MAKER` (no market method),
+  double gate intact, no-keys submit safely rejected, kill-switch math correct,
+  venue-clock fills, no secret leakage, 259 passed/5 skipped, ruff/scope clean
+  (`docs/audits/pr-16-audit.md`). **#17** (near-miss autopsy): PASS — no live-config
+  change, replay reconciles 118/118 @3R, IS-vs-OOS separated, OVERFIT verdict
+  OOS-driven, honest caveats (`docs/audits/pr-17-audit.md`). Self-audit caveat
+  recorded in both. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
 - PR #14 CLOSED OUT: **`MERGED (post-hoc CONCERNS)`** — human-merged from the UI
   2026-06-14T00:19Z at `c2bf507`→head `d295eed`; green CI. Independent audit
   (`docs/audits/claude-hello-3vl2b8.md`): 9/10 claims diff-verified, ruff clean,
   no scope/secret/forbidden issues, live-gate contract real+tested. ONE cosmetic
-  concern: "254 passed (210+44)" headline inflated — measured base=193/head=237
-  (5 skipped); +44 delta correct, totals off ~17. Gate streak: #5…#14.
+  concern: "254 passed (210+44)" headline inflated — measured base=193/head=237.
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -41,27 +47,25 @@
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/near-miss-autopsy` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (user-directed 2026-06-14):** **Near-miss autopsy + scenario re-sim on
-  the forward trades, with REAL price paths** (research; NO live-config change —
-  output a recommended config diff + evidence for approval; validate OOS first).
-  WHY: the 60% confluence band is −31R of the −32.57R total loss (n=43, 7% WR)
-  while 70%+/50% are ~flat-positive — need MFE/MAE from bars to tell near-misses
-  from clean rejects, and whether a different R:R rescues the bleed bands. Steps:
-  (0) confirm the backtest engine can replay one bracket over bars + report the
-  full path; (1) retroactive MFE/MAE per resolved trade → `data/excursion_audit.json`
-  + ranked near-miss table; (2) target sweep 1.0–3.0R per confluence band; (3)
-  adaptive R:R by band (+ trend-align variant); (4) **OOS discipline** — Jun 9–14
-  forward window THEN longer history via `walkforward.py`, in-sample vs OOS
-  reported SEPARATELY, overfit flagged; (5) report + proposed scan-config diff;
-  also test whether simply DROPPING the 60% band beats any target tweak.
-  NOTE: `journal/excursion.py` (MFE/MAE) already exists from PR #14 — reuse it.
-- **Also queued:** (a) decide whether to flip the hourly Action to the top-100
-  universe (opt-in; 10× API load, floods the bot-owned journal —
-  `docs/TOP100_1H_UNIVERSE.md`); (b) wire the live executor (PR #16) into a CLI /
-  the hourly Action (still the opt-in decision); (c) testnet smoke-test of the new
-  live path (`BINANCE_TESTNET=true`, `docs/LIVE_TRADING_SETUP.md`).
+- **Slug hint (ADVISORY only):** `claude/min-pct-shadow-or-live-wiring` — harness
+  assigns the real name; the *scope* below is what binds.
+- **DECISION PENDING (user): the autopsy's `--min-pct 0.6` recommendation.** The
+  near-miss autopsy (PR #17, `docs/research/near_miss_autopsy.md`) concluded: do NOT
+  drop the 60% band and do NOT lower the target — both are **in-sample-only / OVERFIT**
+  (the OOS walk-forward refutes them; 3R is correct, the 60% gate is net-positive OOS).
+  The only OOS-supported tweak is tightening the hourly scan `--min-pct 0.5 → 0.6`,
+  and even that is modest (frac-positive 55%, one correlated-majors window) — RECOMMEND
+  a forward shadow-test (journal 0.5 vs 0.6 in parallel), NOT a hard flip. **Awaiting
+  user approval before any live-config change.** The fixes the autopsy DID validate
+  (trend-filter on, 5m paused) are already live.
+- **Scope options for the next chat (pick one):**
+  (a) **`--min-pct 0.6` shadow-test** — if the user approves, wire a parallel 0.6 gate
+  (or A/B label) without disturbing the live 0.5 book, and compare forward;
+  (b) **wire the live executor (PR #16) into a CLI / the hourly Action** — still the
+  opt-in decision; start with a `BINANCE_TESTNET=true` smoke-test
+  (`docs/LIVE_TRADING_SETUP.md`) before any mainnet key;
+  (c) **top-100 universe flip** decision (opt-in; 10× API load, floods the bot-owned
+  journal — `docs/TOP100_1H_UNIVERSE.md`).
 - **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action
   logs NO new `5m` signals (§37 still unverified in production).
 - **Live deploy walkthrough (also queued):** once the user creates the Render
@@ -168,3 +172,10 @@
   order-placement subsystem** (PR #16): maker-only `LIMIT_MAKER`, double-gated,
   `MAX_DAILY_LOSS_USD` kill-switch, venue-clock fills; **259 passed**. Gate streak
   through #14. Next scope: near-miss autopsy + scenario re-sim (research, OOS).
+- `2026-06-14` — Same chat then ran the **near-miss autopsy** (PR #17): IS said
+  "drop 60% / lower target", OOS **refuted it as OVERFIT** (3R correct, 60% gate
+  net-positive OOS); only OOS-supported tweak is `--min-pct 0.5→0.6` (modest, shadow-
+  test recommended, NOT applied). **User-invoked `/handoff-audit` gate → BOTH #16 and
+  #17 PASS** (independent arm's-length subagents in isolated worktrees) and **merged**
+  at `8b92ba5`. Self-audit caveat recorded. Gate streak: …#14,#16,#17. Next:
+  `--min-pct 0.6` decision (pending user) OR live-executor wiring/testnet OR top-100.
