@@ -204,12 +204,16 @@ def trade_history_report(journal: TradeJournal | None = None,
             equity.append({"t": p.resolved_at or p.created_at, "cum_r": round(cum, 4),
                            "r": float(p.outcome_r), "symbol": p.symbol})
         if exc is not None:
-            mfes.append(exc.mfe_r); maes.append(exc.mae_r)
+            mfes.append(exc.mfe_r)
+            maes.append(exc.mae_r)
             if p.tp1 is not None:
-                tp1_n += 1; tp1_touch += exc.tp1_touched
+                tp1_n += 1
+                tp1_touch += exc.tp1_touched
             if p.target is not None:
-                tp2_n += 1; tp2_touch += exc.tp2_touched
-            stop_n += 1; stop_touch += exc.stop_touched
+                tp2_n += 1
+                tp2_touch += exc.tp2_touched
+            stop_n += 1
+            stop_touch += exc.stop_touched
         trades.append({
             "id": p.id, "symbol": p.symbol, "timeframe": p.timeframe, "mode": p.mode,
             "status": p.status, "entry_time": p.filled_at or p.created_at,

@@ -1,0 +1,33 @@
+# Kestra flow — periodic open-trades review report. PLAN/SCAFFOLD, not stood up.
+# Read-only (no journal writes); safe by default. See docs/KESTRA_AUTOMATION.md.
+id: open_trades_review
+namespace: kudbee.quant
+description: |
+  Emits the open-trades review (live marks, MFE/MAE, health) as graph-ready JSON a
+  few times a day. Read-only — it never opens or closes trades, so reruns are
+  inherently safe.
+
+concurrency:
+  limit: 1
+
+tasks:
+  - id: review_open
+    type: io.kestra.plugin.scripts.python.Commands
+    env:
+      TRADING_MODE: paper
+    retry:
+      type: constant
+      interval: PT2M
+      maxAttempt: 2
+    commands:
+      - python -m kudbee_quant.cli review-open-trades --json
+
+triggers:
+  - id: thrice_daily
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "0 */8 * * *"
+
+errors:
+  - id: on_failure
+    type: io.kestra.plugin.core.log.Log
+    message: "open_trades_review FAILED — likely a data-feed hiccup; retried already."

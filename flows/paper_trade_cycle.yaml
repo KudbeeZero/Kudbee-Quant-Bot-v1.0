@@ -1,0 +1,42 @@
+# Kestra flow — full paper-trade cycle (scan -> resolve -> score). PLAN/SCAFFOLD.
+# Safe by default (paper); see docs/KESTRA_AUTOMATION.md. Not stood up.
+id: paper_trade_cycle
+namespace: kudbee.quant
+description: |
+  End-to-end paper cycle: log new signals, resolve open/pending trades, print the
+  scorecard. Idempotent via concurrency:1 + the journal's one-open-per-(symbol,tf)
+  guard. This is the Kestra mirror of the proven hourly GitHub Action.
+
+concurrency:
+  limit: 1
+
+tasks:
+  - id: scan
+    type: io.kestra.plugin.scripts.python.Commands
+    env:
+      TRADING_MODE: paper
+      ENABLE_LIVE_EXECUTION: "false"
+    retry:
+      type: constant
+      interval: PT1M
+      maxAttempt: 3
+    commands:
+      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe_loader import universe_specs; print(' '.join(universe_specs()))") --intervals 1h --trend-filter
+  - id: resolve
+    type: io.kestra.plugin.scripts.python.Commands
+    commands:
+      - python -m kudbee_quant.cli journal-check
+  - id: score
+    type: io.kestra.plugin.scripts.python.Commands
+    commands:
+      - python -m kudbee_quant.cli journal-score
+
+triggers:
+  - id: hourly
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "5 * * * *"
+
+errors:
+  - id: on_failure
+    type: io.kestra.plugin.core.log.Log
+    message: "paper_trade_cycle FAILED — check the scan/resolve step logs."

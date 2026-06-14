@@ -16,7 +16,7 @@ the trade's own stop distance, exactly like the rest of the system.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 
 import pandas as pd
 
