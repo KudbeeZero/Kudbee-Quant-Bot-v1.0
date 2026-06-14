@@ -591,6 +591,23 @@ def _trade_trace(args) -> None:
         print(f"\nHonest read: {rep['caveat']}")
 
 
+def _review_open_trades(args) -> None:
+    import json
+    from .review import open_trades_report, render_open_text
+    rep = open_trades_report()
+    print(json.dumps(rep, indent=2, default=str) if args.json else render_open_text(rep))
+
+
+def _review_trade_history(args) -> None:
+    import json
+    from .review import render_history_text, trade_history_report
+    rep = trade_history_report(
+        symbol=args.symbol, date_from=args.date_from, date_to=args.date_to,
+        mode=args.mode, status=args.status, timeframe=args.timeframe,
+        with_excursion=not args.no_excursion)
+    print(json.dumps(rep, indent=2, default=str) if args.json else render_history_text(rep))
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -795,6 +812,26 @@ def main() -> None:
     ps.add_argument("--trend-filter", action="store_true",
                     help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%)")
     ps.set_defaults(func=_paper_scan)
+
+    rot = sub.add_parser("review-open-trades",
+                         help="detailed report of every open/pending trade (+ portfolio)")
+    rot.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
+    rot.set_defaults(func=_review_open_trades)
+
+    rth = sub.add_parser("review-trade-history",
+                         help="historical performance report with filters (+ equity curve)")
+    rth.add_argument("--symbol", default=None, help="filter to one symbol, e.g. BTCUSDT")
+    rth.add_argument("--from", dest="date_from", default=None, help="ISO date/time lower bound")
+    rth.add_argument("--to", dest="date_to", default=None, help="ISO date/time upper bound")
+    rth.add_argument("--mode", choices=["paper", "live"], default=None, help="filter by mode")
+    rth.add_argument("--status", default="closed",
+                     choices=["closed", "open", "all", "hit", "miss", "cancelled"],
+                     help="which trades to include (default: closed)")
+    rth.add_argument("--timeframe", default=None, help="filter by timeframe, e.g. 1h")
+    rth.add_argument("--no-excursion", action="store_true",
+                     help="skip MFE/MAE backfill (faster; no network)")
+    rth.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
+    rth.set_defaults(func=_review_trade_history)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

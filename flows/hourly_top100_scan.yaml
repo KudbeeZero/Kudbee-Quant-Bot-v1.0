@@ -1,0 +1,42 @@
+# Kestra flow — hourly top-100 crypto scan (1h). PLAN/SCAFFOLD, not stood up.
+#
+# The PROVEN automation is .github/workflows/paper-trade.yml. This flow is the
+# Kestra equivalent for when/if a Kestra runtime is introduced (see
+# docs/KESTRA_AUTOMATION.md). It is SAFE BY DEFAULT: TRADING_MODE=paper is pinned
+# here and live execution requires the double opt-in env vars, which this flow
+# never sets.
+id: hourly_top100_scan
+namespace: kudbee.quant
+description: |
+  Hourly confluence-R scan of the enabled top-100 universe on the 1h timeframe,
+  logging paper trades. Idempotent: concurrency is capped at 1 so a re-run cannot
+  double-log; the journal de-dupes one open trade per (symbol, timeframe).
+
+# One run at a time — prevents duplicate work / orders if a run overlaps or reruns.
+concurrency:
+  limit: 1
+
+tasks:
+  - id: scan
+    type: io.kestra.plugin.scripts.python.Commands
+    description: Scan the enabled universe (1h only) and log paper trades.
+    env:
+      TRADING_MODE: paper
+      ENABLE_LIVE_EXECUTION: "false"
+    retry:
+      type: constant
+      interval: PT1M
+      maxAttempt: 3
+    commands:
+      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe_loader import universe_specs; print(' '.join(universe_specs()))") --intervals 1h --trend-filter
+      - python -m kudbee_quant.cli journal-check
+
+triggers:
+  - id: hourly
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "5 * * * *"
+
+errors:
+  - id: on_failure
+    type: io.kestra.plugin.core.log.Log
+    message: "hourly_top100_scan FAILED — investigate; journal not advanced this hour."

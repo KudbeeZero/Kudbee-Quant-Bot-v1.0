@@ -1,0 +1,33 @@
+# Kestra flow — daily trade-history report. PLAN/SCAFFOLD, not stood up.
+# Read-only; safe by default. See docs/KESTRA_AUTOMATION.md.
+id: daily_trade_history
+namespace: kudbee.quant
+description: |
+  Once a day, emit the closed-trade history report (win/loss, profit factor,
+  expectancy, hit rates, equity curve) as graph-ready JSON for dashboards/archival.
+  Read-only — safe to rerun.
+
+concurrency:
+  limit: 1
+
+tasks:
+  - id: history
+    type: io.kestra.plugin.scripts.python.Commands
+    env:
+      TRADING_MODE: paper
+    retry:
+      type: constant
+      interval: PT5M
+      maxAttempt: 2
+    commands:
+      - python -m kudbee_quant.cli review-trade-history --status closed --json
+
+triggers:
+  - id: daily
+    type: io.kestra.plugin.core.trigger.Schedule
+    cron: "15 0 * * *"
+
+errors:
+  - id: on_failure
+    type: io.kestra.plugin.core.log.Log
+    message: "daily_trade_history FAILED — report not produced today."

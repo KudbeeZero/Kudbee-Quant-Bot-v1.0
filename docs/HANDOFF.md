@@ -7,56 +7,64 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/live-trades-check-plan-5y27i8`
-- **Last PR:** #13 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/13
-  (live-trades check + 5m pause §37).
+- **Last branch:** `claude/live-trades-5m-pause-a1wuk3`
+- **Last PR:** #14 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/14
+  (top-100 1h trading FOUNDATION + trade-review skills; paper-first, live gated/stub).
 - **Audit status:** `AWAITING_AUDIT`.
-- PR #12 is CLOSED OUT: **`MERGED (post-hoc PASS)`** at `4c9e2a5` (merged from UI
-  2026-06-13; report: `docs/audits/claude-live-trades-check-plan-5y27i8.md` —
-  arm's-length, 210/210, docs-only diff, all claims verified, CI green).
-  Gate streak: #5, #6, #7, #9, #11, #12.
+- PR #13 is CLOSED OUT: **`MERGED (audit PASS)`** at `c2bf507` (audit-gated merge
+  2026-06-13; report: `docs/audits/pr-13-audit.md` — arm's-length independent
+  subagent, 210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden
+  files; CI-0-checks confirmed as a `[skip ci]` tip commit, not a failure).
+  Gate streak: #5, #6, #7, #9, #11, #12, #13.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #12 audit gate (post-hoc) → PASS**: independent arm's-length subagent vs
-  the real `8c1927b..4c9e2a53` diff (#12 was already merged from the UI). 210/210,
-  docs-only (2 files, +145/−44), CI green; embedded PR #11 audit-report claims
-  re-verified against actual merged source (`alert_inbox.py:44/54-55`,
-  `render.yaml:12`, `netlify.toml:38`). Report committed as
-  `docs/audits/claude-live-trades-check-plan-5y27i8.md`; baton reconciled.
-- **Live-trades check (read-only)** — ran `journal-score`/`journal-exposure` + an
-  ad-hoc delta on `data/journal.json` (journal left UNTOUCHED/uncommitted). Since
-  the 06-12 §35/§36 review: 35 new resolutions, −15R gross / ≈−21R net, 14% win,
-  all bot. 5m crypto gross-flat (+0.0R/16) but net −3.2R on fees; 1h-crypto only
-  −2R (2 trades); book current (0 opens past deadline).
-- **5m crypto book PAUSED (§37, user-approved)** — dropped `5m` from the crypto
-  `--intervals` in `.github/workflows/paper-trade.yml` (now `15m 1h 2h 4h`;
-  TradFi already 1h-only) + header-comment + new `docs/MEMORY.md` §37. Execution/
-  cost change only — §1 defaults and `FEE_PCT` untouched. 210/210 tests green.
+- **PR #13 audit gate → PASS, merged** at `c2bf507`: independent arm's-length
+  subagent vs the real `07fe064..e6c8c08` diff (5m pause §37 + PR#12 record);
+  210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden files,
+  `[skip ci]` tip explains 0 CI checks. Report: `docs/audits/pr-13-audit.md`.
+  Baton reconciled. Gate streak: #5, #6, #7, #9, #11, #12, #13.
+- **Top-100 1h trading FOUNDATION (PR #14)** — paper-first, live gated/stubbed
+  (user-confirmed scope). NEW: `config/crypto_universe.yaml` (~100, 1h-only) +
+  `universe_loader.py` (fail-safe, skips disabled, SSRF-safe via `parse_spec`);
+  `config/runtime.py` + `execution/` (`PaperExecutor` functional; `LiveExecutor`
+  double-gated stub — `require_live_enabled`); additive `Prediction` exec fields
+  (mode/strategy_version/position_size_usd/exchange_order_id/reason_closed,
+  back-compat); `journal/excursion.py` (MFE/MAE) + `review.py` + CLI
+  `review-open-trades`/`review-trade-history` (+`--json`) + 2 skills; `flows/*.yaml`
+  Kestra scaffold (paper-pinned) + 4 docs; `PyYAML` dep. **254 passed** (+44 new),
+  new modules ruff-clean. §1 defaults / `FEE_PCT` / journal / alert_inbox untouched.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/execution-lab` — harness assigns the
-  real name; the *scope* below is what binds.
-- **FIRST: verify the 5m pause landed** — after the next hourly paper-trade
-  Action runs, confirm it logs NO new `5m` signals (the §37 change is untested in
-  production); existing open 5m trades should still resolve normally.
-- **Scope (user-confirmed 2026-06-12):** **Execution Lab** — sliders
-  (retrace/stop/target/TP1) over SAVED live signals with instant re-sim via the
-  shared resolver (§35 proved the engine; ~1s for 102 trades). First experiments
-  per the §35 autopsy: TP1 partial-banking (13 misses ran ≥+1R unbanked; 19
-  stopped then ran to target). The 5m-book fee question is now RESOLVED (§37:
-  paused). **§36: the fade hypothesis was REJECTED out-of-sample** (fade positive
-  in only 16/52 pre-June-9 symbol-TF cells vs 39/52 for the original — see §36
-  addendum); shadow fade book now OPTIONAL/low-priority.
+- **Slug hint (ADVISORY only):** `claude/live-order-placement` — harness assigns
+  the real name; the *scope* below is what binds.
+- **Scope (user-confirmed 2026-06-13/14):** **Live order-placement subsystem** —
+  the real exchange client behind the existing `require_live_enabled()` gate (PR
+  #14 shipped the gated stub). Authenticated venue client (ccxt / Binance), order
+  submit/cancel/poll, balance + `MAX_DAILY_LOSS_USD` kill-switch, order-id ↔
+  journal mapping (fill `exchange_order_id`/`filled_at` from the venue, not bar
+  time). KEEP paper as the default; live stays double-gated. Honor §1 / `FEE_PCT`.
+- **Also queued from PR #14:** (a) decide whether to flip the hourly Action to the
+  top-100 universe (opt-in; 10× API load, floods the bot-owned journal — see
+  `docs/TOP100_1H_UNIVERSE.md`); (b) the **Execution Lab** (TP1 partial-banking
+  re-sim over saved signals via the shared resolver — §35 autopsy) is still open
+  and low-risk if you want a research turn instead of live wiring.
+- **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action
+  logs NO new `5m` signals (§37 still unverified in production).
 - **Live deploy walkthrough (also queued):** once the user creates the Render
   service (`docs/HOSTING.md`), smoke-test the live host — health, dashboard, a
   real `/api/alert` with `"inbox": true`, the alert commit appearing in
   `data/alert_inbox/` and ingested by the next hourly run.
 - **Open risks / watch-items:**
+  - **Live execution DOES NOT EXIST yet (PR #14):** `LiveExecutor` is a gated stub
+    that raises; the real order path is the next PR. Nothing can trade real money.
+  - **Top-100 membership UNPROVEN forward (§31):** only the top-10 majors are
+    walk-forward validated; the long tail in `config/crypto_universe.yaml` is a
+    static fallback snapshot, forward-test only. The hourly Action still runs top-10.
   - **5m pause UNVERIFIED in production (§37):** the workflow edit was tested
-    locally (YAML + 210/210) but not yet run by the hourly Action — confirm the
-    next run logs no new 5m signals.
+    locally (YAML + 254/254) but not yet confirmed on the hourly Action — confirm
+    the next run logs no new 5m signals.
   - **Deployment UNPROVEN:** render.yaml + inbox tested locally only; no live
     Render service exists yet (user action: create Blueprint via `docs/HOSTING.md`;
     set `KUDBEE_API_TOKEN` / `KUDBEE_SITE_ORIGIN` / `KUDBEE_GH_TOKEN`).
@@ -135,3 +143,9 @@
   and **paused the 5m crypto book (§37)** — forward-confirmed fee drag (net −3.2R,
   gross-flat). PR opened. Gate streak: #5, #6, #7, #9, #11, #12. Next scope:
   verify the 5m pause landed, then Execution Lab.
+- `2026-06-14` — PR #13 **audited (PASS) + merged** at `c2bf507` by
+  `claude/live-trades-5m-pause-a1wuk3` (gate held; arm's-length subagent, 210/210).
+  Same chat built the **top-100 1h trading FOUNDATION + trade-review skills**
+  (PR #14): paper-first, live double-gated + stubbed, universe loader, review
+  reports (MFE/MAE), Kestra scaffold, docs; **254 passed**. Gate streak: #5, #6,
+  #7, #9, #11, #12, #13. Next scope: the live order-placement subsystem.
