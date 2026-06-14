@@ -68,11 +68,21 @@ def test_live_executor_cannot_even_construct_by_default():
     with pytest.raises(LiveExecutionBlocked):
         LiveExecutor(load_runtime_config(env={}))
 
-def test_live_executor_is_a_blocked_stub_even_when_enabled():
-    # Both flags set -> it constructs, but submitting still refuses (no orders yet).
-    ex = LiveExecutor(load_runtime_config(env=_LIVE_ENV))
-    with pytest.raises(NotImplementedError):
-        ex.submit(_bracket())
+def test_live_executor_constructs_when_enabled_without_touching_network(tmp_path):
+    # Both flags set -> it constructs (broker built lazily; no network at __init__).
+    ex = LiveExecutor(load_runtime_config(env=_LIVE_ENV), journal=_journal(tmp_path))
+    assert ex.mode == "live"
+
+def test_live_submit_without_credentials_is_safely_rejected(tmp_path, monkeypatch):
+    # No API keys -> the broker raises before any network call; submit returns a
+    # clean rejection (NOT an order, NOT an unhandled crash).
+    monkeypatch.delenv("BINANCE_API_KEY", raising=False)
+    monkeypatch.delenv("BINANCE_API_SECRET", raising=False)
+    j = _journal(tmp_path)
+    ex = LiveExecutor(load_runtime_config(env=_LIVE_ENV), journal=j)
+    res = ex.submit(_bracket())
+    assert res.accepted is False and "credential" in res.reason
+    assert len(j.predictions) == 0
 
 
 # --- paper executor records trades -----------------------------------------

@@ -7,49 +7,65 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/live-trades-5m-pause-a1wuk3`
-- **Last PR:** #14 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/14
-  (top-100 1h trading FOUNDATION + trade-review skills; paper-first, live gated/stub).
-- **Audit status:** `AWAITING_AUDIT`.
-- PR #13 is CLOSED OUT: **`MERGED (audit PASS)`** at `c2bf507` (audit-gated merge
-  2026-06-13; report: `docs/audits/pr-13-audit.md` — arm's-length independent
-  subagent, 210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden
-  files; CI-0-checks confirmed as a `[skip ci]` tip commit, not a failure).
-  Gate streak: #5, #6, #7, #9, #11, #12, #13.
+- **Last branch:** `claude/hello-3vl2b8` (PR #16) + `claude/near-miss-autopsy` (PR #17).
+- **Last PR:** #16 + #17 — both **MERGED** into `main` at `8b92ba5`.
+- **Audit status:** `MERGED (audit PASS)` — both gated this session (user-invoked
+  `/handoff-audit`) by independent arm's-length subagents in isolated worktrees.
+  **#16** (live order-placement): PASS — maker-only `LIMIT_MAKER` (no market method),
+  double gate intact, no-keys submit safely rejected, kill-switch math correct,
+  venue-clock fills, no secret leakage, 259 passed/5 skipped, ruff/scope clean
+  (`docs/audits/pr-16-audit.md`). **#17** (near-miss autopsy): PASS — no live-config
+  change, replay reconciles 118/118 @3R, IS-vs-OOS separated, OVERFIT verdict
+  OOS-driven, honest caveats (`docs/audits/pr-17-audit.md`). Self-audit caveat
+  recorded in both. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
+- PR #14 CLOSED OUT: **`MERGED (post-hoc CONCERNS)`** — human-merged from the UI
+  2026-06-14T00:19Z at `c2bf507`→head `d295eed`; green CI. Independent audit
+  (`docs/audits/claude-hello-3vl2b8.md`): 9/10 claims diff-verified, ruff clean,
+  no scope/secret/forbidden issues, live-gate contract real+tested. ONE cosmetic
+  concern: "254 passed (210+44)" headline inflated — measured base=193/head=237.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #13 audit gate → PASS, merged** at `c2bf507`: independent arm's-length
-  subagent vs the real `07fe064..e6c8c08` diff (5m pause §37 + PR#12 record);
-  210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden files,
-  `[skip ci]` tip explains 0 CI checks. Report: `docs/audits/pr-13-audit.md`.
-  Baton reconciled. Gate streak: #5, #6, #7, #9, #11, #12, #13.
-- **Top-100 1h trading FOUNDATION (PR #14)** — paper-first, live gated/stubbed
-  (user-confirmed scope). NEW: `config/crypto_universe.yaml` (~100, 1h-only) +
-  `universe_loader.py` (fail-safe, skips disabled, SSRF-safe via `parse_spec`);
-  `config/runtime.py` + `execution/` (`PaperExecutor` functional; `LiveExecutor`
-  double-gated stub — `require_live_enabled`); additive `Prediction` exec fields
-  (mode/strategy_version/position_size_usd/exchange_order_id/reason_closed,
-  back-compat); `journal/excursion.py` (MFE/MAE) + `review.py` + CLI
-  `review-open-trades`/`review-trade-history` (+`--json`) + 2 skills; `flows/*.yaml`
-  Kestra scaffold (paper-pinned) + 4 docs; `PyYAML` dep. **254 passed** (+44 new),
-  new modules ruff-clean. §1 defaults / `FEE_PCT` / journal / alert_inbox untouched.
+- **PR #14 audit gate → post-hoc CONCERNS (cosmetic), recorded** — independent
+  arm's-length subagent vs the real `c2bf507..d295eed` diff; report
+  `docs/audits/claude-hello-3vl2b8.md`. (Already merged from UI; nothing to merge.)
+- **Live order-placement subsystem (PR #16)** — replaces the `LiveExecutor` stub
+  with a real, still-double-gated path (user-confirmed scope 2026-06-13/14). NEW:
+  `execution/exchange.py` (`ExchangeClient` Protocol + native HMAC-signed
+  `BinanceBrokerClient`, **maker-only `LIMIT_MAKER`, no market method**, env-only
+  keys, testnet, SSRF-safe symbols); `execution/killswitch.py` (`MAX_DAILY_LOSS_USD`,
+  honest R→USD bridge, today's live losses only); rewrote `execution/live.py`
+  (`submit` = gate→kill-switch→cap→size→rest maker limit→journal live/pending w/
+  `exchange_order_id`; `poll` stamps `filled_at` from the VENUE clock not bar time;
+  `cancel`/`reconcile`). `journal/__init__` exports `net_outcome_r`/`fee_r_of`.
+  Rewrote `docs/LIVE_TRADING_SETUP.md`. **259 passed, 5 skipped** (+24 new hermetic
+  fake-exchange tests). Ruff clean. §1/`FEE_PCT`/journal/alert_inbox untouched; no
+  secrets. NOT wired into the hourly Action. MEMORY §38 added.
+- **NOTE (honest):** the live path has **never placed a real order in production** —
+  logic-tested only; treat as unproven live. ccxt deliberately not taken (native
+  client sits behind the Protocol; ccxt can slot in later).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/live-order-placement` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (user-confirmed 2026-06-13/14):** **Live order-placement subsystem** —
-  the real exchange client behind the existing `require_live_enabled()` gate (PR
-  #14 shipped the gated stub). Authenticated venue client (ccxt / Binance), order
-  submit/cancel/poll, balance + `MAX_DAILY_LOSS_USD` kill-switch, order-id ↔
-  journal mapping (fill `exchange_order_id`/`filled_at` from the venue, not bar
-  time). KEEP paper as the default; live stays double-gated. Honor §1 / `FEE_PCT`.
-- **Also queued from PR #14:** (a) decide whether to flip the hourly Action to the
-  top-100 universe (opt-in; 10× API load, floods the bot-owned journal — see
-  `docs/TOP100_1H_UNIVERSE.md`); (b) the **Execution Lab** (TP1 partial-banking
-  re-sim over saved signals via the shared resolver — §35 autopsy) is still open
-  and low-risk if you want a research turn instead of live wiring.
+- **Slug hint (ADVISORY only):** `claude/min-pct-shadow-or-live-wiring` — harness
+  assigns the real name; the *scope* below is what binds.
+- **DECISION PENDING (user): the autopsy's `--min-pct 0.6` recommendation.** The
+  near-miss autopsy (PR #17, `docs/research/near_miss_autopsy.md`) concluded: do NOT
+  drop the 60% band and do NOT lower the target — both are **in-sample-only / OVERFIT**
+  (the OOS walk-forward refutes them; 3R is correct, the 60% gate is net-positive OOS).
+  The only OOS-supported tweak is tightening the hourly scan `--min-pct 0.5 → 0.6`,
+  and even that is modest (frac-positive 55%, one correlated-majors window) — RECOMMEND
+  a forward shadow-test (journal 0.5 vs 0.6 in parallel), NOT a hard flip. **Awaiting
+  user approval before any live-config change.** The fixes the autopsy DID validate
+  (trend-filter on, 5m paused) are already live.
+- **Scope options for the next chat (pick one):**
+  (a) **`--min-pct 0.6` shadow-test** — if the user approves, wire a parallel 0.6 gate
+  (or A/B label) without disturbing the live 0.5 book, and compare forward;
+  (b) **wire the live executor (PR #16) into a CLI / the hourly Action** — still the
+  opt-in decision; start with a `BINANCE_TESTNET=true` smoke-test
+  (`docs/LIVE_TRADING_SETUP.md`) before any mainnet key;
+  (c) **top-100 universe flip** decision (opt-in; 10× API load, floods the bot-owned
+  journal — `docs/TOP100_1H_UNIVERSE.md`).
 - **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action
   logs NO new `5m` signals (§37 still unverified in production).
 - **Live deploy walkthrough (also queued):** once the user creates the Render
@@ -57,8 +73,10 @@
   real `/api/alert` with `"inbox": true`, the alert commit appearing in
   `data/alert_inbox/` and ingested by the next hourly run.
 - **Open risks / watch-items:**
-  - **Live execution DOES NOT EXIST yet (PR #14):** `LiveExecutor` is a gated stub
-    that raises; the real order path is the next PR. Nothing can trade real money.
+  - **Live execution EXISTS but is UNPROVEN live (PR #16):** real maker-only,
+    double-gated order path, logic-tested only — has NEVER placed a real order in
+    production. Paper still default; both flags + real keys required. Start on
+    testnet, tiny size. Not wired into the hourly Action.
   - **Top-100 membership UNPROVEN forward (§31):** only the top-10 majors are
     walk-forward validated; the long tail in `config/crypto_universe.yaml` is a
     static fallback snapshot, forward-test only. The hourly Action still runs top-10.
@@ -149,3 +167,15 @@
   (PR #14): paper-first, live double-gated + stubbed, universe loader, review
   reports (MFE/MAE), Kestra scaffold, docs; **254 passed**. Gate streak: #5, #6,
   #7, #9, #11, #12, #13. Next scope: the live order-placement subsystem.
+- `2026-06-14` — PR #14 post-hoc audit **CONCERNS (cosmetic)** recorded by
+  `claude/hello-3vl2b8` (already merged from UI). Same chat built the **live
+  order-placement subsystem** (PR #16): maker-only `LIMIT_MAKER`, double-gated,
+  `MAX_DAILY_LOSS_USD` kill-switch, venue-clock fills; **259 passed**. Gate streak
+  through #14. Next scope: near-miss autopsy + scenario re-sim (research, OOS).
+- `2026-06-14` — Same chat then ran the **near-miss autopsy** (PR #17): IS said
+  "drop 60% / lower target", OOS **refuted it as OVERFIT** (3R correct, 60% gate
+  net-positive OOS); only OOS-supported tweak is `--min-pct 0.5→0.6` (modest, shadow-
+  test recommended, NOT applied). **User-invoked `/handoff-audit` gate → BOTH #16 and
+  #17 PASS** (independent arm's-length subagents in isolated worktrees) and **merged**
+  at `8b92ba5`. Self-audit caveat recorded. Gate streak: …#14,#16,#17. Next:
+  `--min-pct 0.6` decision (pending user) OR live-executor wiring/testnet OR top-100.
