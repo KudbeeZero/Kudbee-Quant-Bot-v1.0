@@ -3,6 +3,8 @@ __pycache__/
 *.egg-info/
 .cache/
 *.parquet
+# Agent worktrees (transient, auto-cleaned; created by isolated subagents)
+.claude/worktrees/
 # Overnight research runtime cache + loop log (regenerable; not source)
 data/_overnight_cache/
 .venv/
