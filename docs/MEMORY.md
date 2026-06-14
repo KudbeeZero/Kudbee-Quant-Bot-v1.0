@@ -1173,3 +1173,32 @@ has NEVER placed a real order in production** — treat as unproven live.
   journal/alert_inbox edits; no secrets. NOT wired into the hourly Action (that
   stays the documented opt-in). Doc: `docs/LIVE_TRADING_SETUP.md` (rewritten;
   testnet smoke-test runbook included).
+
+## 39. Hourly scan flipped to TOP-100 + 5m RE-ENABLED — user-directed forward experiment (against §37/§31) — 2026-06-14
+
+The user directed the hourly paper Action to scan the **full top-100 universe**
+(`config/crypto_universe.yaml`, ~101 pairs via `universe_loader.universe_specs()`)
+and to **re-enable the 5m timeframe** — `--intervals 5m 15m 1h 2h 4h`. This is the
+config the user originally expected ("5m across the top 100"); the bot had been
+running top-10 on 15m/1h/2h/4h with 5m paused.
+
+HONESTY — this runs AGAINST our own evidence, and the user confirmed twice after it
+was flagged:
+- **5m is fee-poisoned (§37):** forward-confirmed gross-flat / net-negative purely
+  on fees (tiny 5m ATR ⇒ huge fee in R). The near-miss autopsy (PR #17) re-confirmed
+  no R:R tweak rescues the low/sub-hourly book at taker cost.
+- **Top-100 long tail is UNPROVEN forward (§31):** only the top-10 majors are
+  walk-forward validated; the tail is a static snapshot, thinner/wider-spread.
+
+WHY it's still defensible: this is **PAPER**, so it is a forward EXPERIMENT that
+GENERATES the data to confirm/refute the fee concern on the wider book — consistent
+with the project thesis (honest forward validation, let the data speak). It is NOT a
+validated config and must not be cited as edge.
+
+OPERATIONAL WATCH-ITEMS (the real risks): ~100 symbols × 5 timeframes per hourly run
+is ~50× the prior API/build_levels load — watch for Action runtime/timeout and
+Binance rate-limits (mirror `data-api.binance.vision`); the bot-owned
+`data/journal.json` will grow much faster. If the Action times out or the 5m book
+re-confirms §37, REVERT to the top-10 / no-5m config. Change shipped in
+`.github/workflows/paper-trade.yml` (the §37 pause comment replaced with the §39
+forward-experiment note). §1 defaults / `FEE_PCT` untouched.

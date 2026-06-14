@@ -1,13 +1,17 @@
 name: Forward paper-trade (confluence-R)
 
 # Automated FORWARD paper trading of the validated strategy:
-# >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides,
-# across the top-10 crypto majors on 15m/1h/2h/4h (each timeframe gets a
-# horizon scaled to its bar size). Runs hourly: logs new setups, resolves
-# pending/open trades, commits the journal so a real forward track record
-# accumulates with no babysitting. The 5m book was PAUSED 2026-06-13 (§37):
-# forward data confirmed it was gross-flat but net-negative purely on fees.
-# Remaining lower TF (15m) stays as a cost-sensitive FORWARD-TEST, not proven.
+# >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides.
+# CRYPTO universe = the ~100-coin top-100 book (config/crypto_universe.yaml) on
+# 5m/15m/1h/2h/4h. Runs hourly: logs new setups, resolves pending/open trades,
+# commits the journal so a real forward track record accumulates with no babysitting.
+#
+# NOTE (user-directed 2026-06-14, §39): the top-100 universe AND the 5m timeframe
+# were turned ON at the user's explicit request. This runs AGAINST our own evidence
+# — 5m was net-negative purely on fees (§37) and the top-100 long tail is unproven
+# forward (§31). It is a PAPER forward experiment: the goal is to GENERATE the data
+# to confirm or refute the fee/edge concern, not a validated config. Watch fee drag,
+# API load (~100 symbols x 5 TF/hour) and journal growth; revert if it confirms §37.
 
 on:
   schedule:
@@ -43,12 +47,14 @@ jobs:
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
-          # 5m PAUSED 2026-06-13 (§37): forward-confirmed fee drag — gross-flat,
-          # net-negative purely on fees (tiny 5m ATR ⇒ huge fee in R). Re-enable
-          # only if a structurally cheaper venue/maker fill changes the math.
+          # TOP-100 universe + 5m RE-ENABLED 2026-06-14 at user request (§39) — a
+          # paper forward experiment that runs AGAINST §37 (5m fee drag) and §31
+          # (long tail unproven). Symbols come from config/crypto_universe.yaml via
+          # the fail-safe universe loader; 5m is back in the interval set.
+          CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe_loader import universe_specs; print(" ".join(universe_specs()))')"
           python -m kudbee_quant.cli paper-scan \
-            BTCUSDT ETHUSDT BNBUSDT SOLUSDT XRPUSDT ADAUSDT DOGEUSDT AVAXUSDT LINKUSDT DOTUSDT \
-            --intervals 15m 1h 2h 4h --trend-filter || true
+            $CRYPTO_UNIVERSE \
+            --intervals 5m 15m 1h 2h 4h --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
           # indices, energy, FX, grains, rates, softs. 1h only: the validated
           # timeframe, Yahoo-supported, and avoids session-gap noise on
