@@ -67,8 +67,15 @@ def range_stats(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 
     }
 
 
-def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFrame:
-    """Annotate bars with the full reference-level set + range-completion stats."""
+def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
+                 features=None) -> pd.DataFrame:
+    """Annotate bars with the full reference-level set + range-completion stats.
+
+    ``features`` is an optional :class:`~kudbee_quant.config.features.FeatureFlags`
+    (defaults to the env-driven flags, all OFF). It only ever ADDS opt-in signal
+    columns — the default frame is unchanged, so live trading is untouched until a
+    flag is explicitly set.
+    """
     out = build_features(df)  # gives daily_open, weekly_open, atr, sessions, asian_*, PDH/PDL...
     out["ny_date"] = ny_session_date(out["timestamp"])
     ny = pd.to_datetime(out["timestamp"], utc=True).dt.tz_convert(NY)
@@ -161,5 +168,16 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8) -> pd.DataFr
     # RSI/momentum divergence (Vol 9) — momentum-reversal signal.
     from .divergence import add_divergence
     out = add_divergence(out)
+
+    # Opt-in experimental signals (default OFF — see config/features.py). Taker
+    # delta / CVD / delta-divergence, derived from taker_buy_base. Only runs when
+    # the flag is set AND the source column is present, so the default frame and
+    # live path are byte-identical.
+    if features is None:
+        from ..config.features import load_feature_flags
+        features = load_feature_flags()
+    if features.enable_taker_delta and "taker_buy_base" in out.columns:
+        from .delta import add_taker_delta
+        out = add_taker_delta(out)
 
     return out.drop(columns=["_month_id", "_week_id"], errors="ignore")

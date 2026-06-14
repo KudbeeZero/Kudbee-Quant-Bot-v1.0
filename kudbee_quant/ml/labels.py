@@ -56,7 +56,10 @@ def make_features(df: pd.DataFrame) -> pd.DataFrame:
     for c in ("ema_cloud_pos", "pd_pos", "rsi", "bos_dir", "structure_dir",
               "sweep_bias", "pct_adr_used", "pct_awr_used", "dist_daily_open_atr",
               "dist_weekly_open_atr", "ny_hour", "day_of_week", "in_overlap",
-              "in_macro_best", "in_silver_bullet"):
+              "in_macro_best", "in_silver_bullet",
+              # Opt-in taker-delta features (present only when ENABLE_TAKER_DELTA
+              # built the frame; absent -> silently skipped, frame unchanged).
+              "delta_pct", "delta_z", "cvd_session_pct", "cvd_roll_pct", "delta_div"):
         if c in df.columns:
             f[c] = pd.to_numeric(df[c], errors="coerce")
     if have("volume", "avg_volume"):
