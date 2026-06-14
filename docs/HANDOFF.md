@@ -10,12 +10,12 @@
 - **Last branch:** `claude/live-trades-5m-pause-a1wuk3`
 - **Last PR:** #14 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/14
   (top-100 1h trading FOUNDATION + trade-review skills; paper-first, live gated/stub).
-- **Audit status:** `AWAITING_AUDIT`.
-- PR #13 is CLOSED OUT: **`MERGED (audit PASS)`** at `c2bf507` (audit-gated merge
-  2026-06-13; report: `docs/audits/pr-13-audit.md` — arm's-length independent
-  subagent, 210/210, docs+workflow-only, all 3 claims diff-verified, no forbidden
-  files; CI-0-checks confirmed as a `[skip ci]` tip commit, not a failure).
-  Gate streak: #5, #6, #7, #9, #11, #12, #13.
+- **Audit status:** **`MERGED (audit PASS)`** at `3cb9001` (audit-gated merge
+  2026-06-14; report: `docs/audits/pr-14-audit.md` — independent arm's-length
+  subagent in an isolated worktree + in-session cross-check, 254/254, all 10
+  claims diff-verified, live gate verified incapable of placing an order, no
+  forbidden-file changes, CI + Cloudflare Pages green, `mergeable_state` clean).
+  Gate streak: #5, #6, #7, #9, #11, #12, #13, #14.
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -149,3 +149,10 @@
   (PR #14): paper-first, live double-gated + stubbed, universe loader, review
   reports (MFE/MAE), Kestra scaffold, docs; **254 passed**. Gate streak: #5, #6,
   #7, #9, #11, #12, #13. Next scope: the live order-placement subsystem.
+- `2026-06-14` — PR #14 **audited (PASS) + merged** at `3cb9001` by
+  `claude/pr-14-handoff-audit-gpo9ab` (gate held; independent subagent in an
+  isolated worktree + in-session cross-check). 254/254, +2012/−37 across 29
+  files, all 10 claims diff-verified, live executor verified incapable of placing
+  an order, no secrets, no forbidden-file changes, CI + Cloudflare Pages green.
+  Report: `docs/audits/pr-14-audit.md`. Gate streak: #5, #6, #7, #9, #11, #12,
+  #13, #14. Next scope: the live order-placement subsystem.
