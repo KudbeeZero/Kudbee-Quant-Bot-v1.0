@@ -25,7 +25,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -53,7 +58,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -81,7 +91,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -109,7 +124,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -137,7 +157,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -165,7 +190,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ZECUSDT",
@@ -193,7 +223,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "human"
+    "source": "human",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -221,7 +256,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -249,7 +289,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -277,7 +322,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -305,7 +355,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -333,7 +388,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -361,7 +421,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -389,7 +454,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -417,7 +487,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOGEUSDT",
@@ -445,7 +520,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -473,7 +553,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOGEUSDT",
@@ -501,7 +586,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -529,7 +619,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "human"
+    "source": "human",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -557,7 +652,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:GC=F",
@@ -585,7 +685,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:SI=F",
@@ -613,7 +718,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:CL=F",
@@ -641,7 +751,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:BZ=F",
@@ -669,7 +784,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -697,7 +817,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -725,7 +850,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -753,7 +883,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -781,7 +916,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -809,7 +949,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -837,7 +982,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -865,7 +1015,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -893,7 +1048,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -921,7 +1081,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -949,7 +1114,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -977,7 +1147,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -1005,7 +1180,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -1033,7 +1213,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -1061,7 +1246,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -1089,7 +1279,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1117,7 +1312,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -1145,7 +1345,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -1173,7 +1378,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -1201,7 +1411,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -1229,7 +1444,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -1257,7 +1477,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -1285,7 +1510,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -1313,7 +1543,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -1341,7 +1576,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -1369,7 +1609,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -1397,7 +1642,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1425,7 +1675,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -1453,7 +1708,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:BZ=F",
@@ -1481,7 +1741,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1509,7 +1774,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1537,7 +1807,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:CL=F",
@@ -1565,7 +1840,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -1593,7 +1873,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:GC=F",
@@ -1621,7 +1906,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:NG=F",
@@ -1649,7 +1939,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -1677,7 +1972,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -1705,7 +2005,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -1733,7 +2038,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -1761,7 +2071,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1789,7 +2104,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:GC=F",
@@ -1817,7 +2137,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -1845,7 +2170,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -1873,7 +2203,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -1901,7 +2236,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:EURUSD=X",
@@ -1929,7 +2269,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:GBPUSD=X",
@@ -1957,7 +2302,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -1985,7 +2335,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -2013,7 +2368,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -2041,7 +2401,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -2069,7 +2434,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -2097,7 +2467,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -2125,7 +2500,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -2153,7 +2533,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:EURUSD=X",
@@ -2181,7 +2566,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:GBPUSD=X",
@@ -2209,7 +2599,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -2237,7 +2632,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -2265,7 +2665,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -2293,7 +2698,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -2321,7 +2731,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -2349,7 +2764,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:CL=F",
@@ -2377,7 +2797,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:BZ=F",
@@ -2405,7 +2830,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -2433,7 +2863,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -2461,7 +2896,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -2489,7 +2929,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -2517,7 +2962,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -2545,7 +2995,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -2573,7 +3028,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -2601,7 +3061,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:^NDX",
@@ -2629,7 +3094,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:CL=F",
@@ -2657,7 +3127,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:BZ=F",
@@ -2685,7 +3160,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:ZW=F",
@@ -2713,7 +3193,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:ZC=F",
@@ -2741,7 +3226,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:ZS=F",
@@ -2769,7 +3259,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -2797,7 +3292,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -2825,7 +3325,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -2853,7 +3358,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -2881,7 +3391,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -2909,7 +3424,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:ZB=F",
@@ -2937,7 +3457,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -2965,7 +3490,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -2993,7 +3523,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -3021,7 +3556,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ETHUSDT",
@@ -3049,7 +3589,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:^DJI",
@@ -3077,7 +3622,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:HG=F",
@@ -3105,7 +3655,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -3133,7 +3688,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -3161,7 +3721,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOGEUSDT",
@@ -3189,7 +3754,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:^NDX",
@@ -3217,7 +3787,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -3245,7 +3820,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -3273,7 +3853,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -3301,7 +3886,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -3329,7 +3919,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -3357,7 +3952,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -3385,7 +3985,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -3413,7 +4018,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -3441,7 +4051,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -3469,7 +4084,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -3497,7 +4117,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -3525,7 +4150,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "ADAUSDT",
@@ -3553,7 +4183,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -3581,7 +4216,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -3609,7 +4249,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -3637,7 +4282,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOGEUSDT",
@@ -3665,7 +4315,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:HG=F",
@@ -3677,7 +4332,7 @@
     "note": "Auto confluence-R long scalp: 60% confluence (strength 6). [TradFi 0-fee venue] LIMIT 6.436 (retrace 0.25 ATR from 6.445), stop 6.38, target 6.602 (3.0R, maker).",
     "created_at": "2026-06-13T14:03:47.463349+00:00",
     "id": "b567477d",
-    "status": "pending",
+    "status": "cancelled",
     "resolved_at": null,
     "entry": 6.435741262776511,
     "stop": 6.380187809467316,
@@ -3693,7 +4348,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -3721,7 +4381,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -3749,7 +4414,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -3777,7 +4447,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "YAHOO:^NDX",
@@ -3789,7 +4464,7 @@
     "note": "Auto confluence-R long scalp: 50% confluence (strength 5). [TradFi 0-fee venue] LIMIT 2.957e+04 (retrace 0.25 ATR from 2.964e+04), stop 2.919e+04, target 3.073e+04 (3.0R, maker).",
     "created_at": "2026-06-13T15:45:58.831375+00:00",
     "id": "e3e30719",
-    "status": "pending",
+    "status": "cancelled",
     "resolved_at": null,
     "entry": 29573.21554129464,
     "stop": 29187.2158203125,
@@ -3805,7 +4480,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -3817,14 +4497,14 @@
     "note": "Auto confluence-R long scalp: 70% confluence (strength 7). LIMIT 6.709 (retrace 0.25 ATR from 6.713), stop 6.682, target 6.789 (3.0R, maker).",
     "created_at": "2026-06-13T17:25:12.062860+00:00",
     "id": "c47c2172",
-    "status": "open",
-    "resolved_at": null,
+    "status": "hit",
+    "resolved_at": "2026-06-14T04:17:04.355748+00:00",
     "entry": 6.708553571428571,
     "stop": 6.681875,
     "target": 6.788589285714285,
     "direction": 1.0,
     "target_r": 3.0,
-    "outcome_r": null,
+    "outcome_r": 0.2791164658634631,
     "pending_limit": true,
     "signal_price": 6.713,
     "fill_deadline_days": 0.041666666666666664,
@@ -3833,7 +4513,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BTCUSDT",
@@ -3861,7 +4546,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "BNBUSDT",
@@ -3889,7 +4579,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "SOLUSDT",
@@ -3917,7 +4612,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "XRPUSDT",
@@ -3945,7 +4645,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "LINKUSDT",
@@ -3973,7 +4678,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "AVAXUSDT",
@@ -4001,7 +4711,12 @@
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOGEUSDT",
@@ -4013,23 +4728,28 @@
     "note": "Auto confluence-R long scalp: 70% confluence (strength 7). LIMIT 0.08791 (retrace 0.25 ATR from 0.08794), stop 0.08774, target 0.08842 (3.0R, maker).",
     "created_at": "2026-06-13T23:07:24.303289+00:00",
     "id": "14341a26",
-    "status": "pending",
-    "resolved_at": null,
+    "status": "miss",
+    "resolved_at": "2026-06-14T04:17:05.550777+00:00",
     "entry": 0.0879119642857143,
     "stop": 0.08774375000000001,
     "target": 0.08841660714285715,
     "direction": 1.0,
     "target_r": 3.0,
-    "outcome_r": null,
+    "outcome_r": -1.0,
     "pending_limit": true,
     "signal_price": 0.08794,
     "fill_deadline_days": 0.041666666666666664,
-    "filled_at": null,
+    "filled_at": "2026-06-13 23:10:00+00:00",
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   },
   {
     "symbol": "DOTUSDT",
@@ -4041,22 +4761,60 @@
     "note": "Auto confluence-R long scalp: 60% confluence (strength 6). LIMIT 0.9816 (retrace 0.25 ATR from 0.982), stop 0.9789, target 0.9896 (3.0R, maker).",
     "created_at": "2026-06-13T23:07:25.344810+00:00",
     "id": "9598f0d1",
-    "status": "pending",
-    "resolved_at": null,
+    "status": "miss",
+    "resolved_at": "2026-06-14T04:17:05.944129+00:00",
     "entry": 0.9815535714285714,
     "stop": 0.9788749999999999,
     "target": 0.9895892857142856,
     "direction": 1.0,
     "target_r": 3.0,
-    "outcome_r": null,
+    "outcome_r": -1.0,
     "pending_limit": true,
     "signal_price": 0.982,
     "fill_deadline_days": 0.041666666666666664,
+    "filled_at": "2026-06-13 23:20:00+00:00",
+    "tp1": null,
+    "tp1_frac": 0.5,
+    "be_after_tp1": true,
+    "tp1_filled_at": null,
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
+  },
+  {
+    "symbol": "XRPUSDT",
+    "kind": "bracket",
+    "level": 1.151814285714286,
+    "deadline_days": 0.75,
+    "setup": "confluence_r_60pct_tf",
+    "timeframe": "15m",
+    "note": "Auto confluence-R long scalp: 60% confluence (strength 6). LIMIT 1.152 (retrace 0.25 ATR from 1.153), stop 1.148, target 1.164 (3.0R, maker).",
+    "created_at": "2026-06-14T04:16:38.289051+00:00",
+    "id": "bcffa3ce",
+    "status": "pending",
+    "resolved_at": null,
+    "entry": 1.151814285714286,
+    "stop": 1.1477000000000002,
+    "target": 1.164157142857143,
+    "direction": 1.0,
+    "target_r": 3.0,
+    "outcome_r": null,
+    "pending_limit": true,
+    "signal_price": 1.1525,
+    "fill_deadline_days": 0.125,
     "filled_at": null,
     "tp1": null,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
     "tp1_filled_at": null,
-    "source": "bot"
+    "source": "bot",
+    "mode": "paper",
+    "strategy_version": null,
+    "position_size_usd": null,
+    "exchange_order_id": null,
+    "reason_closed": null
   }
 ]
