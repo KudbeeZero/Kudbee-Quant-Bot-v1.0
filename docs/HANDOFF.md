@@ -13,70 +13,70 @@
   or awaiting audit. Purely *observational* background tasks (e.g. the #18 watch loop)
   are exempt. The cross-session orchestration timeline now lives in the new
   **`docs/AGENT_ORCHESTRATION_LEDGER.md`** (complements this baton + `docs/audits/`).
-- **In flight (this session):** a small docs PR adding `docs/AGENT_ORCHESTRATION_LEDGER.md`
-  on branch `claude/agent-orchestration-ledger` (AWAITING_AUDIT). NOTE: an instruction
-  referencing a "HUD shell / PR #34 / REC-004 / process-deviation" was found to match
-  NOTHING in this repo (PR #34 → 404; no such files/branches) — so NO audit report was
-  fabricated for it; only the real ledger was created (honesty rule held).
-- **Last branch:** `claude/handoff-audit-3dgde4` (this chat — the audit-gate chat).
-- **Last PR:** **#27** — the audit reports + this baton reconciliation (docs-only).
-  https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/27
-- **Audit status:** `BACKLOG GATED — all PASS`. This chat ran `/handoff-audit` across
-  the whole open backlog:
-  - **#24** (execution head-to-head) — open `AWAITING_AUDIT` → independent gate
-    **PASS** → **MERGED** (`docs/audits/pr-24-audit.md`, 324 passed). Gate held.
-  - **#21** (dashboard) + **#23** (cycle backtest) — the un-gated merges → independent
-    **post-hoc PASS** (`docs/audits/pr-21-audit.md` / `pr-23-audit.md`, 322 passed).
-    Debt cleared.
-  - **#18** (top-100 + 5m on the LIVE Action) — user chose **MERGE as a paper
-    experiment**; rebased onto current `main`, MEMORY renumbered to **§43**, CI green →
-    **MERGED**. (Recorded honestly: this runs against §37/§31; it is NOT validated edge.)
-- ⚠️ **Residual un-gated debt (low-risk, optional back-fill):** **#25** (one-line
-  `psutil` add) + **#26** (dashboard history segmentation, frontend-only) were MERGED
-  from the UI without an audit; **#19** (vector-candle logger) likewise has no audit
-  report on disk. None block work; back-fill notes if you want the record complete.
-- **Gate streak (audited):** #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20,**#24**. (#21/#23
-  are post-hoc PASS — recorded, but they were merged before their gate, so they sit
-  outside the "gate held first" streak.)
-- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16** (live order path, PASS),
-  **#17** (near-miss autopsy, PASS), **#20** (new entry signals, PASS, `0244ba0`),
-  #19 (vector-candle logger) all MERGED to `main`.
-- **#15 CLOSED** (stale audit artifact for the already-audited PR #14 — superseded).
-- **Open PRs now:** only **#27** (this chat's docs PR). The #18/#24 backlog is closed.
+- **This chat = the WEBSITE chat.** Branch `claude/site-trade-demo` (off `main`). It is
+  a **front-end-only** session: a new animated "trade story" hero + a site-wide mobile /
+  polish / sitemap / font sweep. No `kudbee_quant/`, workflow, or `data/` changes.
+- **Last PR:** **#29** — site front-end only. (Opened draft, marked READY at closeout.)
+  https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/29
+- **Audit status:** `AWAITING_AUDIT` — next chat runs `/handoff-audit` on **#29** (a
+  diff/scope/honesty check; there are no engine changes to re-derive).
+- **Prior chats' PRs all merged:** **#27** (audit/baton) and **#28** (orchestration
+  ledger) are on `main` — the ledger content is live. The stale local
+  `claude/agent-orchestration-ledger` branch was superseded by the merged #28; ignore/
+  delete it. The leftover agent worktrees from this chat were pruned at closeout.
+- **🎯 MILESTONE (paper §43 experiment):** the **first post-#18 hourly run, #50**
+  (2026-06-15 18:27Z) **SUCCEEDED** — ~5m32s, no timeout / no Binance rate-limit crash
+  (longer than the old ~1–2 min, as expected for ~101 pairs × 5 TF). It logged **+83 new
+  setups across the top-100, incl. 27 on 5m**, to `data/journal.json` (`194013b`). The
+  §37 5m-fee-drag concern is now under live forward test — **watch #50's setups resolve**
+  over the coming hours/days; revert to top-10/no-5m if 5m re-confirms §37.
+- **Open PRs now:** only **#29**.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-This was the **gate-the-backlog** chat (`/handoff-audit`). It spawned independent
-arm's-length auditor subagents (each pinned to the PR's real `base.sha..head.sha`,
-verifying claims against the actual diff, running the suite) and applied the merge gate.
+A **front-end-only** session on the static marketing site. Built with two sub-agents in
+isolated worktrees (centerpiece + mobile sweep), integrated + verified here. The PR diff
+touches **only** `*.html`, `assets/css/*`, `assets/js/*`, `sitemap.xml` — **no
+`kudbee_quant/`, workflow, or `data/` changes.**
 
-- **PR #24 (execution head-to-head)** — was OPEN draft `AWAITING_AUDIT`. Auditor →
-  **PASS**: live path byte-unchanged (`bracket.py`/`resolver.py`/`validated_defaults.py`
-  not in diff), no-lookahead verified (market fills at `open[T+1]`, exits walk bars after
-  the fill), headline numbers reproduce from the committed JSON to 4dp, bootstrap p in
-  code, and the +1.1R cancelled-signal result is rigorously caveated as a selection-biased
-  DIAGNOSTIC in both the writeup and MEMORY §42. **Merged on PASS** (`docs/audits/pr-24-audit.md`).
-- **PR #21 (dashboard) + PR #23 (cycle backtest)** — post-hoc audits of the two
-  user-merged PRs. Both **PASS**: #21's auth/runner security primitives all hold
-  (timing-safe compare, signature actually verified, expiry enforced, whitelist dispatch,
-  no RCE/SSRF, `paper_scan(dry_run=True)` journal invariant test-enforced); #23's engine
-  fidelity = live rules, numbers un-rounded, `keep 0.5` data-backed, caveats honest.
-  (`docs/audits/pr-21-audit.md`, `pr-23-audit.md`.)
-- **PR #18 (top-100 + 5m on the LIVE Action)** — user-directed MERGE as a paper
-  experiment. Rebased the stale base onto current `main`, resolved the `MEMORY.md`
-  collision (its draft "§39" → **§43**), aligned the workflow cross-refs (§39→§43); the
-  workflow flip merged clean, `data/journal.json` byte-identical to main, CI green →
-  **merged**. It is a forward experiment, NOT validated edge — revert to top-10/no-5m if
-  it times out or re-confirms §37.
-- **This PR (#27)** is docs-only: the four audit reports + this baton. No `kudbee_quant/`
-  / workflow / `data/journal.json` / `data/alert_inbox/` changes. Suites reported by the
-  auditors: **322** (post-hoc #21/#23 state) and **324** (#24 state) passed.
+- **New animated "trade story" hero** — `assets/js/trade-story.js`,
+  `assets/css/trade-story.css`, standalone `trade-story.html`. A ~60s `<canvas>` loop of a
+  **W double-bottom + liquidity sweep** of a psychological low, **PVSRA vector candles**,
+  **daily-open / psych-high / psych-low** levels, and a 5-agent thinking/notes
+  choreography (Liquidity → PVSRA → Structure → Reviewer → Risk) ending in a **3R
+  bracket**. `prefers-reduced-motion` → one static composed frame; rAF pauses offscreen;
+  responsive to ~360px (narrow screens show **one bubble at a time**). **Clearly labelled
+  ILLUSTRATIVE — not live data, not a track record.** Replaced the old hero sparkline mock
+  in `index.html` (3-line wire-in: css link + mount `<div>` + script).
+- **Mobile / polish sweep** — `assets/css/style.css`, the page set, `sitemap.xml`,
+  `assets/js/main.js`: responsive fixes 360–768px, mobile nav hamburger (44px targets +
+  scroll-lock), fluid headings, compare-table scroll-snap, signals/equity/dash grid
+  collapses, `sitemap.xml` `lastmod` refresh, about-page compare-table highlight fix,
+  added the missing nav hamburger / CTA / `main.js` include to `lab` / `live-signals` /
+  `trade-flow`.
+- **Homepage font bug FIXED** — root cause: `lab` / `live-signals` / `trade-flow` loaded
+  Google Fonts **without the 400 weight**, poisoning the shared cache key so index body
+  text fell back to `system-ui`. Aligned all pages to `wght@400;500;600;700`.
+- **Public dev-message leak FIXED** — `live-signals.js` + `trade-flow.js` no longer print
+  visitors *"Backend unavailable … uvicorn kudbee_quant.api:app"*; graceful offline copy,
+  dev hint moved to `console.warn`. NB: the public static site has **no `/api` backend**,
+  so the 404 is expected — if a live backend is ever intended on the deployed marketing
+  site, that's a separate Render/Netlify-proxy task (NOT done here).
+- **Verification:** headless Chromium (Playwright) screenshots of desktop + mobile (360/
+  390px) + the wired homepage hero confirm candles, levels, vector colours, agent
+  bubbles/notes, and the 3R bracket all render. Suite green at closeout (pytest exit 0,
+  ~324 tests; the diff touches no Python).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/render-deploy-verify`.
-- **FIRST: merge PR #27** (this chat's audit/baton PR) so `main` is current, then start
-  the next branch. (Backlog gate is DONE — #18/#24 merged, #21/#23 post-hoc PASS.)
+- **Slug hint (ADVISORY only):** `claude/handoff-audit` → then `claude/render-deploy-verify`.
+- **FIRST: run `/handoff-audit` on PR #29** (this chat's WEBSITE PR), merge on PASS so
+  `main` is current. It's front-end only — the audit is a diff/scope/honesty check (assert
+  no `kudbee_quant/`/workflow/`data/` changes; the trade-story stays labelled illustrative;
+  the font/leak fixes are real). Then start the next branch.
+- **Also worth a glance:** the §43 paper experiment — run **#50** (first post-#18) ran
+  clean and opened 83 setups incl. 27 on 5m; check the next runs for timeouts and whether
+  the 5m setups resolve net-negative (fee drag, §37) → revert top-100/5m if so.
 - **Scope (deferred, now unblocked):** **Deploy + verify the dashboard (PR #21) on
   Render.** Stand up the service from `render.yaml`, set env vars
   (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus existing
@@ -161,3 +161,10 @@ verifying claims against the actual diff, running the suite) and applied the mer
   #18 (top-100+5m, §43) after a rebase. Flagged #25/#26/#19 as residual low-risk un-gated
   debt. Reports: `docs/audits/pr-{21,23,24}-audit.md`. Next scope: deploy + verify the
   dashboard on Render.
+- 2026-06-15: PR #29 (`claude/site-trade-demo`) — WEBSITE chat (front-end only). New
+  animated "trade story" hero (W-sweep, PVSRA vector candles, daily-open/psych levels,
+  5-agent thinking/notes → 3R bracket; illustrative, reduced-motion + mobile aware) +
+  mobile/sitemap/font sweep + homepage font-cache-poisoning fix + removed the public
+  "uvicorn …" dev-message leak on live-signals/trade-flow. Verified via headless
+  screenshots; suite green. AWAITING_AUDIT. Also observed: first post-#18 paper run #50
+  succeeded (+83 setups, 27 on 5m). Next scope: audit #29, then resume Render deploy+verify.
