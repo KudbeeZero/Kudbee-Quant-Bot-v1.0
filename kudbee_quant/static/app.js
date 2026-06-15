@@ -144,26 +144,74 @@
   }
 
   // ---- history ----
+  function historyQuery(extra) {
+    const p = new URLSearchParams({ status: "closed" });
+    const tf = $("#f-tf").value, sym = $("#f-symbol").value.trim().toUpperCase(), mode = $("#f-mode").value;
+    if (tf) p.set("timeframe", tf);
+    if (sym) p.set("symbol", sym);
+    if (mode) p.set("mode", mode);
+    if (extra) for (const [k, v] of Object.entries(extra)) v ? p.set(k, v) : p.delete(k);
+    return "/api/trade-history?" + p.toString();
+  }
+
   async function loadHistory() {
     try {
-      const d = await api("/api/trade-history?status=closed");
-      const a = d.analytics || {};
+      const d = await api(historyQuery());
+      const a = d.portfolio || {};
+      const n = a.total_trades ?? (d.trades || []).length;
+      $("#f-summary").textContent = `${n} closed trades · ${a.n_resolved ?? 0} resolved`;
       const rows = [
-        ["trades", (d.trades || []).length], ["win rate", pct(a.win_rate)],
+        ["trades", n], ["win rate", pct(a.win_rate)],
         ["expectancy", fmt(a.expectancy_r, 3) + "R"], ["profit factor", fmt(a.profit_factor, 2)],
-        ["avg win", fmt(a.avg_win_r, 2) + "R"], ["avg loss", fmt(a.avg_loss_r, 2) + "R"],
-        ["TP1 hit", pct(a.tp1_hit_rate)], ["stop hit", pct(a.stop_hit_rate)],
+        ["total R", coloredR(a.total_r)], ["avg win", fmt(a.avg_win_r, 2) + "R"],
+        ["avg loss", fmt(a.avg_loss_r, 2) + "R"],
       ];
       $("#history-analytics").innerHTML = rows.map(([k, v]) =>
-        `<div class="flex justify-between py-0.5"><span class="text-muted">${esc(k)}</span><span>${esc(v)}</span></div>`).join("");
-      drawEquity(a.equity_curve || []);
+        `<div class="flex justify-between py-0.5"><span class="text-muted">${esc(k)}</span><span>${v}</span></div>`).join("");
+      drawEquity(d.equity_curve || []);
+
+      // By symbol — worst total R first (where the bleeding is).
+      const sym = Object.entries(a.per_symbol || {})
+        .sort((x, y) => x[1].total_r - y[1].total_r);
+      $("#by-symbol").innerHTML = sym.length
+        ? table(["symbol", "n", "total R", "exp"], sym.map(([s, v]) =>
+            [esc(s), v.n, coloredR(v.total_r), coloredR(v.expectancy_r)]))
+        : `<div class="text-muted text-xs">no data</div>`;
+
+      // By hour (UTC) — expectancy per hour-of-day.
+      const hr = Object.entries(a.per_hour || {}).sort((x, y) => +x[0] - +y[0]);
+      $("#by-hour").innerHTML = hr.length
+        ? table(["hour", "n", "exp"], hr.map(([h, v]) =>
+            [String(h).padStart(2, "0") + ":00", v.n, coloredR(v.expectancy_r)]))
+        : `<div class="text-muted text-xs">no data</div>`;
+
       const t = (d.trades || []).slice(-40).reverse();
       $("#history-table").innerHTML = t.length
-        ? table(["symbol", "dir", "result", "R", "exit", "opened"],
-            t.map((p) => [p.symbol, dirArrow(p.direction), p.status,
-              coloredR(p.outcome_r), esc(p.exit_reason || "—"), (p.created_at || "").slice(0, 16)]))
+        ? table(["symbol", "tf", "dir", "result", "R", "opened"],
+            t.map((p) => [p.symbol, esc(p.timeframe || "—"), dirArrow(p.direction), p.status,
+              coloredR(p.outcome_r), (p.created_at || "").slice(0, 16)]))
         : `<div class="text-muted text-xs">no closed trades</div>`;
+
+      loadByTimeframe();
     } catch (e) { $("#history-analytics").innerHTML = `<div class="text-danger text-xs">${esc(e.message)}</div>`; }
+  }
+
+  // By timeframe — one call per TF (respects symbol/mode filters), so you can
+  // see which timeframe is actually carrying or bleeding the book.
+  async function loadByTimeframe() {
+    const TFS = ["5m", "15m", "1h", "2h", "4h"];
+    try {
+      const results = await Promise.all(TFS.map((tf) =>
+        api(historyQuery({ timeframe: tf })).then((d) => [tf, d]).catch(() => [tf, null])));
+      const rows = results.filter(([, d]) => d && (d.trades || []).length).map(([tf, d]) => {
+        const a = d.portfolio || {};
+        return [tf, a.total_trades ?? (d.trades || []).length, pct(a.win_rate, 0),
+                coloredR(a.total_r), coloredR(a.expectancy_r)];
+      });
+      $("#by-tf").innerHTML = rows.length
+        ? table(["tf", "n", "win%", "total R", "exp"], rows)
+        : `<div class="text-muted text-xs">no data</div>`;
+    } catch (e) { $("#by-tf").innerHTML = `<div class="text-danger text-xs">${esc(e.message)}</div>`; }
   }
 
   function drawEquity(curve) {
@@ -332,6 +380,10 @@
     await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
     window.location.href = "/login";
   });
+  $("#f-apply").addEventListener("click", loadHistory);
+  $("#f-tf").addEventListener("change", loadHistory);
+  $("#f-mode").addEventListener("change", loadHistory);
+  $("#f-symbol").addEventListener("keydown", (e) => { if (e.key === "Enter") loadHistory(); });
 
   showTab("overview");
   loadOverview();
