@@ -10,11 +10,30 @@
 - **Last branch:** `claude/confluence-new-signals-audit-a6gxt6`
 - **Last PR:** #20 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/20
   (new entry signals, opt-in/default-OFF, independently validated).
-- **Audit status:** `AWAITING_AUDIT`.
+- **Audit status:** `MERGED (audit PASS)` — PR #20 gated by `claude/handoff-audit-h90pmc`
+  (independent arm's-length subagent, isolated worktree): 304/304 reproduced,
+  default-OFF byte-identical invariance re-verified, §1/`FEE_PCT`/journal/alert_inbox
+  untouched, parsimony honored (no new vote), honest-negative reports (2 of 3 signals
+  OOS-failures, IS/OOS separated). Report `docs/audits/pr-20-audit.md`. Merged at
+  `0244ba0` — note: the branch had **no GitHub CI check** (none triggered); the
+  auditor reproduced the full green suite + ruff locally and the user approved the
+  merge on that basis. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
 - Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS, merged from UI), **#16** (live
   order-placement, audit PASS), **#17** (near-miss autopsy, audit PASS), #19
-  (vector-candle logger) all MERGED to `main`. Gate streak:
-  #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
+  (vector-candle logger) all MERGED to `main`.
+- **PROTOCOL BREAKDOWN flagged this session (parallel chats):** the `claude/handoff-audit-h90pmc`
+  session found 4 un-gated PRs the prior baton never mentioned. Resolved #20 (above).
+  **Still needing attention:**
+  - **#18 OPEN — top-100 universe + 5m re-enable on the LIVE hourly Action**
+    (user-directed §39). CI green, but it changes production *against our own evidence*
+    (§37 5m fee-poison, §31 unproven top-100 tail — the PR is honest about this). NOT
+    audited, NOT merged — held for an explicit user go (it's a paper-book experiment,
+    defensible, but it is a live-automation change).
+  - **#19 MERGED from the UI without an audit** (vector-candle logger, research-only,
+    `data/vector_log.json` new artifact) — no post-hoc audit report on disk yet.
+  - **#15 OPEN, stale** — docs-only audit artifact for PR #14 from a parallel chat;
+    PR #14 was already audited via `docs/audits/claude-hello-3vl2b8.md`. Recommend close
+    as superseded.
 
 ## What this chat did (for the auditor to verify against the diff)
 
