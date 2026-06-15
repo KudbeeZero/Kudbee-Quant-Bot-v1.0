@@ -13,11 +13,17 @@ def resample_ohlcv(df: pd.DataFrame, rule: str) -> pd.DataFrame:
     s = df.copy()
     s["timestamp"] = pd.to_datetime(s["timestamp"], utc=True)
     s = s.set_index("timestamp")
-    agg = pd.DataFrame({
+    cols = {
         "open": s["open"].resample(rule, label="left", closed="left").first(),
         "high": s["high"].resample(rule, label="left", closed="left").max(),
         "low": s["low"].resample(rule, label="left", closed="left").min(),
         "close": s["close"].resample(rule, label="left", closed="left").last(),
         "volume": s["volume"].resample(rule, label="left", closed="left").sum(),
-    }).dropna(subset=["open", "high", "low", "close"])
+    }
+    # Preserve taker-buy volumes (summed) when present, so bar-delta / CVD survive
+    # resampling to non-native timeframes. No-op on frames without them.
+    for c in ("taker_buy_base", "taker_buy_quote", "quote_volume"):
+        if c in s.columns:
+            cols[c] = s[c].resample(rule, label="left", closed="left").sum()
+    agg = pd.DataFrame(cols).dropna(subset=["open", "high", "low", "close"])
     return agg.reset_index()
