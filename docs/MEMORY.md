@@ -1174,7 +1174,182 @@ has NEVER placed a real order in production** — treat as unproven live.
   stays the documented opt-in). Doc: `docs/LIVE_TRADING_SETUP.md` (rewritten;
   testnet smoke-test runbook included).
 
-## 39. Hourly scan flipped to TOP-100 + 5m RE-ENABLED — user-directed forward experiment (against §37/§31) — 2026-06-14
+## 39. New-signals audit — 3 signals built opt-in & validated; meta-gate lift is near the noise floor — 2026-06-14
+
+Extended the entry system with genuinely-missing signals (NOT re-adding the 5
+removed votes), each opt-in/OFF and validated on real 1h data (top-10 majors,
+8000 bars, canonical bracket). Branch `claude/confluence-new-signals-audit`.
+Honest, mixed-to-negative outcome — kept as infrastructure, NOT enabled live.
+
+- **Signal #1 taker delta / CVD / delta-divergence** (`levels/delta.py`, derived
+  from `taker_buy_base` which `ingest/binance.py` parsed then DROPPED — now kept).
+  As a `confluence_position(delta_align=)` FILTER it **fails OOS** (+0.019R→−0.009R,
+  helps in-sample only — same failure mode as the 5 removed votes). As meta-model
+  FEATURES it **passes** the GBT expectancy-gate (flips to significant p=0.0073,
+  +0.094R best-threshold). Linear model sees nothing → nonlinear/tail-only.
+- **Signal #2 per-session volume profile** POC/VAH/VAL/naked POC
+  (`levels/volume_profile.py`, opt-in in `LEVEL_COLUMNS` via `OPTIONAL_LEVEL_COLUMNS`).
+  Proximity FILTER is **inconclusive** (lifts OOS +0.057R but DEGRADES in-sample and
+  halves trades — regime-dependent). FEATURES pass the gate but **near-boundary**.
+- **Signal #3 killzone gate** (`confluence_position(killzone_gate=)`): **FAILS OOS**
+  (+0.019R→−0.067R). The hour map is the real find: **in-killzone hours +0.021R vs
+  OFF-hours +0.102R (~5×)** — 16h UTC is one of the best hours and is OFF-killzone;
+  06h is a weak killzone hour. The FX London/NY/Brinks folklore does NOT hold on a
+  24/7 crypto book. (Engine walk_forward disagreed — killzone helped the always-in
+  Sharpe — but the bracket is what we trade; resolved to the bracket = discard.)
+- **KEY meta-lesson:** the GBT expectancy-gate baseline sits at p≈0.064 (right at the
+  boundary), and BOTH Signal #1's delta features AND Signal #2's vp features tip it to
+  ~p=0.005 with a near-identical best gated expectancy (~0.329R). Two unrelated feature
+  sets landing in the same place = the marginal lift is **small and near the noise
+  floor**, not a banked edge. Don't enable in live gating on one window — forward-test.
+- **60% confluence band:** the stale −31R figure does NOT reproduce — OOS the ~0.60
+  band is **+0.25R (net-positive)**, one of the better bands; `delta_align`/killzone
+  do not rescue it (they hurt it). This independently **corroborates PR #17's
+  near-miss autopsy** (don't drop the 60% band — it's net-positive OOS).
+- Files: 3 opt-in modules behind `config/features.py` flags (default OFF) + 3
+  `confluence_position` filter params (default OFF); validation scripts under
+  `scripts/validate_*`; per-signal reports under `docs/research/signal-{1,2,3}-*.md`.
+  No live-config change. Defaults §1 / `FEE_PCT` untouched.
+
+## 40. Admin/investor dashboard overhaul — login gate + Tailwind + curated runner — 2026-06-15
+
+Front-end re-haul (this chat's PR, branch `homepage-admin-dashboard-redesign`).
+User-confirmed scope: shared-password login now (no email/DB yet), a curated
+(non-RCE) test runner, and Tailwind via a compiled build step.
+
+- **Auth (`kudbee_quant/api_auth.py`):** ONE shared password
+  (`KUDBEE_DASHBOARD_PASSWORD`) → a stateless, HMAC-signed session cookie
+  (`kudbee_session`, HttpOnly/Secure/SameSite=Lax, 12h; key `KUDBEE_SESSION_SECRET`).
+  Hand-rolled (native `hmac`, no new dep), **fail-closed** like `check_token`
+  (unset ⇒ 503/locked; wrong ⇒ 401; constant-time). `/` and `/dashboard` redirect
+  to `/login` without a session; gated APIs return 401. Payload dict shape leaves
+  room for `sub`/`role` when real accounts land. Login limiter 5/min.
+- **Curated runner (`kudbee_quant/api_runner.py`):** fixed-dict whitelist of
+  ENGINE actions (signal/backtest/validate/sweep/bracket-sweep/paper-scan), every
+  param Pydantic-bounded + symbol-whitelisted; async in-memory jobs on a 2-worker
+  pool (429 when busy), `POST /api/run/{action}` → poll `GET /api/run/{id}`.
+  **NOT a code executor.** **NEVER writes the journal:** paper-scan uses the NEW
+  `paper_scan(dry_run=True)` seam (the only change to `paper/paper.py`) — guarded
+  by `test_paper_scan_dry_run_never_writes_journal`. Results are EPHEMERAL
+  (in-memory; gone on redeploy) — surfaced honestly in the UI.
+- **New gated read endpoints:** `/api/open-trades`, `/api/trade-history`,
+  `/api/research` (wrap `review.py` + research JSON/`family_ledger`). Public
+  marketing reads unchanged.
+- **Tailwind (compiled + committed):** `package.json`/`tailwind.config.js`/
+  `assets/css/tailwind.css` → `npm run build` writes `assets/css/app.css` and
+  copies to `kudbee_quant/static/app.css`. Both compiled files committed so
+  Netlify (`command=""`) and the Render `pip install` build need no Node.
+  `node_modules/` gitignored.
+- **CSP — now THREE sources of truth:** `netlify.toml` + `_headers` (static host)
+  and a NEW strict FastAPI response header in `api.py` (`script-src 'self'`, no
+  inline) for the Render-served dashboard/login (which had NO CSP before). That's
+  why dashboard/login JS is external (`static/app.js`, `static/login.js`).
+  `netlify.toml` CSP left as-is (still `style-src 'unsafe-inline'`) — NOT tightened,
+  because the marketing pages still use inline styles; do that audit before dropping it.
+- **SEO:** dashboard/login carry `noindex` meta + `X-Robots-Tag`, and robots.txt
+  disallows them. `llms.txt`/sitemap already current (no new public pages added).
+- **Status:** 301 passed (was 259+5 skipped; +17 new auth/runner tests, skips now
+  run with deps installed); new files ruff-clean (pre-existing api.py B904/E402 left
+  as the file's style). Smoke-tested locally end-to-end (login→cookie→dashboard,
+  static assets, gating, headers). §1 / `FEE_PCT` / journal / alert_inbox untouched;
+  no secrets committed.
+- **UNVERIFIED in production:** never deployed to the real Render host (no service
+  exists yet — see HOSTING.md). Email-verified self-serve accounts + captcha + API
+  keys are a deliberate later phase (need an email provider + persistent store).
+
+## 41. Cycle-aware OOS backtest — the live 1h config survives the regime; min_pct 0.6 refuted OOS — 2026-06-15
+
+Ran the EXACT live rules (`confluence_position(min_pct=0.5, trend_align=True)` +
+`bracket_backtest(stop_atr=1.5, target_r=3.0, limit_retrace_atr=0.25, max_bars=24)`,
+the canonical `BRACKET_KW`) over two prior-cycle CHOP analogs (2018-07/10 and
+2022-05/08 — the equivalent ~786-day-post-halving phase we are in now) plus a broad
+recent span (2024-06→now), at 5m/15m/1h. **137,326 resolved OOS trades** (params
+frozen at validated defaults, never refit; all three regimes unseen). Fees modeled
+gross→full-taker (0.09% round-trip, §25). Code: `scripts/cycle_backtest.py` +
+`scripts/cycle_backtest_matrix.py`; report `docs/research/cycle_backtest.md`; new
+`BinanceClient.klines_range()` (forward-paging date-window fetch, disk-cached).
+
+FINDINGS (net-of-fees, the honest lens):
+- **Timeframe is decisive (this is the headline).** 1h: **+0.096R net-maker /
+  +0.060R net-FULL-taker**, n=8,124, bootstrap p<0.001 — positive and taker-survived.
+  15m: +0.037R maker but NEGATIVE at taker in every regime (maker-only / cost-fragile).
+  5m: −0.046R maker, −0.19R taker — DEAD in every regime (vindicates the §37 pause).
+- **Do NOT quote the pooled "overall" (−0.019R, p=1.000) without context** — it is
+  71% 5m trades, i.e. a book the live bot doesn't trade. Restricted to the validated
+  1h TF the edge is clean and >1,000 OOS trades (8,124).
+- **Survives the CURRENT regime:** recent 1h is the STRONGEST (+0.102/+0.064, n=6723,
+  p<0.001). **Survives the CHOP analogs but thinner & low-confidence:** 2018 1h
+  +0.121/+0.085 (n=450), 2022 1h +0.043/+0.019 (n=951, weakest, not individually
+  significant). Regime-DAMPENED, not regime-broken — consistent with §1 "thinner in
+  chop". CAVEAT: the chop samples are small; treat "survives chop" as positive-but-
+  low-confidence, not proven.
+- **min_pct 0.5→0.6 is REFUTED OOS — in every regime.** On 1h the 50% band is the
+  BEST band (+0.103R) and per-R expectancy FALLS as the floor rises (ALL: 0.5 +0.096
+  → 0.6 +0.040 → 0.7 +0.005); at 0.6 the **2022 chop analog flips NEGATIVE**
+  (+0.043→−0.020). This closes the long-pending `--min-pct 0.6` question (PR #17/#20
+  baton): the OOS answer is **NO — keep 0.5.** Corroborates the autopsy OVERFIT verdict.
+- High-confluence 1h bands (70/80+) go NEGATIVE in both chop analogs — "more
+  confluence = safer" is itself regime-fragile.
+
+ACTION: **affirm the live config exactly (1h, 0.5, trend-on, 3R, 1.5-ATR, 0.25
+maker) — no change.** Keep 5m paused, do not add 15m at size, keep min_pct at 0.5,
+size conservatively in the current chop regime (1h net-taker cushion is thin,
+~+0.02–0.06R). Method note: prior OOS scripts (`near_miss_oos.py`) ran the engine
+with DEFAULT bracket args (market entry, 1.0 stop, flat fee) — NOT the live
+execution; this run uses the exact live bracket so costs/fills match production.
+
+
+## 42. Execution head-to-head — maker-retrace WINS net-of-fees on every TF; market entry never wins; cancels ARE the runners but aren't harvestable by blanket market — 2026-06-15
+
+OFFLINE research (TASK 2026-06-15). Tested whether entering at the signal with a
+MARKET order beats the live 0.25-ATR maker retrace, on the SAME OOS sample. Live
+path untouched. Harness: `kudbee_quant/backtest/execution_modes.py` (+6 tests),
+`scripts/execution_backtest.py`; full results `data/execution_backtest_results.json`;
+writeup `docs/EXECUTION_BACKTEST.md`. Signal = the real production
+`confluence_position(min_pct=0.50, trend_align=True)`; geometry = validated §1
+(1.5-ATR stop, 3R, retrace 0.25, entry_window 6). **Per-leg honest fees** (§25):
+taker 0.00045/side IN and on every stop/time-stop (market out), maker 0.0002/side
+on resting limit fills and targets. OOS = 2018_chop (5 majors), 2022_chop (10),
+recent (10); 5m fetched + resampled to 15m/1h so all TFs share the same bars.
+
+VERDICT (decisive metric = net-of-fees expectancy/trade, pooled): **the CURRENT
+maker retrace (A) wins on all three timeframes and in all 9 regime cells.**
+- 1h: A **+0.1265R** (p=0.000) > C hybrid +0.065 > B market +0.055. A survives both
+  chop windows (2018 +0.249, 2022 +0.087, recent +0.109). This is the winning
+  execution; honestly-costed number **+0.1265R/trade** (legacy round-trip-maker
+  costing: +0.1397R). Lower than the §1 ~+0.19-0.24R headline because 2/3 windows
+  are chop/bear AND stops now pay taker (more conservative than the old model).
+- 15m: A ≈ breakeven +0.0014R (p=0.45, NOT significant) but still beats B (−0.096).
+- 5m: ALL lose; **market makes 5m WORSE** (B −0.204 vs A −0.100). §37 reinforced —
+  no execution change rescues the fee-poisoned 5m book (hypothesis tested, not
+  assumed). Maker beats market by ~+0.07–0.10R/trade on every TF; hybrid always
+  sits between (pays taker on the chase).
+
+ADVERSE SELECTION (STEP 3, the key one): the ~14-15% of signals the retrace CANCELS,
+re-resolved as market entries, are **strong net winners every regime** (1h +1.22R
+69.9% win, 15m +1.11R, 5m +1.10R; all p=0.000, large n). So the retrace IS
+anti-selecting — a long is "cancelled" precisely when price never pulled back, i.e.
+it ran immediately; the book fills pullbacks/reversals and skips the runners.
+**BUT this is NOT a reason to switch to market entry**, for two honest reasons:
+(1) you can't isolate the cancels in real time — the only tradeable version is
+"take every signal at market" = variant B, which LOSES on every TF (the reversals
+cost more than the runners gain); (2) the +1.1R is UPWARD-BIASED by selection
+conditioning (cancellation = no 0.25-ATR pullback in 6 bars correlates with not
+being stopped, since the stop is 1.5 ATR away). Treat +1.1R as a *diagnostic that
+cancels lean to runners*, not as harvestable edge.
+
+DEAD END logged (so we don't re-test): blanket market / next-bar-open entry, and
+limit-then-market hybrid, both LOSE vs the maker retrace on 5m/15m/1h. NO live
+change. The only open follow-up (future research, forward-test first): a SELECTIVE
+chase that market-fills a cancelled signal ONLY under a momentum/trend gate — the
+seam exists (`run_variant` + `adverse_selection`). §1 / FEE_PCT / journal / live
+path all untouched.
+
+## 43. Hourly scan flipped to TOP-100 + 5m RE-ENABLED — user-directed forward experiment (against §37/§31) — 2026-06-14 (merged 2026-06-15)
+
+> Originally drafted as "§39" in PR #18; renumbered to §43 on merge (§39 was taken by
+> the new-signals audit). Merged 2026-06-15 via the `/handoff-audit` chat at the user's
+> explicit direction ("merge it as a paper experiment").
 
 The user directed the hourly paper Action to scan the **full top-100 universe**
 (`config/crypto_universe.yaml`, ~101 pairs via `universe_loader.universe_specs()`)
@@ -1182,11 +1357,12 @@ and to **re-enable the 5m timeframe** — `--intervals 5m 15m 1h 2h 4h`. This is
 config the user originally expected ("5m across the top 100"); the bot had been
 running top-10 on 15m/1h/2h/4h with 5m paused.
 
-HONESTY — this runs AGAINST our own evidence, and the user confirmed twice after it
-was flagged:
+HONESTY — this runs AGAINST our own evidence, and the user confirmed (twice when the
+PR was drafted, and again on the merge decision):
 - **5m is fee-poisoned (§37):** forward-confirmed gross-flat / net-negative purely
   on fees (tiny 5m ATR ⇒ huge fee in R). The near-miss autopsy (PR #17) re-confirmed
-  no R:R tweak rescues the low/sub-hourly book at taker cost.
+  no R:R tweak rescues the low/sub-hourly book at taker cost. The cycle backtest (§41)
+  and execution head-to-head (§42) both re-confirm 5m is net-dead.
 - **Top-100 long tail is UNPROVEN forward (§31):** only the top-10 majors are
   walk-forward validated; the tail is a static snapshot, thinner/wider-spread.
 
@@ -1200,5 +1376,5 @@ is ~50× the prior API/build_levels load — watch for Action runtime/timeout an
 Binance rate-limits (mirror `data-api.binance.vision`); the bot-owned
 `data/journal.json` will grow much faster. If the Action times out or the 5m book
 re-confirms §37, REVERT to the top-10 / no-5m config. Change shipped in
-`.github/workflows/paper-trade.yml` (the §37 pause comment replaced with the §39
+`.github/workflows/paper-trade.yml` (the §37 pause comment replaced with the §43
 forward-experiment note). §1 defaults / `FEE_PCT` untouched.

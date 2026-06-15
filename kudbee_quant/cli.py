@@ -520,6 +520,44 @@ def _paper_scan(args) -> None:
           "expectancy.\nThis accumulates a FORWARD record on unseen data. Not financial advice.")
 
 
+def _vector_scan(args) -> None:
+    from .signals.vector_log import scan_and_log
+    new = scan_and_log(args.symbols, args.intervals, limit=args.limit,
+                       last_only=not args.all)
+    if not new:
+        print("No new vector (climax) candles since the last scan.")
+        return
+    print(f"Logged {len(new)} new vector candle(s) to data/vector_log.json:")
+    for e in new:
+        agree = "agree" if e.agree else "fights"
+        print(f"  {e.symbol} [{e.timeframe}] {e.vector} @ {e.close:.4g}  "
+              f"at {e.level} ({e.level_dist_atr:+.2f} ATR)  vol x{e.vol_ratio:.1f}  "
+              f"conf {e.confluence_pct:.0%} ({agree})  {e.timestamp}")
+    print("\nA vector candle marks WHERE volume showed up — a hypothesis, not a "
+          "signal. Run `vector-study` to test whether these precede a move.")
+
+
+def _vector_study(args) -> None:
+    from .signals.vector_study import study_symbols, summarize
+    rows = study_symbols(args.symbols, args.intervals, limit=args.limit,
+                         max_bars=args.max_bars, stop_atr=args.stop_atr,
+                         target_r=args.target_r)
+    if not rows:
+        print("No vector candles found over the requested window.")
+        return
+    print(f"Vector-candle study — {len(rows)} climax candles, simulated as a "
+          f"{args.target_r}R bracket from the close (taker fee in R, NET shown).")
+    for by, title in [(("level",), "by chart location (where it formed)"),
+                      (("agree",), "by confluence agreement"),
+                      (("vector", "timeframe"), "by climax type x timeframe")]:
+        print(f"\n== {title} ==")
+        t = summarize(rows, by)
+        print(t.to_string(index=False, float_format=lambda x: f"{x:.3f}"))
+    print("\nHONEST: market-at-close (taker) entry — the conservative read; the live "
+          "system enters on a maker limit-retrace (cheaper). §37: trading 1m/5m is "
+          "fee-poisoned. Treat positive buckets as hypotheses to forward-test.")
+
+
 def _trace_glyphs() -> tuple[str, str, str]:
     """(agree, oppose, neutral) glyphs, ASCII fallback if stdout can't encode."""
     import sys
@@ -812,6 +850,26 @@ def main() -> None:
     ps.add_argument("--trend-filter", action="store_true",
                     help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%)")
     ps.set_defaults(func=_paper_scan)
+
+    vs = sub.add_parser("vector-scan",
+                        help="log PVSRA vector (climax) candles + where on the chart they formed")
+    vs.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
+    vs.add_argument("--intervals", nargs="+", default=["5m", "15m", "1h"],
+                    help="timeframes to scan for vector candles")
+    vs.add_argument("--limit", type=int, default=300, help="bars to fetch per symbol/TF")
+    vs.add_argument("--all", action="store_true",
+                    help="log EVERY climax in the window (default: only the latest bar)")
+    vs.set_defaults(func=_vector_scan)
+
+    vst = sub.add_parser("vector-study",
+                         help="do vector (climax) candles precede a move? bucketed by chart location")
+    vst.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT")
+    vst.add_argument("--intervals", nargs="+", default=["5m", "15m", "1h"])
+    vst.add_argument("--limit", type=int, default=1000, help="bars of history per symbol/TF")
+    vst.add_argument("--max-bars", type=int, default=24, help="forward bars to resolve each trade")
+    vst.add_argument("--stop-atr", type=float, default=1.0)
+    vst.add_argument("--target-r", type=float, default=3.0)
+    vst.set_defaults(func=_vector_study)
 
     rot = sub.add_parser("review-open-trades",
                          help="detailed report of every open/pending trade (+ portfolio)")

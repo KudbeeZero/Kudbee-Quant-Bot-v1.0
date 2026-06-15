@@ -6,7 +6,7 @@ name: Forward paper-trade (confluence-R)
 # 5m/15m/1h/2h/4h. Runs hourly: logs new setups, resolves pending/open trades,
 # commits the journal so a real forward track record accumulates with no babysitting.
 #
-# NOTE (user-directed 2026-06-14, §39): the top-100 universe AND the 5m timeframe
+# NOTE (user-directed 2026-06-14, §43): the top-100 universe AND the 5m timeframe
 # were turned ON at the user's explicit request. This runs AGAINST our own evidence
 # — 5m was net-negative purely on fees (§37) and the top-100 long tail is unproven
 # forward (§31). It is a PAPER forward experiment: the goal is to GENERATE the data
@@ -47,7 +47,7 @@ jobs:
       - name: Scan for new setups + resolve open trades
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
-          # TOP-100 universe + 5m RE-ENABLED 2026-06-14 at user request (§39) — a
+          # TOP-100 universe + 5m RE-ENABLED 2026-06-14 at user request (§43) — a
           # paper forward experiment that runs AGAINST §37 (5m fee drag) and §31
           # (long tail unproven). Symbols come from config/crypto_universe.yaml via
           # the fail-safe universe loader; 5m is back in the interval set.

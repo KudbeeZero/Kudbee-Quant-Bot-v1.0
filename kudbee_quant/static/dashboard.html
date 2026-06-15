@@ -1,745 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Kudbee Quant — Mission Control</title>
-  <style>
-    :root {
-      --bg:       #07071a;
-      --panel:    #0e0e2a;
-      --border:   #1e1e4a;
-      --accent-y: #ffd700;
-      --accent-g: #00ff88;
-      --accent-r: #ff4560;
-      --accent-b: #3a86ff;
-      --text:     #c8d0e8;
-      --muted:    #5a6080;
-      --font: 'Courier New', Courier, monospace;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ─── Particle canvas ─── */
-    #particles {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    }
-
-    /* ─── Layout ─── */
-    .shell {
-      position: relative; z-index: 1;
-      max-width: 1400px; margin: 0 auto;
-      padding: 24px 20px 60px;
-    }
-
-    /* ─── Header ─── */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      border-bottom: 1px solid var(--border); padding-bottom: 16px; margin-bottom: 28px;
-    }
-    .logo { display: flex; align-items: center; gap: 14px; }
-    .logo-hex {
-      width: 44px; height: 44px;
-      background: linear-gradient(135deg, #1a0a50, #0a2060);
-      border: 2px solid var(--accent-y);
-      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: var(--accent-y); font-weight: bold;
-    }
-    .logo-text { line-height: 1.2; }
-    .logo-text strong { font-size: 18px; color: var(--accent-y); letter-spacing: 2px; }
-    .logo-text span { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
-    .header-right { display: flex; align-items: center; gap: 20px; }
-    .clock { font-size: 13px; color: var(--accent-g); letter-spacing: 1px; }
-    .api-cfg { display: flex; gap: 8px; }
-    .api-cfg input {
-      background: var(--panel); border: 1px solid var(--border); color: var(--text);
-      padding: 5px 10px; font-family: var(--font); font-size: 11px; border-radius: 3px;
-      width: 220px;
-    }
-    .api-cfg button {
-      background: #1a1a40; border: 1px solid var(--accent-b); color: var(--accent-b);
-      padding: 5px 12px; font-family: var(--font); font-size: 11px; border-radius: 3px;
-      cursor: pointer; letter-spacing: 1px;
-    }
-    .api-cfg button:hover { background: var(--accent-b); color: var(--bg); }
-
-    /* ─── Status bar ─── */
-    .statusbar {
-      display: flex; gap: 20px; flex-wrap: wrap;
-      margin-bottom: 24px; padding: 10px 14px;
-      background: var(--panel); border: 1px solid var(--border); border-radius: 4px;
-      font-size: 11px; letter-spacing: .5px;
-    }
-    .statusbar .item { display: flex; gap: 6px; align-items: center; }
-    .dot { width: 6px; height: 6px; border-radius: 50%; }
-    .dot.green { background: var(--accent-g); box-shadow: 0 0 6px var(--accent-g); }
-    .dot.yellow { background: var(--accent-y); }
-    .dot.red { background: var(--accent-r); }
-
-    /* ─── Grid ─── */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 18px;
-    }
-    @media (max-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
-    @media (max-width: 680px)  { .grid { grid-template-columns: 1fr; } }
-
-    .span2 { grid-column: span 2; }
-    @media (max-width: 1100px) { .span2 { grid-column: span 1; } }
-
-    /* ─── Panel card ─── */
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 6px; padding: 18px 16px;
-      position: relative; overflow: hidden;
-    }
-    .card::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, var(--accent-y) 0%, var(--accent-g) 100%);
-    }
-    .card-title {
-      font-size: 10px; letter-spacing: 2px; color: var(--muted);
-      text-transform: uppercase; margin-bottom: 14px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .card-title .icon { color: var(--accent-y); font-size: 13px; }
-    .loading { color: var(--muted); font-size: 12px; }
-    .error-msg { color: var(--accent-r); font-size: 11px; }
-
-    /* ─── Scorecard ─── */
-    .score-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-    }
-    @media (max-width: 800px) { .score-grid { grid-template-columns: repeat(2, 1fr); } }
-    .metric-box {
-      background: #0a0a20; border: 1px solid var(--border); border-radius: 4px;
-      padding: 10px 10px 8px; text-align: center;
-    }
-    .metric-box .val {
-      font-size: 22px; font-weight: bold; line-height: 1.1;
-    }
-    .metric-box .lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
-    .pos { color: var(--accent-g); }
-    .neg { color: var(--accent-r); }
-    .neu { color: var(--accent-y); }
-
-    /* ─── Venue row ─── */
-    .venue-row {
-      display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px;
-    }
-    .venue-chip {
-      background: #0a0a20; border: 1px solid var(--border);
-      border-radius: 3px; padding: 5px 10px; font-size: 11px;
-    }
-    .venue-chip .vname { color: var(--accent-b); margin-right: 6px; }
-
-    /* ─── Open book table ─── */
-    .book-table { width: 100%; border-collapse: collapse; font-size: 11px; }
-    .book-table th {
-      color: var(--muted); font-size: 9px; letter-spacing: 1px;
-      padding: 4px 6px; text-align: left; border-bottom: 1px solid var(--border);
-    }
-    .book-table td { padding: 6px 6px; border-bottom: 1px solid #13132a; }
-    .book-table tr:last-child td { border-bottom: none; }
-    .tag-short { color: var(--accent-r); }
-    .tag-long  { color: var(--accent-g); }
-    .tag-open    { color: var(--accent-g); font-size: 9px; }
-    .tag-pending { color: var(--accent-y); font-size: 9px; }
-
-    /* ─── Signal tiles ─── */
-    .signal-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px;
-    }
-    .signal-tile {
-      background: #0a0a20; border: 1px solid var(--border); border-radius: 4px;
-      padding: 10px 10px 8px; position: relative; overflow: hidden;
-    }
-    .signal-tile.actionable { border-color: var(--accent-y); }
-    .signal-tile.short-act  { border-color: var(--accent-r); }
-    .signal-tile .sym  { font-size: 11px; color: var(--accent-y); letter-spacing: 1px; margin-bottom: 4px; }
-    .signal-tile .conf { font-size: 18px; font-weight: bold; margin-bottom: 2px; }
-    .signal-tile .side { font-size: 10px; letter-spacing: 1px; }
-    .signal-tile .price { font-size: 10px; color: var(--muted); margin-top: 4px; }
-    .signal-tile .badge {
-      position: absolute; top: 6px; right: 6px;
-      font-size: 8px; padding: 2px 5px; border-radius: 2px; letter-spacing: .5px;
-    }
-    .signal-tile .badge.act { background: var(--accent-y); color: var(--bg); }
-
-    /* ─── Risk gauge ─── */
-    .gauge-bar {
-      height: 8px; background: #0a0a20; border-radius: 4px; overflow: hidden; margin: 8px 0;
-    }
-    .gauge-fill {
-      height: 100%; border-radius: 4px;
-      transition: width .6s ease;
-    }
-    .risk-item { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 6px; }
-    .risk-item .sym { color: var(--accent-b); }
-    .risk-item .pct { color: var(--accent-y); }
-
-    /* ─── System metrics ─── */
-    .sys-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
-    @media (max-width: 560px) { .sys-grid { grid-template-columns: 1fr; } }
-    .sys-item { text-align: center; }
-    .sys-item .sys-val { font-size: 20px; font-weight: bold; color: var(--accent-g); }
-    .sys-item .sys-lbl { font-size: 9px; color: var(--muted); letter-spacing: 1px; margin-top: 3px; }
-    .arc-wrap { position: relative; width: 70px; height: 70px; margin: 0 auto 4px; }
-    .arc-wrap svg { transform: rotate(-90deg); }
-    .arc-label {
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-      font-size: 13px; font-weight: bold;
-    }
-
-    /* ─── R equity chart ─── */
-    .equity-canvas { width: 100%; height: 90px; }
-
-    /* ─── Footer ─── */
-    footer {
-      margin-top: 32px; text-align: center;
-      font-size: 10px; color: var(--muted); letter-spacing: 1px;
-    }
-    footer a { color: var(--accent-b); text-decoration: none; }
-  </style>
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Kudbee Quant — Control Center</title>
+  <link rel="stylesheet" href="/static/app.css" />
 </head>
-<body>
+<body class="min-h-full bg-ink font-mono text-body antialiased">
+  <div class="mx-auto max-w-7xl px-4 pb-20 pt-4 sm:px-6">
 
-<canvas id="particles"></canvas>
-
-<div class="shell">
-
-  <!-- Header -->
-  <header>
-    <div class="logo">
-      <div class="logo-hex">K</div>
-      <div class="logo-text">
-        <strong>KUDBEE QUANT</strong>
-        <br><span>MISSION CONTROL</span>
+    <!-- Header -->
+    <header class="flex flex-wrap items-center justify-between gap-3 border-b border-edge pb-4">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 grid place-items-center text-honey font-bold border-2 border-honey"
+             style="clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);">K</div>
+        <div class="leading-tight">
+          <div class="text-honey font-bold tracking-[0.18em] text-base sm:text-lg">KUDBEE QUANT</div>
+          <div class="text-muted text-[10px] tracking-widest">CONTROL CENTER</div>
+        </div>
       </div>
-    </div>
-    <div class="header-right">
-      <div class="clock" id="clock">--:--:-- UTC</div>
-      <div class="api-cfg">
-        <input type="text" id="apiBase" placeholder="API base (e.g. http://localhost:8000)" />
-        <button onclick="connectApi()">CONNECT</button>
+      <div class="flex items-center gap-3 text-xs">
+        <span id="clock" class="text-mint tabular-nums hidden sm:inline"></span>
+        <button id="refresh" class="kq-btn">↻ Refresh</button>
+        <button id="logout" class="kq-btn border-danger/60 bg-danger/10 text-danger hover:bg-danger">Sign out</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Status bar -->
-  <div class="statusbar">
-    <div class="item"><div class="dot" id="dot-api"></div><span id="status-api">API: --</span></div>
-    <div class="item"><div class="dot yellow"></div><span id="status-open">Open: --</span></div>
-    <div class="item"><div class="dot" id="dot-risk"></div><span id="status-risk">Risk: --</span></div>
-    <div class="item"><div class="dot green"></div><span id="status-time">Last refresh: --</span></div>
+    <!-- Section nav (mobile-friendly, horizontally scrollable) -->
+    <nav class="mt-4 flex gap-2 overflow-x-auto pb-1 text-xs" id="tabs">
+      <button class="kq-btn" data-tab="overview">Overview</button>
+      <button class="kq-btn" data-tab="positions">Positions</button>
+      <button class="kq-btn" data-tab="history">History</button>
+      <button class="kq-btn" data-tab="research">Research</button>
+      <button class="kq-btn" data-tab="runner">Test Runner</button>
+    </nav>
+
+    <!-- OVERVIEW -->
+    <section data-panel="overview" class="mt-5 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">▦</span> System</div><div id="system">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">★</span> Scorecard</div><div id="scorecard">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">⚖</span> Portfolio risk</div><div id="exposure">…</div></div>
+      <div class="kq-card xl:col-span-3"><div class="kq-card-title"><span class="text-honey">◎</span> Live signals</div><div id="signals" class="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">…</div></div>
+    </section>
+
+    <!-- POSITIONS -->
+    <section data-panel="positions" class="mt-5 hidden">
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">▸</span> Open / pending positions</div><div id="open-trades" class="overflow-x-auto">…</div></div>
+    </section>
+
+    <!-- HISTORY -->
+    <section data-panel="history" class="mt-5 hidden grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <div class="kq-card xl:col-span-3">
+        <div class="kq-card-title"><span class="text-honey">⛃</span> Filter</div>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="kq-label" for="f-tf">Timeframe</label>
+            <select class="kq-input" id="f-tf">
+              <option value="">all</option><option>5m</option><option>15m</option>
+              <option>1h</option><option>2h</option><option>4h</option>
+            </select>
+          </div>
+          <div>
+            <label class="kq-label" for="f-symbol">Symbol</label>
+            <input class="kq-input" id="f-symbol" placeholder="e.g. BTCUSDT" />
+          </div>
+          <div>
+            <label class="kq-label" for="f-mode">Mode</label>
+            <select class="kq-input" id="f-mode">
+              <option value="">all</option><option>paper</option><option>live</option>
+            </select>
+          </div>
+          <button id="f-apply" class="kq-btn">Apply</button>
+          <span id="f-summary" class="text-[11px] text-muted"></span>
+        </div>
+      </div>
+      <div class="kq-card xl:col-span-2"><div class="kq-card-title"><span class="text-honey">∿</span> Equity curve (R)</div><canvas id="equity" height="220" class="w-full"></canvas></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">Σ</span> History analytics</div><div id="history-analytics">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">◧</span> By symbol (worst first)</div><div id="by-symbol" class="overflow-x-auto">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">◷</span> By hour (UTC)</div><div id="by-hour" class="overflow-x-auto">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">▦</span> By timeframe</div><div id="by-tf" class="overflow-x-auto">…</div></div>
+      <div class="kq-card xl:col-span-3"><div class="kq-card-title"><span class="text-honey">▤</span> Closed trades</div><div id="history-table" class="overflow-x-auto">…</div></div>
+    </section>
+
+
+    <!-- RESEARCH -->
+    <section data-panel="research" class="mt-5 hidden grid grid-cols-1 gap-4 xl:grid-cols-2">
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">⌕</span> Overnight findings</div><div id="research-results" class="overflow-x-auto">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">⚑</span> Regime + ledger</div><div id="research-reflection">…</div></div>
+    </section>
+
+    <!-- RUNNER -->
+    <section data-panel="runner" class="mt-5 hidden grid grid-cols-1 gap-4 lg:grid-cols-2">
+      <div class="kq-card">
+        <div class="kq-card-title"><span class="text-honey">⚙</span> Launch a test</div>
+        <div class="space-y-3">
+          <div>
+            <label class="kq-label" for="action">Action</label>
+            <select class="kq-input" id="action"></select>
+          </div>
+          <div id="action-params" class="space-y-3"></div>
+          <p id="action-desc" class="text-[11px] text-muted"></p>
+          <button id="run" class="kq-btn w-full justify-center py-2">Run</button>
+          <p class="text-[11px] text-muted leading-relaxed">
+            Results are <b>ephemeral</b> (lost on redeploy), a backtest is a single draw,
+            and nothing here is written to the live journal (paper-scan is dry-run).
+          </p>
+        </div>
+      </div>
+      <div class="kq-card">
+        <div class="kq-card-title"><span class="text-honey">▷</span> Jobs &amp; results</div>
+        <div id="jobs" class="space-y-2 text-xs">…</div>
+        <pre id="job-result" class="mt-3 max-h-[420px] overflow-auto rounded bg-ink/70 p-3 text-[11px] text-mint whitespace-pre-wrap"></pre>
+      </div>
+    </section>
+
+    <footer class="mt-10 text-center text-[10px] text-muted">
+      Directional research read — not advice. The edge is honesty + execution.
+    </footer>
   </div>
-
-  <!-- Grid -->
-  <div class="grid">
-
-    <!-- Scorecard -->
-    <div class="card span2">
-      <div class="card-title"><span class="icon">◈</span> SCORECARD — FORWARD R</div>
-      <div id="scorecard"><div class="loading">Loading…</div></div>
-    </div>
-
-    <!-- System metrics -->
-    <div class="card">
-      <div class="card-title"><span class="icon">⬡</span> SYSTEM</div>
-      <div id="system-metrics"><div class="loading">Loading…</div></div>
-    </div>
-
-    <!-- Open book -->
-    <div class="card span2">
-      <div class="card-title"><span class="icon">◉</span> OPEN BOOK</div>
-      <div id="open-book" style="overflow-x:auto"><div class="loading">Loading…</div></div>
-    </div>
-
-    <!-- R equity curve -->
-    <div class="card">
-      <div class="card-title"><span class="icon">◆</span> CUMULATIVE R</div>
-      <canvas class="equity-canvas" id="equity-chart"></canvas>
-      <div id="equity-stats" style="font-size:10px;margin-top:6px;color:var(--muted)"></div>
-    </div>
-
-    <!-- Live signals — watchlist -->
-    <div class="card span2">
-      <div class="card-title"><span class="icon">◎</span> LIVE SIGNALS — WATCHLIST</div>
-      <div id="signals-grid"><div class="loading">Loading…</div></div>
-    </div>
-
-    <!-- Portfolio risk -->
-    <div class="card">
-      <div class="card-title"><span class="icon">◇</span> PORTFOLIO RISK</div>
-      <div id="risk-panel"><div class="loading">Loading…</div></div>
-    </div>
-
-  </div><!-- /grid -->
-
-  <footer>
-    KUDBEE QUANT MISSION CONTROL &nbsp;·&nbsp;
-    Signals are not advice. Enter via LIMIT (maker), size small.
-    &nbsp;·&nbsp; <a href="/live-signals.html">Live Signals</a>
-    &nbsp;·&nbsp; <a href="/methodology.html">Methodology</a>
-  </footer>
-</div><!-- /shell -->
-
-<script>
-// ─────────────────────────────────────────────
-//  Particle background
-// ─────────────────────────────────────────────
-(function() {
-  const cv = document.getElementById('particles');
-  const ctx = cv.getContext('2d');
-  let W, H, pts;
-
-  function resize() {
-    W = cv.width  = window.innerWidth;
-    H = cv.height = window.innerHeight;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  function mkPt() {
-    return {
-      x: Math.random() * W, y: Math.random() * H,
-      vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3,
-      r: Math.random() * 1.5 + .5,
-      col: Math.random() < .15 ? '#ffd700' : Math.random() < .2 ? '#00ff88' : '#3a3a7a',
-    };
-  }
-
-  pts = Array.from({length: 90}, mkPt);
-
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    pts.forEach(p => {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = p.col;
-      ctx.fill();
-    });
-    // Lines between nearby particles
-    for (let i = 0; i < pts.length; i++) {
-      for (let j = i + 1; j < pts.length; j++) {
-        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 110) {
-          ctx.beginPath();
-          ctx.moveTo(pts[i].x, pts[i].y);
-          ctx.lineTo(pts[j].x, pts[j].y);
-          ctx.strokeStyle = `rgba(58,58,122,${(1 - d/110) * .35})`;
-          ctx.lineWidth = .5;
-          ctx.stroke();
-        }
-      }
-    }
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-
-// ─────────────────────────────────────────────
-//  Clock
-// ─────────────────────────────────────────────
-function tickClock() {
-  const n = new Date();
-  document.getElementById('clock').textContent =
-    n.toUTCString().replace(/.*,\s*/, '').replace(' GMT', ' UTC');
-}
-setInterval(tickClock, 1000);
-tickClock();
-
-// ─────────────────────────────────────────────
-//  API base config
-// ─────────────────────────────────────────────
-// Served same-origin by the FastAPI app, so '' (relative) works out of the box;
-// the input is an override for pointing a remote copy at a hosted API.
-let API_BASE = localStorage.getItem('kq_api_base') || '';
-document.getElementById('apiBase').value = API_BASE;
-
-function connectApi() {
-  API_BASE = document.getElementById('apiBase').value.replace(/\/$/, '');
-  localStorage.setItem('kq_api_base', API_BASE);
-  refreshAll();
-}
-
-async function apiFetch(path) {
-  const url = API_BASE ? API_BASE + path : path;
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(r.status);
-  return r.json();
-}
-
-// ─────────────────────────────────────────────
-//  Helpers
-// ─────────────────────────────────────────────
-const fmt = (v, d=2) => v == null ? '—' : Number(v).toFixed(d);
-const pct = v => v == null ? '—' : (Number(v)*100).toFixed(1) + '%';
-const clr = v => v > 0 ? 'pos' : v < 0 ? 'neg' : 'neu';
-const dirLabel = d => d > 0 ? '▲ LONG' : d < 0 ? '▼ SHORT' : 'FLAT';
-const dirClass = d => d > 0 ? 'tag-long' : d < 0 ? 'tag-short' : '';
-// All server-derived strings go through esc() before innerHTML (journal text
-// can originate from the alert webhook — defense in depth against stored XSS).
-const esc = s => String(s ?? '').replace(/[&<>"']/g,
-  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const statusCls = s => s === 'open' ? 'tag-open' : s === 'pending' ? 'tag-pending' : '';
-
-// ─────────────────────────────────────────────
-//  Scorecard
-// ─────────────────────────────────────────────
-async function renderScorecard() {
-  const el = document.getElementById('scorecard');
-  try {
-    const data = await apiFetch('/api/journal');
-    // scorecard rows: {setup, n, hits, hit_rate, expectancy_r, total_r,
-    //                  net_expectancy_r, net_total_r} (per-setup, resolved only)
-    const sc = data.scorecard || [];
-    const totalTrades = sc.reduce((s, r) => s + (r.n           || 0), 0);
-    const totalWins   = sc.reduce((s, r) => s + (r.hits        || 0), 0);
-    const totalR      = sc.reduce((s, r) => s + (r.total_r     || 0), 0);
-    const netR        = sc.reduce((s, r) => s + (r.net_total_r || 0), 0);
-    const netExpR     = totalTrades > 0 ? netR / totalTrades : null;
-    const wr          = totalTrades > 0 ? totalWins / totalTrades : null;
-
-    // Status counts: hit / miss / open / pending / cancelled
-    const counts  = data.counts || {};
-    const nOpen   = (counts.open || 0) + (counts.pending || 0);
-    const nWin    = counts.hit       || 0;
-    const nLoss   = counts.miss      || 0;
-    const nCancel = counts.cancelled || 0;
-
-    document.getElementById('status-open').textContent = `Open: ${nOpen}`;
-
-    let html = `<div class="score-grid">
-      <div class="metric-box"><div class="val ${clr(totalR)}">${fmt(totalR, 1)}R</div><div class="lbl">Total R (gross)</div></div>
-      <div class="metric-box"><div class="val ${clr(netR)}">${fmt(netR, 1)}R</div><div class="lbl">Net R (after fees)</div></div>
-      <div class="metric-box"><div class="val ${clr(netExpR)}">${netExpR != null ? fmt(netExpR, 3)+'R' : '—'}</div><div class="lbl">Net Expectancy / Trade</div></div>
-      <div class="metric-box"><div class="val neu">${wr != null ? (wr*100).toFixed(0)+'%' : '—'}</div><div class="lbl">Win Rate · ${totalTrades} resolved</div></div>
-      <div class="metric-box"><div class="val pos">${nWin}</div><div class="lbl">Wins (hit)</div></div>
-      <div class="metric-box"><div class="val neg">${nLoss}</div><div class="lbl">Losses (miss)</div></div>
-      <div class="metric-box"><div class="val" style="color:var(--muted)">${nCancel}</div><div class="lbl">Cancelled (no fill)</div></div>
-      <div class="metric-box"><div class="val neu">${nOpen}</div><div class="lbl">Open / Pending</div></div>
-    </div>`;
-
-    // Venue breakdown: {n, hits, hit_rate, total_r, net_total_r, ...}
-    const bv = data.by_venue || {};
-    const chips = [];
-    for (const [v, st] of Object.entries(bv)) {
-      if (!st.n) continue;
-      const cls = (st.net_total_r || 0) >= 0 ? 'pos' : 'neg';
-      chips.push(`<div class="venue-chip"><span class="vname">${esc(v.toUpperCase())}</span>`
-        + `<span class="${cls}">${fmt(st.net_total_r, 1)}R net</span>`
-        + ` (${fmt(st.total_r, 1)}R gross) · ${st.hit_rate != null ? (st.hit_rate*100).toFixed(0) : '—'}% WR · ${st.n} trades</div>`);
-    }
-    // Provenance: bot vs human (the bias record) — {n, hits, hit_rate, expectancy_r}
-    for (const [s, st] of Object.entries(data.by_source || {})) {
-      if (!st.n) continue;
-      const cls = (st.expectancy_r || 0) >= 0 ? 'pos' : 'neg';
-      chips.push(`<div class="venue-chip"><span class="vname">${esc(s.toUpperCase())}</span>`
-        + `<span class="${cls}">${fmt(st.expectancy_r, 2)}R/trade</span> · ${st.n} resolved</div>`);
-    }
-    if (chips.length) html += `<div class="venue-row">${chips.join('')}</div>`;
-
-    el.innerHTML = html;
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">Scorecard unavailable (${esc(e.message)})</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Open book
-// ─────────────────────────────────────────────
-async function renderOpenBook() {
-  const el = document.getElementById('open-book');
-  try {
-    const data = await apiFetch('/api/journal');
-    const open = data.open || [];
-    if (!open.length) {
-      el.innerHTML = `<div class="loading" style="color:var(--muted)">No open trades.</div>`;
-      return;
-    }
-    let html = `<table class="book-table">
-      <thead><tr>
-        <th>SYMBOL</th><th>DIR</th><th>STATUS</th>
-        <th>ENTRY</th><th>STOP</th><th>TARGET</th>
-        <th>SETUP</th><th>CREATED</th>
-      </tr></thead><tbody>`;
-    for (const t of open) {
-      const d = t.direction;
-      const dt = t.created_at ? t.created_at.slice(0,16).replace('T',' ') : '—';
-      html += `<tr>
-        <td style="color:var(--accent-y)">${esc(t.symbol || '—')}</td>
-        <td class="${dirClass(d)}">${dirLabel(d)}</td>
-        <td><span class="${statusCls(t.status)}">${esc((t.status||'').toUpperCase())}</span></td>
-        <td>${t.entry ? fmt(t.entry, 4) : '—'}</td>
-        <td class="neg">${t.stop  ? fmt(t.stop,  4) : '—'}</td>
-        <td class="pos">${t.target? fmt(t.target, 4) : '—'}</td>
-        <td style="color:var(--muted);font-size:10px">${esc((t.setup||'—').replace('confluence_r_',''))}</td>
-        <td style="color:var(--muted);font-size:10px">${esc(dt)}</td>
-      </tr>`;
-    }
-    html += `</tbody></table>`;
-    el.innerHTML = html;
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">Open book unavailable (${esc(e.message)})</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Equity curve (resolved R series)
-// ─────────────────────────────────────────────
-async function renderEquity() {
-  const el = document.getElementById('equity-chart');
-  const stats = document.getElementById('equity-stats');
-  try {
-    const data = await apiFetch('/api/journal');
-    // resolved_series rows: {t, r, source, setup} in time order
-    const series = (data.resolved_series || [])
-      .map(v => typeof v === 'number' ? v : (v && v.r) || 0);
-    if (!series.length) { stats.textContent = 'No resolved trades yet.'; return; }
-
-    // Build cumulative R
-    let cum = 0;
-    const vals = series.map(v => { cum += v; return cum; });
-    const minV = Math.min(0, ...vals), maxV = Math.max(0, ...vals);
-    const range = maxV - minV || 1;
-
-    const W = el.offsetWidth || 300, H = el.offsetHeight || 90;
-    el.width = W; el.height = H;
-    const ctx = el.getContext('2d');
-    const pad = 8;
-    const xStep = (W - 2*pad) / Math.max(vals.length - 1, 1);
-
-    const toX = i => pad + i * xStep;
-    const toY = v => H - pad - ((v - minV) / range) * (H - 2*pad);
-
-    // Zero line
-    ctx.beginPath();
-    ctx.strokeStyle = '#2a2a5a';
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4,4]);
-    ctx.moveTo(pad, toY(0)); ctx.lineTo(W-pad, toY(0));
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Gradient fill
-    const grad = ctx.createLinearGradient(0, 0, 0, H);
-    const lastVal = vals[vals.length-1];
-    if (lastVal >= 0) {
-      grad.addColorStop(0, 'rgba(0,255,136,.3)');
-      grad.addColorStop(1, 'rgba(0,255,136,0)');
-    } else {
-      grad.addColorStop(0, 'rgba(255,69,96,0)');
-      grad.addColorStop(1, 'rgba(255,69,96,.3)');
-    }
-    ctx.beginPath();
-    ctx.moveTo(toX(0), toY(vals[0]));
-    vals.forEach((v,i) => ctx.lineTo(toX(i), toY(v)));
-    ctx.lineTo(toX(vals.length-1), H);
-    ctx.lineTo(toX(0), H);
-    ctx.closePath();
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // Line
-    ctx.beginPath();
-    ctx.strokeStyle = lastVal >= 0 ? '#00ff88' : '#ff4560';
-    ctx.lineWidth = 2;
-    ctx.moveTo(toX(0), toY(vals[0]));
-    vals.forEach((v,i) => ctx.lineTo(toX(i), toY(v)));
-    ctx.stroke();
-
-    const final = vals[vals.length-1];
-    stats.innerHTML = `<span class="${clr(final)}">${fmt(final,2)}R</span> cumulative · ${series.length} trades resolved`;
-  } catch(e) {
-    stats.textContent = `Chart unavailable (${e.message})`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Live signals
-// ─────────────────────────────────────────────
-const WATCHLIST = [
-  'BTCUSDT','ETHUSDT','SOLUSDT','BNBUSDT','XRPUSDT',
-  'ADAUSDT','AVAXUSDT','DOGEUSDT','LINKUSDT','DOTUSDT',
-];
-
-async function renderSignals() {
-  const el = document.getElementById('signals-grid');
-  el.innerHTML = `<div class="loading">Scanning ${WATCHLIST.length} symbols…</div>`;
-  try {
-    const results = await Promise.allSettled(
-      WATCHLIST.map(sym => apiFetch(`/api/signal/${sym}`))
-    );
-    let html = `<div class="signal-grid">`;
-    results.forEach((res, i) => {
-      const sym = WATCHLIST[i];
-      if (res.status !== 'fulfilled') {
-        html += `<div class="signal-tile"><div class="sym">${esc(sym)}</div><div class="price">ERR</div></div>`;
-        return;
-      }
-      const d = res.value;
-      const confPct = Math.round((d.confluence_pct || 0) * 100);
-      const act = d.actionable;
-      const side = d.side || 'flat';
-      const isShort = side === 'short';
-      const tile = act ? (isShort ? 'signal-tile short-act' : 'signal-tile actionable') : 'signal-tile';
-      const confCol = act ? (isShort ? 'neg' : 'pos') : 'neu';
-      html += `<div class="${tile}">
-        ${act ? `<div class="badge act">${esc(side.toUpperCase())}</div>` : ''}
-        <div class="sym">${esc(sym.replace('USDT',''))}</div>
-        <div class="conf ${confCol}">${confPct}%</div>
-        <div class="side ${dirClass(d.direction)}">${dirLabel(d.direction)}</div>
-        <div class="price">$${d.price ? d.price.toLocaleString(undefined,{maximumFractionDigits:4}) : '—'}</div>
-      </div>`;
-    });
-    html += `</div>`;
-    el.innerHTML = html;
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">Signals error: ${e.message}</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Risk panel
-// ─────────────────────────────────────────────
-async function renderRisk() {
-  const el = document.getElementById('risk-panel');
-  try {
-    const data = await apiFetch('/api/journal');
-    const exp = data.exposure || [];
-    const totalRisk = data.total_gross_risk_pct || 0;
-    const riskCls = totalRisk > 10 ? 'neg' : totalRisk > 5 ? 'neu' : 'pos';
-
-    document.getElementById('dot-risk').className = `dot ${totalRisk > 10 ? 'red' : 'green'}`;
-    document.getElementById('status-risk').textContent = `Risk: ${fmt(totalRisk,1)}% gross`;
-
-    let html = `<div class="risk-item">
-      <span>Total Gross Risk</span>
-      <span class="${riskCls}">${fmt(totalRisk,2)}%</span>
-    </div>
-    <div class="gauge-bar">
-      <div class="gauge-fill" style="width:${Math.min(totalRisk*5,100)}%;background:${totalRisk>10?'#ff4560':totalRisk>5?'#ffd700':'#00ff88'}"></div>
-    </div>`;
-
-    if (exp.length) {
-      html += `<div style="margin-top:10px;font-size:10px;color:var(--muted);margin-bottom:6px">PER SYMBOL</div>`;
-      for (const e of exp.slice(0, 12)) {
-        const r = ((e.gross_risk_pct || e.net_risk_pct || 0)).toFixed(2);
-        html += `<div class="risk-item">
-          <span class="sym">${esc(e.symbol || '—')}</span>
-          <span class="pct">${r}%</span>
-        </div>`;
-      }
-    }
-    el.innerHTML = html;
-  } catch(e) {
-    el.innerHTML = `<div class="error-msg">Risk data unavailable (${esc(e.message)})</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  System metrics
-// ─────────────────────────────────────────────
-function arc(pct, col) {
-  const r = 28, cx = 35, cy = 35, circ = 2 * Math.PI * r;
-  const dash = (pct/100) * circ;
-  return `<svg width="70" height="70" viewBox="0 0 70 70">
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1a1a3a" stroke-width="6"/>
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${col}" stroke-width="6"
-      stroke-dasharray="${dash} ${circ}" stroke-linecap="round"/>
-  </svg>`;
-}
-
-async function renderSystem() {
-  const el = document.getElementById('system-metrics');
-  try {
-    const m = await apiFetch('/api/metrics');
-    if (m.error) throw new Error(m.error);
-    const cpuCol = m.cpu_pct > 80 ? '#ff4560' : m.cpu_pct > 50 ? '#ffd700' : '#00ff88';
-    const memCol = m.mem_pct > 80 ? '#ff4560' : m.mem_pct > 60 ? '#ffd700' : '#00ff88';
-    const dskCol = m.disk_pct > 80 ? '#ff4560' : '#00ff88';
-    el.innerHTML = `<div class="sys-grid">
-      <div class="sys-item">
-        <div class="arc-wrap">${arc(m.cpu_pct, cpuCol)}<div class="arc-label" style="color:${cpuCol}">${m.cpu_pct}%</div></div>
-        <div class="sys-lbl">CPU</div>
-      </div>
-      <div class="sys-item">
-        <div class="arc-wrap">${arc(m.mem_pct, memCol)}<div class="arc-label" style="color:${memCol}">${m.mem_pct}%</div></div>
-        <div class="sys-lbl">MEM<br>${m.mem_used_gb}/${m.mem_total_gb}GB</div>
-      </div>
-      <div class="sys-item">
-        <div class="arc-wrap">${arc(m.disk_pct, dskCol)}<div class="arc-label" style="color:${dskCol}">${m.disk_pct}%</div></div>
-        <div class="sys-lbl">DISK<br>${m.disk_used_gb}/${m.disk_total_gb}GB</div>
-      </div>
-    </div>`;
-  } catch(e) {
-    el.innerHTML = `<div class="sys-grid">
-      <div class="sys-item"><div class="sys-val">—</div><div class="sys-lbl">CPU</div></div>
-      <div class="sys-item"><div class="sys-val">—</div><div class="sys-lbl">MEM</div></div>
-      <div class="sys-item"><div class="sys-val">—</div><div class="sys-lbl">DISK</div></div>
-    </div><div style="font-size:9px;color:var(--muted);margin-top:6px">API: ${esc(e.message)}</div>`;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  API status check
-// ─────────────────────────────────────────────
-async function checkApiStatus() {
-  const dot = document.getElementById('dot-api');
-  const lbl = document.getElementById('status-api');
-  if (!API_BASE) {
-    dot.className = 'dot yellow';
-    lbl.textContent = 'API: not configured';
-    return false;
-  }
-  try {
-    const h = await apiFetch('/api/health');
-    dot.className = 'dot green';
-    lbl.textContent = `API: connected`;
-    return true;
-  } catch(e) {
-    dot.className = 'dot red';
-    lbl.textContent = `API: offline (${e.message})`;
-    return false;
-  }
-}
-
-// ─────────────────────────────────────────────
-//  Refresh all
-// ─────────────────────────────────────────────
-async function refreshAll() {
-  document.getElementById('status-time').textContent =
-    `Last refresh: ${new Date().toUTCString().slice(17,25)} UTC`;
-  await checkApiStatus();
-  await Promise.allSettled([
-    renderScorecard(),
-    renderOpenBook(),
-    renderEquity(),
-    renderRisk(),
-    renderSystem(),
-    renderSignals(),
-  ]);
-}
-
-// Auto-refresh every 90s
-refreshAll();
-setInterval(refreshAll, 90_000);
-</script>
+  <script src="/static/app.js"></script>
 </body>
 </html>

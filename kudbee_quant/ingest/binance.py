@@ -39,6 +39,12 @@ _COLUMNS = [
 ]
 
 
+def _as_utc(x) -> pd.Timestamp:
+    """Parse a date string or (naive/aware) Timestamp to a UTC Timestamp."""
+    ts = pd.Timestamp(x)
+    return ts.tz_localize("UTC") if ts.tzinfo is None else ts.tz_convert("UTC")
+
+
 class BinanceClient:
     def __init__(
         self,
@@ -106,13 +112,69 @@ class BinanceClient:
         self.cache.put(key, df)
         return df
 
+    def klines_range(
+        self,
+        symbol: str,
+        interval: str = "1h",
+        start: str | pd.Timestamp | None = None,
+        end: str | pd.Timestamp | None = None,
+        cache_ttl: float = 7 * 24 * 3600.0,
+    ) -> pd.DataFrame:
+        """Fetch every candle in the closed window [``start``, ``end``).
+
+        Unlike :meth:`klines` (which pages BACKWARD from now for the most-recent
+        ``limit`` bars), this pages FORWARD from ``start`` using Binance's
+        ``startTime``/``endTime`` params, so historical windows years in the past
+        (e.g. a prior-cycle analog) are reachable. ``start``/``end`` are parsed as
+        UTC. Result is validated (gaps/dupes handled by ``validate_ohlcv``) and
+        cached on disk with a long TTL — historical bars never change, so a once-
+        fetched window is reused for free on later runs.
+        """
+        if interval not in _INTERVAL_MS:
+            raise ValueError(f"unsupported interval {interval!r}; pick from {sorted(_INTERVAL_MS)}")
+        if start is None:
+            raise ValueError("klines_range requires a start")
+        start_ts = _as_utc(start)
+        end_ts = _as_utc(end) if end is not None else pd.Timestamp.now(tz="UTC")
+        s_ms = int(start_ts.timestamp() * 1000)
+        e_ms = int(end_ts.timestamp() * 1000)
+        step = _INTERVAL_MS[interval]
+
+        key = f"binance-range:{symbol}:{interval}:{s_ms}:{e_ms}"
+        cached = self.cache.get(key, ttl_seconds=cache_ttl)
+        if cached is not None:
+            return cached
+
+        rows: list[list] = []
+        cur = s_ms
+        while cur < e_ms:
+            params = {"symbol": symbol.upper(), "interval": interval,
+                      "startTime": cur, "endTime": e_ms, "limit": _MAX_LIMIT}
+            data = self._get_klines(params)
+            if not data:
+                break
+            rows.extend(data)
+            cur = data[-1][0] + step  # advance past the last open_time
+            if len(data) < _MAX_LIMIT:
+                break  # exhausted the window
+            time.sleep(0.2)  # be polite to the public endpoint
+
+        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)
+        self.cache.put(key, df)
+        return df
+
     @staticmethod
     def _to_frame(rows: list[list]) -> pd.DataFrame:
         df = pd.DataFrame(rows, columns=_COLUMNS)
         if df.empty:
             return df
         df["timestamp"] = pd.to_datetime(df["open_time"], unit="ms", utc=True)
-        num_cols = ["open", "high", "low", "close", "volume", "quote_volume", "trades"]
+        # taker_buy_base/quote are the AGGRESSIVE-BUY share of each bar's volume
+        # (Binance reports them per kline). Kept so downstream can derive bar
+        # delta / CVD without a second data source; see levels/delta.py.
+        num_cols = ["open", "high", "low", "close", "volume", "quote_volume",
+                    "trades", "taker_buy_base", "taker_buy_quote"]
         df[num_cols] = df[num_cols].astype(float)
-        keep = ["timestamp", "open", "high", "low", "close", "volume", "quote_volume", "trades"]
+        keep = ["timestamp", "open", "high", "low", "close", "volume",
+                "quote_volume", "trades", "taker_buy_base", "taker_buy_quote"]
         return df[keep].reset_index(drop=True)

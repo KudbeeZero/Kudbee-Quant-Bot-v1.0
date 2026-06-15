@@ -13,12 +13,16 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
+from . import api_runner
 from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
+from .api_auth import (COOKIE_NAME, DEFAULT_MAX_AGE, check_password, has_session,
+                       issue_session, require_session)
 from .api_security import RateLimiter, check_token, require_token, safe_spec, safe_symbol
 from .confluence.stack import confluence_score
 from .confluence.trace import (EMA_SPAN_MAX, EMA_SPAN_MIN, FACTOR_KEYS,
@@ -37,11 +41,41 @@ _origins = [o for o in os.environ.get("KUDBEE_SITE_ORIGIN", "").split(",") if o]
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["GET", "POST"],
                    allow_headers=["*"])
 
+# Static assets (compiled Tailwind CSS + dashboard/login JS). Starlette ships
+# StaticFiles — no new dependency. The Render-served dashboard references these
+# same-origin so the CSP below can stay strict ('self', no inline, no CDN).
+_STATIC_DIR = Path(__file__).resolve().parent / "static"
+app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
+
+# The marketing site (Netlify) sets CSP via netlify.toml/_headers, but those do
+# NOT cover this Render host, which serves the dashboard + login HTML. Set the
+# matching policy here so the gated pages get the same protection. Also mark the
+# private pages noindex (belt-and-braces with robots.txt + the page meta tag).
+_CSP = ("default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; "
+        "connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; "
+        "object-src 'none'")
+_NOINDEX_PATHS = {"/", "/dashboard", "/login"}
+
+
+@app.middleware("http")
+async def _security_headers(request: Request, call_next):
+    resp = await call_next(request)
+    resp.headers.setdefault("Content-Security-Policy", _CSP)
+    resp.headers.setdefault("X-Content-Type-Options", "nosniff")
+    resp.headers.setdefault("X-Frame-Options", "DENY")
+    if request.url.path in _NOINDEX_PATHS:
+        resp.headers["X-Robots-Tag"] = "noindex, nofollow"
+    return resp
+
+
 # Rate limiters: generous for public reads, tight for journal writes. The
 # sandbox recompute gets its own scope so what-if spam can't starve the reads.
+# Login + runner get their own tight scopes (brute-force / compute abuse).
 _write_limit = RateLimiter(limit=10, window=60.0, scope="write")
 _read_limit = RateLimiter(limit=120, window=60.0, scope="read")
 _sandbox_limit = RateLimiter(limit=30, window=60.0, scope="sandbox")
+_login_limit = RateLimiter(limit=5, window=60.0, scope="login")
+_runner_limit = RateLimiter(limit=6, window=60.0, scope="runner")
 
 # Validated default config — single source of truth (config/validated_defaults.py).
 from .config.validated_defaults import VALIDATED_BASELINE
@@ -314,11 +348,163 @@ def system_metrics(_rl: None = Depends(_read_limit)) -> dict:
         return {"error": "psutil not installed"}
 
 
-_DASHBOARD_FILE = Path(__file__).resolve().parent / "static" / "dashboard.html"
+# ---------------------------------------------------------------------------
+# Read-only aggregate endpoints (session-gated — they feed the control center).
+# Distinct from the public marketing reads above; these can surface the full
+# track record, so they require a dashboard session.
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/open-trades")
+def open_trades(_auth: None = Depends(require_session),
+                _rl: None = Depends(_read_limit)) -> dict:
+    """Every open/pending trade with live mark, MFE/MAE, health + portfolio block."""
+    from .review import open_trades_report
+    try:
+        return open_trades_report()
+    except Exception:
+        raise HTTPException(status_code=502, detail="upstream data error") from None
+
+
+class HistoryQuery(BaseModel):
+    symbol: str | None = Field(default=None, max_length=30)
+    status: str = Field(default="closed", pattern=r"^(closed|open|pending|hit|miss|cancelled|all)$")
+    timeframe: str | None = Field(default=None, pattern=r"^(1m|3m|5m|15m|30m|1h|2h|4h|6h|8h|12h|1d)$")
+    mode: str | None = Field(default=None, pattern=r"^(paper|live)$")
+    date_from: str | None = Field(default=None, max_length=40)
+    date_to: str | None = Field(default=None, max_length=40)
+
+
+@app.get("/api/trade-history")
+def trade_history(symbol: str | None = None, status: str = "closed",
+                  timeframe: str | None = None, mode: str | None = None,
+                  date_from: str | None = None, date_to: str | None = None,
+                  _auth: None = Depends(require_session),
+                  _rl: None = Depends(_read_limit)) -> dict:
+    """Closed-trade detail + portfolio analytics. ``with_excursion`` is off so the
+    dashboard never blocks on a network backfill."""
+    from .review import trade_history_report
+    try:
+        q = HistoryQuery(symbol=symbol, status=status, timeframe=timeframe, mode=mode,
+                         date_from=date_from, date_to=date_to)
+    except Exception as e:
+        raise HTTPException(status_code=422, detail=str(e)) from e
+    sym = safe_symbol(q.symbol) if q.symbol else None
+    return trade_history_report(symbol=sym, status=q.status, timeframe=q.timeframe,
+                                mode=q.mode, date_from=q.date_from, date_to=q.date_to,
+                                with_excursion=False)
+
+
+@app.get("/api/research")
+def research(_auth: None = Depends(require_session),
+             _rl: None = Depends(_read_limit)) -> dict:
+    """Research outputs: overnight results, the FDR-corrected ledger, the latest
+    market-regime reflection. Read-only; tolerates missing files."""
+    import json as _json
+
+    data_dir = Path(__file__).resolve().parent.parent / "data"
+
+    def _load(name: str):
+        fp = data_dir / name
+        try:
+            return _json.loads(fp.read_text(encoding="utf-8")) if fp.exists() else None
+        except Exception:
+            return None
+
+    out: dict = {"overnight_results": _load("overnight_results.json"),
+                 "reflection": _load("reflection.json"), "ledger": None}
+    try:
+        from .memory.testing_ledger import family_ledger
+        out["ledger"] = api_runner._jsonable(family_ledger())
+    except Exception:
+        out["ledger"] = None
+    return out
+
+
+# ---------------------------------------------------------------------------
+# Curated runner (session-gated). See kudbee_quant/api_runner.py — whitelisted
+# actions only, bounded params, async jobs, NEVER writes the journal.
+# ---------------------------------------------------------------------------
+
+
+@app.get("/api/run")
+def runner_list(_auth: None = Depends(require_session),
+                _rl: None = Depends(_read_limit)) -> dict:
+    return {"actions": api_runner.list_actions(), "jobs": api_runner.list_jobs()}
+
+
+@app.get("/api/run/{job_id}")
+def runner_status(job_id: str, _auth: None = Depends(require_session),
+                  _rl: None = Depends(_read_limit)) -> dict:
+    job = api_runner.public_job(job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="job not found")
+    return job
+
+
+class RunRequest(BaseModel):
+    params: dict = Field(default_factory=dict)
+
+
+@app.post("/api/run/{action}")
+def runner_submit(action: str, req: RunRequest,
+                  _auth: None = Depends(require_session),
+                  _rl: None = Depends(_runner_limit)) -> dict:
+    from pydantic import ValidationError
+    try:
+        return api_runner.submit_job(action, req.params)
+    except ValidationError as e:
+        # Clean, JSON-safe field errors (pydantic ctx can hold raw exceptions).
+        detail = [{"loc": list(err.get("loc", [])), "msg": str(err.get("msg"))}
+                  for err in e.errors()]
+        raise HTTPException(status_code=422, detail=detail) from e
+    except ValueError:
+        raise HTTPException(status_code=404, detail="unknown action") from None
+    except RuntimeError:
+        raise HTTPException(status_code=429, detail="runner busy — try again shortly") from None
+
+
+# ---------------------------------------------------------------------------
+# Auth: shared-password login -> signed session cookie (see api_auth.py).
+# ---------------------------------------------------------------------------
+
+
+class LoginRequest(BaseModel):
+    password: str = Field(..., min_length=1, max_length=256)
+
+
+@app.post("/api/login")
+def login(req: LoginRequest, _rl: None = Depends(_login_limit)) -> JSONResponse:
+    check_password(req.password)   # 503 if unconfigured, 401 on mismatch
+    resp = JSONResponse({"ok": True})
+    resp.set_cookie(COOKIE_NAME, issue_session(), max_age=DEFAULT_MAX_AGE,
+                    httponly=True, secure=True, samesite="lax", path="/")
+    return resp
+
+
+@app.post("/api/logout")
+def logout() -> JSONResponse:
+    resp = JSONResponse({"ok": True})
+    resp.delete_cookie(COOKIE_NAME, path="/")
+    return resp
+
+
+_LOGIN_FILE = _STATIC_DIR / "login.html"
+_DASHBOARD_FILE = _STATIC_DIR / "dashboard.html"
+
+
+@app.get("/login", include_in_schema=False)
+def login_page(request: Request, _rl: None = Depends(_read_limit)):
+    """Login form. If already authenticated, go straight to the dashboard."""
+    if has_session(request):
+        return RedirectResponse("/dashboard", status_code=302)
+    return HTMLResponse(_LOGIN_FILE.read_text(encoding="utf-8"))
 
 
 @app.get("/", include_in_schema=False)
 @app.get("/dashboard", include_in_schema=False)
-def dashboard(_rl: None = Depends(_read_limit)) -> HTMLResponse:
-    """Mission-control dashboard — static one-pager, read-only data only."""
+def dashboard(request: Request, _rl: None = Depends(_read_limit)):
+    """Mission-control dashboard — gated. No session -> redirect to /login."""
+    if not has_session(request):
+        return RedirectResponse("/login", status_code=302)
     return HTMLResponse(_DASHBOARD_FILE.read_text(encoding="utf-8"))

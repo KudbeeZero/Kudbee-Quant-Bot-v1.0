@@ -1,0 +1,667 @@
+{
+  "meta": {
+    "generated_utc": "2026-06-15T07:36:53.518176+00:00",
+    "task": "execution head-to-head: maker-retrace vs market vs hybrid (OOS, net of fees)",
+    "signal": {
+      "fn": "confluence_position",
+      "min_pct": 0.5,
+      "trend_align": true
+    },
+    "geometry": {
+      "stop_atr": 1.5,
+      "target_r": 3.0,
+      "max_bars": 24,
+      "retrace_atr": 0.25,
+      "entry_window": 6
+    },
+    "fees": {
+      "taker_side": 0.00045,
+      "maker_side": 0.0002,
+      "model": "per-leg: stop/time=taker (market out), target=maker (resting limit)"
+    },
+    "windows": {
+      "2018_chop": [
+        "2018-05-01",
+        "2018-10-01"
+      ],
+      "2022_chop": [
+        "2022-05-01",
+        "2022-10-01"
+      ],
+      "recent": [
+        "2026-01-01",
+        "2026-06-01"
+      ]
+    },
+    "symbols_requested": [
+      "BTCUSDT",
+      "ETHUSDT",
+      "SOLUSDT",
+      "BNBUSDT",
+      "XRPUSDT",
+      "ADAUSDT",
+      "DOGEUSDT",
+      "AVAXUSDT",
+      "LINKUSDT",
+      "DOTUSDT"
+    ],
+    "coverage": {
+      "2018_chop": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT"
+      ],
+      "2022_chop": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "SOLUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT",
+        "DOGEUSDT",
+        "AVAXUSDT",
+        "LINKUSDT",
+        "DOTUSDT"
+      ],
+      "recent": [
+        "BTCUSDT",
+        "ETHUSDT",
+        "SOLUSDT",
+        "BNBUSDT",
+        "XRPUSDT",
+        "ADAUSDT",
+        "DOGEUSDT",
+        "AVAXUSDT",
+        "LINKUSDT",
+        "DOTUSDT"
+      ]
+    },
+    "note": "OFFLINE research only; live trading path unchanged. Maker side fee is an unconfirmed assumption (MEMORY \u00a725). 'A_maker_retrace_legacycost' below re-costs variant A round-trip-maker (the current backtest's optimistic assumption) for reference."
+  },
+  "per_timeframe": {
+    "5m": {
+      "A_maker_retrace": {
+        "n_trades": 40534,
+        "win_rate": 0.32829229782404895,
+        "expectancy_r": -0.0999168386085928,
+        "total_r": -4050.0291361607005,
+        "profit_factor": 0.8646415225643631,
+        "max_drawdown_r": -4054.350392537842,
+        "bootstrap_p": 1.0,
+        "fill_rate": 0.85410257490834,
+        "n_signals_attempted": 47458
+      },
+      "B_market": {
+        "n_trades": 43807,
+        "win_rate": 0.3093341246832698,
+        "expectancy_r": -0.20368409774004365,
+        "total_r": -8922.789269698093,
+        "profit_factor": 0.7464675096511817,
+        "max_drawdown_r": -8928.64833553165,
+        "bootstrap_p": 1.0,
+        "fill_rate": 1.0,
+        "n_signals_attempted": 43807
+      },
+      "C_hybrid": {
+        "n_trades": 42899,
+        "win_rate": 0.3093778409753141,
+        "expectancy_r": -0.17233540705669262,
+        "total_r": -7393.016627325057,
+        "profit_factor": 0.7778474383070525,
+        "max_drawdown_r": -7396.879756782674,
+        "bootstrap_p": 1.0,
+        "fill_rate": 1.0,
+        "n_signals_attempted": 42899
+      }
+    },
+    "15m": {
+      "A_maker_retrace": {
+        "n_trades": 13234,
+        "win_rate": 0.3486474233036119,
+        "expectancy_r": 0.001432368180123023,
+        "total_r": 18.955960495748087,
+        "profit_factor": 1.0021520163971271,
+        "max_drawdown_r": -253.79967972341134,
+        "bootstrap_p": 0.4512,
+        "fill_rate": 0.8623183684107644,
+        "n_signals_attempted": 15347
+      },
+      "B_market": {
+        "n_trades": 14274,
+        "win_rate": 0.32128345243099343,
+        "expectancy_r": -0.09613143940355488,
+        "total_r": -1372.1801660463425,
+        "profit_factor": 0.865985629051209,
+        "max_drawdown_r": -1372.7646626437727,
+        "bootstrap_p": 1.0,
+        "fill_rate": 1.0,
+        "n_signals_attempted": 14274
+      },
+      "C_hybrid": {
+        "n_trades": 13989,
+        "win_rate": 0.32625634427049827,
+        "expectancy_r": -0.0717991776026718,
+        "total_r": -1004.3986954837757,
+        "profit_factor": 0.8971843076942903,
+        "max_drawdown_r": -1029.6463071856265,
+        "bootstrap_p": 1.0,
+        "fill_rate": 0.9999285203716941,
+        "n_signals_attempted": 13990
+      }
+    },
+    "1h": {
+      "A_maker_retrace": {
+        "n_trades": 3267,
+        "win_rate": 0.37220691766146313,
+        "expectancy_r": 0.12650177337134605,
+        "total_r": 413.28129360418757,
+        "profit_factor": 1.203694022142924,
+        "max_drawdown_r": -31.098848980171226,
+        "bootstrap_p": 0.0,
+        "fill_rate": 0.8583815028901735,
+        "n_signals_attempted": 3806
+      },
+      "B_market": {
+        "n_trades": 3505,
+        "win_rate": 0.35178316690442224,
+        "expectancy_r": 0.05450995600203152,
+        "total_r": 191.05739578712047,
+        "profit_factor": 1.08321095667463,
+        "max_drawdown_r": -78.80334021421339,
+        "bootstrap_p": 0.0196,
+        "fill_rate": 1.0,
+        "n_signals_attempted": 3505
+      },
+      "C_hybrid": {
+        "n_trades": 3391,
+        "win_rate": 0.3521085225597169,
+        "expectancy_r": 0.06463135543269105,
+        "total_r": 219.16492627225534,
+        "profit_factor": 1.1004415679189654,
+        "max_drawdown_r": -48.35614294144085,
+        "bootstrap_p": 0.0094,
+        "fill_rate": 0.9997051886792453,
+        "n_signals_attempted": 3392
+      }
+    }
+  },
+  "per_window": {
+    "5m": {
+      "2018_chop": {
+        "A_maker_retrace": {
+          "n_trades": 7897,
+          "win_rate": 0.35190578700772446,
+          "expectancy_r": -0.029580757372660183,
+          "total_r": -233.59924097189747,
+          "profit_factor": 0.9566152958499262,
+          "max_drawdown_r": -346.1790462031255,
+          "bootstrap_p": 0.9596,
+          "fill_rate": 0.856414705563388,
+          "n_signals_attempted": 9221
+        },
+        "B_market": {
+          "n_trades": 8475,
+          "win_rate": 0.3305014749262537,
+          "expectancy_r": -0.12026286553124366,
+          "total_r": -1019.22778537729,
+          "profit_factor": 0.8363481922828904,
+          "max_drawdown_r": -1041.5238700633645,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 8475
+        },
+        "C_hybrid": {
+          "n_trades": 8308,
+          "win_rate": 0.3323302840635532,
+          "expectancy_r": -0.10019298013856844,
+          "total_r": -832.4032789912266,
+          "profit_factor": 0.8594627654372615,
+          "max_drawdown_r": -840.3302261217343,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 8308
+        }
+      },
+      "2022_chop": {
+        "A_maker_retrace": {
+          "n_trades": 16011,
+          "win_rate": 0.3294609955655487,
+          "expectancy_r": -0.05104363851345069,
+          "total_r": -817.259696238859,
+          "profit_factor": 0.9282428953832401,
+          "max_drawdown_r": -829.7401784466061,
+          "bootstrap_p": 1.0,
+          "fill_rate": 0.8536013221730554,
+          "n_signals_attempted": 18757
+        },
+        "B_market": {
+          "n_trades": 17301,
+          "win_rate": 0.31038668285070226,
+          "expectancy_r": -0.14176669204201361,
+          "total_r": -2452.7055390188775,
+          "profit_factor": 0.8149930202463332,
+          "max_drawdown_r": -2451.685424028027,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 17301
+        },
+        "C_hybrid": {
+          "n_trades": 16927,
+          "win_rate": 0.3106870679978732,
+          "expectancy_r": -0.11817091081669837,
+          "total_r": -2000.2790073942533,
+          "profit_factor": 0.841296960843333,
+          "max_drawdown_r": -2002.6931805869708,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 16927
+        }
+      },
+      "recent": {
+        "A_maker_retrace": {
+          "n_trades": 16626,
+          "win_rate": 0.3159509202453988,
+          "expectancy_r": -0.18039036442619658,
+          "total_r": -2999.1701989499443,
+          "profit_factor": 0.7718766863105541,
+          "max_drawdown_r": -2998.4283756950776,
+          "bootstrap_p": 1.0,
+          "fill_rate": 0.8534907597535935,
+          "n_signals_attempted": 19480
+        },
+        "B_market": {
+          "n_trades": 18031,
+          "win_rate": 0.2983750207975154,
+          "expectancy_r": -0.30230469443191865,
+          "total_r": -5450.855945301925,
+          "profit_factor": 0.6529990380729994,
+          "max_drawdown_r": -5451.87352531648,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 18031
+        },
+        "C_hybrid": {
+          "n_trades": 17664,
+          "win_rate": 0.2973278985507246,
+          "expectancy_r": -0.2581711017289162,
+          "total_r": -4560.334340939577,
+          "profit_factor": 0.6908685276665808,
+          "max_drawdown_r": -4560.648178252767,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 17664
+        }
+      }
+    },
+    "15m": {
+      "2018_chop": {
+        "A_maker_retrace": {
+          "n_trades": 2575,
+          "win_rate": 0.36854368932038833,
+          "expectancy_r": 0.050467512843310365,
+          "total_r": 129.9538455715242,
+          "profit_factor": 1.0802809998589038,
+          "max_drawdown_r": -40.53746455146854,
+          "bootstrap_p": 0.0544,
+          "fill_rate": 0.8638040925863804,
+          "n_signals_attempted": 2981
+        },
+        "B_market": {
+          "n_trades": 2804,
+          "win_rate": 0.33523537803138376,
+          "expectancy_r": -0.03829898419244247,
+          "total_r": -107.39035167560868,
+          "profit_factor": 0.9434105729744025,
+          "max_drawdown_r": -176.60654972979862,
+          "bootstrap_p": 0.9092,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 2804
+        },
+        "C_hybrid": {
+          "n_trades": 2719,
+          "win_rate": 0.34828981243104085,
+          "expectancy_r": -0.009130919994847227,
+          "total_r": -24.826971465989608,
+          "profit_factor": 0.9861238784962424,
+          "max_drawdown_r": -108.1951779732637,
+          "bootstrap_p": 0.6222,
+          "fill_rate": 0.9996323529411765,
+          "n_signals_attempted": 2720
+        }
+      },
+      "2022_chop": {
+        "A_maker_retrace": {
+          "n_trades": 5210,
+          "win_rate": 0.3460652591170825,
+          "expectancy_r": 0.01063013943637099,
+          "total_r": 55.383026463492854,
+          "profit_factor": 1.0161902332995143,
+          "max_drawdown_r": -144.7516431967799,
+          "bootstrap_p": 0.3114,
+          "fill_rate": 0.8507511430437622,
+          "n_signals_attempted": 6124
+        },
+        "B_market": {
+          "n_trades": 5580,
+          "win_rate": 0.3258064516129032,
+          "expectancy_r": -0.06601568412704548,
+          "total_r": -368.36751742891374,
+          "profit_factor": 0.9051976687825319,
+          "max_drawdown_r": -393.66123143795903,
+          "bootstrap_p": 0.9996,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 5580
+        },
+        "C_hybrid": {
+          "n_trades": 5496,
+          "win_rate": 0.326783114992722,
+          "expectancy_r": -0.04907742611552909,
+          "total_r": -269.72953393094787,
+          "profit_factor": 0.9283543950469434,
+          "max_drawdown_r": -319.11406937948743,
+          "bootstrap_p": 0.9898,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 5496
+        }
+      },
+      "recent": {
+        "A_maker_retrace": {
+          "n_trades": 5449,
+          "win_rate": 0.3417140759772435,
+          "expectancy_r": -0.03053421022926572,
+          "total_r": -166.3809115392689,
+          "profit_factor": 0.9558549518846481,
+          "max_drawdown_r": -207.7671256301885,
+          "bootstrap_p": 0.9212,
+          "fill_rate": 0.8729573854533803,
+          "n_signals_attempted": 6242
+        },
+        "B_market": {
+          "n_trades": 5890,
+          "win_rate": 0.3103565365025467,
+          "expectancy_r": -0.15219393836024114,
+          "total_r": -896.4222969418204,
+          "profit_factor": 0.7988146710612555,
+          "max_drawdown_r": -897.5852928496923,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 5890
+        },
+        "C_hybrid": {
+          "n_trades": 5774,
+          "win_rate": 0.3153792864565293,
+          "expectancy_r": -0.1229376844625629,
+          "total_r": -709.8421900868382,
+          "profit_factor": 0.8315899407651182,
+          "max_drawdown_r": -710.4774324354722,
+          "bootstrap_p": 1.0,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 5774
+        }
+      }
+    },
+    "1h": {
+      "2018_chop": {
+        "A_maker_retrace": {
+          "n_trades": 604,
+          "win_rate": 0.39403973509933776,
+          "expectancy_r": 0.2491273273834187,
+          "total_r": 150.4729057395849,
+          "profit_factor": 1.4230013462495334,
+          "max_drawdown_r": -18.284210152603514,
+          "bootstrap_p": 0.0004,
+          "fill_rate": 0.8715728715728716,
+          "n_signals_attempted": 693
+        },
+        "B_market": {
+          "n_trades": 638,
+          "win_rate": 0.38557993730407525,
+          "expectancy_r": 0.19626823882974992,
+          "total_r": 125.21913637338045,
+          "profit_factor": 1.3218623922402368,
+          "max_drawdown_r": -24.037488479886278,
+          "bootstrap_p": 0.0016,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 638
+        },
+        "C_hybrid": {
+          "n_trades": 626,
+          "win_rate": 0.37859424920127793,
+          "expectancy_r": 0.1873771718309521,
+          "total_r": 117.29810956617601,
+          "profit_factor": 1.3091022310031035,
+          "max_drawdown_r": -21.146456362200503,
+          "bootstrap_p": 0.0006,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 626
+        }
+      },
+      "2022_chop": {
+        "A_maker_retrace": {
+          "n_trades": 1233,
+          "win_rate": 0.3682076236820762,
+          "expectancy_r": 0.08654769354756309,
+          "total_r": 106.71330614414529,
+          "profit_factor": 1.1401467934201843,
+          "max_drawdown_r": -31.098848980171276,
+          "bootstrap_p": 0.0248,
+          "fill_rate": 0.8348002708192281,
+          "n_signals_attempted": 1477
+        },
+        "B_market": {
+          "n_trades": 1336,
+          "win_rate": 0.34655688622754494,
+          "expectancy_r": 0.03372174286982294,
+          "total_r": 45.05224847408345,
+          "profit_factor": 1.0520893703886691,
+          "max_drawdown_r": -42.83769455554787,
+          "bootstrap_p": 0.2144,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 1336
+        },
+        "C_hybrid": {
+          "n_trades": 1285,
+          "win_rate": 0.34552529182879377,
+          "expectancy_r": 0.043996124425117675,
+          "total_r": 56.53501988627621,
+          "profit_factor": 1.0695524821576352,
+          "max_drawdown_r": -43.37541823702496,
+          "bootstrap_p": 0.1566,
+          "fill_rate": 0.9992223950233281,
+          "n_signals_attempted": 1286
+        }
+      },
+      "recent": {
+        "A_maker_retrace": {
+          "n_trades": 1430,
+          "win_rate": 0.36643356643356645,
+          "expectancy_r": 0.10915739980451564,
+          "total_r": 156.09508172045736,
+          "profit_factor": 1.1712008930109157,
+          "max_drawdown_r": -26.373597424153388,
+          "bootstrap_p": 0.005,
+          "fill_rate": 0.8740831295843521,
+          "n_signals_attempted": 1636
+        },
+        "B_market": {
+          "n_trades": 1531,
+          "win_rate": 0.34225996080992815,
+          "expectancy_r": 0.013576754369468718,
+          "total_r": 20.786010939656606,
+          "profit_factor": 1.0199460417125783,
+          "max_drawdown_r": -78.80334021421312,
+          "bootstrap_p": 0.3636,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 1531
+        },
+        "C_hybrid": {
+          "n_trades": 1480,
+          "win_rate": 0.34662162162162163,
+          "expectancy_r": 0.030629592445812915,
+          "total_r": 45.33179681980312,
+          "profit_factor": 1.0458038287343556,
+          "max_drawdown_r": -48.35614294144095,
+          "bootstrap_p": 0.2422,
+          "fill_rate": 1.0,
+          "n_signals_attempted": 1480
+        }
+      }
+    }
+  },
+  "adverse_selection": {
+    "5m": {
+      "pooled": {
+        "n_trades": 6924,
+        "win_rate": 0.6717215482380127,
+        "expectancy_r": 1.0975668646837267,
+        "total_r": 7599.552971070123,
+        "profit_factor": 4.321223936463481,
+        "max_drawdown_r": -9.676324711605957,
+        "bootstrap_p": 0.0
+      },
+      "per_window": {
+        "2018_chop": {
+          "n_trades": 1324,
+          "win_rate": 0.6737160120845922,
+          "expectancy_r": 1.1248463769604042,
+          "total_r": 1489.2966030955752,
+          "profit_factor": 4.4783152857736335,
+          "max_drawdown_r": -9.227981930782107,
+          "bootstrap_p": 0.0
+        },
+        "2022_chop": {
+          "n_trades": 2746,
+          "win_rate": 0.6726147123088129,
+          "expectancy_r": 1.1408608225419887,
+          "total_r": 3132.803818700301,
+          "profit_factor": 4.653113795734966,
+          "max_drawdown_r": -8.604614864603263,
+          "bootstrap_p": 0.0
+        },
+        "recent": {
+          "n_trades": 2854,
+          "win_rate": 0.6699369306236861,
+          "expectancy_r": 1.0432559738171854,
+          "total_r": 2977.452549274247,
+          "profit_factor": 3.970200721874208,
+          "max_drawdown_r": -9.67632471160573,
+          "bootstrap_p": 0.0
+        }
+      }
+    },
+    "15m": {
+      "pooled": {
+        "n_trades": 2113,
+        "win_rate": 0.6758163748225272,
+        "expectancy_r": 1.1114243441000826,
+        "total_r": 2348.4396390834745,
+        "profit_factor": 4.891468989177914,
+        "max_drawdown_r": -11.56320461223413,
+        "bootstrap_p": 0.0
+      },
+      "per_window": {
+        "2018_chop": {
+          "n_trades": 406,
+          "win_rate": 0.6674876847290641,
+          "expectancy_r": 1.1863086145652784,
+          "total_r": 481.641297513503,
+          "profit_factor": 5.006373446843571,
+          "max_drawdown_r": -6.361559817973202,
+          "bootstrap_p": 0.0
+        },
+        "2022_chop": {
+          "n_trades": 914,
+          "win_rate": 0.6859956236323851,
+          "expectancy_r": 1.0897756865740127,
+          "total_r": 996.0549775286476,
+          "profit_factor": 5.122623913682209,
+          "max_drawdown_r": -6.421608962965195,
+          "bootstrap_p": 0.0
+        },
+        "recent": {
+          "n_trades": 793,
+          "win_rate": 0.6683480453972257,
+          "expectancy_r": 1.098037029055894,
+          "total_r": 870.743364041324,
+          "profit_factor": 4.603201062087265,
+          "max_drawdown_r": -11.563204612234358,
+          "bootstrap_p": 0.0
+        }
+      }
+    },
+    "1h": {
+      "pooled": {
+        "n_trades": 539,
+        "win_rate": 0.699443413729128,
+        "expectancy_r": 1.2166628346645298,
+        "total_r": 655.7812678841816,
+        "profit_factor": 5.486169043176285,
+        "max_drawdown_r": -9.678792230650174,
+        "bootstrap_p": 0.0
+      },
+      "per_window": {
+        "2018_chop": {
+          "n_trades": 89,
+          "win_rate": 0.7303370786516854,
+          "expectancy_r": 1.3650345333674434,
+          "total_r": 121.48807346970246,
+          "profit_factor": 6.471506785060698,
+          "max_drawdown_r": -4.376906170051992,
+          "bootstrap_p": 0.0
+        },
+        "2022_chop": {
+          "n_trades": 244,
+          "win_rate": 0.6967213114754098,
+          "expectancy_r": 1.1505217234626972,
+          "total_r": 280.7273005248981,
+          "profit_factor": 5.4966315284394005,
+          "max_drawdown_r": -4.26689216787139,
+          "bootstrap_p": 0.0
+        },
+        "recent": {
+          "n_trades": 206,
+          "win_rate": 0.6893203883495146,
+          "expectancy_r": 1.2309023975222382,
+          "total_r": 253.56589388958105,
+          "profit_factor": 5.120067552049131,
+          "max_drawdown_r": -9.678792230650146,
+          "bootstrap_p": 0.0
+        }
+      }
+    }
+  },
+  "per_timeframe_A_maker_retrace_legacycost": {
+    "5m": {
+      "n_trades": 40534,
+      "win_rate": 0.33369516948734396,
+      "expectancy_r": -0.04732384182124949,
+      "total_r": -1918.2246043825269,
+      "profit_factor": 0.9318000410773031,
+      "max_drawdown_r": -2146.208712832068,
+      "bootstrap_p": 1.0,
+      "fill_rate": 0.85410257490834
+    },
+    "15m": {
+      "n_trades": 13234,
+      "win_rate": 0.3520477557805652,
+      "expectancy_r": 0.029785229775097115,
+      "total_r": 394.17773084363523,
+      "profit_factor": 1.0463554875377368,
+      "max_drawdown_r": -107.51341065139621,
+      "bootstrap_p": 0.0132,
+      "fill_rate": 0.8623183684107644
+    },
+    "1h": {
+      "n_trades": 3267,
+      "win_rate": 0.3731251913070095,
+      "expectancy_r": 0.13966202821766385,
+      "total_r": 456.27584618710785,
+      "profit_factor": 1.2288112611434676,
+      "max_drawdown_r": -29.259313569776083,
+      "bootstrap_p": 0.0,
+      "fill_rate": 0.8583815028901735
+    }
+  }
+}

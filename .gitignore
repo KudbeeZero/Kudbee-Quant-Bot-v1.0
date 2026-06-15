@@ -3,6 +3,9 @@ __pycache__/
 *.egg-info/
 .cache/
 *.parquet
+# Node toolchain for the Tailwind build — only the compiled assets/css/app.css
+# (and kudbee_quant/static/app.css) are committed; node_modules is regenerable.
+node_modules/
 # Agent worktrees (transient, auto-cleaned; created by isolated subagents)
 .claude/worktrees/
 # Overnight research runtime cache + loop log (regenerable; not source)
