@@ -7,6 +7,17 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
+- **⚙️ SERIAL RULE NOW ACTIVE (2026-06-15, user-set):** all implementation work is
+  strictly serial — **finish the unit → open ONE PR → audit → merge → only then start
+  the next unit**; only one PR open at a time; no new implementation while a PR is open
+  or awaiting audit. Purely *observational* background tasks (e.g. the #18 watch loop)
+  are exempt. The cross-session orchestration timeline now lives in the new
+  **`docs/AGENT_ORCHESTRATION_LEDGER.md`** (complements this baton + `docs/audits/`).
+- **In flight (this session):** a small docs PR adding `docs/AGENT_ORCHESTRATION_LEDGER.md`
+  on branch `claude/agent-orchestration-ledger` (AWAITING_AUDIT). NOTE: an instruction
+  referencing a "HUD shell / PR #34 / REC-004 / process-deviation" was found to match
+  NOTHING in this repo (PR #34 → 404; no such files/branches) — so NO audit report was
+  fabricated for it; only the real ledger was created (honesty rule held).
 - **Last branch:** `claude/handoff-audit-3dgde4` (this chat — the audit-gate chat).
 - **Last PR:** **#27** — the audit reports + this baton reconciliation (docs-only).
   https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/27
