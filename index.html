@@ -47,6 +47,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/trade-story.css" />
 
   <!-- Structured Data (single @graph for AI & search engines) -->
   <script type="application/ld+json">
@@ -216,44 +217,9 @@
           </ul>
         </div>
 
-        <!-- Live-ish dashboard mock -->
+        <!-- Animated "trade story" — how the system reads a setup (illustrative) -->
         <div class="hero__visual reveal">
-          <div class="glass dash">
-            <div class="dash__head">
-              <div class="dash__title">
-                <span class="dash__dot"></span> BTC / USDT · 1h · PVSRA + MM context
-              </div>
-              <span class="badge badge--neutral" id="signalBadge">hypothesis · measuring</span>
-            </div>
-            <div class="dash__chart">
-              <svg viewBox="0 0 400 160" preserveAspectRatio="none" class="spark" aria-hidden="true">
-                <defs>
-                  <linearGradient id="fill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0" stop-color="rgba(45,212,191,.35)"/>
-                    <stop offset="1" stop-color="rgba(45,212,191,0)"/>
-                  </linearGradient>
-                </defs>
-                <path id="sparkFill" fill="url(#fill)" d=""/>
-                <path id="sparkLine" fill="none" stroke="#2DD4BF" stroke-width="2.5" d=""/>
-                <circle id="sparkDot" r="4" fill="#2DD4BF"/>
-              </svg>
-            </div>
-            <div class="dash__stats">
-              <div><span class="k">Edge est.</span><b>+1.1% <span class="ci">±2.6</span></b></div>
-              <div><span class="k">Max DD</span><b class="down">-11.1%</b></div>
-              <div><span class="k">P(noise)</span><b class="down">21%</b></div>
-              <div><span class="k">OOS Sharpe</span><b>＋ pending</b></div>
-            </div>
-            <p class="dash__note">Illustrative output — not a track record. Numbers render only when computed from real data.</p>
-          </div>
-          <div class="glass chip chip--a">
-            <span class="chip__k">Liquidity sweep</span>
-            <span class="badge badge--neutral">● flagged</span>
-          </div>
-          <div class="glass chip chip--b">
-            <span class="chip__k">Bull vector candle</span>
-            <span class="badge badge--up">▲ detected</span>
-          </div>
+          <div class="trade-story" id="trade-story"></div>
         </div>
       </div>
 
@@ -805,5 +771,6 @@
   </footer>
 
   <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/trade-story.js" defer></script>
 </body>
 </html>
