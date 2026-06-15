@@ -1,0 +1,326 @@
+/* =========================================================
+   Kudbee Quant — Trade Story widget
+   A self-contained, animated "how we read a trade" centerpiece.
+   Matches the site's design tokens (see assets/css/style.css).
+   New file — does not touch any existing page.
+   ========================================================= */
+
+.trade-story {
+  /* Local tokens (mirror the site, but self-contained so the widget
+     works even if embedded before style.css loads). */
+  --ts-bg:        #0a0e17;
+  --ts-bg-2:      #0d1320;
+  --ts-surface:   rgba(255, 255, 255, 0.04);
+  --ts-surface-2: rgba(255, 255, 255, 0.06);
+  --ts-border:    rgba(255, 255, 255, 0.09);
+  --ts-border-2:  rgba(255, 255, 255, 0.14);
+  --ts-honey:     #F5A623;
+  --ts-honey-lt:  #FFD45E;
+  --ts-mint:      #2DD4BF;
+  --ts-text:      #EAF0FA;
+  --ts-muted:     #9AA6BC;
+  --ts-muted-2:   #6A7488;
+  --ts-radius:    18px;
+  --ts-radius-sm: 12px;
+  --ts-ease:      cubic-bezier(.22, 1, .36, 1);
+  --ts-font-head: 'Space Grotesk', system-ui, sans-serif;
+  --ts-font-body: 'Inter', system-ui, sans-serif;
+  --ts-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Agent accent colors */
+  --ts-liquidity: #ff8a3c;
+  --ts-pvsra:     #3ddc84;
+  --ts-structure: #2DD4BF;
+  --ts-reviewer:  #FFD45E;
+  --ts-risk:      #8b9dff;
+
+  position: relative;
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+  background: linear-gradient(160deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 30px 80px -30px rgba(0,0,0,.7);
+  overflow: hidden;
+  font-family: var(--ts-font-body);
+  color: var(--ts-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ----- Header strip ----- */
+.ts-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--ts-border);
+  position: relative;
+  z-index: 4;
+}
+.ts-head__title {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--ts-font-head);
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+.ts-head__dot {
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--ts-mint);
+  box-shadow: 0 0 10px 1px var(--ts-mint);
+  animation: ts-pulse 2.4s var(--ts-ease) infinite;
+}
+.ts-head__badge {
+  font-family: var(--ts-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ts-honey-lt);
+  background: rgba(245,166,35,.10);
+  border: 1px solid rgba(245,166,35,.25);
+  border-radius: 999px;
+  padding: 4px 11px;
+  white-space: nowrap;
+}
+@keyframes ts-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: .55; transform: scale(.82); }
+}
+
+/* ----- Stage (canvas + bubble layer) ----- */
+.ts-stage {
+  position: relative;
+  width: 100%;
+  /* height set responsively below */
+  height: 420px;
+}
+.ts-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ----- Agent layer ----- */
+.ts-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* ----- Agent bubble ----- */
+.ts-bubble {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 196px;
+  max-width: 64%;
+  padding: 10px 12px;
+  background: linear-gradient(160deg, rgba(20,28,44,.92), rgba(13,19,32,.92));
+  border: 1px solid var(--ts-border-2);
+  border-left: 2px solid var(--ts-accent, var(--ts-honey));
+  border-radius: var(--ts-radius-sm);
+  box-shadow: 0 14px 36px -14px rgba(0,0,0,.75),
+              0 0 22px -6px var(--ts-accent, var(--ts-honey));
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transform: translateY(10px) scale(.96);
+  transition: opacity .55s var(--ts-ease), transform .55s var(--ts-ease);
+  will-change: opacity, transform;
+  --ts-accent: var(--ts-honey);
+}
+.ts-bubble.is-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.ts-bubble.is-out {
+  opacity: 0;
+  transform: translateY(-8px) scale(.97);
+}
+
+.ts-bubble__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ts-bubble__avatar {
+  flex: none;
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  font-size: 14px;
+  border-radius: 7px;
+  background: color-mix(in srgb, var(--ts-accent) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ts-accent) 40%, transparent);
+}
+.ts-bubble__name {
+  font-family: var(--ts-font-head);
+  font-weight: 600;
+  font-size: 12.5px;
+  letter-spacing: -0.01em;
+  color: var(--ts-text);
+}
+.ts-bubble__tag {
+  margin-left: auto;
+  font-family: var(--ts-font-mono);
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--ts-accent);
+  opacity: .9;
+}
+.ts-bubble__note {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ts-muted);
+}
+.ts-bubble__note strong { color: var(--ts-text); font-weight: 600; }
+
+/* thinking dots */
+.ts-think {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 14px;
+}
+.ts-think span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ts-accent);
+  opacity: .35;
+  animation: ts-think 1.3s var(--ts-ease) infinite;
+}
+.ts-think span:nth-child(2) { animation-delay: .18s; }
+.ts-think span:nth-child(3) { animation-delay: .36s; }
+@keyframes ts-think {
+  0%, 60%, 100% { opacity: .3; transform: translateY(0); }
+  30%           { opacity: 1;  transform: translateY(-3px); }
+}
+
+/* connector: a small dot + line pointing toward the candle/level */
+.ts-bubble__pin {
+  position: absolute;
+  width: 9px; height: 9px;
+  border-radius: 50%;
+  background: var(--ts-accent);
+  box-shadow: 0 0 10px 1px var(--ts-accent);
+  opacity: 0;
+  transition: opacity .4s var(--ts-ease);
+}
+.ts-bubble.is-in .ts-bubble__pin { opacity: 1; }
+.ts-bubble__line {
+  position: absolute;
+  height: 0;
+  border-top: 1px dashed color-mix(in srgb, var(--ts-accent) 70%, transparent);
+  transform-origin: left center;
+  opacity: 0;
+  transition: opacity .4s var(--ts-ease);
+}
+.ts-bubble.is-in .ts-bubble__line { opacity: .8; }
+
+/* accent variants */
+.ts-bubble--liquidity { --ts-accent: var(--ts-liquidity); }
+.ts-bubble--pvsra     { --ts-accent: var(--ts-pvsra); }
+.ts-bubble--structure { --ts-accent: var(--ts-structure); }
+.ts-bubble--reviewer  { --ts-accent: var(--ts-reviewer); }
+.ts-bubble--risk      { --ts-accent: var(--ts-risk); }
+
+/* +3R result tag */
+.ts-result {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  font-family: var(--ts-font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  color: #06281f;
+  background: linear-gradient(135deg, var(--ts-mint), #5eead4);
+  border-radius: 999px;
+  box-shadow: 0 10px 30px -8px rgba(45,212,191,.6);
+  opacity: 0;
+  transform: translateY(8px) scale(.95);
+  transition: opacity .55s var(--ts-ease), transform .55s var(--ts-ease);
+  white-space: nowrap;
+}
+.ts-result.is-in { opacity: 1; transform: translateY(0) scale(1); }
+.ts-result__r { font-weight: 700; }
+.ts-result__ill { font-family: var(--ts-font-body); font-size: 10px; opacity: .75; }
+
+/* ----- Caption / a11y ----- */
+.ts-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 18px;
+  border-top: 1px solid var(--ts-border);
+  position: relative;
+  z-index: 4;
+}
+.ts-foot__icon {
+  flex: none;
+  font-size: 13px;
+  opacity: .8;
+}
+.ts-caption {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--ts-muted-2);
+}
+.ts-caption strong { color: var(--ts-muted); font-weight: 600; }
+
+.ts-sr {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ----- Responsive ----- */
+@media (max-width: 720px) {
+  .ts-stage { height: 360px; }
+  .ts-bubble { width: 168px; padding: 9px 11px; }
+  .ts-bubble__note { font-size: 11px; }
+}
+@media (max-width: 560px) {
+  .trade-story { border-radius: 14px; }
+  .ts-head { padding: 11px 14px; }
+  .ts-head__title { font-size: 13px; }
+  .ts-stage { height: 320px; }
+  .ts-bubble {
+    width: 148px;
+    max-width: 72%;
+    padding: 8px 10px;
+  }
+  .ts-bubble__name { font-size: 11.5px; }
+  .ts-bubble__note { font-size: 10.5px; line-height: 1.4; }
+  .ts-bubble__tag { display: none; }
+  .ts-foot { padding: 10px 14px; }
+  .ts-caption { font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .ts-stage { height: 300px; }
+  .ts-bubble { width: 134px; }
+}
+
+/* ----- Reduced motion: no animation, static composed frame ----- */
+@media (prefers-reduced-motion: reduce) {
+  .ts-head__dot { animation: none; }
+  .ts-think span { animation: none; opacity: .7; }
+  .ts-bubble,
+  .ts-result,
+  .ts-bubble__pin,
+  .ts-bubble__line {
+    transition: none !important;
+  }
+}

@@ -12,7 +12,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
     .lab { max-width: 1080px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
@@ -48,10 +48,23 @@
     .exp-amt { font-family:'JetBrains Mono',monospace; text-align:right; color:#c4d0e6; }
     .lab__disc { margin-top:2rem; font-size:.82rem; color:#7a88aa; border-left:3px solid #F45B69; padding-left:.9rem; line-height:1.6; }
     .lab__foot { margin-top:1.5rem; font-size:.75rem; color:#6A7488; font-family:'JetBrains Mono',monospace; }
+    /* Mobile adjustments */
+    @media (max-width:680px) {
+      .lab { padding: 5.5rem 1rem 3rem; }
+      .lab__hero h1 { font-size:1.8rem; }
+      .stats { grid-template-columns: repeat(2,1fr); }
+      .panel { padding:1.1rem 1rem; }
+      .calc { grid-template-columns: 1fr 1fr; }
+      .exp-row { grid-template-columns: 80px 1fr 56px; font-size:.82rem; }
+    }
+    @media (max-width:400px) {
+      .stats { grid-template-columns: 1fr; }
+      .calc { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header class="nav" id="nav">
+  <header class="nav scrolled" id="nav">
     <div class="container nav__inner">
       <a href="index.html" class="brand" aria-label="Kudbee Quant home">
         <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
@@ -63,6 +76,8 @@
         <a href="lab.html" aria-current="page">The Lab</a>
         <a href="blog/">Blog</a>
       </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </header>
 
@@ -231,6 +246,7 @@
       Kudbee Quant engine · the honesty layer is the product.</p>
   </main>
 
+  <script src="assets/js/main.js" defer></script>
   <script src="assets/js/lab-data.js"></script>
   <script src="assets/js/lab.js"></script>
 </body>
