@@ -561,6 +561,7 @@
     function runLoop() {
       // timeline state
       var state = { revealCount: 0, growing: null, bracketP: 0, scanP: null };
+      var shownOrder = [];   // narrow-screen: order bubbles appeared, to fade prior
       var t0 = performance.now();
 
       // --- choreography schedule (ms) ---
@@ -639,6 +640,14 @@
         // force reflow so the entrance transition plays
         void b.offsetWidth;
         b.classList.add("is-in");
+        // Narrow screens: keep only the most recent bubble on the chart so the
+        // notes don't crowd the candles — they still appear in sequence.
+        if (W < 560) {
+          shownOrder.forEach(function (k) {
+            if (k !== a.key && bubbleEls[k]) bubbleEls[k].classList.add("is-out");
+          });
+        }
+        shownOrder.push(a.key);
       }
       function scheduleAgent(key, showAt) {
         var a = byKey(key);
@@ -680,6 +689,7 @@
           // reset for the next loop
           resetForLoop();
           t0 = now;
+          shownOrder.length = 0;
           for (var a1 = 0; a1 < anims.length; a1++) { anims[a1].done = false; }
           for (var c1 = 0; c1 < sched.length; c1++) { sched[c1].done = false; }
           state.revealCount = 0; state.growing = null;

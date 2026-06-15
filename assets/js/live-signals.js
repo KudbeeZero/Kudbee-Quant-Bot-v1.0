@@ -49,7 +49,11 @@
       status.textContent = "Updated " + new Date().toLocaleTimeString() +
         " · 1h · validated config (3R, 0.25-ATR limit retrace, maker).";
     }).catch(function (e) {
-      status.textContent = "Backend unavailable (" + e.message + "). Start it with: uvicorn kudbee_quant.api:app";
+      status.textContent = "Live signals are offline right now — the engine isn't reachable. Please check back soon.";
+      if (window.console && console.warn) {
+        console.warn("Kudbee live-signals: backend error (" + e.message +
+          "). Run the engine locally with: uvicorn kudbee_quant.api:app");
+      }
     });
   }
 

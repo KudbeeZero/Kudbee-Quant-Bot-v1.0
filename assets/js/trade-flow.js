@@ -312,7 +312,11 @@
   function status(msg) { $("tf-status").textContent = msg; }
 
   function apiError(e) {
-    status("Backend unavailable (" + e.message + "). Start it with: uvicorn kudbee_quant.api:app");
+    status("This interactive demo needs the live engine — it's offline right now. Please check back soon.");
+    if (window.console && console.warn) {
+      console.warn("Kudbee trade-flow: backend error (" + e.message +
+        "). Run the engine locally with: uvicorn kudbee_quant.api:app");
+    }
   }
 
   function loadLive() {
