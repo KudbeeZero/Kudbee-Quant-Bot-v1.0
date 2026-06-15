@@ -1257,3 +1257,48 @@ User-confirmed scope: shared-password login now (no email/DB yet), a curated
   exists yet — see HOSTING.md). Email-verified self-serve accounts + captcha + API
   keys are a deliberate later phase (need an email provider + persistent store).
 
+## 41. Execution head-to-head — maker-retrace WINS net-of-fees on every TF; market entry never wins; cancels ARE the runners but aren't harvestable by blanket market — 2026-06-15
+
+OFFLINE research (TASK 2026-06-15). Tested whether entering at the signal with a
+MARKET order beats the live 0.25-ATR maker retrace, on the SAME OOS sample. Live
+path untouched. Harness: `kudbee_quant/backtest/execution_modes.py` (+6 tests),
+`scripts/execution_backtest.py`; full results `data/execution_backtest_results.json`;
+writeup `docs/EXECUTION_BACKTEST.md`. Signal = the real production
+`confluence_position(min_pct=0.50, trend_align=True)`; geometry = validated §1
+(1.5-ATR stop, 3R, retrace 0.25, entry_window 6). **Per-leg honest fees** (§25):
+taker 0.00045/side IN and on every stop/time-stop (market out), maker 0.0002/side
+on resting limit fills and targets. OOS = 2018_chop (5 majors), 2022_chop (10),
+recent (10); 5m fetched + resampled to 15m/1h so all TFs share the same bars.
+
+VERDICT (decisive metric = net-of-fees expectancy/trade, pooled): **the CURRENT
+maker retrace (A) wins on all three timeframes and in all 9 regime cells.**
+- 1h: A **+0.1265R** (p=0.000) > C hybrid +0.065 > B market +0.055. A survives both
+  chop windows (2018 +0.249, 2022 +0.087, recent +0.109). This is the winning
+  execution; honestly-costed number **+0.1265R/trade** (legacy round-trip-maker
+  costing: +0.1397R). Lower than the §1 ~+0.19-0.24R headline because 2/3 windows
+  are chop/bear AND stops now pay taker (more conservative than the old model).
+- 15m: A ≈ breakeven +0.0014R (p=0.45, NOT significant) but still beats B (−0.096).
+- 5m: ALL lose; **market makes 5m WORSE** (B −0.204 vs A −0.100). §37 reinforced —
+  no execution change rescues the fee-poisoned 5m book (hypothesis tested, not
+  assumed). Maker beats market by ~+0.07–0.10R/trade on every TF; hybrid always
+  sits between (pays taker on the chase).
+
+ADVERSE SELECTION (STEP 3, the key one): the ~14-15% of signals the retrace CANCELS,
+re-resolved as market entries, are **strong net winners every regime** (1h +1.22R
+69.9% win, 15m +1.11R, 5m +1.10R; all p=0.000, large n). So the retrace IS
+anti-selecting — a long is "cancelled" precisely when price never pulled back, i.e.
+it ran immediately; the book fills pullbacks/reversals and skips the runners.
+**BUT this is NOT a reason to switch to market entry**, for two honest reasons:
+(1) you can't isolate the cancels in real time — the only tradeable version is
+"take every signal at market" = variant B, which LOSES on every TF (the reversals
+cost more than the runners gain); (2) the +1.1R is UPWARD-BIASED by selection
+conditioning (cancellation = no 0.25-ATR pullback in 6 bars correlates with not
+being stopped, since the stop is 1.5 ATR away). Treat +1.1R as a *diagnostic that
+cancels lean to runners*, not as harvestable edge.
+
+DEAD END logged (so we don't re-test): blanket market / next-bar-open entry, and
+limit-then-market hybrid, both LOSE vs the maker retrace on 5m/15m/1h. NO live
+change. The only open follow-up (future research, forward-test first): a SELECTIVE
+chase that market-fills a cancelled signal ONLY under a momentum/trend gate — the
+seam exists (`run_variant` + `adverse_selection`). §1 / FEE_PCT / journal / live
+path all untouched.
