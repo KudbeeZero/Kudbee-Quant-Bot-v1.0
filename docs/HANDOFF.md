@@ -7,62 +7,75 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/execution-backtest-maker-market-d96f9x`.
-- **Last PR:** **#24** — execution head-to-head (maker-retrace vs market vs hybrid,
-  OOS, net of fees). https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/24
-- **Audit status:** `AWAITING_AUDIT` — PR #24 (DRAFT) not yet gated. Merged current
-  `main` (the #21 dashboard + #23 cycle-backtest); resolved the `MEMORY.md` §41
-  collision (#23 kept §41; **this chat is §42**); suite re-run green (**328 passed**).
-- **Prior un-gated debt still open:** #21 (dashboard) and #23 (cycle backtest) were
-  merged to `main` at the user's instruction **without** an independent
-  `/handoff-audit`. Both had green CI + full local suite but no arm's-length audit.
-  **Recommend post-hoc `/handoff-audit` on #21 and #23** (`docs/audits/pr-21-audit.md`
-  / `pr-23-audit.md`). They are NOT part of the verified gate streak.
-- **Gate streak (audited):** #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
+- **Last branch:** `claude/handoff-audit-3dgde4` (this chat — the audit-gate chat).
+- **Last PR:** **#27** — the audit reports + this baton reconciliation (docs-only).
+  https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/27
+- **Audit status:** `BACKLOG GATED — all PASS`. This chat ran `/handoff-audit` across
+  the whole open backlog:
+  - **#24** (execution head-to-head) — open `AWAITING_AUDIT` → independent gate
+    **PASS** → **MERGED** (`docs/audits/pr-24-audit.md`, 324 passed). Gate held.
+  - **#21** (dashboard) + **#23** (cycle backtest) — the un-gated merges → independent
+    **post-hoc PASS** (`docs/audits/pr-21-audit.md` / `pr-23-audit.md`, 322 passed).
+    Debt cleared.
+  - **#18** (top-100 + 5m on the LIVE Action) — user chose **MERGE as a paper
+    experiment**; rebased onto current `main`, MEMORY renumbered to **§43**, CI green →
+    **MERGED**. (Recorded honestly: this runs against §37/§31; it is NOT validated edge.)
+- ⚠️ **Residual un-gated debt (low-risk, optional back-fill):** **#25** (one-line
+  `psutil` add) + **#26** (dashboard history segmentation, frontend-only) were MERGED
+  from the UI without an audit; **#19** (vector-candle logger) likewise has no audit
+  report on disk. None block work; back-fill notes if you want the record complete.
+- **Gate streak (audited):** #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20,**#24**. (#21/#23
+  are post-hoc PASS — recorded, but they were merged before their gate, so they sit
+  outside the "gate held first" streak.)
 - Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16** (live order path, PASS),
   **#17** (near-miss autopsy, PASS), **#20** (new entry signals, PASS, `0244ba0`),
   #19 (vector-candle logger) all MERGED to `main`.
 - **#15 CLOSED** (stale audit artifact for the already-audited PR #14 — superseded).
-- **#18 STILL OPEN — HELD for an explicit user go.** Top-100 universe + 5m re-enable
-  on the **LIVE hourly Action**; it changes production *against our own evidence*
-  (§37 5m fee-poison, §31 unproven top-100 tail). Defensible as a paper experiment but
-  it is a live-automation change — do NOT merge without a clear user decision, and
-  rebase it first (its base is stale).
-- **#19 audit debt:** merged from the UI without an audit (research-only vector-candle
-  logger; new `data/vector_log.json`) — no audit report on disk yet.
+- **Open PRs now:** only **#27** (this chat's docs PR). The #18/#24 backlog is closed.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **Execution head-to-head (PR #24, OFFLINE research)** — does a MARKET order at the
-  signal beat the live 0.25-ATR maker retrace? Tested on the SAME OOS sample, ALL
-  timeframes. **Live trading path untouched** — `bracket.py`/`resolver.py` NOT edited.
-  - New **isolated** module `kudbee_quant/backtest/execution_modes.py`: market entry =
-    fill at OPEN of T+1 (no lookahead); per-leg fees (taker IN + on stop/time-stop,
-    maker on resting limit fills + targets); adverse-selection resolver; bootstrap p.
-    Reuses the shared `resolve_bracket`. +6 unit tests (`tests/test_execution_modes.py`).
-  - `scripts/execution_backtest.py` — fetch 5m + resample to 15m/1h, run A/B/C ×
-    {5m,15m,1h} × {2018_chop, 2022_chop, recent}. Results
-    `data/execution_backtest_results.json`; writeup `docs/EXECUTION_BACKTEST.md`;
-    MEMORY **§42**.
-  - **VERDICT:** the CURRENT maker retrace (A) wins net-of-fees on every TF and all 9
-    regime cells (1h **+0.1265R**, p=0.000; market is worst everywhere; market makes 5m
-    WORSE, not better). Cancelled signals ARE the runners (anti-selection confirmed,
-    p=0.000) but blanket market entry can't harvest it (variant B loses) and the figure
-    is selection-biased. **No live change recommended.**
-  - Suite **328 passed** (+6 new); new files ruff-clean. §1 / `FEE_PCT` / journal /
-    `alert_inbox` untouched; no secrets.
+This was the **gate-the-backlog** chat (`/handoff-audit`). It spawned independent
+arm's-length auditor subagents (each pinned to the PR's real `base.sha..head.sha`,
+verifying claims against the actual diff, running the suite) and applied the merge gate.
+
+- **PR #24 (execution head-to-head)** — was OPEN draft `AWAITING_AUDIT`. Auditor →
+  **PASS**: live path byte-unchanged (`bracket.py`/`resolver.py`/`validated_defaults.py`
+  not in diff), no-lookahead verified (market fills at `open[T+1]`, exits walk bars after
+  the fill), headline numbers reproduce from the committed JSON to 4dp, bootstrap p in
+  code, and the +1.1R cancelled-signal result is rigorously caveated as a selection-biased
+  DIAGNOSTIC in both the writeup and MEMORY §42. **Merged on PASS** (`docs/audits/pr-24-audit.md`).
+- **PR #21 (dashboard) + PR #23 (cycle backtest)** — post-hoc audits of the two
+  user-merged PRs. Both **PASS**: #21's auth/runner security primitives all hold
+  (timing-safe compare, signature actually verified, expiry enforced, whitelist dispatch,
+  no RCE/SSRF, `paper_scan(dry_run=True)` journal invariant test-enforced); #23's engine
+  fidelity = live rules, numbers un-rounded, `keep 0.5` data-backed, caveats honest.
+  (`docs/audits/pr-21-audit.md`, `pr-23-audit.md`.)
+- **PR #18 (top-100 + 5m on the LIVE Action)** — user-directed MERGE as a paper
+  experiment. Rebased the stale base onto current `main`, resolved the `MEMORY.md`
+  collision (its draft "§39" → **§43**), aligned the workflow cross-refs (§39→§43); the
+  workflow flip merged clean, `data/journal.json` byte-identical to main, CI green →
+  **merged**. It is a forward experiment, NOT validated edge — revert to top-10/no-5m if
+  it times out or re-confirms §37.
+- **This PR (#27)** is docs-only: the four audit reports + this baton. No `kudbee_quant/`
+  / workflow / `data/journal.json` / `data/alert_inbox/` changes. Suites reported by the
+  auditors: **322** (post-hoc #21/#23 state) and **324** (#24 state) passed.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/handoff-audit-gate`.
-- **Scope (user-chosen 2026-06-15):** **Gate the open PR backlog.** Run
-  `/handoff-audit` on **PR #24** first (it's a DRAFT — review diff vs. claims, the
-  no-live-change guarantee, the per-leg fee model, the adverse-selection bias caveat;
-  merge only on PASS). Then clear the un-gated debt: post-hoc `/handoff-audit` on **#21**
-  (dashboard) and **#23** (cycle backtest), writing `docs/audits/pr-{21,23}-audit.md`.
-  (#20 is already audited PASS — re-confirm only if desired.)
-- **Then queued (prior baton, deferred):** deploy + verify the dashboard on Render
-  (`docs/HOSTING.md`); decide #18 (live top-100+5m) yes/no; back-fill a #19 audit note.
+- **Slug hint (ADVISORY only):** `claude/render-deploy-verify`.
+- **FIRST: merge PR #27** (this chat's audit/baton PR) so `main` is current, then start
+  the next branch. (Backlog gate is DONE — #18/#24 merged, #21/#23 post-hoc PASS.)
+- **Scope (deferred, now unblocked):** **Deploy + verify the dashboard (PR #21) on
+  Render.** Stand up the service from `render.yaml`, set env vars
+  (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus existing
+  `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the LIVE
+  login→dashboard→runner flow (local-only so far; #25 added `psutil` for the System
+  panel). Runbook: `docs/HOSTING.md`.
+- **Watch after #18 merged:** the hourly Action now scans ~101 pairs × 5 TF incl. 5m —
+  check the **first few runs** for timeout / Binance rate-limits and journal growth;
+  REVERT to top-10/no-5m if it times out or 5m re-confirms §37 (§43).
+- **Optional debt back-fill:** post-hoc audit notes for #25 / #26 / #19 (all low-risk).
 - **SETTLED — record the closure (PR #23 §41 + corroborated by PR #24 §42):** the
   `--min-pct 0.6` question is answered **NO, keep 0.5**. No more shadow-test needed.
   ALSO settled (§42): **market/hybrid execution is a DEAD END** — do not re-test blanket
@@ -72,9 +85,9 @@
   liquidation-cluster levels — data-availability risk: OI hist ≈ 30d, liquidation
   history restricted); verify the 5m pause landed in production (§37).
 - **Open risks / watch-items:**
-  - **PR backlog UN-GATED (the user's flagged risk):** #24 (this, AWAITING_AUDIT),
-    plus #21 + #23 merged without an independent audit; #18 still held. Gate before
-    new feature work.
+  - **PR backlog GATED (was the user's flagged risk):** #24 audited PASS + merged;
+    #21 + #23 post-hoc PASS; #18 merged (user-directed paper experiment). Residual
+    low-risk debt: #25/#26/#19 un-audited (optional back-fill). No open backlog.
   - **§42 maker fee is an ASSUMPTION:** the maker side (0.0002/side) is unconfirmed
     pending one real LIMIT fill (§25). The 15m/1h verdict margins are fee-sensitive —
     a higher maker rate narrows (does not flip) the maker-vs-market gap.
@@ -88,7 +101,7 @@
     in `api.py`) — keep in sync; Netlify CSP still has `unsafe-inline` (marketing
     pages, not redesigned). There is ALSO a Cloudflare Pages deploy on this repo
     (static site) — it deployed the branch fine, but it's a 3rd static host to remember.
-  - **#21/#23 merged un-gated** (audit debt, above).
+  - **#21/#23 audited post-hoc PASS** (`docs/audits/pr-21-audit.md` / `pr-23-audit.md`).
   - **Cycle backtest caveats (PR #23):** the pooled "overall −0.019R" is a 5m artifact
     (71% of trades) — never quote without the 1h context (+0.096/+0.060, n=8,124). The
     chop-analog 1h samples are small (2018 n=450 on 5 coins, 2022 n=951) → "survives
@@ -96,7 +109,10 @@
     → size conservatively.
   - **PR #20 signals NOT validated for live use** — keep flags OFF, forward-test.
   - **Live execution EXISTS but UNPROVEN live (PR #16);** **top-100 unproven (§31);**
-    **5m pause unverified in prod (§37);** **possible 1h edge decay (§36/§37).**
+    **possible 1h edge decay (§36/§37).** NOTE: the §37 5m pause was REVERSED in prod by
+    PR #18 (§43) at user direction — 5m is now scanning live on the paper Action as an
+    experiment; the §37 fee-drag finding is unchanged, so watch the new 5m data confirm/
+    refute it and revert if needed.
   - **Branch deletions pending (§32):** handoff-audit-*, hello-*, overnight-*,
     sol-short-*, fable-5-*, zcash-* set (safe via GitHub UI).
   - **§33** replay pct ≠ live-edge pct; **§29/§30** maker-vs-taker fee open item.
@@ -129,3 +145,8 @@
   net of fees; offline, live path untouched). Maker retrace wins on every TF/regime;
   market never wins; cancels are runners but not harvestable. MEMORY §42. Market/hybrid
   entry logged as a DEAD END. AWAITING_AUDIT. Next scope: gate the open PR backlog.
+- 2026-06-15: PR #27 (`claude/handoff-audit-3dgde4`) — `/handoff-audit` gate-the-backlog
+  chat. Independent audits: #24 PASS→merged; #21 + #23 post-hoc PASS; merged user-directed
+  #18 (top-100+5m, §43) after a rebase. Flagged #25/#26/#19 as residual low-risk un-gated
+  debt. Reports: `docs/audits/pr-{21,23,24}-audit.md`. Next scope: deploy + verify the
+  dashboard on Render.
