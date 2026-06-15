@@ -53,6 +53,7 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | REC-005 | 2026-06-15 | `claude/dashboard-segmentation` | #26 | dashboard history segmentation (by symbol/hour/TF) | merged un-gated (frontend-only; optional back-fill audit) | ✅ |
 | REC-006 | 2026-06-15 | `claude/execution-backtest-maker-market-d96f9x` | #24 | execution head-to-head (maker vs market vs hybrid, OOS, net of fees); MEMORY §42 | `/handoff-audit` **PASS** ×2 (gated by #27 **and** an independent re-audit this session) | ✅ |
 | REC-007 | 2026-06-15 | `claude/handoff-audit-3dgde4` | #27 | post-hoc audits of #21/#23 + baton reconciliation | docs-only audit artifacts | ✅ |
+| REC-008 | 2026-06-15 | `claude/agent-orchestration-ledger` | #28 | this ledger + serial working agreement (docs-only) | independent audit **PASS WITH NOTES** (`docs/audits/claude-agent-orchestration-ledger.md`) | ⏳ awaiting merge |
 
 ### Process deviations (honest log)
 
