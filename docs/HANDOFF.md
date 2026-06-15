@@ -10,17 +10,32 @@
 - **Last branch:** `claude/homepage-admin-dashboard-redesign-3tdnki`
 - **Last PR:** #21 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/21
   (gated admin/investor dashboard: login + Tailwind + curated runner).
-- **Audit status:** `AWAITING_AUDIT`.
-- **⚠ Protocol deviation (honest):** this chat did NOT run `/handoff-audit` on the
-  previous PR — it went straight to a user feature request (the dashboard re-haul).
-  So **PR #20 is ALSO still `AWAITING_AUDIT`** (new entry signals; opt-in/default-OFF;
-  see its branch `claude/confluence-new-signals-audit-a6gxt6` + MEMORY §39). The next
-  chat should audit **both** open PRs (#20 then #21), or at least not assume #20 was
-  gated. Both branched off `main`; #21 has `main` merged in (321 passed).
+- **Audit status:** `AWAITING_AUDIT` — PR #21 not yet gated. Rebased onto current
+  `main` (`8568c03`, which includes the #20 audit + the #22 baton reconciliation);
+  doc conflicts resolved; suite re-run green.
+- **PR #20 RESOLVED → `MERGED (audit PASS)`** — gated by `claude/handoff-audit-h90pmc`
+  (independent arm's-length subagent, isolated worktree): 304/304 reproduced,
+  default-OFF byte-identical invariance re-verified, §1/`FEE_PCT`/journal/alert_inbox
+  untouched, parsimony honored (no new vote), honest-negative reports. Report
+  `docs/audits/pr-20-audit.md`. Merged at `0244ba0` (branch had no GitHub CI check;
+  auditor reproduced the green suite + ruff locally and the user approved on that
+  basis). Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
 - Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS, merged from UI), **#16** (live
   order-placement, audit PASS), **#17** (near-miss autopsy, audit PASS), #19
-  (vector-candle logger) all MERGED to `main`. Gate streak:
-  #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
+  (vector-candle logger) all MERGED to `main`.
+- **PROTOCOL BREAKDOWN flagged this session (parallel chats):** the `claude/handoff-audit-h90pmc`
+  session found 4 un-gated PRs the prior baton never mentioned. Resolved #20 (above).
+  **Still needing attention:**
+  - **#18 OPEN — top-100 universe + 5m re-enable on the LIVE hourly Action**
+    (user-directed §39). CI green, but it changes production *against our own evidence*
+    (§37 5m fee-poison, §31 unproven top-100 tail — the PR is honest about this). NOT
+    audited, NOT merged — held for an explicit user go (it's a paper-book experiment,
+    defensible, but it is a live-automation change).
+  - **#19 MERGED from the UI without an audit** (vector-candle logger, research-only,
+    `data/vector_log.json` new artifact) — no post-hoc audit report on disk yet.
+  - **#15 OPEN, stale** — docs-only audit artifact for PR #14 from a parallel chat;
+    PR #14 was already audited via `docs/audits/claude-hello-3vl2b8.md`. Recommend close
+    as superseded.
 
 ## What this chat did (for the auditor to verify against the diff)
 
