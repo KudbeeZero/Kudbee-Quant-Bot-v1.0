@@ -20,6 +20,16 @@ services:
       # Set in the Render dashboard — never committed.
       - key: KUDBEE_API_TOKEN
         sync: false
+      # Shared password that unlocks the admin/investor dashboard + curated
+      # runner (kudbee_quant/api_auth.py). Unset => login disabled (fail-closed,
+      # dashboard returns 503/redirect). Set in the Render dashboard.
+      - key: KUDBEE_DASHBOARD_PASSWORD
+        sync: false
+      # HMAC key signing the dashboard session cookie. Use a long random value;
+      # rotating it logs everyone out. If unset it is derived from the password
+      # (so one var still works), but a dedicated secret is recommended.
+      - key: KUDBEE_SESSION_SECRET
+        sync: false
       # CORS allowlist for the Netlify site origin, e.g. https://example.com
       - key: KUDBEE_SITE_ORIGIN
         sync: false

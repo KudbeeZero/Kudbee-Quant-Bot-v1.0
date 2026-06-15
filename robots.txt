@@ -3,6 +3,10 @@
 
 User-agent: *
 Allow: /
+# Private app surfaces (gated by login; served from the API host) — keep them
+# out of the index even if the apex ever proxies them.
+Disallow: /dashboard
+Disallow: /login
 
 # AI / LLM crawlers explicitly allowed (citation & training discovery)
 User-agent: GPTBot

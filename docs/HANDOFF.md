@@ -7,17 +7,19 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/confluence-new-signals-audit-a6gxt6`
-- **Last PR:** #20 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/20
-  (new entry signals, opt-in/default-OFF, independently validated).
-- **Audit status:** `MERGED (audit PASS)` — PR #20 gated by `claude/handoff-audit-h90pmc`
+- **Last branch:** `claude/homepage-admin-dashboard-redesign-3tdnki`
+- **Last PR:** #21 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/21
+  (gated admin/investor dashboard: login + Tailwind + curated runner).
+- **Audit status:** `AWAITING_AUDIT` — PR #21 not yet gated. Rebased onto current
+  `main` (`8568c03`, which includes the #20 audit + the #22 baton reconciliation);
+  doc conflicts resolved; suite re-run green.
+- **PR #20 RESOLVED → `MERGED (audit PASS)`** — gated by `claude/handoff-audit-h90pmc`
   (independent arm's-length subagent, isolated worktree): 304/304 reproduced,
   default-OFF byte-identical invariance re-verified, §1/`FEE_PCT`/journal/alert_inbox
-  untouched, parsimony honored (no new vote), honest-negative reports (2 of 3 signals
-  OOS-failures, IS/OOS separated). Report `docs/audits/pr-20-audit.md`. Merged at
-  `0244ba0` — note: the branch had **no GitHub CI check** (none triggered); the
-  auditor reproduced the full green suite + ruff locally and the user approved the
-  merge on that basis. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
+  untouched, parsimony honored (no new vote), honest-negative reports. Report
+  `docs/audits/pr-20-audit.md`. Merged at `0244ba0` (branch had no GitHub CI check;
+  auditor reproduced the green suite + ruff locally and the user approved on that
+  basis). Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
 - Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS, merged from UI), **#16** (live
   order-placement, audit PASS), **#17** (near-miss autopsy, audit PASS), #19
   (vector-candle logger) all MERGED to `main`.
@@ -37,38 +39,44 @@
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **New-signals audit + 3 signals (PR #20)** — extended the entry system with
-  genuinely-missing signals WITHOUT re-adding the 5 removed votes; each opt-in,
-  default OFF, independently validated on real 1h data (top-10 majors, 8000 bars,
-  canonical bracket). Mostly an **honest negative**; kept as infra, NOT enabled live.
-  - **#1 taker delta / CVD / delta-div** (`levels/delta.py`) — un-dropped
-    `taker_buy_base` in `ingest/binance.py` (+ `resample`). `delta_align` FILTER
-    **fails OOS**; meta FEATURES **pass** the GBT gate (p=0.0073, +0.094R).
-  - **#2 volume profile** POC/VAH/VAL/naked-POC (`levels/volume_profile.py`,
-    `OPTIONAL_LEVEL_COLUMNS`) — filter **inconclusive** (helps OOS, hurts IS);
-    features pass but near-boundary.
-  - **#3 killzone gate** (`confluence_position(killzone_gate=)`) — **FAILS OOS**;
-    hour map shows OFF-hours +0.102R vs in-killzone +0.021R (16h UTC best & off-KZ).
-  - **60% band:** +0.25R net-positive OOS — the stale −31R does NOT reproduce;
-    **corroborates PR #17's autopsy** (don't drop the 60% band).
-  - Gating in `config/features.py` (flags default OFF) + 3 `confluence_position`
-    filter params (default OFF). Validation: `scripts/validate_*`. Reports:
-    `docs/research/signal-{1,2,3}-*.md`. MEMORY §39. 304 passed; new modules ruff-clean.
-    §1 / `FEE_PCT` / journal / alert_inbox untouched; no new votes.
+- **Gated admin/investor dashboard (PR #21)** — front-end re-haul behind a login
+  gate. User-confirmed scope: shared password now (no email/DB), curated non-RCE
+  runner, compiled Tailwind. MEMORY **§40**. 321 passed (+17 new tests); new files
+  ruff-clean. §1 / `FEE_PCT` / journal / alert_inbox untouched; no secrets.
+  - **Auth** (`kudbee_quant/api_auth.py`): `KUDBEE_DASHBOARD_PASSWORD` → HMAC-signed
+    HttpOnly/Secure/SameSite session cookie (`KUDBEE_SESSION_SECRET`). Hand-rolled,
+    no new deps, fail-closed like `check_token`. `/` + `/dashboard` 302→`/login`
+    without a session; gated APIs 401; login 5/min.
+  - **Curated runner** (`kudbee_quant/api_runner.py`): fixed-dict whitelist (signal/
+    backtest/validate/sweep/bracket-sweep/paper-scan), Pydantic-bounded params,
+    async in-memory jobs (2-worker pool, 429 when busy). NOT a code executor;
+    **NEVER writes the journal** — paper-scan uses the new `paper_scan(dry_run=True)`
+    seam (only change to `paper/paper.py`), guarded by
+    `test_paper_scan_dry_run_never_writes_journal`.
+  - **New gated reads:** `/api/open-trades`, `/api/trade-history`, `/api/research`.
+  - **Tailwind** compiled + committed (`assets/css/app.css` + `static/app.css`);
+    `npm run build`; `node_modules/` gitignored. **Strict CSP added on the Render
+    host** (had none) → dashboard/login JS externalized to `static/app.js` +
+    `static/login.js`. Dashboard redesigned mobile-first.
+  - **SEO/deploy:** `noindex` + `X-Robots-Tag` + robots.txt disallow on private
+    pages; `render.yaml` adds the 2 env vars; `docs/HOSTING.md` updated.
+  - **AUDIT NOTE:** verified LOCALLY only (smoke test passed) — never run on a real
+    Render host. Marketing pages keep their CSS; Netlify CSP still has
+    `style-src 'unsafe-inline'` (not tightened on purpose).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/signal-4-oi-liquidations` — harness assigns
+- **Slug hint (ADVISORY only):** `claude/render-deploy-verify` — harness assigns
   the real name; the *scope* below is what binds.
-- **Scope (user-chosen 2026-06-14):** **Signal #4 — open-interest + liquidation-cluster
-  levels** (the BUILD list's stretch item). New ingest module; map OI / liquidation
-  clusters as liquidity draws (level columns), gated behind config default OFF, then
-  validate the SAME way (walkforward + meta-model CV, IS vs OOS) and keep ONLY on an
-  OOS improvement. **Data-availability risk:** Binance OI history ≈ last 30 days
-  (`fapi /futures/data/openInterestHist`); public liquidation HISTORY is restricted
-  (only the live `forceOrders` stream) — a clean OOS test may not be achievable
-  without an alternative source. Report the data limit honestly; if OOS isn't
-  possible, deliver the levels + a forward-only plan rather than overclaiming.
+- **Scope (user-chosen 2026-06-15):** **Deploy + verify the dashboard on Render.**
+  Stand up the real Render service from `render.yaml`, set the new env vars
+  (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus the existing
+  `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the
+  LIVE login→dashboard→runner flow end-to-end (the whole thing is local-only so far).
+  Runbook: `docs/HOSTING.md`. (Likely needs the user to create the Render Blueprint;
+  the chat drives the verification + any fixes that surface.)
+- **GATE FIRST:** run `/handoff-audit` on **PR #21** (and ideally **PR #20**, which
+  was never audited) before new work — merge only on a PASS.
 - **STILL PENDING (user decision, from PR #17):** the autopsy's `--min-pct 0.6`
   hourly-scan tweak. Verdict was: do NOT drop the 60% band / lower the target (both
   OVERFIT, OOS-refuted; 3R correct, 60% gate net-positive OOS — now corroborated by
@@ -84,6 +92,14 @@
   (`docs/HOSTING.md`), smoke-test the live host (health, dashboard, `/api/alert` with
   `"inbox": true`, the commit landing in `data/alert_inbox/`).
 - **Open risks / watch-items:**
+  - **Dashboard UNVERIFIED in production (PR #21):** login + session + runner +
+    redesign were smoke-tested LOCALLY only — never run on the real Render host
+    (no service exists yet). This is the #1 risk the user flagged for next chat.
+  - **Runner results are ephemeral** (in-memory; gone on every redeploy — the
+    hourly journal commit redeploys often). Surfaced honestly in the UI.
+  - **Three CSP sources of truth now** (`netlify.toml`, `_headers`, the FastAPI
+    header in `api.py`) — keep in sync; Netlify CSP still has `unsafe-inline`
+    (marketing pages). Marketing HTML was NOT redesigned (keeps existing CSS).
   - **PR #20 signals are NOT validated for live use:** delta_align & killzone gate
     FAIL OOS; volume-profile is inconclusive; the meta-feature lift (delta + vp) is
     near the noise floor (baseline gate p≈0.064, any mild feature set tips it to
@@ -104,13 +120,21 @@
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; `data/journal.json`
   (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no
   manual session commits); crypto daily grouping stays calendar-dated; held salvage
-  branches only with explicit user OK. **PLUS (this chat):** keep the new feature
-  flags + filters OFF in the live path until forward-validated, and hold the
+  branches only with explicit user OK. **PLUS (still in force):** keep the new
+  feature flags + filters OFF in the live path until forward-validated, and hold the
   parsimony line (no removed vote — BOS/RSI-div/funding/OB/macro — back as a vote).
+  **PLUS (this chat):** preserve the runner's no-journal-write guarantee (paper-scan
+  stays `dry_run=True`); the curated runner stays a fixed whitelist (never arbitrary
+  code); don't rework the session-cookie scheme casually (real accounts build on it).
 
 ## Baton history
 - … (prior entries in git) …
 - 2026-06-14: PR #20 — new entry signals (taker delta/CVD, volume profile, killzone
   gate), all opt-in/default-OFF, independently validated; honest negative (filters
   fail OOS, meta-feature lift near noise floor); 60% band confirmed net-positive OOS.
-  Next scope: Signal #4 (OI + liquidation-cluster levels).
+  Next scope: Signal #4 (OI + liquidation-cluster levels). [NOTE: not audited — next
+  chat jumped to a feature request; #20 still AWAITING_AUDIT.]
+- 2026-06-15: PR #21 — gated admin/investor dashboard (shared-password login +
+  signed session cookie, mobile-first Tailwind redesign, curated non-RCE test runner
+  that never writes the journal, new gated data endpoints). Local-only verification.
+  Next scope: deploy + verify on Render.
