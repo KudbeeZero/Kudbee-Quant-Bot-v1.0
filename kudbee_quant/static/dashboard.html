@@ -51,10 +51,38 @@
 
     <!-- HISTORY -->
     <section data-panel="history" class="mt-5 hidden grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <div class="kq-card xl:col-span-3">
+        <div class="kq-card-title"><span class="text-honey">⛃</span> Filter</div>
+        <div class="flex flex-wrap items-end gap-3">
+          <div>
+            <label class="kq-label" for="f-tf">Timeframe</label>
+            <select class="kq-input" id="f-tf">
+              <option value="">all</option><option>5m</option><option>15m</option>
+              <option>1h</option><option>2h</option><option>4h</option>
+            </select>
+          </div>
+          <div>
+            <label class="kq-label" for="f-symbol">Symbol</label>
+            <input class="kq-input" id="f-symbol" placeholder="e.g. BTCUSDT" />
+          </div>
+          <div>
+            <label class="kq-label" for="f-mode">Mode</label>
+            <select class="kq-input" id="f-mode">
+              <option value="">all</option><option>paper</option><option>live</option>
+            </select>
+          </div>
+          <button id="f-apply" class="kq-btn">Apply</button>
+          <span id="f-summary" class="text-[11px] text-muted"></span>
+        </div>
+      </div>
       <div class="kq-card xl:col-span-2"><div class="kq-card-title"><span class="text-honey">∿</span> Equity curve (R)</div><canvas id="equity" height="220" class="w-full"></canvas></div>
       <div class="kq-card"><div class="kq-card-title"><span class="text-honey">Σ</span> History analytics</div><div id="history-analytics">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">◧</span> By symbol (worst first)</div><div id="by-symbol" class="overflow-x-auto">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">◷</span> By hour (UTC)</div><div id="by-hour" class="overflow-x-auto">…</div></div>
+      <div class="kq-card"><div class="kq-card-title"><span class="text-honey">▦</span> By timeframe</div><div id="by-tf" class="overflow-x-auto">…</div></div>
       <div class="kq-card xl:col-span-3"><div class="kq-card-title"><span class="text-honey">▤</span> Closed trades</div><div id="history-table" class="overflow-x-auto">…</div></div>
     </section>
+
 
     <!-- RESEARCH -->
     <section data-panel="research" class="mt-5 hidden grid grid-cols-1 gap-4 xl:grid-cols-2">
