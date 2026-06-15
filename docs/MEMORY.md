@@ -1210,3 +1210,44 @@ Honest, mixed-to-negative outcome — kept as infrastructure, NOT enabled live.
   `confluence_position` filter params (default OFF); validation scripts under
   `scripts/validate_*`; per-signal reports under `docs/research/signal-{1,2,3}-*.md`.
   No live-config change. Defaults §1 / `FEE_PCT` untouched.
+
+## 40. Cycle-aware OOS backtest — the live 1h config survives the regime; min_pct 0.6 refuted OOS — 2026-06-15
+
+Ran the EXACT live rules (`confluence_position(min_pct=0.5, trend_align=True)` +
+`bracket_backtest(stop_atr=1.5, target_r=3.0, limit_retrace_atr=0.25, max_bars=24)`,
+the canonical `BRACKET_KW`) over two prior-cycle CHOP analogs (2018-07/10 and
+2022-05/08 — the equivalent ~786-day-post-halving phase we are in now) plus a broad
+recent span (2024-06→now), at 5m/15m/1h. **137,326 resolved OOS trades** (params
+frozen at validated defaults, never refit; all three regimes unseen). Fees modeled
+gross→full-taker (0.09% round-trip, §25). Code: `scripts/cycle_backtest.py` +
+`scripts/cycle_backtest_matrix.py`; report `docs/research/cycle_backtest.md`; new
+`BinanceClient.klines_range()` (forward-paging date-window fetch, disk-cached).
+
+FINDINGS (net-of-fees, the honest lens):
+- **Timeframe is decisive (this is the headline).** 1h: **+0.096R net-maker /
+  +0.060R net-FULL-taker**, n=8,124, bootstrap p<0.001 — positive and taker-survived.
+  15m: +0.037R maker but NEGATIVE at taker in every regime (maker-only / cost-fragile).
+  5m: −0.046R maker, −0.19R taker — DEAD in every regime (vindicates the §37 pause).
+- **Do NOT quote the pooled "overall" (−0.019R, p=1.000) without context** — it is
+  71% 5m trades, i.e. a book the live bot doesn't trade. Restricted to the validated
+  1h TF the edge is clean and >1,000 OOS trades (8,124).
+- **Survives the CURRENT regime:** recent 1h is the STRONGEST (+0.102/+0.064, n=6723,
+  p<0.001). **Survives the CHOP analogs but thinner & low-confidence:** 2018 1h
+  +0.121/+0.085 (n=450), 2022 1h +0.043/+0.019 (n=951, weakest, not individually
+  significant). Regime-DAMPENED, not regime-broken — consistent with §1 "thinner in
+  chop". CAVEAT: the chop samples are small; treat "survives chop" as positive-but-
+  low-confidence, not proven.
+- **min_pct 0.5→0.6 is REFUTED OOS — in every regime.** On 1h the 50% band is the
+  BEST band (+0.103R) and per-R expectancy FALLS as the floor rises (ALL: 0.5 +0.096
+  → 0.6 +0.040 → 0.7 +0.005); at 0.6 the **2022 chop analog flips NEGATIVE**
+  (+0.043→−0.020). This closes the long-pending `--min-pct 0.6` question (PR #17/#20
+  baton): the OOS answer is **NO — keep 0.5.** Corroborates the autopsy OVERFIT verdict.
+- High-confluence 1h bands (70/80+) go NEGATIVE in both chop analogs — "more
+  confluence = safer" is itself regime-fragile.
+
+ACTION: **affirm the live config exactly (1h, 0.5, trend-on, 3R, 1.5-ATR, 0.25
+maker) — no change.** Keep 5m paused, do not add 15m at size, keep min_pct at 0.5,
+size conservatively in the current chop regime (1h net-taker cushion is thin,
+~+0.02–0.06R). Method note: prior OOS scripts (`near_miss_oos.py`) ran the engine
+with DEFAULT bracket args (market entry, 1.0 stop, flat fee) — NOT the live
+execution; this run uses the exact live bracket so costs/fills match production.
