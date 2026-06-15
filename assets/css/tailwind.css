@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Small component layer — reusable dashboard primitives, kept CSP-clean (no
+   inline styles). Everything else is utility classes in the markup/JS. */
+@layer components {
+  .kq-card {
+    @apply rounded-lg border border-edge bg-panel p-4 sm:p-5 relative overflow-hidden;
+  }
+  .kq-card-title {
+    @apply text-[10px] tracking-[0.18em] uppercase text-muted mb-3 flex items-center gap-2;
+  }
+  .kq-btn {
+    @apply inline-flex items-center justify-center gap-2 rounded border border-sky/60
+           bg-sky/10 px-3 py-1.5 text-xs font-medium text-sky transition
+           hover:bg-sky hover:text-ink disabled:opacity-40 disabled:cursor-not-allowed;
+  }
+  .kq-input {
+    @apply w-full rounded border border-edge bg-ink/60 px-3 py-2 text-sm text-body
+           outline-none focus:border-sky/70;
+  }
+  .kq-label { @apply block text-[11px] uppercase tracking-wide text-muted mb-1; }
+  .kq-pill { @apply inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold; }
+  .kq-dot { @apply inline-block h-1.5 w-1.5 rounded-full; }
+}

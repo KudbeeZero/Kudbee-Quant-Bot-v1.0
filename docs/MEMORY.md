@@ -1173,3 +1173,49 @@ has NEVER placed a real order in production** — treat as unproven live.
   journal/alert_inbox edits; no secrets. NOT wired into the hourly Action (that
   stays the documented opt-in). Doc: `docs/LIVE_TRADING_SETUP.md` (rewritten;
   testnet smoke-test runbook included).
+
+## 39. Admin/investor dashboard overhaul — login gate + Tailwind + curated runner — 2026-06-15
+
+Front-end re-haul (this chat's PR, branch `homepage-admin-dashboard-redesign`).
+User-confirmed scope: shared-password login now (no email/DB yet), a curated
+(non-RCE) test runner, and Tailwind via a compiled build step.
+
+- **Auth (`kudbee_quant/api_auth.py`):** ONE shared password
+  (`KUDBEE_DASHBOARD_PASSWORD`) → a stateless, HMAC-signed session cookie
+  (`kudbee_session`, HttpOnly/Secure/SameSite=Lax, 12h; key `KUDBEE_SESSION_SECRET`).
+  Hand-rolled (native `hmac`, no new dep), **fail-closed** like `check_token`
+  (unset ⇒ 503/locked; wrong ⇒ 401; constant-time). `/` and `/dashboard` redirect
+  to `/login` without a session; gated APIs return 401. Payload dict shape leaves
+  room for `sub`/`role` when real accounts land. Login limiter 5/min.
+- **Curated runner (`kudbee_quant/api_runner.py`):** fixed-dict whitelist of
+  ENGINE actions (signal/backtest/validate/sweep/bracket-sweep/paper-scan), every
+  param Pydantic-bounded + symbol-whitelisted; async in-memory jobs on a 2-worker
+  pool (429 when busy), `POST /api/run/{action}` → poll `GET /api/run/{id}`.
+  **NOT a code executor.** **NEVER writes the journal:** paper-scan uses the NEW
+  `paper_scan(dry_run=True)` seam (the only change to `paper/paper.py`) — guarded
+  by `test_paper_scan_dry_run_never_writes_journal`. Results are EPHEMERAL
+  (in-memory; gone on redeploy) — surfaced honestly in the UI.
+- **New gated read endpoints:** `/api/open-trades`, `/api/trade-history`,
+  `/api/research` (wrap `review.py` + research JSON/`family_ledger`). Public
+  marketing reads unchanged.
+- **Tailwind (compiled + committed):** `package.json`/`tailwind.config.js`/
+  `assets/css/tailwind.css` → `npm run build` writes `assets/css/app.css` and
+  copies to `kudbee_quant/static/app.css`. Both compiled files committed so
+  Netlify (`command=""`) and the Render `pip install` build need no Node.
+  `node_modules/` gitignored.
+- **CSP — now THREE sources of truth:** `netlify.toml` + `_headers` (static host)
+  and a NEW strict FastAPI response header in `api.py` (`script-src 'self'`, no
+  inline) for the Render-served dashboard/login (which had NO CSP before). That's
+  why dashboard/login JS is external (`static/app.js`, `static/login.js`).
+  `netlify.toml` CSP left as-is (still `style-src 'unsafe-inline'`) — NOT tightened,
+  because the marketing pages still use inline styles; do that audit before dropping it.
+- **SEO:** dashboard/login carry `noindex` meta + `X-Robots-Tag`, and robots.txt
+  disallows them. `llms.txt`/sitemap already current (no new public pages added).
+- **Status:** 301 passed (was 259+5 skipped; +17 new auth/runner tests, skips now
+  run with deps installed); new files ruff-clean (pre-existing api.py B904/E402 left
+  as the file's style). Smoke-tested locally end-to-end (login→cookie→dashboard,
+  static assets, gating, headers). §1 / `FEE_PCT` / journal / alert_inbox untouched;
+  no secrets committed.
+- **UNVERIFIED in production:** never deployed to the real Render host (no service
+  exists yet — see HOSTING.md). Email-verified self-serve accounts + captcha + API
+  keys are a deliberate later phase (need an email provider + persistent store).
