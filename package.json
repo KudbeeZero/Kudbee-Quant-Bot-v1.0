@@ -1,0 +1,14 @@
+{
+  "name": "kudbee-quant-site",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static site + dashboard styling. Tailwind is compiled to one static CSS file (committed) so neither Netlify nor the Python/Render build needs Node.",
+  "scripts": {
+    "build:css": "tailwindcss -i assets/css/tailwind.css -o assets/css/app.css --minify",
+    "watch:css": "tailwindcss -i assets/css/tailwind.css -o assets/css/app.css --watch",
+    "build": "npm run build:css && cp assets/css/app.css kudbee_quant/static/app.css"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}

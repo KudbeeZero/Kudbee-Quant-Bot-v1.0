@@ -42,6 +42,7 @@ def paper_scan(
     risk_per_trade: float = 0.01,      # each defined-risk trade ~= 1% of the account
     max_symbol_risk: float = 0.02,     # cap COMBINED long+short risk per coin (two-sided guard)
     trend_filter: bool = False,        # tested: skip signals fighting the 800-EMA HTF trend
+    dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
 
@@ -54,6 +55,12 @@ def paper_scan(
     NET-EXPOSURE GUARD: a new trade is skipped if it would push a coin's COMBINED
     (long+short, all timeframes) gross risk over ``max_symbol_risk`` — so running
     both sides at once (1h long + 5m short) can't silently over-expose one coin.
+
+    DRY RUN: when ``dry_run`` is True the same signals + brackets are computed but
+    NOTHING is written to the journal (no ``j.add``). This is the read-only seam
+    the dashboard's curated runner uses, so a web preview can never poison the
+    bot-owned ``data/journal.json`` (the data-poisoning vector api_security.py
+    was written to close).
     """
     from ..exposure import symbol_exposure
     j = journal or TradeJournal()
@@ -115,7 +122,7 @@ def paper_scan(
         target = limit + direction * sd * target_r
         tp1 = (limit + direction * sd * tp1_r) if tp1_r is not None else None
         side = "long" if direction > 0 else "short"
-        p = j.add(Prediction(
+        pred = Prediction(
             symbol=sym, kind="bracket", level=limit, entry=limit, stop=stop,
             target=target, direction=direction, target_r=target_r,
             tp1=tp1, tp1_frac=tp1_frac,
@@ -130,6 +137,8 @@ def paper_scan(
                   f" LIMIT {limit:.4g} (retrace {retrace_atr} ATR from {signal_price:.4g}), "
                   f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)." +
                   (f" TP1 {tp1:.4g} ({tp1_r}R, bank {tp1_frac:.0%})." if tp1 is not None else "")),
-        ))
+        )
+        # DRY RUN never touches the journal — preview-only (see docstring).
+        p = pred if dry_run else j.add(pred)
         logged.append(p)
     return logged

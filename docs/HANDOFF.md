@@ -7,85 +7,96 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/confluence-r-cycle-backtest-eg45m1`
-- **Last PR:** #23 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/23
-  (cycle-aware OOS backtest; offline only, no live change).
-- **Audit status:** `AWAITING_AUDIT`.
-- **NOTE — two PRs awaiting audit:** **PR #20** (new entry signals) is ALSO still
-  `AWAITING_AUDIT` (not yet merged). The next chat should `/handoff-audit` **both,
-  oldest first (#20 then #23)**. #23 merged `origin/main` (incl. #20's work) for a
-  current base, so its diff is cycle-backtest-only.
-- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16**, **#17**, #19 all MERGED
-  to `main`. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
+- **Last branches:** `claude/homepage-admin-dashboard-redesign-3tdnki` (PR #21) +
+  `claude/confluence-r-cycle-backtest-eg45m1` (PR #23).
+- **Last PRs:** **#21** (gated admin/investor dashboard) and **#23** (cycle-aware OOS
+  backtest) — both **MERGED to `main`** during a user-directed "get the PRs back on
+  track" cleanup (2026-06-15).
+- **Audit status:** `MERGED — UN-GATED (user-directed)`. ⚠️ Honest flag: #21 and #23
+  were merged at the user's explicit instruction **without** the usual independent
+  `/handoff-audit` gate. Both had a green CI run + full local suite, but neither got an
+  arm's-length audit. **Recommend a post-hoc `/handoff-audit` on #21 and #23** to keep
+  the record honest (write `docs/audits/pr-21-audit.md` / `pr-23-audit.md`). They are
+  NOT part of the verified gate streak.
+- **Gate streak (audited):** #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
+- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16** (live order path, PASS),
+  **#17** (near-miss autopsy, PASS), **#20** (new entry signals, PASS, `0244ba0`),
+  #19 (vector-candle logger) all MERGED to `main`.
+- **#15 CLOSED** (stale audit artifact for the already-audited PR #14 — superseded).
+- **#18 STILL OPEN — HELD for an explicit user go.** Top-100 universe + 5m re-enable
+  on the **LIVE hourly Action**; it changes production *against our own evidence*
+  (§37 5m fee-poison, §31 unproven top-100 tail). Defensible as a paper experiment but
+  it is a live-automation change — do NOT merge without a clear user decision, and
+  rebase it first (its base is stale).
+- **#19 audit debt:** merged from the UI without an audit (research-only vector-candle
+  logger; new `data/vector_log.json`) — no audit report on disk yet.
 
-## What this chat did (for the auditor to verify against the diff)
+## What this cleanup did (for the auditor)
 
-- **Cycle-aware OOS backtest of the live confluence-R rules (PR #23)** — scored the
-  EXACT live config (`confluence_position(min_pct=0.5, trend_align=True)` +
-  `BRACKET_KW`: stop_atr=1.5, target_r=3.0, limit_retrace_atr=0.25, max_bars=24)
-  over two prior-cycle CHOP analogs (2018-07/10, 2022-05/08 — the ~786-day-post-
-  halving phase we are in) + a recent span (2024-06→now), at 5m/15m/1h. Params
-  frozen (never refit) → all three regimes OOS. Fees modeled gross→full-taker.
-  **Offline only; §1/`FEE_PCT`/journal/alert_inbox untouched.**
-  - **137,326 resolved OOS trades** (8,124 on the validated 1h TF alone).
-  - **1h: +0.096R net-maker / +0.060R net-FULL-taker, n=8,124, p<0.001** — positive
-    & taker-survived. 15m maker-only (dies at taker). 5m net-dead in every regime
-    (vindicates the §37 pause). The pooled "overall −0.019R" is 71% 5m — context-only.
-  - **Survives the current regime** (recent 1h strongest, +0.102/+0.064); **survives
-    the chop analogs but thinner & LOW-CONFIDENCE** (2018 n=450, 2022 n=951).
-  - **`min_pct 0.5→0.6` REFUTED OOS in every regime** (50% band is the best 1h band;
-    0.6 flips the 2022 chop analog negative) — closes the pending autopsy tweak.
-  - NEW `BinanceClient.klines_range()` (forward-paging date-window fetch, disk-cached;
-    additive). `scripts/cycle_backtest.py` + `scripts/cycle_backtest_matrix.py`;
-    report `docs/research/cycle_backtest.md`; MEMORY §40. 305 passed; ruff clean.
+- Resolved PR #21's merge conflict with `main` (it had gone `dirty` after #22's baton
+  reconciliation landed), re-ran the suite (**321 passed**), CI green → merged.
+- Brought PR #23 current with `main` (resolved the recurring `MEMORY.md` §40 collision:
+  §40 = dashboard, **§41 = cycle backtest**; consolidated the baton), re-ran the suite,
+  merged.
+- Closed #15 as superseded. Left #18 open (held).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/close-min-pct-decision` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (user-chosen 2026-06-15):** **Formally CLOSE the `--min-pct 0.6` decision —
-  keep 0.5.** PR #23 gives the OOS answer: raising the floor 0.5→0.6 LOWERS net-of-
-  fees expectancy in every regime and flips the 2022 chop analog negative; the 50%
-  band is the best 1h band. So the long-pending tweak is settled: **do NOT raise the
-  gate, do NOT shadow-test it — keep `MIN_PCT=0.50`.** Record the closure (MEMORY +
-  remove it from the pending list); no live-config change. Lightweight chat.
-- **AUDIT FIRST:** `/handoff-audit` PR #20 then PR #23 before any new work.
-- **Also queued (unchanged):** Signal #4 (OI + liquidation-cluster levels — data-
-  availability risk: OI hist ≈ 30d, liquidation history restricted); wire the live
-  executor (PR #16) into a CLI / hourly Action via `BINANCE_TESTNET=true` smoke-test;
-  top-100 universe flip decision; verify the 5m pause landed in production (§37);
-  live deploy walkthrough once the Render service exists (`docs/HOSTING.md`).
+- **Slug hint (ADVISORY only):** `claude/render-deploy-verify`.
+- **Scope (user-chosen 2026-06-15):** **Deploy + verify the dashboard (PR #21) on
+  Render.** Stand up the service from `render.yaml`, set env vars
+  (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus the existing
+  `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the LIVE
+  login→dashboard→runner flow (local-only so far). Runbook: `docs/HOSTING.md`.
+- **GATE DEBT (do early):** post-hoc `/handoff-audit` on PR #21 and PR #23 (merged
+  un-gated); decide #18 (live top-100+5m) yes/no; optionally back-fill a #19 audit note.
+- **SETTLED by PR #23 — record the closure:** the `--min-pct 0.6` question is answered
+  **NO, keep 0.5** (0.6 lowers net expectancy in every regime OOS and flips the 2022
+  chop analog negative; 50% is the best 1h band). Remove it from the pending list — no
+  more shadow-test needed. (MEMORY §41.)
+- **Also queued:** wire the live executor (PR #16) into a CLI / hourly Action via a
+  `BINANCE_TESTNET=true` smoke-test (`docs/LIVE_TRADING_SETUP.md`); Signal #4 (OI +
+  liquidation-cluster levels — data-availability risk: OI hist ≈ 30d, liquidation
+  history restricted); verify the 5m pause landed in production (§37).
 - **Open risks / watch-items:**
-  - **2018 cycle-analog universe limited to 5 coins** (BTC/ETH/BNB/ADA/XRP — the
-    others weren't listed yet); 2022 + recent use all 10. 15 cells had a single
-    1-candle 2018 gap (negligible). The chop-analog 1h samples are SMALL (450/951)
-    and not individually significant — "survives chop" is positive-but-low-confidence.
-  - **Don't quote the pooled "overall" net-negative without the 1h context** — it's
-    a 5m artifact (71% of trades), not a verdict on the live book.
-  - **PR #20 signals NOT validated for live use** (delta_align & killzone FAIL OOS;
-    volume-profile inconclusive; meta-lift near noise) — keep flags OFF, forward-test.
-  - **PR #20 still AWAITING_AUDIT** alongside #23 — audit both.
-  - **Live execution EXISTS but UNPROVEN live (PR #16):** maker-only, double-gated,
-    never placed a real order. Paper still default. Start testnet.
-  - **Top-100 membership UNPROVEN forward (§31);** **5m pause UNVERIFIED in prod (§37);**
-    **deployment UNPROVEN** (render.yaml + inbox local-only); **possible 1h edge decay
-    (§36/§37)** — re-check as data accrues.
+  - **Dashboard (PR #21) UNVERIFIED in production** — login/session/runner/redesign
+    smoke-tested LOCALLY only; never run on a real Render host (no service exists yet).
+  - **Runner results are ephemeral** (in-memory; gone on redeploy).
+  - **Three CSP sources of truth** now (`netlify.toml`, `_headers`, the FastAPI header
+    in `api.py`) — keep in sync; Netlify CSP still has `unsafe-inline` (marketing
+    pages, not redesigned). There is ALSO a Cloudflare Pages deploy on this repo
+    (static site) — it deployed the branch fine, but it's a 3rd static host to remember.
+  - **#21/#23 merged un-gated** (audit debt, above).
+  - **Cycle backtest caveats (PR #23):** the pooled "overall −0.019R" is a 5m artifact
+    (71% of trades) — never quote without the 1h context (+0.096/+0.060, n=8,124). The
+    chop-analog 1h samples are small (2018 n=450 on 5 coins, 2022 n=951) → "survives
+    chop" is positive-but-low-confidence. 1h net-taker cushion is thin (~+0.02–0.06R)
+    → size conservatively.
+  - **PR #20 signals NOT validated for live use** — keep flags OFF, forward-test.
+  - **Live execution EXISTS but UNPROVEN live (PR #16);** **top-100 unproven (§31);**
+    **5m pause unverified in prod (§37);** **possible 1h edge decay (§36/§37).**
   - **Branch deletions pending (§32):** handoff-audit-*, hello-*, overnight-*,
     sol-short-*, fable-5-*, zcash-* set (safe via GitHub UI).
-  - **§33** replay pct ≠ live-edge pct; **§29/§30** maker-vs-taker fee open item
-    (one real LIMIT fill settles it).
+  - **§33** replay pct ≠ live-edge pct; **§29/§30** maker-vs-taker fee open item.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; `data/journal.json`
-  (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no
-  manual session commits); crypto daily grouping stays calendar-dated; held salvage
-  branches only with explicit user OK. Keep PR #20's feature flags + filters OFF
-  until forward-validated; hold the parsimony line (no removed vote back as a vote).
+  (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no manual
+  session commits); crypto daily grouping stays calendar-dated; held salvage branches
+  only with explicit user OK. Keep PR #20's feature flags + filters OFF until forward-
+  validated; hold the parsimony line (no removed vote — BOS/RSI-div/funding/OB/macro —
+  back as a vote). Preserve the runner's no-journal-write guarantee (paper-scan stays
+  `dry_run=True`); the curated runner stays a fixed whitelist (never arbitrary code);
+  don't rework the session-cookie scheme casually (real accounts build on it).
 
 ## Baton history
 - … (prior entries in git) …
 - 2026-06-14: PR #20 — new entry signals (taker delta/CVD, volume profile, killzone
   gate), opt-in/default-OFF, independently validated; honest negative; 60% band
-  confirmed net-positive OOS. Next scope: Signal #4 (OI + liquidation levels).
-- 2026-06-15: PR #23 — cycle-aware OOS backtest (137k trades). Live 1h config is
-  net-positive & full-taker-survived in all 3 regimes; 5m dead, 15m maker-only;
-  `min_pct 0.6` refuted OOS. Affirm live config, no change. Next scope: formally
-  close the `--min-pct 0.6` decision (keep 0.5).
+  confirmed net-positive OOS. Audited PASS, merged at `0244ba0`.
+- 2026-06-15: PR #21 — gated admin/investor dashboard (shared-password login + signed
+  session cookie, mobile-first Tailwind, curated non-RCE runner that never writes the
+  journal, new gated endpoints). Local-only verification. Merged un-gated (user-directed).
+- 2026-06-15: PR #23 — cycle-aware OOS backtest (137k trades). Live 1h config net-
+  positive & full-taker-survived in all 3 regimes; 5m dead, 15m maker-only; `min_pct
+  0.6` refuted OOS → keep 0.5. Merged un-gated (user-directed).
+- 2026-06-15: cleanup — fixed #21's conflict, brought #23 current, merged both, closed
+  stale #15, held #18. Next scope: deploy + verify the dashboard on Render.
