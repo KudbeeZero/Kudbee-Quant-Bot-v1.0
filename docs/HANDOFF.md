@@ -7,134 +7,96 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/homepage-admin-dashboard-redesign-3tdnki`
-- **Last PR:** #21 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/21
-  (gated admin/investor dashboard: login + Tailwind + curated runner).
-- **Audit status:** `AWAITING_AUDIT` — PR #21 not yet gated. Rebased onto current
-  `main` (`8568c03`, which includes the #20 audit + the #22 baton reconciliation);
-  doc conflicts resolved; suite re-run green.
-- **PR #20 RESOLVED → `MERGED (audit PASS)`** — gated by `claude/handoff-audit-h90pmc`
-  (independent arm's-length subagent, isolated worktree): 304/304 reproduced,
-  default-OFF byte-identical invariance re-verified, §1/`FEE_PCT`/journal/alert_inbox
-  untouched, parsimony honored (no new vote), honest-negative reports. Report
-  `docs/audits/pr-20-audit.md`. Merged at `0244ba0` (branch had no GitHub CI check;
-  auditor reproduced the green suite + ruff locally and the user approved on that
-  basis). Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
-- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS, merged from UI), **#16** (live
-  order-placement, audit PASS), **#17** (near-miss autopsy, audit PASS), #19
-  (vector-candle logger) all MERGED to `main`.
-- **PROTOCOL BREAKDOWN flagged this session (parallel chats):** the `claude/handoff-audit-h90pmc`
-  session found 4 un-gated PRs the prior baton never mentioned. Resolved #20 (above).
-  **Still needing attention:**
-  - **#18 OPEN — top-100 universe + 5m re-enable on the LIVE hourly Action**
-    (user-directed §39). CI green, but it changes production *against our own evidence*
-    (§37 5m fee-poison, §31 unproven top-100 tail — the PR is honest about this). NOT
-    audited, NOT merged — held for an explicit user go (it's a paper-book experiment,
-    defensible, but it is a live-automation change).
-  - **#19 MERGED from the UI without an audit** (vector-candle logger, research-only,
-    `data/vector_log.json` new artifact) — no post-hoc audit report on disk yet.
-  - **#15 OPEN, stale** — docs-only audit artifact for PR #14 from a parallel chat;
-    PR #14 was already audited via `docs/audits/claude-hello-3vl2b8.md`. Recommend close
-    as superseded.
+- **Last branches:** `claude/homepage-admin-dashboard-redesign-3tdnki` (PR #21) +
+  `claude/confluence-r-cycle-backtest-eg45m1` (PR #23).
+- **Last PRs:** **#21** (gated admin/investor dashboard) and **#23** (cycle-aware OOS
+  backtest) — both **MERGED to `main`** during a user-directed "get the PRs back on
+  track" cleanup (2026-06-15).
+- **Audit status:** `MERGED — UN-GATED (user-directed)`. ⚠️ Honest flag: #21 and #23
+  were merged at the user's explicit instruction **without** the usual independent
+  `/handoff-audit` gate. Both had a green CI run + full local suite, but neither got an
+  arm's-length audit. **Recommend a post-hoc `/handoff-audit` on #21 and #23** to keep
+  the record honest (write `docs/audits/pr-21-audit.md` / `pr-23-audit.md`). They are
+  NOT part of the verified gate streak.
+- **Gate streak (audited):** #5,#6,#7,#9,#11,#12,#13,#14,#16,#17,#20.
+- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16** (live order path, PASS),
+  **#17** (near-miss autopsy, PASS), **#20** (new entry signals, PASS, `0244ba0`),
+  #19 (vector-candle logger) all MERGED to `main`.
+- **#15 CLOSED** (stale audit artifact for the already-audited PR #14 — superseded).
+- **#18 STILL OPEN — HELD for an explicit user go.** Top-100 universe + 5m re-enable
+  on the **LIVE hourly Action**; it changes production *against our own evidence*
+  (§37 5m fee-poison, §31 unproven top-100 tail). Defensible as a paper experiment but
+  it is a live-automation change — do NOT merge without a clear user decision, and
+  rebase it first (its base is stale).
+- **#19 audit debt:** merged from the UI without an audit (research-only vector-candle
+  logger; new `data/vector_log.json`) — no audit report on disk yet.
 
-## What this chat did (for the auditor to verify against the diff)
+## What this cleanup did (for the auditor)
 
-- **Gated admin/investor dashboard (PR #21)** — front-end re-haul behind a login
-  gate. User-confirmed scope: shared password now (no email/DB), curated non-RCE
-  runner, compiled Tailwind. MEMORY **§40**. 321 passed (+17 new tests); new files
-  ruff-clean. §1 / `FEE_PCT` / journal / alert_inbox untouched; no secrets.
-  - **Auth** (`kudbee_quant/api_auth.py`): `KUDBEE_DASHBOARD_PASSWORD` → HMAC-signed
-    HttpOnly/Secure/SameSite session cookie (`KUDBEE_SESSION_SECRET`). Hand-rolled,
-    no new deps, fail-closed like `check_token`. `/` + `/dashboard` 302→`/login`
-    without a session; gated APIs 401; login 5/min.
-  - **Curated runner** (`kudbee_quant/api_runner.py`): fixed-dict whitelist (signal/
-    backtest/validate/sweep/bracket-sweep/paper-scan), Pydantic-bounded params,
-    async in-memory jobs (2-worker pool, 429 when busy). NOT a code executor;
-    **NEVER writes the journal** — paper-scan uses the new `paper_scan(dry_run=True)`
-    seam (only change to `paper/paper.py`), guarded by
-    `test_paper_scan_dry_run_never_writes_journal`.
-  - **New gated reads:** `/api/open-trades`, `/api/trade-history`, `/api/research`.
-  - **Tailwind** compiled + committed (`assets/css/app.css` + `static/app.css`);
-    `npm run build`; `node_modules/` gitignored. **Strict CSP added on the Render
-    host** (had none) → dashboard/login JS externalized to `static/app.js` +
-    `static/login.js`. Dashboard redesigned mobile-first.
-  - **SEO/deploy:** `noindex` + `X-Robots-Tag` + robots.txt disallow on private
-    pages; `render.yaml` adds the 2 env vars; `docs/HOSTING.md` updated.
-  - **AUDIT NOTE:** verified LOCALLY only (smoke test passed) — never run on a real
-    Render host. Marketing pages keep their CSS; Netlify CSP still has
-    `style-src 'unsafe-inline'` (not tightened on purpose).
+- Resolved PR #21's merge conflict with `main` (it had gone `dirty` after #22's baton
+  reconciliation landed), re-ran the suite (**321 passed**), CI green → merged.
+- Brought PR #23 current with `main` (resolved the recurring `MEMORY.md` §40 collision:
+  §40 = dashboard, **§41 = cycle backtest**; consolidated the baton), re-ran the suite,
+  merged.
+- Closed #15 as superseded. Left #18 open (held).
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/render-deploy-verify` — harness assigns
-  the real name; the *scope* below is what binds.
-- **Scope (user-chosen 2026-06-15):** **Deploy + verify the dashboard on Render.**
-  Stand up the real Render service from `render.yaml`, set the new env vars
+- **Slug hint (ADVISORY only):** `claude/render-deploy-verify`.
+- **Scope (user-chosen 2026-06-15):** **Deploy + verify the dashboard (PR #21) on
+  Render.** Stand up the service from `render.yaml`, set env vars
   (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus the existing
-  `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the
-  LIVE login→dashboard→runner flow end-to-end (the whole thing is local-only so far).
-  Runbook: `docs/HOSTING.md`. (Likely needs the user to create the Render Blueprint;
-  the chat drives the verification + any fixes that surface.)
-- **GATE FIRST:** run `/handoff-audit` on **PR #21** (and ideally **PR #20**, which
-  was never audited) before new work — merge only on a PASS.
-- **STILL PENDING (user decision, from PR #17):** the autopsy's `--min-pct 0.6`
-  hourly-scan tweak. Verdict was: do NOT drop the 60% band / lower the target (both
-  OVERFIT, OOS-refuted; 3R correct, 60% gate net-positive OOS — now corroborated by
-  PR #20). The only OOS-supported tweak is `--min-pct 0.5→0.6`, and even that is
-  modest — RECOMMEND a forward shadow-test (journal 0.5 vs 0.6 in parallel), NOT a
-  hard flip. **Awaiting user approval before any live-config change.**
-- **Also queued:** (b) wire the live executor (PR #16) into a CLI / hourly Action —
-  start `BINANCE_TESTNET=true` smoke-test (`docs/LIVE_TRADING_SETUP.md`); (c) top-100
-  universe flip decision (`docs/TOP100_1H_UNIVERSE.md`).
-- **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action logs
-  NO new `5m` signals (§37 still unverified in production).
-- **Live deploy walkthrough (queued):** once the user creates the Render service
-  (`docs/HOSTING.md`), smoke-test the live host (health, dashboard, `/api/alert` with
-  `"inbox": true`, the commit landing in `data/alert_inbox/`).
+  `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the LIVE
+  login→dashboard→runner flow (local-only so far). Runbook: `docs/HOSTING.md`.
+- **GATE DEBT (do early):** post-hoc `/handoff-audit` on PR #21 and PR #23 (merged
+  un-gated); decide #18 (live top-100+5m) yes/no; optionally back-fill a #19 audit note.
+- **SETTLED by PR #23 — record the closure:** the `--min-pct 0.6` question is answered
+  **NO, keep 0.5** (0.6 lowers net expectancy in every regime OOS and flips the 2022
+  chop analog negative; 50% is the best 1h band). Remove it from the pending list — no
+  more shadow-test needed. (MEMORY §41.)
+- **Also queued:** wire the live executor (PR #16) into a CLI / hourly Action via a
+  `BINANCE_TESTNET=true` smoke-test (`docs/LIVE_TRADING_SETUP.md`); Signal #4 (OI +
+  liquidation-cluster levels — data-availability risk: OI hist ≈ 30d, liquidation
+  history restricted); verify the 5m pause landed in production (§37).
 - **Open risks / watch-items:**
-  - **Dashboard UNVERIFIED in production (PR #21):** login + session + runner +
-    redesign were smoke-tested LOCALLY only — never run on the real Render host
-    (no service exists yet). This is the #1 risk the user flagged for next chat.
-  - **Runner results are ephemeral** (in-memory; gone on every redeploy — the
-    hourly journal commit redeploys often). Surfaced honestly in the UI.
-  - **Three CSP sources of truth now** (`netlify.toml`, `_headers`, the FastAPI
-    header in `api.py`) — keep in sync; Netlify CSP still has `unsafe-inline`
-    (marketing pages). Marketing HTML was NOT redesigned (keeps existing CSS).
-  - **PR #20 signals are NOT validated for live use:** delta_align & killzone gate
-    FAIL OOS; volume-profile is inconclusive; the meta-feature lift (delta + vp) is
-    near the noise floor (baseline gate p≈0.064, any mild feature set tips it to
-    ~0.005 with the same ~0.329R). One window/universe — **forward-test before
-    enabling any flag (`ENABLE_TAKER_DELTA`/`ENABLE_VOLUME_PROFILE`) or filter live.**
-  - **Live execution EXISTS but UNPROVEN live (PR #16):** maker-only, double-gated,
-    logic-tested only — never placed a real order. Paper still default. Start testnet.
-  - **Top-100 membership UNPROVEN forward (§31):** only top-10 majors are
-    walk-forward validated; the long tail is a static fallback snapshot.
-  - **5m pause UNVERIFIED in production (§37).**
-  - **Deployment UNPROVEN:** render.yaml + inbox tested locally only.
-  - **Possible edge decay on 1h crypto book** (§36/§37) — re-check as data accrues.
-  - **Branch deletions pending (§32):** safe to delete via GitHub UI — the
-    handoff-audit-*, hello-*, overnight-*, sol-short-*, fable-5-*, zcash-* set.
-  - **§33** replay pct ≠ live-edge pct; **§31** 11 TradFi symbols unproven forward;
-    **§29/§30** standing caveats + maker-vs-taker fee open item (one real LIMIT fill
-    settles it).
+  - **Dashboard (PR #21) UNVERIFIED in production** — login/session/runner/redesign
+    smoke-tested LOCALLY only; never run on a real Render host (no service exists yet).
+  - **Runner results are ephemeral** (in-memory; gone on redeploy).
+  - **Three CSP sources of truth** now (`netlify.toml`, `_headers`, the FastAPI header
+    in `api.py`) — keep in sync; Netlify CSP still has `unsafe-inline` (marketing
+    pages, not redesigned). There is ALSO a Cloudflare Pages deploy on this repo
+    (static site) — it deployed the branch fine, but it's a 3rd static host to remember.
+  - **#21/#23 merged un-gated** (audit debt, above).
+  - **Cycle backtest caveats (PR #23):** the pooled "overall −0.019R" is a 5m artifact
+    (71% of trades) — never quote without the 1h context (+0.096/+0.060, n=8,124). The
+    chop-analog 1h samples are small (2018 n=450 on 5 coins, 2022 n=951) → "survives
+    chop" is positive-but-low-confidence. 1h net-taker cushion is thin (~+0.02–0.06R)
+    → size conservatively.
+  - **PR #20 signals NOT validated for live use** — keep flags OFF, forward-test.
+  - **Live execution EXISTS but UNPROVEN live (PR #16);** **top-100 unproven (§31);**
+    **5m pause unverified in prod (§37);** **possible 1h edge decay (§36/§37).**
+  - **Branch deletions pending (§32):** handoff-audit-*, hello-*, overnight-*,
+    sol-short-*, fable-5-*, zcash-* set (safe via GitHub UI).
+  - **§33** replay pct ≠ live-edge pct; **§29/§30** maker-vs-taker fee open item.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; `data/journal.json`
-  (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no
-  manual session commits); crypto daily grouping stays calendar-dated; held salvage
-  branches only with explicit user OK. **PLUS (still in force):** keep the new
-  feature flags + filters OFF in the live path until forward-validated, and hold the
-  parsimony line (no removed vote — BOS/RSI-div/funding/OB/macro — back as a vote).
-  **PLUS (this chat):** preserve the runner's no-journal-write guarantee (paper-scan
-  stays `dry_run=True`); the curated runner stays a fixed whitelist (never arbitrary
-  code); don't rework the session-cookie scheme casually (real accounts build on it).
+  (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no manual
+  session commits); crypto daily grouping stays calendar-dated; held salvage branches
+  only with explicit user OK. Keep PR #20's feature flags + filters OFF until forward-
+  validated; hold the parsimony line (no removed vote — BOS/RSI-div/funding/OB/macro —
+  back as a vote). Preserve the runner's no-journal-write guarantee (paper-scan stays
+  `dry_run=True`); the curated runner stays a fixed whitelist (never arbitrary code);
+  don't rework the session-cookie scheme casually (real accounts build on it).
 
 ## Baton history
 - … (prior entries in git) …
 - 2026-06-14: PR #20 — new entry signals (taker delta/CVD, volume profile, killzone
-  gate), all opt-in/default-OFF, independently validated; honest negative (filters
-  fail OOS, meta-feature lift near noise floor); 60% band confirmed net-positive OOS.
-  Next scope: Signal #4 (OI + liquidation-cluster levels). [NOTE: not audited — next
-  chat jumped to a feature request; #20 still AWAITING_AUDIT.]
-- 2026-06-15: PR #21 — gated admin/investor dashboard (shared-password login +
-  signed session cookie, mobile-first Tailwind redesign, curated non-RCE test runner
-  that never writes the journal, new gated data endpoints). Local-only verification.
-  Next scope: deploy + verify on Render.
+  gate), opt-in/default-OFF, independently validated; honest negative; 60% band
+  confirmed net-positive OOS. Audited PASS, merged at `0244ba0`.
+- 2026-06-15: PR #21 — gated admin/investor dashboard (shared-password login + signed
+  session cookie, mobile-first Tailwind, curated non-RCE runner that never writes the
+  journal, new gated endpoints). Local-only verification. Merged un-gated (user-directed).
+- 2026-06-15: PR #23 — cycle-aware OOS backtest (137k trades). Live 1h config net-
+  positive & full-taker-survived in all 3 regimes; 5m dead, 15m maker-only; `min_pct
+  0.6` refuted OOS → keep 0.5. Merged un-gated (user-directed).
+- 2026-06-15: cleanup — fixed #21's conflict, brought #23 current, merged both, closed
+  stale #15, held #18. Next scope: deploy + verify the dashboard on Render.
