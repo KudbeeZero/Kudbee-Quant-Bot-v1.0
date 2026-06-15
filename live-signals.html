@@ -11,7 +11,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
     .signals-wrap { max-width: 1080px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
@@ -27,10 +27,14 @@
     .signal-card__bracket div { display:flex; justify-content:space-between; padding:.15rem 0; color:#c4d0e6; }
     .dir--up { color:#3ddc84; } .dir--down { color:#ff5d5d; } .dir--flat { color:#9fb0d0; }
     .signals-disc { margin-top:1.6rem; font-size:.85rem; color:#7a88aa; border-left:3px solid #F5A623; padding-left:.9rem; }
+    @media (max-width:680px) {
+      .signals-wrap { padding: 5.5rem 1rem 3rem; }
+      .signals-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <header class="nav" id="nav">
+  <header class="nav scrolled" id="nav">
     <div class="container nav__inner">
       <a href="index.html" class="brand" aria-label="Kudbee Quant home">
         <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
@@ -42,6 +46,8 @@
         <a href="lab.html">The Lab</a>
         <a href="blog/">Blog</a>
       </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </header>
 
@@ -66,6 +72,7 @@
     </p>
   </main>
 
+  <script src="assets/js/main.js" defer></script>
   <script src="assets/js/live-signals.js"></script>
 </body>
 </html>

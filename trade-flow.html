@@ -11,7 +11,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
   <style>
     /* Trade-flow page tokens — namespaced --tf-* so the mission-control
@@ -82,12 +82,22 @@
       border-left: 3px solid var(--tf-edge); padding-left: .9rem; min-height: 1.2em; }
     .tf-disc { margin-top: 1.2rem; font-size: .82rem; color: var(--tf-muted);
       border-left: 3px solid var(--tf-yellow); padding-left: .9rem; }
-    @media (max-width: 760px) { #tf-canvas { height: 860px; } }
+    @media (max-width: 760px) {
+      #tf-canvas { height: 860px; }
+      .tf-wrap { padding: 5.5rem 1rem 3rem; }
+      .tf-controls { gap: .4rem; }
+      .tf-node { width: 170px; }
+    }
+    @media (max-width: 480px) {
+      #tf-canvas { height: 1000px; }
+      .tf-wrap { padding: 5.5rem .75rem 3rem; }
+      .tf-node { width: 155px; font-size: .9em; }
+    }
   </style>
 </head>
 <body class="tf-page">
   <canvas id="tf-stars"></canvas>
-  <header class="nav" id="nav">
+  <header class="nav scrolled" id="nav">
     <div class="container nav__inner">
       <a href="index.html" class="brand" aria-label="Kudbee Quant home">
         <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>
@@ -99,6 +109,8 @@
         <a href="trade-flow.html" aria-current="page">Trade Flow</a>
         <a href="lab.html">The Lab</a>
       </nav>
+      <a href="index.html#waitlist" class="btn btn--primary btn--sm nav__cta">Join the waitlist</a>
+      <button class="nav__toggle" aria-label="Toggle menu" aria-expanded="false"><span></span><span></span><span></span></button>
     </div>
   </header>
 
@@ -159,6 +171,7 @@
     </p>
   </main>
 
+  <script src="assets/js/main.js" defer></script>
   <script src="assets/js/trade-flow.js"></script>
 </body>
 </html>
