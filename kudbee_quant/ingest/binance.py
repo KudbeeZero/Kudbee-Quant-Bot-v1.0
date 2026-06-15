@@ -169,7 +169,12 @@ class BinanceClient:
         if df.empty:
             return df
         df["timestamp"] = pd.to_datetime(df["open_time"], unit="ms", utc=True)
-        num_cols = ["open", "high", "low", "close", "volume", "quote_volume", "trades"]
+        # taker_buy_base/quote are the AGGRESSIVE-BUY share of each bar's volume
+        # (Binance reports them per kline). Kept so downstream can derive bar
+        # delta / CVD without a second data source; see levels/delta.py.
+        num_cols = ["open", "high", "low", "close", "volume", "quote_volume",
+                    "trades", "taker_buy_base", "taker_buy_quote"]
         df[num_cols] = df[num_cols].astype(float)
-        keep = ["timestamp", "open", "high", "low", "close", "volume", "quote_volume", "trades"]
+        keep = ["timestamp", "open", "high", "low", "close", "volume",
+                "quote_volume", "trades", "taker_buy_base", "taker_buy_quote"]
         return df[keep].reset_index(drop=True)
