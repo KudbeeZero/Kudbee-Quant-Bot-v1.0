@@ -8,6 +8,7 @@ from kudbee_quant.confluence import (
 )
 from kudbee_quant.confluence.scorer import _cluster_count, add_confluence
 from kudbee_quant.levels import LEVEL_COLUMNS, build_levels, range_stats
+from kudbee_quant.levels.builder import OPTIONAL_LEVEL_COLUMNS
 
 
 def _ohlcv(n=900, seed=1):
@@ -25,8 +26,13 @@ def _ohlcv(n=900, seed=1):
 
 def test_build_levels_has_catalog_columns():
     f = build_levels(_ohlcv())
+    # Default frame must produce every NON-opt-in catalog column; opt-in columns
+    # (volume profile, ...) only appear when their feature flag is set.
     for col in LEVEL_COLUMNS:
-        assert col in f.columns, col
+        if col in OPTIONAL_LEVEL_COLUMNS:
+            assert col not in f.columns, f"opt-in {col} leaked into default frame"
+        else:
+            assert col in f.columns, col
     assert "pct_adr_used" in f.columns and "adr" in f.columns
 
 
