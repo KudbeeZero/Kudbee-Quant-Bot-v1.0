@@ -31,9 +31,9 @@
   --maxw:      1180px;
   --ease:      cubic-bezier(.22, 1, .36, 1);
 
-  --font-head: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --font-head: 'Space Grotesk', 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Cascadia Code', monospace;
 }
 
 /* ===== Reset ===== */
@@ -105,9 +105,15 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--font-head); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
 .brand__mark { display: inline-flex; filter: drop-shadow(0 4px 12px var(--honey-glow)); }
 .brand__accent { color: var(--honey); }
-.nav__links { display: flex; gap: 28px; margin-left: auto; }
-.nav__links a { color: var(--muted); font-size: 15px; font-weight: 500; transition: color .2s; }
+.nav__links { display: flex; gap: 22px; margin-left: auto; flex-wrap: nowrap; }
+.nav__links a { color: var(--muted); font-size: 14.5px; font-weight: 500; transition: color .2s; white-space: nowrap; }
 .nav__links a:hover { color: var(--text); }
+/* Tighten nav gap on medium screens to prevent overflow with 7+ links */
+@media (max-width: 1100px) and (min-width: 681px) {
+  .nav__links { gap: 16px; }
+  .nav__links a { font-size: 14px; }
+  .nav__inner { gap: 14px; }
+}
 .nav__cta { margin-left: 4px; }
 .nav__toggle { display: none; flex-direction: column; gap: 5px; background: none; border: 0; cursor: pointer; padding: 8px; }
 .nav__toggle span { width: 24px; height: 2px; background: var(--text); border-radius: 2px; transition: .3s; }
@@ -139,7 +145,7 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .pill__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mint); box-shadow: 0 0 0 0 var(--mint-glow); animation: pulse 2s infinite; }
 @keyframes pulse { 0% { box-shadow: 0 0 0 0 var(--mint-glow); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
 
-.hero__title { font-size: clamp(2.6rem, 5.4vw, 4.2rem); font-weight: 700; margin-bottom: 22px; }
+.hero__title { font-size: clamp(2.1rem, 5.4vw, 4.2rem); font-weight: 700; margin-bottom: 22px; }
 .grad-text {
   background: linear-gradient(120deg, var(--honey-lt), var(--honey) 55%, #ff8a3c);
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -241,6 +247,16 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 
 .faq__more { text-align: center; color: var(--muted); margin-top: 24px; font-size: .98rem; }
 .faq__more a { color: var(--honey-lt); font-weight: 600; border-bottom: 1px solid rgba(245,166,35,.4); }
+
+/* About page: 2-col comparison — first col is "positive" (honey bg), second is "negative" */
+.compare--about .compare__is {
+  color: var(--honey-lt); background: linear-gradient(90deg, rgba(245,166,35,.05), transparent); font-weight: 500;
+}
+.compare--about .compare__is::before { content: "✓ "; color: var(--mint); font-weight: 700; }
+.compare--about tbody td:last-child { background: none; color: var(--muted); }
+.compare--about tbody td:last-child::before { content: "✕ "; color: var(--red); font-weight: 700; }
+.compare--about thead th:first-child { color: var(--honey-lt); }
+.compare--about thead th.compare__us { color: var(--honey-lt); }
 
 /* ===== Honest dashboard / equity notes ===== */
 .dash__note { margin-top: 14px; font-size: 11.5px; line-height: 1.5; color: var(--muted-2); border-top: 1px solid var(--border); padding-top: 12px; }
@@ -517,31 +533,96 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .split--rev .split__visual { order: 0; }
   .band__inner { grid-template-columns: repeat(2, 1fr); gap: 36px 24px; }
   .footer__inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+  /* Equity chart: prevent horizontal overflow on tablets */
+  .equity__chart { height: 180px; }
+  .equity__legend { grid-template-columns: repeat(2, 1fr); }
+  /* Signals list: tighten the 3-col grid on tablets */
+  .signals__list li { grid-template-columns: 1fr auto; }
+  .signals__list .meta { grid-column: 1 / -1; }
 }
 @media (max-width: 680px) {
   .nav__links, .nav__cta { display: none; }
   .nav__toggle { display: flex; }
+  /* Mobile menu drops below the 72px nav bar */
   .nav.open .nav__links {
     display: flex; flex-direction: column; position: absolute; top: 72px; left: 0; right: 0;
-    background: rgba(10,14,23,.96); backdrop-filter: blur(16px); padding: 20px 24px; gap: 18px;
-    border-bottom: 1px solid var(--border);
+    background: rgba(10,14,23,.97); backdrop-filter: blur(16px); padding: 20px 24px 24px; gap: 0;
+    border-bottom: 1px solid var(--border); z-index: 99;
   }
-  .nav.open .nav__cta { display: inline-flex; position: absolute; top: 200px; left: 24px; right: 24px; }
+  /* Make each nav link a full-width touch target (≥44px) */
+  .nav.open .nav__links a {
+    padding: 13px 0; border-bottom: 1px solid var(--border); font-size: 16px; color: var(--text);
+    min-height: 44px; display: flex; align-items: center;
+  }
+  .nav.open .nav__links a:last-child { border-bottom: 0; }
+  /* CTA flows inline after links, not positioned absolutely */
+  .nav.open .nav__cta {
+    display: flex; margin-top: 18px; width: 100%; justify-content: center;
+  }
+  /* Prevent page body scroll when menu is open */
+  body.nav-open { overflow: hidden; }
+
   .hero { padding-top: 120px; }
-  .hero__trust { gap: 24px; }
+  .hero__trust { gap: 20px; }
+  /* Prevent hero copy from overflowing narrow screens */
+  .hero__copy { min-width: 0; }
+  .hero__sub { font-size: 1.02rem; }
+  .hero__actions { gap: 10px; }
+  .hero__actions .btn { width: 100%; justify-content: center; }
+  /* Trust stats: wrap to 2 columns on very small screens */
+  .hero__trust { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .hero__trust strong { font-size: 1.4rem; }
+
+  /* Ticker: ensure no horizontal blowout (already overflow:hidden but double-guard) */
+  .ticker { overflow: hidden; }
+
   .grid--features, .steps, .band__inner, .grid--personas, .define__facts, .grid--posts { grid-template-columns: 1fr; }
   .grid--features.honesty-grid { grid-template-columns: 1fr; }
-  /* Wide tables: smooth momentum scroll + smaller type/padding so more fits on
-     a ~375px phone before any horizontal scroll is needed. */
-  .compare { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-  .compare table { min-width: 460px; font-size: .9rem; }
-  .compare th, .compare td { padding-inline: 10px; }
+  /* Wide tables: smooth momentum scroll + smaller type/padding */
+  .compare { overflow-x: auto; -webkit-overflow-scrolling: touch; scroll-snap-type: x mandatory; }
+  .compare table { min-width: 440px; font-size: .86rem; }
+  .compare th, .compare td { padding-inline: 9px; padding-block: 13px; }
+  /* 4-column tables (compare.html) need extra room */
+  .compare table[data-cols="4"] { min-width: 600px; }
+  /* Equity chart: smaller on phones */
+  .equity__chart { height: 160px; }
+  .equity__legend { grid-template-columns: repeat(2, 1fr); }
+  /* Signals: single col on phones */
+  .signals__list li { grid-template-columns: 1fr auto; }
+  .signals__list .meta { grid-column: 1 / -1; }
+  /* Dash stats grid: 2-col on phones */
+  .dash__stats { grid-template-columns: repeat(2, 1fr); }
+
   .footer__inner { grid-template-columns: 1fr; }
   .waitlist__row { flex-direction: column; }
+  /* Waitlist button: full-width on mobile */
+  .waitlist__row .btn { width: 100%; }
   .callout-row { grid-template-columns: 1fr; }
   .chip--a { right: 0; top: -20px; } .chip--b { left: 0; }
-  .section { padding: 72px 0; }
+  .section { padding: 64px 0; }
+  /* Path steps: stack icon + text on small screens */
+  .path__step { flex-direction: row; gap: 14px; }
+  /* Glossary: full-width search on mobile */
+  .glossary-search { max-width: 100%; }
   /* Comfortable touch targets (WCAG 2.5.5) on small screens. */
   .btn, .btn--sm { min-height: 44px; }
   .contact-form input, .contact-form textarea, .contact-form button { min-height: 44px; }
+  /* Contact form: full-width on mobile */
+  .contact-form { padding: 20px; }
+  /* Glossary CTA: smaller padding on mobile */
+  .glossary-cta { padding: 32px 20px; }
+  /* Article: reduce side padding at narrow widths */
+  .article__head { padding-inline: 16px; }
+}
+
+/* ===== Extra-narrow (360px) safety net ===== */
+@media (max-width: 400px) {
+  .hero__trust { grid-template-columns: 1fr; }
+  .band__inner { grid-template-columns: 1fr; }
+  .define__facts { grid-template-columns: 1fr; }
+  .equity__legend { grid-template-columns: repeat(2, 1fr); }
+  .container { padding-inline: 16px; }
+  .nav__inner { gap: 12px; }
+  .brand { font-size: 17px; }
+  .cta { padding: 44px 20px; }
 }
