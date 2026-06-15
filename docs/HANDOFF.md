@@ -7,91 +7,85 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **Last branch:** `claude/confluence-new-signals-audit-a6gxt6`
-- **Last PR:** #20 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/20
-  (new entry signals, opt-in/default-OFF, independently validated).
+- **Last branch:** `claude/confluence-r-cycle-backtest-eg45m1`
+- **Last PR:** #23 — https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/23
+  (cycle-aware OOS backtest; offline only, no live change).
 - **Audit status:** `AWAITING_AUDIT`.
-- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS, merged from UI), **#16** (live
-  order-placement, audit PASS), **#17** (near-miss autopsy, audit PASS), #19
-  (vector-candle logger) all MERGED to `main`. Gate streak:
-  #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
+- **NOTE — two PRs awaiting audit:** **PR #20** (new entry signals) is ALSO still
+  `AWAITING_AUDIT` (not yet merged). The next chat should `/handoff-audit` **both,
+  oldest first (#20 then #23)**. #23 merged `origin/main` (incl. #20's work) for a
+  current base, so its diff is cycle-backtest-only.
+- Prior PRs CLOSED OUT: #14 (post-hoc CONCERNS), **#16**, **#17**, #19 all MERGED
+  to `main`. Gate streak: #5,#6,#7,#9,#11,#12,#13,#14,#16,#17.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **New-signals audit + 3 signals (PR #20)** — extended the entry system with
-  genuinely-missing signals WITHOUT re-adding the 5 removed votes; each opt-in,
-  default OFF, independently validated on real 1h data (top-10 majors, 8000 bars,
-  canonical bracket). Mostly an **honest negative**; kept as infra, NOT enabled live.
-  - **#1 taker delta / CVD / delta-div** (`levels/delta.py`) — un-dropped
-    `taker_buy_base` in `ingest/binance.py` (+ `resample`). `delta_align` FILTER
-    **fails OOS**; meta FEATURES **pass** the GBT gate (p=0.0073, +0.094R).
-  - **#2 volume profile** POC/VAH/VAL/naked-POC (`levels/volume_profile.py`,
-    `OPTIONAL_LEVEL_COLUMNS`) — filter **inconclusive** (helps OOS, hurts IS);
-    features pass but near-boundary.
-  - **#3 killzone gate** (`confluence_position(killzone_gate=)`) — **FAILS OOS**;
-    hour map shows OFF-hours +0.102R vs in-killzone +0.021R (16h UTC best & off-KZ).
-  - **60% band:** +0.25R net-positive OOS — the stale −31R does NOT reproduce;
-    **corroborates PR #17's autopsy** (don't drop the 60% band).
-  - Gating in `config/features.py` (flags default OFF) + 3 `confluence_position`
-    filter params (default OFF). Validation: `scripts/validate_*`. Reports:
-    `docs/research/signal-{1,2,3}-*.md`. MEMORY §39. 304 passed; new modules ruff-clean.
-    §1 / `FEE_PCT` / journal / alert_inbox untouched; no new votes.
+- **Cycle-aware OOS backtest of the live confluence-R rules (PR #23)** — scored the
+  EXACT live config (`confluence_position(min_pct=0.5, trend_align=True)` +
+  `BRACKET_KW`: stop_atr=1.5, target_r=3.0, limit_retrace_atr=0.25, max_bars=24)
+  over two prior-cycle CHOP analogs (2018-07/10, 2022-05/08 — the ~786-day-post-
+  halving phase we are in) + a recent span (2024-06→now), at 5m/15m/1h. Params
+  frozen (never refit) → all three regimes OOS. Fees modeled gross→full-taker.
+  **Offline only; §1/`FEE_PCT`/journal/alert_inbox untouched.**
+  - **137,326 resolved OOS trades** (8,124 on the validated 1h TF alone).
+  - **1h: +0.096R net-maker / +0.060R net-FULL-taker, n=8,124, p<0.001** — positive
+    & taker-survived. 15m maker-only (dies at taker). 5m net-dead in every regime
+    (vindicates the §37 pause). The pooled "overall −0.019R" is 71% 5m — context-only.
+  - **Survives the current regime** (recent 1h strongest, +0.102/+0.064); **survives
+    the chop analogs but thinner & LOW-CONFIDENCE** (2018 n=450, 2022 n=951).
+  - **`min_pct 0.5→0.6` REFUTED OOS in every regime** (50% band is the best 1h band;
+    0.6 flips the 2022 chop analog negative) — closes the pending autopsy tweak.
+  - NEW `BinanceClient.klines_range()` (forward-paging date-window fetch, disk-cached;
+    additive). `scripts/cycle_backtest.py` + `scripts/cycle_backtest_matrix.py`;
+    report `docs/research/cycle_backtest.md`; MEMORY §40. 305 passed; ruff clean.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/signal-4-oi-liquidations` — harness assigns
+- **Slug hint (ADVISORY only):** `claude/close-min-pct-decision` — harness assigns
   the real name; the *scope* below is what binds.
-- **Scope (user-chosen 2026-06-14):** **Signal #4 — open-interest + liquidation-cluster
-  levels** (the BUILD list's stretch item). New ingest module; map OI / liquidation
-  clusters as liquidity draws (level columns), gated behind config default OFF, then
-  validate the SAME way (walkforward + meta-model CV, IS vs OOS) and keep ONLY on an
-  OOS improvement. **Data-availability risk:** Binance OI history ≈ last 30 days
-  (`fapi /futures/data/openInterestHist`); public liquidation HISTORY is restricted
-  (only the live `forceOrders` stream) — a clean OOS test may not be achievable
-  without an alternative source. Report the data limit honestly; if OOS isn't
-  possible, deliver the levels + a forward-only plan rather than overclaiming.
-- **STILL PENDING (user decision, from PR #17):** the autopsy's `--min-pct 0.6`
-  hourly-scan tweak. Verdict was: do NOT drop the 60% band / lower the target (both
-  OVERFIT, OOS-refuted; 3R correct, 60% gate net-positive OOS — now corroborated by
-  PR #20). The only OOS-supported tweak is `--min-pct 0.5→0.6`, and even that is
-  modest — RECOMMEND a forward shadow-test (journal 0.5 vs 0.6 in parallel), NOT a
-  hard flip. **Awaiting user approval before any live-config change.**
-- **Also queued:** (b) wire the live executor (PR #16) into a CLI / hourly Action —
-  start `BINANCE_TESTNET=true` smoke-test (`docs/LIVE_TRADING_SETUP.md`); (c) top-100
-  universe flip decision (`docs/TOP100_1H_UNIVERSE.md`).
-- **FIRST (carryover): verify the 5m pause landed** — confirm the hourly Action logs
-  NO new `5m` signals (§37 still unverified in production).
-- **Live deploy walkthrough (queued):** once the user creates the Render service
-  (`docs/HOSTING.md`), smoke-test the live host (health, dashboard, `/api/alert` with
-  `"inbox": true`, the commit landing in `data/alert_inbox/`).
+- **Scope (user-chosen 2026-06-15):** **Formally CLOSE the `--min-pct 0.6` decision —
+  keep 0.5.** PR #23 gives the OOS answer: raising the floor 0.5→0.6 LOWERS net-of-
+  fees expectancy in every regime and flips the 2022 chop analog negative; the 50%
+  band is the best 1h band. So the long-pending tweak is settled: **do NOT raise the
+  gate, do NOT shadow-test it — keep `MIN_PCT=0.50`.** Record the closure (MEMORY +
+  remove it from the pending list); no live-config change. Lightweight chat.
+- **AUDIT FIRST:** `/handoff-audit` PR #20 then PR #23 before any new work.
+- **Also queued (unchanged):** Signal #4 (OI + liquidation-cluster levels — data-
+  availability risk: OI hist ≈ 30d, liquidation history restricted); wire the live
+  executor (PR #16) into a CLI / hourly Action via `BINANCE_TESTNET=true` smoke-test;
+  top-100 universe flip decision; verify the 5m pause landed in production (§37);
+  live deploy walkthrough once the Render service exists (`docs/HOSTING.md`).
 - **Open risks / watch-items:**
-  - **PR #20 signals are NOT validated for live use:** delta_align & killzone gate
-    FAIL OOS; volume-profile is inconclusive; the meta-feature lift (delta + vp) is
-    near the noise floor (baseline gate p≈0.064, any mild feature set tips it to
-    ~0.005 with the same ~0.329R). One window/universe — **forward-test before
-    enabling any flag (`ENABLE_TAKER_DELTA`/`ENABLE_VOLUME_PROFILE`) or filter live.**
+  - **2018 cycle-analog universe limited to 5 coins** (BTC/ETH/BNB/ADA/XRP — the
+    others weren't listed yet); 2022 + recent use all 10. 15 cells had a single
+    1-candle 2018 gap (negligible). The chop-analog 1h samples are SMALL (450/951)
+    and not individually significant — "survives chop" is positive-but-low-confidence.
+  - **Don't quote the pooled "overall" net-negative without the 1h context** — it's
+    a 5m artifact (71% of trades), not a verdict on the live book.
+  - **PR #20 signals NOT validated for live use** (delta_align & killzone FAIL OOS;
+    volume-profile inconclusive; meta-lift near noise) — keep flags OFF, forward-test.
+  - **PR #20 still AWAITING_AUDIT** alongside #23 — audit both.
   - **Live execution EXISTS but UNPROVEN live (PR #16):** maker-only, double-gated,
-    logic-tested only — never placed a real order. Paper still default. Start testnet.
-  - **Top-100 membership UNPROVEN forward (§31):** only top-10 majors are
-    walk-forward validated; the long tail is a static fallback snapshot.
-  - **5m pause UNVERIFIED in production (§37).**
-  - **Deployment UNPROVEN:** render.yaml + inbox tested locally only.
-  - **Possible edge decay on 1h crypto book** (§36/§37) — re-check as data accrues.
-  - **Branch deletions pending (§32):** safe to delete via GitHub UI — the
-    handoff-audit-*, hello-*, overnight-*, sol-short-*, fable-5-*, zcash-* set.
-  - **§33** replay pct ≠ live-edge pct; **§31** 11 TradFi symbols unproven forward;
-    **§29/§30** standing caveats + maker-vs-taker fee open item (one real LIMIT fill
-    settles it).
+    never placed a real order. Paper still default. Start testnet.
+  - **Top-100 membership UNPROVEN forward (§31);** **5m pause UNVERIFIED in prod (§37);**
+    **deployment UNPROVEN** (render.yaml + inbox local-only); **possible 1h edge decay
+    (§36/§37)** — re-check as data accrues.
+  - **Branch deletions pending (§32):** handoff-audit-*, hello-*, overnight-*,
+    sol-short-*, fable-5-*, zcash-* set (safe via GitHub UI).
+  - **§33** replay pct ≠ live-edge pct; **§29/§30** maker-vs-taker fee open item
+    (one real LIMIT fill settles it).
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; `data/journal.json`
   (bot-owned — no session commits); `data/alert_inbox/` (host+Action-owned — no
   manual session commits); crypto daily grouping stays calendar-dated; held salvage
-  branches only with explicit user OK. **PLUS (this chat):** keep the new feature
-  flags + filters OFF in the live path until forward-validated, and hold the
-  parsimony line (no removed vote — BOS/RSI-div/funding/OB/macro — back as a vote).
+  branches only with explicit user OK. Keep PR #20's feature flags + filters OFF
+  until forward-validated; hold the parsimony line (no removed vote back as a vote).
 
 ## Baton history
 - … (prior entries in git) …
 - 2026-06-14: PR #20 — new entry signals (taker delta/CVD, volume profile, killzone
-  gate), all opt-in/default-OFF, independently validated; honest negative (filters
-  fail OOS, meta-feature lift near noise floor); 60% band confirmed net-positive OOS.
-  Next scope: Signal #4 (OI + liquidation-cluster levels).
+  gate), opt-in/default-OFF, independently validated; honest negative; 60% band
+  confirmed net-positive OOS. Next scope: Signal #4 (OI + liquidation levels).
+- 2026-06-15: PR #23 — cycle-aware OOS backtest (137k trades). Live 1h config is
+  net-positive & full-taker-survived in all 3 regimes; 5m dead, 15m maker-only;
+  `min_pct 0.6` refuted OOS. Affirm live config, no change. Next scope: formally
+  close the `--min-pct 0.6` decision (keep 0.5).
