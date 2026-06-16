@@ -1393,3 +1393,47 @@ Binance rate-limits (mirror `data-api.binance.vision`); the bot-owned
 re-confirms §37, REVERT to the top-10 / no-5m config. Change shipped in
 `.github/workflows/paper-trade.yml` (the §37 pause comment replaced with the §43
 forward-experiment note). §1 defaults / `FEE_PCT` untouched.
+
+---
+
+## 44. VWAP factor flipped to ROTATION (mean-reversion) — user-directed, NOT OOS-validated, now LIVE — 2026-06-16 (PR #31, merged)
+
+The user directed the **VWAP confluence vote to flip from momentum to rotation
+(mean-reversion):** `v_vwap = −sign(close − vwap)` — price stretched ABOVE the
+session VWAP now votes SHORT (fade back into it), BELOW votes LONG. VWAP was already
+a live vote (built by default in `levels/builder.py`), so this is a **polarity flip,
+not a new factor** — two opposite VWAP votes would just cancel in the sum-of-votes
+engine, so polarity is the only coherent way to express "rotation." Code:
+`kudbee_quant/confluence/stack.py` (`v_vwap`), with an in-code NOTE flagging it for
+OOS re-validation.
+
+HONESTY — this **changes a previously-validated live default and is NOT validated as
+better than the momentum sign.** The one-off A/B screen (`scripts/compare_vwap_rotation.py`,
+1h, 10 majors, §1 gate, per-bar model, zero-fee) recovered both nets from one vote
+pass and found the blanket flip **HURTS on majors**: momentum 47.26% win / +197%
+gross / 13,175 trades vs rotation 47.76% win / −51% gross / 2,165 trades. PR #31 was
+opened DRAFT for exactly this reason, then **merged by the user** — so the rotation
+sign is now LIVE in the hourly paper bot. **Open risk for the next chat:** this is an
+unvalidated change to a §1-validated default. The narrower conditional the user
+actually described — *daily-open read AND price below VWAP → 2× long size* — was NOT
+tested on the bracket model and is the more faithful version of the idea than the
+blanket per-bar flip. Revisit: either OOS-validate the flip on the bracket harness or
+test the conditional-size rule; don't treat rotation as settled.
+
+Also shipped this session (PR #31): `docs/OPEN_SETUPS.md` — a **manual** discretionary
+trade-tracking board (GOOGL / HYPE / COMP / DEGEN / ETH longs, $100 = 1R, TP1 1.5R /
+TP2 2.8926R). It is NOT read by the bot and is separate from `data/journal.json`.
+
+### Assessment of the shared "Crawlee + latency + cluster" PDF (Perplexity thread)
+The user shared a long external thread proposing (a) a Crawlee news-sentiment worker
+pool feeding source-aware scores, (b) a fast-path/batch-path latency overhaul to cure
+a "1–1.5 hour signal→entry delay," and (c) a data-feed benchmark harness. **Most of
+it does NOT apply to THIS bot:** we are pure price-action on **bar-close** signals via
+an hourly GitHub Action — there is no scraper on the hot path, no news layer, and no
+1.5h execution delay to fix. Do not build the Crawlee/latency/feed-benchmark stack
+here on the strength of that thread. **The ONE applicable idea** is its "losing
+trades arrive in clusters → are they regime-driven or just variance?" question — which
+maps cleanly onto our existing significance-gated study harness
+(`confluence_directional_study`, Wilson CIs + FDR) over the live `data/journal.json`.
+That is the next unit (the "Cluster Analyzer"), and it directly answers Tino's
+"increase sample size, study the losers" point.
