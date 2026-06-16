@@ -17,8 +17,9 @@
 Payoff per ticket if both targets fill: **+2.196R = +$219.63** (TP1 half +$75, TP2
 half +$144.63). After TP1, stop → breakeven (locked +$75 min). Full stop = −$100.
 
-**Awaiting input:**
-- **ETH** long 1776.42 — needs a valid stop (the 496.72 quoted was ZEC's, not ETH's).
+| ETH | long | 1776.42 | 1600.00 | 176.42 (9.9%) | 2041.05 | 2286.73 | 0.5668 | ~10x | stop 1600 |
+
+_All five tickets locked._
 
 ## Bot open book (paper) — snapshot
 
