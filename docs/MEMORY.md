@@ -6,7 +6,22 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-06-09._
+_Last updated: 2026-06-16._
+
+---
+
+## STANDING USER PREFERENCES (honor every session)
+
+- **Don't re-raise fees on positive results (2026-06-16, user-set).** The plan is
+  to trade the **zero-fee assets** (the `YAHOO:` TradFi venue — Nasdaq / ES / index /
+  forex; `VENUE_FEE_PCT["tradfi"] = 0`). The fee model is already understood and
+  documented (§25/§26); do **not** volunteer fee caveats / exchange-fee rundowns
+  when a reading comes back positive. Assume fees are off the table unless the user
+  explicitly asks about a fee-paying (crypto taker) venue.
+- **Don't over-caution / re-litigate (2026-06-16).** This is the user's own research
+  sandbox — not a public signals/advisory product. Skip "this is/ isn't financial
+  advice" framing and compliance hand-wringing; execute the directed change and report
+  results honestly. Iteration + honest measurement is the whole point.
 
 ---
 
