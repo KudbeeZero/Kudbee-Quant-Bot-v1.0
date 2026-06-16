@@ -43,6 +43,7 @@
     if (name === "history") loadHistory();
     if (name === "research") loadResearch();
     if (name === "runner") loadRunner();
+    if (name === "chart-review") loadChartReviews();
   }
   $("#tabs").addEventListener("click", (e) => {
     const b = e.target.closest("[data-tab]");
@@ -353,6 +354,100 @@
       }));
   }
 
+  // ---- chart review ----
+  const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+  let crFile = null;
+
+  function crPickFile(f) {
+    crFile = null;
+    $("#cr-preview").classList.add("hidden");
+    if (!f) { $("#cr-submit").disabled = true; return; }
+    if (!/^image\/(png|jpeg|webp|gif)$/.test(f.type)) {
+      $("#cr-result").innerHTML = `<div class="text-danger text-xs">Unsupported type — PNG/JPG/WEBP/GIF only.</div>`;
+      $("#cr-submit").disabled = true; return;
+    }
+    if (f.size > MAX_IMAGE_BYTES) {
+      $("#cr-result").innerHTML = `<div class="text-danger text-xs">Image exceeds 5MB.</div>`;
+      $("#cr-submit").disabled = true; return;
+    }
+    crFile = f;
+    $("#cr-result").innerHTML = "";
+    $("#cr-drop-text").textContent = f.name;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = $("#cr-preview");
+      img.src = e.target.result;            // data: URL — allowed by CSP (img-src data:)
+      img.classList.remove("hidden");
+    };
+    reader.readAsDataURL(f);
+    $("#cr-submit").disabled = false;
+  }
+
+  function biasPill(b) {
+    const c = b === "long" ? "bg-mint/20 text-mint" : b === "short" ? "bg-danger/20 text-danger" : "bg-edge text-muted";
+    return `<span class="kq-pill ${c}">${esc(b || "—")}</span>`;
+  }
+  function recPill(r) {
+    const c = r === "trade_candidate" ? "bg-mint/20 text-mint" : r === "no_trade" ? "bg-danger/20 text-danger" : "bg-honey/20 text-honey";
+    return `<span class="kq-pill ${c}">${esc((r || "—").replace(/_/g, " "))}</span>`;
+  }
+
+  function renderReview(box, rv, meta) {
+    const lv = rv.key_levels || {};
+    const levels = [
+      ["support", (lv.support || []).map((x) => fmt(x, 4)).join(", ") || "—"],
+      ["resistance", (lv.resistance || []).map((x) => fmt(x, 4)).join(", ") || "—"],
+      ["entry", rv.suggested_entry != null ? fmt(rv.suggested_entry, 4) : "—"],
+      ["stop", rv.suggested_stop != null ? fmt(rv.suggested_stop, 4) : "—"],
+      ["target", rv.suggested_target != null ? fmt(rv.suggested_target, 4) : "—"],
+    ];
+    box.innerHTML =
+      `<div class="rounded border border-edge bg-ink/40 p-3 mt-1">` +
+      `<div class="flex flex-wrap items-center gap-2 mb-2">${biasPill(rv.bias)} ${recPill(rv.final_recommendation)}` +
+      `<span class="text-xs text-muted">${esc(rv.setup_name)} · conf ${esc(rv.confidence)}%</span></div>` +
+      levels.map(([k, v]) =>
+        `<div class="flex justify-between py-0.5 text-xs"><span class="text-muted">${esc(k)}</span><span>${esc(v)}</span></div>`).join("") +
+      `<div class="mt-2 text-[11px] text-body leading-relaxed">${esc(rv.rationale)}</div>` +
+      (meta ? `<div class="mt-2 text-[10px] text-muted">${esc(meta)}</div>` : "") +
+      `</div>`;
+  }
+
+  async function submitChartReview() {
+    if (!crFile) return;
+    const btn = $("#cr-submit"); btn.disabled = true; btn.textContent = "Reviewing…";
+    try {
+      const fd = new FormData();
+      fd.append("image", crFile);
+      fd.append("symbol", $("#cr-symbol").value.trim());
+      fd.append("timeframe", $("#cr-tf").value);
+      fd.append("notes", $("#cr-notes").value.trim());
+      const d = await api("/api/chart-review", { method: "POST", body: fd });
+      renderReview($("#cr-result"), d.review, `${d.ai_model_used} · ${d.id}`);
+      loadChartReviews();
+    } catch (e) {
+      $("#cr-result").innerHTML = `<div class="text-danger text-xs">${esc(e.message)}</div>`;
+    } finally { btn.disabled = false; btn.textContent = "Review chart"; }
+  }
+
+  async function loadChartReviews() {
+    const box = $("#cr-history");
+    box.innerHTML = `<div class="text-muted text-xs">loading…</div>`;
+    try {
+      const d = await api("/api/chart-reviews");
+      const r = d.reviews || [];
+      if (!r.length) { box.innerHTML = `<div class="text-muted text-xs">no reviews yet</div>`; return; }
+      box.innerHTML = r.map((x) =>
+        `<div class="flex gap-3 rounded border border-edge bg-ink/40 p-2">` +
+        (x.has_image ? `<img src="/api/chart-images/${esc(x.id)}" alt="" class="h-14 w-20 shrink-0 rounded object-cover border border-edge" />` : "") +
+        `<div class="min-w-0 flex-1">` +
+        `<div class="flex flex-wrap items-center gap-2">${biasPill(x.bias)} ${recPill(x.final_recommendation)}` +
+        `<span class="text-xs text-body">${esc(x.symbol)}</span>` +
+        `<span class="text-[11px] text-muted">${esc(x.timeframe || "")}</span></div>` +
+        `<div class="text-[11px] text-muted">${esc(x.setup_name)} · conf ${esc(x.confidence)}% · ${esc((x.created_at || "").slice(0, 16))}</div>` +
+        `</div></div>`).join("");
+    } catch (e) { box.innerHTML = `<div class="text-danger text-xs">${esc(e.message)}</div>`; }
+  }
+
   // ---- shared bits ----
   function table(head, rows) {
     return `<table class="w-full text-xs"><thead><tr class="text-muted text-left">` +
@@ -384,6 +479,17 @@
   $("#f-tf").addEventListener("change", loadHistory);
   $("#f-mode").addEventListener("change", loadHistory);
   $("#f-symbol").addEventListener("keydown", (e) => { if (e.key === "Enter") loadHistory(); });
+
+  // chart review wiring
+  $("#cr-drop").addEventListener("click", () => $("#cr-file").click());
+  $("#cr-file").addEventListener("change", (e) => crPickFile(e.target.files[0]));
+  $("#cr-drop").addEventListener("dragover", (e) => { e.preventDefault(); $("#cr-drop").classList.add("border-sky/60"); });
+  $("#cr-drop").addEventListener("dragleave", () => $("#cr-drop").classList.remove("border-sky/60"));
+  $("#cr-drop").addEventListener("drop", (e) => {
+    e.preventDefault(); $("#cr-drop").classList.remove("border-sky/60");
+    crPickFile(e.dataTransfer.files[0]);
+  });
+  $("#cr-submit").addEventListener("click", submitChartReview);
 
   showTab("overview");
   loadOverview();
