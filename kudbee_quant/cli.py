@@ -369,12 +369,15 @@ def _journal_add(args) -> None:
 def _ingest_alerts(args) -> None:
     """Drain data/alert_inbox/ (hosted TV alerts) into the repo journal."""
     from .alert_inbox import ingest_inbox
+    from .notifications import notify_trades_opened
     j = TradeJournal()
     added = ingest_inbox(j)
     print(f"{len(added)} alert(s) ingested from the inbox.")
+    notify_trades_opened(added)   # no-op unless Telegram is configured
 
 
 def _journal_check(args) -> None:
+    from .notifications import notify_trades_resolved
     j = TradeJournal()
     changed = j.check_open()
     if changed:
@@ -382,6 +385,7 @@ def _journal_check(args) -> None:
             print(f"  {p.id} {p.symbol} {p.setup}: {p.status.upper()}")
     else:
         print("No predictions resolved this check.")
+    notify_trades_resolved(changed)   # no-op unless Telegram is configured
     opens = [p for p in j.predictions if p.status in ("open", "pending")]
     resolved = [p for p in j.predictions if p.status in ("hit", "miss", "cancelled")]
     print(f"\n{len(opens)} open/pending, {len(resolved)} resolved.")
@@ -501,11 +505,13 @@ def _tf_survey(args) -> None:
 
 
 def _paper_scan(args) -> None:
+    from .notifications import notify_trades_opened
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
                         trend_filter=args.trend_filter)
+    notify_trades_opened(logged)   # no-op unless Telegram is configured
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:
@@ -644,6 +650,25 @@ def _review_trade_history(args) -> None:
         mode=args.mode, status=args.status, timeframe=args.timeframe,
         with_excursion=not args.no_excursion)
     print(json.dumps(rep, indent=2, default=str) if args.json else render_history_text(rep))
+
+
+def _notify_test(args) -> None:
+    """Send a one-off Telegram test ping to confirm the wiring + secrets."""
+    from .notifications import notify_test, telegram_enabled
+    if not telegram_enabled():
+        print("Telegram is not configured (set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID, "
+              "and don't set KUDBEE_TELEGRAM_ENABLED to a false value). Nothing sent.")
+        return
+    print("Test ping sent." if notify_test() else "Telegram send failed (check token/chat id).")
+
+
+def _notify_summary(args) -> None:
+    """Send the portfolio snapshot to Telegram (used by the hourly Action)."""
+    from .notifications import notify_summary, telegram_enabled
+    if not telegram_enabled():
+        print("Telegram is not configured — no summary sent.")
+        return
+    print("Summary sent." if notify_summary() else "Telegram send failed (check token/chat id).")
 
 
 def _polymarkets(args) -> None:
@@ -894,6 +919,11 @@ def main() -> None:
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)
     p.set_defaults(func=_polymarkets)
+
+    nt = sub.add_parser("notify-test", help="send a Telegram test ping (verify token/chat id)")
+    nt.set_defaults(func=_notify_test)
+    nsum = sub.add_parser("notify-summary", help="send the portfolio snapshot to Telegram")
+    nsum.set_defaults(func=_notify_summary)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")

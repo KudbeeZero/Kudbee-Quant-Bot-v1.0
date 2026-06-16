@@ -45,6 +45,11 @@ jobs:
         run: python -m kudbee_quant.cli ingest-alerts || true
 
       - name: Scan for new setups + resolve open trades
+        # TELEGRAM_* (optional repo secrets): when set, paper-scan pings new
+        # setups and journal-check pings resolved trades. Unset -> silent no-op.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
           # TOP-100 universe + 5m RE-ENABLED 2026-06-14 at user request (§43) — a
@@ -72,6 +77,15 @@ jobs:
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true
 
+      - name: Telegram hourly summary
+        # No-op unless the TELEGRAM_* repo secrets are set; trade-open and
+        # resolved pings fire from the scan/journal-check steps above (also
+        # silently no-op without secrets). See docs/NOTIFICATIONS.md.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m kudbee_quant.cli notify-summary || true
+
       - name: Commit journal if changed
         run: |
           git config user.name "kudbee-paper-bot"
@@ -87,3 +101,18 @@ jobs:
           else
             echo "No journal changes this run."
           fi
+
+      - name: Telegram failure alert
+        # Fires only if an earlier step hard-failed (the scan steps use `|| true`,
+        # so this catches infra failures: checkout, deps, commit/push). Soft
+        # logic-health shows up in the hourly summary's warnings instead.
+        if: ${{ failure() }}
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python - <<'PY' || true
+          from kudbee_quant.notifications import notify_error
+          notify_error("hourly paper-trade run FAILED",
+                       "A step errored in GitHub Actions — check the run logs.")
+          PY
