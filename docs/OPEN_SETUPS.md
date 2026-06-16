@@ -12,6 +12,7 @@
 | GOOGL | long | 368.74 | 352.00 | 16.74 (4.5%) | 393.85 | 417.16 | 5.97 sh | ~22x | stop below yesterday's low / daily open |
 | HYPE | long | 73.61 | 66.30 | 7.31 (9.9%) | 84.58 | 94.75 | 13.68 | ~10x | wide stop — ran ~10% off daily open (66.88) before entry |
 | COMP | long | 17.60 | 17.15 | 0.45 (2.6%) | 18.28 | 18.90 | 222.2 | ~39x | reclaim long *under* VWAP (17.94) & daily open (18.07); fits the rotation thesis |
+| DEGEN | long | 0.001535 | 0.001381 ⚠ | 0.000153 (10%) | 0.001765 | 0.001979 | 651,466 | ~10x | ⚠ **placeholder stop (−10%)** — DEGEN not on the data feed; confirm its swing low / daily open |
 
 Payoff per ticket if both targets fill: **+2.196R = +$219.63** (TP1 half +$75, TP2
 half +$144.63). After TP1, stop → breakeven (locked +$75 min). Full stop = −$100.
