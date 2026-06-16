@@ -19,11 +19,13 @@
   board. See "What this chat did" below.
 - **Last PR:** **#31** — `claude/trade-setup-entry-vfkn7m`, **MERGED by the user**
   2026-06-16 (4-file diff). https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/31
-- **Audit status:** `POST-HOC ONLY` — **#31 was merged from DRAFT by the user without a
-  pre-merge `/handoff-audit`** (the serial gate was skipped). Next chat should run a quick
-  post-hoc `/handoff-audit` on #31 (small diff: VWAP sign flip + docs + A/B script + the
-  manual board) and write `docs/audits/`; it cannot gate the merge (already live), so this
-  is a record + a flag of the open risk in §44 (the rotation flip is unvalidated).
+- **Audit status:** `MERGED (post-hoc PASS)` — #31 was merged from DRAFT by the user
+  without a pre-merge gate, so it was **audited post-hoc this session** (independent
+  subagent; report `docs/audits/claude-trade-setup-entry-vfkn7m.md`). Verdict **PASS**:
+  all claims back-checked against the real base→head diff, **341 tests pass**, no scope
+  creep, no sneaked-in change to the §1 defaults (only the single VWAP sign moved), A/B
+  script read-only/clean, and §44/baton honestly flag the live-but-unvalidated risk. The
+  open risk in §44 stands as the documented fix-forward (OOS-validate or revert the flip).
 - **Prior chat's PR also merged:** **#29** (WEBSITE, front-end only) merged 2026-06-15 by
   the user — the baton had it `AWAITING_AUDIT`, but it is on `main`; no audit was recorded
   (low-risk front-end-only; optional post-hoc back-fill). **#27/#28** ledger/audit PRs also
@@ -67,13 +69,11 @@ only `docs/MEMORY.md` (§44) + `docs/HANDOFF.md`.
 ## NEXT chat
 
 - **Slug hint (ADVISORY only):** `claude/cluster-analyzer`.
-- **FIRST: run `/handoff-audit` on this chat's closeout PR + post-hoc on #31.** The
-  closeout PR is docs-only (baton + MEMORY §44) — quick scope/honesty check, then it can
-  be merged so `main` carries the current baton. Also write a brief post-hoc audit of the
-  already-merged **#31** (4-file diff: VWAP sign flip + A/B script + manual board + MEMORY)
-  to `docs/audits/` — it can't gate the merge (already LIVE), so the point is a record and
-  to surface the §44 open risk (the rotation flip is unvalidated and may be hurting the
-  live paper book). #29 (website) is already merged; optional low-risk back-fill audit.
+- **AUDITS ALREADY DONE this session** (no `/handoff-audit` needed at next start): **#31
+  post-hoc PASS** (`docs/audits/claude-trade-setup-entry-vfkn7m.md`); the closeout/baton
+  PR **#32** was the vehicle. #29 (website) is merged — optional low-risk back-fill only.
+  So the next chat can go **straight to the priority scope below.** (Still worth a glance:
+  whether #32 actually merged to `main` — if not, sync it first.)
 - **PRIORITY SCOPE (user-chosen this session): build the losing-cluster analyzer.** A new
   analysis unit that reads the live `data/journal.json` and tests whether **losing trades
   cluster** by **time-of-day**, **confluence strength/score at entry**, and **ATR/volatility
