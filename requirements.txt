@@ -16,3 +16,8 @@ psutil>=5.9,<7
 scikit-learn>=1.4,<2
 # Top-100 crypto universe config (config/crypto_universe.yaml) + Kestra flow validation
 PyYAML>=6.0,<7
+# AI chart review (dashboard-only, default-OFF via ENABLE_AI_CHART_REVIEW).
+# openai: server-side vision call; python-multipart: required by FastAPI to parse
+# the multipart/form-data image upload (POST /api/chart-review).
+openai>=1.30,<2
+python-multipart>=0.0.9

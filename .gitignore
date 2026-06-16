@@ -14,6 +14,12 @@ data/_overnight_cache/
 # Secrets — never commit. Loaded from the environment only.
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 secrets.json
+# AI chart review runtime data (operator uploads + AI reads; ephemeral on Render,
+# consistent with the other derived data files). The schema lives in the code.
+data/chart_images/*
+!data/chart_images/.gitkeep
+data/chart_reviews.json

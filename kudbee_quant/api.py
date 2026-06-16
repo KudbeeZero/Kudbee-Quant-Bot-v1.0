@@ -10,25 +10,32 @@ intervals from backtests — not advice, not a guarantee.
 """
 from __future__ import annotations
 
+import hashlib
 import os
+import re
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request
+from fastapi import (Depends, FastAPI, File, Form, Header, HTTPException, Query,
+                     Request, UploadFile)
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.responses import (FileResponse, HTMLResponse, JSONResponse,
+                               RedirectResponse)
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
-from . import api_runner
+from . import api_runner, chart_review
 from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
 from .api_auth import (COOKIE_NAME, DEFAULT_MAX_AGE, check_password, has_session,
                        issue_session, require_session)
 from .api_security import RateLimiter, check_token, require_token, safe_spec, safe_symbol
+from .config import get_secret
+from .config.features import load_feature_flags
 from .confluence.stack import confluence_score
 from .confluence.trace import (EMA_SPAN_MAX, EMA_SPAN_MIN, FACTOR_KEYS,
                                factor_trace, sandbox_score)
 from .ingest import BinanceClient, RouterClient
 from .journal import TradeJournal
+from .journal.chart_reviews import ChartReview, ChartReviewJournal
 from .levels import build_levels
 from .replay import ReplayTooOld, ReplayUnsupported, replay_trade
 
@@ -76,6 +83,8 @@ _read_limit = RateLimiter(limit=120, window=60.0, scope="read")
 _sandbox_limit = RateLimiter(limit=30, window=60.0, scope="sandbox")
 _login_limit = RateLimiter(limit=5, window=60.0, scope="login")
 _runner_limit = RateLimiter(limit=6, window=60.0, scope="runner")
+# Chart review calls a paid vision API — keep it tight.
+_chart_review_limit = RateLimiter(limit=6, window=60.0, scope="chart_review")
 
 # Validated default config — single source of truth (config/validated_defaults.py).
 from .config.validated_defaults import VALIDATED_BASELINE
@@ -487,6 +496,100 @@ def logout() -> JSONResponse:
     resp = JSONResponse({"ok": True})
     resp.delete_cookie(COOKIE_NAME, path="/")
     return resp
+
+
+# --- AI chart review (dashboard-only; NEVER touches the live-execution path) ---
+# Pipeline ends at a persisted chart_reviews.json record: an AI read of an
+# uploaded chart that the operator acts on MANUALLY. No order is ever placed here.
+_CHART_IMAGES_DIR = Path("data/chart_images")
+_MAX_IMAGE_BYTES = 5 * 1024 * 1024
+_HEX_ID = re.compile(r"^[0-9a-f]{8}$")
+_IMAGE_MEDIA = {"png": "image/png", "jpg": "image/jpeg", "webp": "image/webp",
+                "gif": "image/gif"}
+
+
+@app.post("/api/chart-review")
+def chart_review_endpoint(image: UploadFile = File(...), symbol: str = Form(...),
+                          timeframe: str = Form(""), notes: str = Form(""),
+                          _auth: None = Depends(require_session),
+                          _rl: None = Depends(_chart_review_limit)) -> dict:
+    """Upload a chart -> server-side OpenAI vision read -> persisted record.
+    Gated, default-OFF, and isolated from execution. Returns the structured read."""
+    if not load_feature_flags().enable_ai_chart_review:
+        raise HTTPException(status_code=503,
+                            detail="chart review disabled (set ENABLE_AI_CHART_REVIEW=true)")
+    content_type = (image.content_type or "").lower()
+    if content_type not in chart_review.ALLOWED_CONTENT_TYPES:
+        raise HTTPException(status_code=415,
+                            detail="unsupported image type (png/jpeg/webp/gif only)")
+    sym = safe_symbol(symbol)
+    tf = timeframe.strip()
+    if tf and tf not in _ALLOWED_TF:
+        raise HTTPException(status_code=422, detail="invalid timeframe")
+    data = image.file.read()
+    if not data:
+        raise HTTPException(status_code=422, detail="empty image upload")
+    if len(data) > _MAX_IMAGE_BYTES:
+        raise HTTPException(status_code=413, detail="image exceeds 5MB limit")
+    key = get_secret("OPENAI_API_KEY", required=False)
+    if not key:
+        raise HTTPException(status_code=503,
+                            detail="chart review disabled (no OpenAI API key configured)")
+    api_key = key.reveal() if hasattr(key, "reveal") else str(key)
+    model = os.environ.get("OPENAI_CHART_REVIEW_MODEL", chart_review.DEFAULT_MODEL)
+    try:
+        review = chart_review.review_chart(data, content_type, sym, tf, notes,
+                                           api_key=api_key, model=model)
+    except chart_review.ChartReviewError as e:
+        raise HTTPException(status_code=502, detail=f"chart review failed: {e}") from e
+
+    rec = ChartReview(
+        symbol=sym, timeframe=tf, notes=notes[:1000],
+        image_sha256="sha256:" + hashlib.sha256(data).hexdigest(),
+        image_size_bytes=len(data), ai_model_used=model, ai_review_json=review,
+        bias=review["bias"], setup_name=review["setup_name"],
+        confidence=review["confidence"], final_recommendation=review["final_recommendation"],
+    )
+    ext = chart_review.ALLOWED_CONTENT_TYPES[content_type]
+    _CHART_IMAGES_DIR.mkdir(parents=True, exist_ok=True)
+    img_path = _CHART_IMAGES_DIR / f"{rec.id}.{ext}"
+    img_path.write_bytes(data)          # raw bytes live ONLY as the on-disk file
+    rec.image_path = str(img_path)
+    ChartReviewJournal().add(rec)
+    return {"id": rec.id, "symbol": rec.symbol, "timeframe": rec.timeframe,
+            "review": review, "ai_model_used": model, "created_at": rec.created_at,
+            "image_sha256": rec.image_sha256}
+
+
+@app.get("/api/chart-reviews")
+def chart_reviews_list(_auth: None = Depends(require_session),
+                       _rl: None = Depends(_read_limit)) -> dict:
+    """Recent chart reviews (newest first) for the dashboard history list."""
+    j = ChartReviewJournal()
+    return {"reviews": [
+        {"id": r.id, "symbol": r.symbol, "timeframe": r.timeframe, "bias": r.bias,
+         "setup_name": r.setup_name, "confidence": r.confidence,
+         "final_recommendation": r.final_recommendation, "ai_model_used": r.ai_model_used,
+         "created_at": r.created_at, "review": r.ai_review_json,
+         "has_image": bool(r.image_path and Path(r.image_path).exists())}
+        for r in j.recent(50)
+    ]}
+
+
+@app.get("/api/chart-images/{review_id}")
+def chart_image(review_id: str, _auth: None = Depends(require_session),
+                _rl: None = Depends(_read_limit)):
+    """Stream a stored chart image. Gated; hex-id guard blocks path traversal."""
+    if not _HEX_ID.match(review_id):
+        raise HTTPException(status_code=422, detail="invalid id")
+    rec = ChartReviewJournal().get(review_id)
+    if rec is None or not rec.image_path:
+        raise HTTPException(status_code=404, detail="not found")
+    p = Path(rec.image_path)
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="image not found")
+    media = _IMAGE_MEDIA.get(p.suffix.lstrip("."), "application/octet-stream")
+    return FileResponse(str(p), media_type=media)
 
 
 _LOGIN_FILE = _STATIC_DIR / "login.html"
