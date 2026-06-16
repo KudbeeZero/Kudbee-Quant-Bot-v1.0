@@ -13,71 +13,82 @@
   or awaiting audit. Purely *observational* background tasks (e.g. the #18 watch loop)
   are exempt. The cross-session orchestration timeline now lives in the new
   **`docs/AGENT_ORCHESTRATION_LEDGER.md`** (complements this baton + `docs/audits/`).
-- **This chat = the WEBSITE chat.** Branch `claude/site-trade-demo` (off `main`). It is
-  a **front-end-only** session: a new animated "trade story" hero + a site-wide mobile /
-  polish / sitemap / font sweep. No `kudbee_quant/`, workflow, or `data/` changes.
-- **Last PR:** **#29** — site front-end only. (Opened draft, marked READY at closeout.)
-  https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/29
-- **Audit status:** `AWAITING_AUDIT` — next chat runs `/handoff-audit` on **#29** (a
-  diff/scope/honesty check; there are no engine changes to re-derive).
-- **Prior chats' PRs all merged:** **#27** (audit/baton) and **#28** (orchestration
-  ledger) are on `main` — the ledger content is live. The stale local
-  `claude/agent-orchestration-ledger` branch was superseded by the merged #28; ignore/
-  delete it. The leftover agent worktrees from this chat were pruned at closeout.
-- **🎯 MILESTONE (paper §43 experiment):** the **first post-#18 hourly run, #50**
-  (2026-06-15 18:27Z) **SUCCEEDED** — ~5m32s, no timeout / no Binance rate-limit crash
-  (longer than the old ~1–2 min, as expected for ~101 pairs × 5 TF). It logged **+83 new
-  setups across the top-100, incl. 27 on 5m**, to `data/journal.json` (`194013b`). The
-  §37 5m-fee-drag concern is now under live forward test — **watch #50's setups resolve**
-  over the coming hours/days; revert to top-10/no-5m if 5m re-confirms §37.
-- **Open PRs now:** only **#29**.
+- **This chat = the TRADE-SETUP chat.** Branch `claude/trade-setup-entry-vfkn7m` (off
+  `main`). It did a **confluence-engine change + manual trade tickets**: flipped the VWAP
+  vote to rotation/mean-reversion and logged 5 discretionary tickets to a new manual
+  board. See "What this chat did" below.
+- **Last PR:** **#31** — `claude/trade-setup-entry-vfkn7m`, **MERGED by the user**
+  2026-06-16 (4-file diff). https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/31
+- **Audit status:** `MERGED (post-hoc PASS)` — #31 was merged from DRAFT by the user
+  without a pre-merge gate, so it was **audited post-hoc this session** (independent
+  subagent; report `docs/audits/claude-trade-setup-entry-vfkn7m.md`). Verdict **PASS**:
+  all claims back-checked against the real base→head diff, **341 tests pass**, no scope
+  creep, no sneaked-in change to the §1 defaults (only the single VWAP sign moved), A/B
+  script read-only/clean, and §44/baton honestly flag the live-but-unvalidated risk. The
+  open risk in §44 stands as the documented fix-forward (OOS-validate or revert the flip).
+- **Prior chat's PR also merged:** **#29** (WEBSITE, front-end only) merged 2026-06-15 by
+  the user — the baton had it `AWAITING_AUDIT`, but it is on `main`; no audit was recorded
+  (low-risk front-end-only; optional post-hoc back-fill). **#27/#28** ledger/audit PRs also
+  live.
+- **🎯 MILESTONE (paper §43 experiment):** the first post-#18 hourly run **#50**
+  (2026-06-15) succeeded (~5m32s, +83 setups incl. 27 on 5m). The §37 5m-fee-drag concern
+  is under live forward test — watch the resolving setups; revert to top-10/no-5m if 5m
+  re-confirms §37. **NOTE:** the merge of #31 put the **VWAP rotation flip (§44) LIVE** in
+  this same hourly bot — its setups are now generated with the flipped sign.
+- **Open PRs now:** the **closeout/baton PR for this chat** (just opened — baton + MEMORY
+  §44 only, no engine change). Nothing else open.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-A **front-end-only** session on the static marketing site. Built with two sub-agents in
-isolated worktrees (centerpiece + mobile sweep), integrated + verified here. The PR diff
-touches **only** `*.html`, `assets/css/*`, `assets/js/*`, `sitemap.xml` — **no
-`kudbee_quant/`, workflow, or `data/` changes.**
+A small **confluence-engine change + manual trade-tracking**, plus this closeout. The
+merged #31 diff is 4 files: `kudbee_quant/confluence/stack.py`, `docs/MEMORY.md`,
+`scripts/compare_vwap_rotation.py`, `docs/OPEN_SETUPS.md`. The closeout PR on top adds
+only `docs/MEMORY.md` (§44) + `docs/HANDOFF.md`.
 
-- **New animated "trade story" hero** — `assets/js/trade-story.js`,
-  `assets/css/trade-story.css`, standalone `trade-story.html`. A ~60s `<canvas>` loop of a
-  **W double-bottom + liquidity sweep** of a psychological low, **PVSRA vector candles**,
-  **daily-open / psych-high / psych-low** levels, and a 5-agent thinking/notes
-  choreography (Liquidity → PVSRA → Structure → Reviewer → Risk) ending in a **3R
-  bracket**. `prefers-reduced-motion` → one static composed frame; rAF pauses offscreen;
-  responsive to ~360px (narrow screens show **one bubble at a time**). **Clearly labelled
-  ILLUSTRATIVE — not live data, not a track record.** Replaced the old hero sparkline mock
-  in `index.html` (3-line wire-in: css link + mount `<div>` + script).
-- **Mobile / polish sweep** — `assets/css/style.css`, the page set, `sitemap.xml`,
-  `assets/js/main.js`: responsive fixes 360–768px, mobile nav hamburger (44px targets +
-  scroll-lock), fluid headings, compare-table scroll-snap, signals/equity/dash grid
-  collapses, `sitemap.xml` `lastmod` refresh, about-page compare-table highlight fix,
-  added the missing nav hamburger / CTA / `main.js` include to `lab` / `live-signals` /
-  `trade-flow`.
-- **Homepage font bug FIXED** — root cause: `lab` / `live-signals` / `trade-flow` loaded
-  Google Fonts **without the 400 weight**, poisoning the shared cache key so index body
-  text fell back to `system-ui`. Aligned all pages to `wght@400;500;600;700`.
-- **Public dev-message leak FIXED** — `live-signals.js` + `trade-flow.js` no longer print
-  visitors *"Backend unavailable … uvicorn kudbee_quant.api:app"*; graceful offline copy,
-  dev hint moved to `console.warn`. NB: the public static site has **no `/api` backend**,
-  so the 404 is expected — if a live backend is ever intended on the deployed marketing
-  site, that's a separate Render/Netlify-proxy task (NOT done here).
-- **Verification:** headless Chromium (Playwright) screenshots of desktop + mobile (360/
-  390px) + the wired homepage hero confirm candles, levels, vector colours, agent
-  bubbles/notes, and the 3R bracket all render. Suite green at closeout (pytest exit 0,
-  ~324 tests; the diff touches no Python).
+- **VWAP vote flipped to ROTATION (mean-reversion)** — `kudbee_quant/confluence/stack.py`:
+  `v_vwap = −sign(close − vwap)` (was `+sign`). Above VWAP now votes short, below votes
+  long. Polarity flip of an existing default vote, not a new factor. In-code NOTE flags it
+  for OOS re-validation. **MEMORY §44.**
+  - ⚠️ **Honesty / open risk:** this is an **unvalidated change to a §1-validated default**,
+    now LIVE in the hourly paper bot (user merged the draft). The A/B screen
+    (`scripts/compare_vwap_rotation.py`) showed the blanket flip **HURTS on majors**
+    (momentum +197% gross / rotation −51% gross, per-bar zero-fee). The narrower idea the
+    user actually described (daily-open read AND below-VWAP → 2× long size) was NOT tested.
+- **`scripts/compare_vwap_rotation.py`** — one-off offline A/B (real `load_ohlcv` +
+  `build_levels` + `factor_votes` + `run_backtest`); recovers both momentum and rotation
+  nets from one vote pass. Run: `PYTHONPATH=. python scripts/compare_vwap_rotation.py`.
+- **`docs/OPEN_SETUPS.md`** — new **manual** discretionary tracking board (GOOGL / HYPE /
+  COMP / DEGEN / ETH longs; $100 = 1R; TP1 1.5R / TP2 2.8926R). **NOT read by the bot**;
+  separate from `data/journal.json`.
+- **`docs/MEMORY.md`** — added two STANDING USER PREFERENCES (trade the zero-fee venue /
+  stop re-raising fees on positive results; don't over-caution on the research sandbox)
+  and §44 (the VWAP flip + the assessment of the shared Crawlee/latency/cluster PDF).
+- **Verification:** `python -m pytest -q` → **green (exit 0)** at closeout. No test
+  asserts the VWAP vote's direction, so the flip moved nothing else mechanically.
 
 ## NEXT chat
 
-- **Slug hint (ADVISORY only):** `claude/handoff-audit` → then `claude/render-deploy-verify`.
-- **FIRST: run `/handoff-audit` on PR #29** (this chat's WEBSITE PR), merge on PASS so
-  `main` is current. It's front-end only — the audit is a diff/scope/honesty check (assert
-  no `kudbee_quant/`/workflow/`data/` changes; the trade-story stays labelled illustrative;
-  the font/leak fixes are real). Then start the next branch.
-- **Also worth a glance:** the §43 paper experiment — run **#50** (first post-#18) ran
-  clean and opened 83 setups incl. 27 on 5m; check the next runs for timeouts and whether
-  the 5m setups resolve net-negative (fee drag, §37) → revert top-100/5m if so.
-- **Scope (deferred, now unblocked):** **Deploy + verify the dashboard (PR #21) on
+- **Slug hint (ADVISORY only):** `claude/cluster-analyzer`.
+- **AUDITS ALREADY DONE this session** (no `/handoff-audit` needed at next start): **#31
+  post-hoc PASS** (`docs/audits/claude-trade-setup-entry-vfkn7m.md`); the closeout/baton
+  PR **#32** was the vehicle. #29 (website) is merged — optional low-risk back-fill only.
+  So the next chat can go **straight to the priority scope below.** (Still worth a glance:
+  whether #32 actually merged to `main` — if not, sync it first.)
+- **PRIORITY SCOPE (user-chosen this session): build the losing-cluster analyzer.** A new
+  analysis unit that reads the live `data/journal.json` and tests whether **losing trades
+  cluster** by **time-of-day**, **confluence strength/score at entry**, and **ATR/volatility
+  regime** — i.e. is a losing streak a *regime mismatch* or just normal variance? Reuse the
+  existing significance-gated study harness (`kudbee_quant/events/study.py`
+  `conditional_table`, Wilson CIs + FDR — same machinery as `confluence_directional_study`
+  in `confluence/stack.py`). This is the ONE applicable idea from the Crawlee/latency PDF
+  the user shared (§44); the latency/Crawlee/data-feed-benchmark parts do **NOT** apply to
+  this bar-close price-action bot — do not build them. Output should be a report (a CLI
+  sub-command or `scripts/` analysis), read-only over the journal; **must not write
+  `data/journal.json`**. Frame findings honestly (significance-gated; small-n caveats).
+- **Watch (paper §43):** the hourly run resolving setups — incl. now the VWAP-rotation
+  ones (§44); check next runs for timeouts / Binance rate-limits and whether 5m setups
+  resolve net-negative (fee drag, §37) → revert top-100/5m if so.
+- **Scope (deferred, still open):** **Deploy + verify the dashboard (PR #21) on
   Render.** Stand up the service from `render.yaml`, set env vars
   (`KUDBEE_DASHBOARD_PASSWORD`, `KUDBEE_SESSION_SECRET`, plus existing
   `KUDBEE_API_TOKEN`/`KUDBEE_SITE_ORIGIN`/`KUDBEE_GH_TOKEN`), then smoke-test the LIVE
@@ -96,6 +107,12 @@ touches **only** `*.html`, `assets/css/*`, `assets/js/*`, `sitemap.xml` — **no
   liquidation-cluster levels — data-availability risk: OI hist ≈ 30d, liquidation
   history restricted); verify the 5m pause landed in production (§37).
 - **Open risks / watch-items:**
+  - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31):** the VWAP vote was
+    flipped momentum→rotation and merged into `main`, so it's now shaping the hourly paper
+    bot's setups. The A/B screen says the blanket flip HURTS majors. It is NOT OOS-validated
+    and is an unvalidated change to a §1 default. Either validate it on the bracket harness
+    or test the narrower conditional (daily-open + below-VWAP → 2× long) the user actually
+    described; be ready to revert the sign if the live/OOS read confirms it hurts.
   - **PR backlog GATED (was the user's flagged risk):** #24 audited PASS + merged;
     #21 + #23 post-hoc PASS; #18 merged (user-directed paper experiment). Residual
     low-risk debt: #25/#26/#19 un-audited (optional back-fill). No open backlog.
@@ -166,5 +183,12 @@ touches **only** `*.html`, `assets/css/*`, `assets/js/*`, `sitemap.xml` — **no
   5-agent thinking/notes → 3R bracket; illustrative, reduced-motion + mobile aware) +
   mobile/sitemap/font sweep + homepage font-cache-poisoning fix + removed the public
   "uvicorn …" dev-message leak on live-signals/trade-flow. Verified via headless
-  screenshots; suite green. AWAITING_AUDIT. Also observed: first post-#18 paper run #50
-  succeeded (+83 setups, 27 on 5m). Next scope: audit #29, then resume Render deploy+verify.
+  screenshots; suite green. **Merged by the user 2026-06-15 (no audit recorded).**
+- 2026-06-16: PR #31 (`claude/trade-setup-entry-vfkn7m`) — TRADE-SETUP chat. Flipped the
+  VWAP confluence vote momentum→ROTATION (mean-reversion); added an offline A/B screen
+  (blanket flip HURTS majors per-bar) + a manual `docs/OPEN_SETUPS.md` board (5 longs) +
+  MEMORY standing prefs & §44. **Merged from DRAFT by the user (serial audit gate skipped)
+  → rotation sign is now LIVE in the hourly paper bot, UNVALIDATED (open risk, §44).** Also
+  assessed a shared Crawlee/latency/cluster PDF: only the losing-cluster idea applies here.
+  Closeout opened a docs-only baton PR. Next scope: **build the losing-cluster analyzer**
+  (read `data/journal.json`; regime vs variance) — post-hoc audit #31 first.
