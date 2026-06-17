@@ -25,6 +25,33 @@ def test_target_hit_gives_positive_r():
     assert r.trades[0] == 2.0
 
 
+def test_leverage_scales_net_r():
+    # Same +2R target trade, but 1.25x leverage -> the banked R scales to 2.5.
+    prices = [100, 100, 101, 102, 103, 103]
+    df = _df_with_atr(prices)
+    df.loc[4, "high"] = 103
+    sig = pd.Series([1, 0, 0, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=2.0, max_bars=5,
+                         fee_r=0.0, leverage=1.25)
+    assert r.n_trades == 1
+    assert abs(r.trades[0] - 2.5) < 1e-9
+
+
+def test_tp2_three_leg_blended_r():
+    # Long at 100, ATR=1. Price climbs steadily so it tags 1.5R, 2.5R, 3R on
+    # separate bars. Three-leg 75/10/15 -> 0.75*1.5 + 0.10*2.5 + 0.15*3.0 = 1.825R.
+    prices = [100, 101.5, 102.5, 103.0, 103.0]
+    df = _df_with_atr(prices)
+    df.loc[1, "high"] = 101.6   # tags TP1 (101.5)
+    df.loc[2, "high"] = 102.6   # tags TP2 (102.5)
+    df.loc[3, "high"] = 103.1   # tags target (103.0)
+    sig = pd.Series([1, 0, 0, 0, 0], dtype=float)
+    r = bracket_backtest(df, sig, stop_atr=1.0, target_r=3.0, max_bars=4, fee_r=0.0,
+                         tp1_r=1.5, tp1_frac=0.75, tp2_r=2.5, tp2_frac=0.10)
+    assert r.n_trades == 1
+    assert abs(r.trades[0] - 1.825) < 1e-9
+
+
 def test_stop_hit_gives_minus_one_r():
     # Long at 100, stop at 99. Price drops to 98 -> -1R.
     prices = [100, 99.5, 98, 98, 98]

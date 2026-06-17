@@ -22,7 +22,7 @@ from .confluence import confluence_reaction_study, range_exhaustion_study
 from .events import build_features, conditional_table, detect_level_tests, recovery_curve
 from .events.outcomes import add_forward_outcomes
 from .events.study import StudyConfig
-from .ingest import BinanceClient, PolymarketClient
+from .ingest import BinanceClient, PolymarketClient, load_ohlcv
 from .journal import Prediction, TradeJournal
 from .levels import build_levels, range_stats
 from .scenarios import SCENARIOS, run_bracket_sweep, run_sweep
@@ -337,6 +337,73 @@ def _bracket_sweep(args) -> None:
     print("\nHonest read: expectancy in R is the scalper's number. Positive median R across "
           "MOST\nassets, with enough trades, is what counts -- a 40% win rate at 2R is "
           "profitable.\nNot financial advice.")
+
+
+def _tp_backtest(args) -> None:
+    """Single-asset bracket backtest with a 3-leg scale-out (TP1/TP2/target) and
+    optional leverage — built for "run THIS management on THIS instrument" (the
+    NASDAQ / Tino setup). Same limit-retrace entry the live bot uses, so the fill
+    model is honest: it enters on a maker pullback, NOT at market when price tags
+    the zone, and only if the retrace comes within the entry window.
+    """
+    from .backtest.bracket import bracket_backtest
+    from .scenarios import SCENARIOS
+
+    if args.scenario not in SCENARIOS:
+        raise SystemExit(f"unknown scenario '{args.scenario}'. Options: {sorted(SCENARIOS)}")
+    df = build_levels(load_ohlcv(args.symbol, interval=args.interval, limit=args.limit))
+    sig = SCENARIOS[args.scenario](df)
+
+    # Optional out-of-sample slice: keep only the LAST oos_frac of history (data the
+    # signal never 'saw'). Full-sample (0.0) flatters; OOS is the honest column.
+    sample = "full-sample"
+    if args.oos_frac > 0:
+        import pandas as _pd
+        split = int(len(df) * (1 - args.oos_frac))
+        df = df.iloc[split:].reset_index(drop=True)
+        sig = _pd.Series(sig).iloc[split:].reset_index(drop=True)
+        sample = f"OOS (last {args.oos_frac:.0%})"
+
+    tp2_r = args.tp2_r if args.tp2_frac > 0 else None
+    result = bracket_backtest(
+        df, sig,
+        stop_atr=args.stop_atr, target_r=args.target_r, max_bars=args.max_bars,
+        fee_pct=args.fee_pct, limit_retrace_atr=args.retrace_atr,
+        entry_window=args.entry_window,
+        tp1_r=args.tp1_r, tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
+        tp2_r=tp2_r, tp2_frac=args.tp2_frac, leverage=args.leverage,
+    )
+    m = result
+
+    legs = f"{args.tp1_frac:.0%} @ {args.tp1_r}R"
+    if tp2_r is not None:
+        legs += f"  +  {args.tp2_frac:.0%} @ {args.tp2_r}R"
+    runner = max(0.0, 1.0 - args.tp1_frac - (args.tp2_frac if tp2_r is not None else 0.0))
+    legs += f"  +  {runner:.0%} @ {args.target_r}R (runner)"
+
+    print(f"TP-scale-out backtest — {args.symbol} {args.interval} "
+          f"({m.n_trades} trades, scenario '{args.scenario}', {sample})")
+    print("-" * 64)
+    print(f"  entry      LIMIT retrace {args.retrace_atr} ATR (maker), "
+          f"{args.entry_window}-bar fill window  [NOT market-at-zone]")
+    print(f"  stop       {args.stop_atr} ATR = 1R   |   leverage {args.leverage}x   "
+          f"|   BE after TP1: {not args.no_be}")
+    print(f"  scale-out  {legs}")
+    print("-" * 64)
+    print(f"  trades        {m.n_trades}")
+    print(f"  win rate      {m.win_rate:.1%}")
+    print(f"  expectancy    {m.expectancy_r:+.3f} R/trade")
+    print(f"  total         {m.total_r:+.1f} R")
+    print(f"  avg win/loss  {m.avg_win_r:+.2f}R / {m.avg_loss_r:+.2f}R")
+    print(f"  profit factor {m.profit_factor:.2f}")
+    print(f"  max drawdown  {m.max_drawdown_r:.1f} R")
+    be_wr = 1.0 / (1.0 + args.target_r)
+    print(f"\nHonest read: R is risk-defined, so the {args.leverage}x leverage scales BOTH "
+          f"the total\nand the drawdown by {args.leverage}x — it does not change whether the "
+          f"edge is positive.\nThe scale-out caps upside (most size is banked early at "
+          f"{args.tp1_r}R) in exchange for a\nhigher hit rate. Breakeven win rate at the "
+          f"{args.target_r}R runner ~ {be_wr:.0%}. A single\nasset is one draw, not "
+          f"validation. Not financial advice.")
 
 
 def _sweep(args) -> None:
@@ -769,6 +836,37 @@ def main() -> None:
     bs.add_argument("--stop-atr", type=float, default=1.0)
     bs.add_argument("--max-bars", type=int, default=24)
     bs.set_defaults(func=_bracket_sweep)
+
+    from .config.validated_defaults import (
+        STOP_ATR as _STOP_ATR, RETRACE_ATR as _RETRACE_ATR,
+        MAX_BARS as _MAX_BARS, ENTRY_WINDOW as _ENTRY_WINDOW, FEE_PCT as _FEE_PCT,
+    )
+    tb = sub.add_parser("tp-backtest",
+                        help="single-asset bracket backtest with 3-leg scale-out + leverage")
+    tb.add_argument("symbol", help="e.g. yahoo:QQQ  yahoo:NQ=F  BTCUSDT")
+    tb.add_argument("--interval", default="1d")
+    tb.add_argument("--limit", type=int, default=400)
+    tb.add_argument("--scenario", default="confluence_stack",
+                    help="entry-signal scenario (default: confluence_stack)")
+    tb.add_argument("--stop-atr", type=float, default=_STOP_ATR)
+    tb.add_argument("--retrace-atr", type=float, default=_RETRACE_ATR)
+    tb.add_argument("--entry-window", type=int, default=_ENTRY_WINDOW)
+    tb.add_argument("--max-bars", type=int, default=_MAX_BARS)
+    tb.add_argument("--fee-pct", type=float, default=_FEE_PCT,
+                    help="round-trip cost as fraction of price (0 = zero-fee venue)")
+    tb.add_argument("--tp1-r", type=float, default=1.5, help="TARGET ONE in R")
+    tb.add_argument("--tp1-frac", type=float, default=0.75, help="fraction banked at TP1")
+    tb.add_argument("--tp2-r", type=float, default=2.5, help="TARGET TWO in R")
+    tb.add_argument("--tp2-frac", type=float, default=0.10,
+                    help="fraction banked at TP2 (0 disables the second leg)")
+    tb.add_argument("--target-r", type=float, default=2.75, help="final runner target in R")
+    tb.add_argument("--leverage", type=float, default=1.25)
+    tb.add_argument("--oos-frac", type=float, default=0.0,
+                    help="hold out the last fraction as out-of-sample (e.g. 0.3); "
+                         "0 = full sample (flatters)")
+    tb.add_argument("--no-be", action="store_true",
+                    help="do NOT move stop to breakeven after TP1")
+    tb.set_defaults(func=_tp_backtest)
 
     sw = sub.add_parser("sweep", help="test the scenario battery across assets (OOS-ranked)")
     sw.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT SOLUSDT yahoo:SPY")

@@ -58,6 +58,40 @@ def test_time_decay_target_harvests_smaller_win():
     assert abs(out.outcome_r - 1.5) < 1e-9
 
 
+def test_tp2_three_leg_blends_all_tranches():
+    # Long entry 100, sd=1. Three-leg: 75% @ TP1=1.5R (101.5), 10% @ TP2=2.5R (102.5),
+    # 15% @ target=3R (103). A path that tags 101.5, then 102.5, then 103 on three
+    # separate bars banks 0.75*1.5 + 0.10*2.5 + 0.15*3.0 = 1.125+0.25+0.45 = 1.825R.
+    out = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0,
+                          [101.6, 102.6, 103.1], [100.5, 101.5, 102.5],
+                          [101.5, 102.5, 103.0],
+                          tp1=101.5, tp1_r=1.5, tp1_frac=0.75,
+                          tp2=102.5, tp2_r=2.5, tp2_frac=0.10, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 2
+    assert abs(out.outcome_r - 1.825) < 1e-9
+
+
+def test_tp2_stop_after_tp1_banks_partial_then_breakeven():
+    # Bank 75% @ TP1 (1.5R) on bar 0, then price collapses to the breakeven stop
+    # (100) on bar 1. Remaining 25% exits at ~0R -> total = 0.75*1.5 + 0.25*0 = 1.125R.
+    out = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0,
+                          [101.6, 100.2, 100.3], [100.5, 99.8, 99.9],
+                          [101.5, 100.0, 100.1],
+                          tp1=101.5, tp1_r=1.5, tp1_frac=0.75,
+                          tp2=102.5, tp2_r=2.5, tp2_frac=0.10, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 1
+    assert abs(out.outcome_r - 1.125) < 1e-9
+
+
+def test_tp2_off_matches_single_leg_tp1():
+    # With tp2 None the three-leg path must equal the original single-TP1 result:
+    # 50% @ 1.5R then 50% @ 3R target -> 0.5*1.5 + 0.5*3.0 = 2.25R.
+    path = ([101.6, 103.1], [100.5, 102.5], [101.5, 103.0])
+    base = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0, *path,
+                           tp1=101.5, tp1_r=1.5, tp1_frac=0.5, be_after_tp1=True)
+    assert abs(base.outcome_r - 2.25) < 1e-9
+
+
 def test_random_equivalence_no_exits():
     # Fuzz: resolver with no exits == a plain stop-then-target reference walk.
     rng = np.random.default_rng(0)

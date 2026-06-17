@@ -55,6 +55,9 @@ def resolve_bracket(
     tp1_r: float | None = None,
     tp1_frac: float = 0.5,
     be_after_tp1: bool = True,
+    tp2: float | None = None,
+    tp2_r: float | None = None,
+    tp2_frac: float = 0.0,
     trailing_atr: float | None = None,
     atr_at_entry: float | None = None,
     mae_giveup: tuple | None = None,
@@ -76,6 +79,13 @@ def resolve_bracket(
         tp1, tp1_r, tp1_frac, be_after_tp1: optional scale-out at TARGET ONE — bank
             ``tp1_frac`` at ``tp1`` (worth ``tp1_r`` R), ride the rest to ``target``;
             move the stop to breakeven after TP1 when ``be_after_tp1``.
+        tp2, tp2_r, tp2_frac: optional SECOND scale-out leg between TP1 and the final
+            ``target`` — after TP1 banks, take a further ``tp2_frac`` of the (original)
+            position at ``tp2`` (worth ``tp2_r`` R), and ride the remainder to
+            ``target``. This is the three-leg "bank most at TP1, trim again, let a
+            runner ride" management (e.g. 75% at TP1 / 10% at TP2 / 15% at target).
+            Requires ``tp1`` to be set; default-off (``tp2`` None). The fractions are
+            of the ORIGINAL position, so ``tp1_frac + tp2_frac`` must be < 1.0.
 
         Path-dependent exits (all optional, off by default; only on the non-TP1
         path — when every one is None the walk reduces to the exact original
@@ -158,10 +168,13 @@ def resolve_bracket(
             return ResolveOutcome(True, float(r), n - 1, None)
         return ResolveOutcome(False, None, None, None)
 
-    # Scale-out (TP1 / TP2) path.
+    # Scale-out path: TARGET ONE (tp1) -> optional TARGET TWO (tp2) -> final target.
+    # At most ONE level resolves per bar (conservative: bank, then `continue`).
+    has_tp2 = tp2 is not None
     realized = 0.0
     remaining = 1.0
     tp1_done = False
+    tp2_done = not has_tp2     # if no second leg, treat it as already satisfied
     cur_stop = stop
     tp1_off = None
     for j in range(n):
@@ -178,7 +191,14 @@ def resolve_bracket(
                 tp1_off = j
                 if be_after_tp1:
                     cur_stop = entry
-                continue   # don't also resolve TP2 on the TP1 bar (conservative)
+                continue   # don't also resolve a later leg on the TP1 bar (conservative)
+        elif not tp2_done:
+            hit_tp2 = (high[j] >= tp2) if long else (low[j] <= tp2)
+            if hit_tp2:
+                realized += tp2_frac * tp2_r
+                remaining -= tp2_frac
+                tp2_done = True
+                continue   # ride the remainder to the final target on a later bar
         else:
             hit_tgt = (high[j] >= target) if long else (low[j] <= target)
             if hit_tgt:
