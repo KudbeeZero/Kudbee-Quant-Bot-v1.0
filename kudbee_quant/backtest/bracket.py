@@ -55,6 +55,9 @@ def bracket_backtest(
     tp1_r: float | None = None,
     tp1_frac: float = 0.5,
     be_after_tp1: bool = True,
+    tp2_r: float | None = None,
+    tp2_frac: float = 0.0,
+    leverage: float = 1.0,
     trailing_atr: float | None = None,
     mae_giveup: tuple | None = None,
     time_decay: tuple | None = None,
@@ -92,6 +95,18 @@ def bracket_backtest(
             BREAKEVEN (entry). This is the classic "free trade" — once half is
             banked, the worst case on the rest is ~0R. Conservative within a
             bar: the (breakeven) stop is checked before the favorable level.
+        tp2_r: if set (requires ``tp1_r``), add a SECOND scale-out leg at this
+            R-multiple between TP1 and ``target_r`` — bank a further ``tp2_frac``
+            of the original position there, ride the remainder to ``target_r``.
+            This is the three-leg "bank most at TP1, trim again, let a runner
+            ride" management (e.g. 75% at TP1 / 10% at TP2 / 15% at target).
+            ``tp1_frac + tp2_frac`` must be < 1.0. Default-off.
+        tp2_frac: fraction of the ORIGINAL position closed at TP2 (default 0.0).
+        leverage: multiply each trade's net R by this factor. R-expectancy is
+            risk-defined and so leverage-INVARIANT in *sign*; leverage only
+            amplifies the magnitude — both the edge and the drawdown (and the
+            fee drag) scale by it. 1.25x means +25% bigger wins AND losses. It
+            does NOT model liquidation/margin-call; it is a linear P&L scaler.
     """
     need = {"high", "low", "close", "atr"}
     if not need <= set(df.columns):
@@ -143,13 +158,14 @@ def bracket_backtest(
         else:
             outcome, exit_j = _resolve_partial(direction, entry, sd, target_r, tp1_r,
                                                tp1_frac, be_after_tp1, high, low, close,
-                                               entry_bar, end)
-            extra_exit = tp1_frac      # scaling out adds a partial exit fill
+                                               entry_bar, end, tp2_r=tp2_r, tp2_frac=tp2_frac)
+            extra_exit = tp1_frac + (tp2_frac if tp2_r is not None else 0.0)
         # Realistic cost: convert a price-fraction cost to R via the stop size.
-        # A partial exit (TP1) incurs one extra half round-trip on tp1_frac.
+        # Each partial exit (TP1, TP2) incurs an extra half round-trip on its fraction.
         cost = fee_r if fee_pct is None else fee_pct * entry / sd * (1 + 0.5 * extra_exit)
         trade_size = sz[t] if size is not None else 1.0
-        trades.append((outcome - cost) * trade_size)
+        # Leverage is a linear P&L scaler on the net R (amplifies edge AND drawdown).
+        trades.append((outcome - cost) * trade_size * leverage)
         busy_until = exit_j
 
     return _summarize(trades, target_r)
@@ -241,20 +257,23 @@ def _resolve_full(direction, entry, stop, target, sd, target_r,
 
 
 def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_tp1,
-                     high, low, close, entry_bar, end):
-    """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), ride the rest to
-    TARGET TWO (target_r); optionally move the stop to breakeven after TP1.
+                     high, low, close, entry_bar, end, *, tp2_r=None, tp2_frac=0.0):
+    """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), optionally trim a
+    further ``tp2_frac`` at TARGET TWO (tp2_r), then ride the remainder to the
+    final target (target_r); optionally move the stop to breakeven after TP1.
 
     Returns the BLENDED R for the whole position. Thin adapter over the shared
     resolver — see ``backtest/resolver.py`` for the (conservative) walk logic.
     """
     stop = entry - direction * sd
     tp1 = entry + direction * sd * tp1_r
+    tp2 = (entry + direction * sd * tp2_r) if tp2_r is not None else None
     target = entry + direction * sd * target_r
     out = resolve_bracket(direction, entry, stop, target, sd, target_r,
                           high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
                           close[entry_bar + 1:end + 1], force_close_at_end=True,
-                          tp1=tp1, tp1_r=tp1_r, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1)
+                          tp1=tp1, tp1_r=tp1_r, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1,
+                          tp2=tp2, tp2_r=tp2_r, tp2_frac=tp2_frac)
     if out.exit_offset is None:     # no bars after entry: mark to close at entry bar
         return direction * (close[end] - entry) / sd, end
     return out.outcome_r, entry_bar + 1 + out.exit_offset
