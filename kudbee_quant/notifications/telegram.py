@@ -37,6 +37,17 @@ def _chat_id() -> str | None:
     return s.reveal() if s else None
 
 
+def _redact(msg: str, token: str | None) -> str:
+    """Strip the bot token out of a string before it can reach a log.
+
+    The token lives in the request URL, and ``requests`` connection/HTTP errors
+    embed that URL in their message — so logging the raw exception would leak the
+    token (and GitHub Actions logs on this public repo are world-readable). This
+    keeps the package's 'secrets never hit the logs' invariant true.
+    """
+    return msg.replace(token, "***") if token else msg
+
+
 def telegram_enabled() -> bool:
     """True only if a token + chat id are set AND the kill-switch isn't off.
 
@@ -97,9 +108,11 @@ def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 1
                 timeout=timeout,
             )
             if resp.status_code != 200:
-                log.warning("telegram sendMessage HTTP %s: %s", resp.status_code, resp.text[:200])
+                log.warning("telegram sendMessage HTTP %s: %s", resp.status_code,
+                            _redact(resp.text[:200], token))
                 ok = False
         except Exception as exc:  # noqa: BLE001 — never let a ping break the run
-            log.warning("telegram send failed: %s", exc)
+            # Redact: requests errors embed the token-bearing URL in their message.
+            log.warning("telegram send failed: %s", _redact(str(exc), token))
             ok = False
     return ok

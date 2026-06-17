@@ -78,6 +78,26 @@ def test_send_swallows_network_error(monkeypatch):
     assert send_telegram("hi") is False
 
 
+def test_send_error_does_not_leak_token(monkeypatch, caplog):
+    """A network error must not log the bot token (it lives in the request URL)."""
+    monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "SECRET123:abcdef")
+    monkeypatch.setenv("TELEGRAM_CHAT_ID", "1")
+    monkeypatch.delenv("KUDBEE_TELEGRAM_ENABLED", raising=False)
+
+    class _Boom:
+        def post(self, *a, **k):
+            # Mimic requests embedding the token-bearing URL in its message.
+            raise RuntimeError(
+                "Max retries exceeded with url: /botSECRET123:abcdef/sendMessage")
+
+    monkeypatch.setitem(__import__("sys").modules, "requests", _Boom())
+    import logging
+    with caplog.at_level(logging.WARNING):
+        assert send_telegram("hi") is False
+    assert "SECRET123:abcdef" not in caplog.text
+    assert "***" in caplog.text
+
+
 def test_send_success_path(monkeypatch):
     monkeypatch.setenv("TELEGRAM_BOT_TOKEN", "t")
     monkeypatch.setenv("TELEGRAM_CHAT_ID", "1")
