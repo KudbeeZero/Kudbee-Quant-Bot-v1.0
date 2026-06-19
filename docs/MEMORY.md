@@ -1512,3 +1512,32 @@ size. Evidence, not proof. **Remaining Tier-2 work:** (a) model the BE-exit take
 explicitly (re-rate the candidate net with maker-entry + taker-exit, not both-maker);
 (b) a live `BINANCE_TESTNET` micro-stake confirmation. The report (`leverage-report.html`)
 now carries this as "Finding 4."
+
+## 48. Live paper book is NET-NEGATIVE — diagnosed (§45 tool) + reverted to validated config — 2026-06-19 (PR #39)
+
+**The honest live state:** the hourly paper book is **−0.295R/trade, 18% win, −149R over
+506 resolved** (needs ~26% win for a 3R system; it's at 18%). This was masked by all the
+research side-work; surfaced via `review-trade-history` + the §45 cluster analyzer.
+
+**Diagnosis (live, net of fees) — the validated CORE is ~fine; the EXPERIMENTS bled:**
+- **Top-10 majors / 1h ≈ breakeven** (−0.03R gross). The §1 core is not broken.
+- **Top-100 alt expansion (§31) = the biggest 1h drag: −0.496R** (XRP −16R, DOT −13R, SNX…).
+- **Every crypto TF is net-negative:** 5m −0.63R (§37), 15m −0.36, 1h −0.29 (least bad),
+  2h −0.38, 4h −0.55. → 1h is the only defensible TF.
+- **Longs collapsed: 7% win, −0.80R** on 1h (regime; a *significant* FDR cluster).
+- **§45 cluster analyzer (FDR-gated) flagged real losing clusters:** hour **18h = 2% win,
+  p<0.001 (n=80)**, 06h = 0% (n=27), Mon/Wed, direction=long. Losses CONCENTRATE in
+  specific windows — regime/timing structure, not pure variance. (This validated the §45
+  tool: it earned its keep.)
+
+**Action (PR #39):** reverted `.github/workflows/paper-trade.yml` crypto scan to the §1
+forward set — **`TOP_10_CRYPTO`, `--intervals 1h`** (was top-100 via `universe_specs` on
+5m/15m/1h/2h/4h). TradFi book unchanged. **VWAP rotation flip (§44) deliberately KEPT** —
+live data does NOT condemn it (majors *post*-flip were small-n POSITIVE: n=7 +1.22R), so
+the §44 open-risk lean ("revert the flip") is now SOFTENED to "keep observing" by live data.
+No change to §1 geometry / `FEE_PCT` / `bracket.py` / `resolver.py`.
+
+**Next edge-builder (not done):** a **killzone/hour gate** (PR #20's gate, currently OFF) to
+cut the 18h/06h toxic clusters — forward-validate before enabling. Watch the reverted book:
+does top-10/1h turn positive once the alt+5m drag is gone? Even majors/1h is only ~breakeven
+live vs ~+0.2R backtested, so a real backtest→live gap (regime/decay) may still remain.
