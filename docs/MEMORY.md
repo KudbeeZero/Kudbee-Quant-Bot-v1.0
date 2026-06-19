@@ -1493,3 +1493,22 @@ research brief on the existing Cloudflare Pages site; canonical/OG set to
 **report.kudbeequant.com**, indexable, featured from `lab.html`, in `sitemap.xml`.
 No live-edge claims. Going live on the custom domain needs (user-side) a `main` merge
 + a Cloudflare custom-domain attach.
+
+## 47. Tier-2 maker ENTRY fill feasibility — PASS (~87%) from existing journal data, read-only — 2026-06-19 (PR after #35)
+
+The §42 "can we get maker fills?" make-or-break is **partly answerable now without any
+new infra**: the live paper engine already enters with a 0.25-ATR maker-retrace LIMIT and
+the journal records FILLED vs CANCELLED. `scripts/leverage_be_tier2_fills.py` (read-only,
+no orders/writes) measures it: **overall maker ENTRY fill rate 86.6% (557 filled / 643
+decided; 86 cancelled), median time-to-fill 0.22h** — well clear of the pre-registered
+<60% kill. By venue: **crypto 87.6%** (major 88.3 / alt 87.2), **tradfi/zero-fee 76.4%
+(n=55)** — the zero-fee venue (the leverage rule's primary target) is the *weakest* but
+still passes. **Verdict: §42's ENTRY leg is de-risked.**
+HONEST LIMITS (do not over-quote): this is the **entry** maker fill only. The break-even
+**EXIT** (stop-to-BE trigger) is typically a **taker on crypto** — only the zero-fee TradFi
+venue is fee-free both sides — so the crypto net still carries an exit-side fee the study's
+"low/maker" model under-charges. And paper fills ≠ guaranteed real-exchange fills at micro
+size. Evidence, not proof. **Remaining Tier-2 work:** (a) model the BE-exit taker fee
+explicitly (re-rate the candidate net with maker-entry + taker-exit, not both-maker);
+(b) a live `BINANCE_TESTNET` micro-stake confirmation. The report (`leverage-report.html`)
+now carries this as "Finding 4."
