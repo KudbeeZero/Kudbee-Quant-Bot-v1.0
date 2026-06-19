@@ -15,7 +15,9 @@
 - **This chat = the RESEARCH + REPORT chat.** Branch `claude/trade-data-pull-9ympy0`
   (off `main`). All **read-only / additive**: two journal-research units, a paper-forward-
   test framework, and a hosted investor report. **No engine / journal / live-path change.**
-- **Last PRs:** **#35** (research + report) **and #36** (Tier-2 entry-fill, §47) — both on
+- **Last PRs (all MERGED this session):** #35 (research+report), #36 (Tier-2 fill §47),
+  #37 (baton), #38 (3 bugfixes+tests), **#39 (revert live bot to §1 config, §48)**.
+- **(orig) research PRs:** **#35** (research + report) **and #36** (Tier-2 entry-fill, §47) — both on
   `claude/trade-data-pull-9ympy0`, **both MERGED to `main` this session** (user-directed
   direct merges, like #29/#31). #35 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/35
   · #36 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/36
@@ -57,6 +59,15 @@ PR #35 = **13 files** (plus the merged-in `data/journal.json` from `main`). Test
 
 ## NEXT chat
 
+- **🔴 TOP PRIORITY — the live book is NET-NEGATIVE (−0.295R/trade, 18% win, −149R; §48).**
+  This session DIAGNOSED it (the validated top-10/1h core is ~breakeven; the drag was the
+  §43 top-100 + 5m experiment + significant 18h/long losing clusters via the §45 tool) and
+  **reverted the bot to the §1 config (PR #39: TOP_10_CRYPTO, 1h only).** NEXT: **watch the
+  reverted book** — does top-10/1h turn positive once the alt+5m drag is gone? If even
+  majors/1h stays ~breakeven (vs ~+0.2R backtested), there's a real backtest→live gap to
+  chase (regime/decay). Candidate edge-builder: the **killzone/hour gate (PR #20, OFF)** to
+  cut the 18h/06h toxic windows — forward-validate before enabling. The VWAP flip (§44) is
+  now KEPT (live data didn't condemn it) — see §48.
 - **Slug hint (ADVISORY only):** `claude/leverage-tier2`.
 - **AUDIT FIRST (post-hoc):** run `/handoff-audit` to review **#35 + #36** (already on
   `main`). Confirm against the diff: no change to §1 defaults / `FEE_PCT` / `bracket.py` /
