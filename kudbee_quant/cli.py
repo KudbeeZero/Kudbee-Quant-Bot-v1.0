@@ -726,6 +726,22 @@ def _losing_clusters(args) -> None:
     print(json.dumps(rep, indent=2, default=str) if args.json else render_cluster_text(rep))
 
 
+def _daily_graph(args) -> None:
+    import json
+    from pathlib import Path
+    from .daily_graph import daily_graph_report, render_daily_svg, render_daily_text
+    rep = daily_graph_report(hours=args.hours, end=args.end, mode=args.mode)
+    if args.json:
+        print(json.dumps(rep, indent=2, default=str))
+        return
+    print(render_daily_text(rep))
+    if args.out:
+        out = Path(args.out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(render_daily_svg(rep))
+        print(f"\nGraph written to {out} ({rep['window']['n_resolved']} trades plotted).")
+
+
 def _notify_test(args) -> None:
     """Send a one-off Telegram test ping to confirm the wiring + secrets."""
     from .notifications import notify_test, telegram_enabled
@@ -1030,6 +1046,18 @@ def main() -> None:
                     help="false-discovery-rate target across buckets (default 0.10)")
     lc.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
     lc.set_defaults(func=_losing_clusters)
+
+    dg = sub.add_parser("daily-graph",
+                        help="the last 24h of trades as an SVG equity curve + day summary")
+    dg.add_argument("--hours", type=float, default=24.0,
+                    help="trailing window width in hours (default 24)")
+    dg.add_argument("--out", default="data/daily_graph.svg",
+                    help="SVG output path (default data/daily_graph.svg); '' to skip the file")
+    dg.add_argument("--end", default=None,
+                    help="ISO timestamp to anchor the window end (default: now, UTC)")
+    dg.add_argument("--mode", choices=["paper", "live"], default=None, help="filter by mode")
+    dg.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
+    dg.set_defaults(func=_daily_graph)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

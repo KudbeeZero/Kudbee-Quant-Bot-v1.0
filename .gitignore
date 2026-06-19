@@ -26,3 +26,6 @@ data/chart_reviews.json
 
 # Tier-1 shadow-overlay run artifacts (generated; never committed)
 data/shadow/
+
+# Daily trade graph — generated SVG (derived from the bot-owned journal; never committed)
+data/daily_graph.svg
