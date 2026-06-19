@@ -15,11 +15,14 @@
 - **This chat = the RESEARCH + REPORT chat.** Branch `claude/trade-data-pull-9ympy0`
   (off `main`). All **read-only / additive**: two journal-research units, a paper-forward-
   test framework, and a hosted investor report. **No engine / journal / live-path change.**
-- **Last PR:** **#35** — `claude/trade-data-pull-9ympy0`, **OPEN, ready for review**.
-  https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/35
-- **Audit status:** `AWAITING_AUDIT` — next chat runs `/handoff-audit` on #35 (the merge
-  gate). It's low-risk (read-only studies + a static report + one backward-compat lib add),
-  but it grew to 13 files, so verify scope honestly.
+- **Last PRs:** **#35** (research + report) **and #36** (Tier-2 entry-fill, §47) — both on
+  `claude/trade-data-pull-9ympy0`, **both MERGED to `main` this session** (user-directed
+  direct merges, like #29/#31). #35 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/35
+  · #36 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/36
+- **Audit status:** `MERGED — POST-HOC AUDIT PENDING`. Next chat's `/handoff-audit` should
+  post-hoc review **#35 + #36** (already on `main`; both carry an audit checklist in their
+  PR body). All read-only/additive (studies + static report + one backward-compat lib add);
+  scope was checked clean pre-merge (no §1/`FEE_PCT`/`bracket.py`/`resolver.py`/journal edits).
 - **Prior:** #31 merged (post-hoc PASS, §44 VWAP rotation flip is LIVE & unvalidated —
   still an open risk below). #27/#29 also merged. No other open PRs.
 - **🎯 Paper §43 experiment still running** (hourly Action, top-100 + 5m, VWAP-rotation
@@ -55,19 +58,22 @@ PR #35 = **13 files** (plus the merged-in `data/journal.json` from `main`). Test
 ## NEXT chat
 
 - **Slug hint (ADVISORY only):** `claude/leverage-tier2`.
-- **AUDIT FIRST:** run `/handoff-audit` on **#35** (merge gate). Confirm against the diff:
-  no change to §1 defaults / `FEE_PCT` / `bracket.py` / `resolver.py`; `data/journal.json`
-  not hand-edited (only the `main` merge); `StudyConfig.null_rate` default preserves the
-  old study; Tier-1 writes nothing outside gitignored `data/shadow/`; tests green.
-- **PRIORITY SCOPE — Tier 2 of the leverage forward test (the make-or-break).** Only after
-  #35 merges (serial). Build an **isolated, default-OFF** paper book that actually places
-  the **maker limit** entries on a **separate shadow journal** and measures **maker fill
-  rate** (kill <60%) — the one thing Tier 1 can't test (§42). Needs a small default-OFF
-  `be_trigger="first_green"` mode + separate scan; **the validated path stays untouched**,
-  still `dry_run=True`. Pre-register before collecting (see `leverage_be_forward_test.md`).
-- **GO-LIVE (user-side, anytime):** (1) merge #35 to `main`; (2) Cloudflare → Workers &
-  Pages → `kudbee-quant-bot-v1-0` → Custom domains → add `report.kudbeequant.com`. Then the
-  brief is live at `https://report.kudbeequant.com/leverage-report.html`.
+- **AUDIT FIRST (post-hoc):** run `/handoff-audit` to review **#35 + #36** (already on
+  `main`). Confirm against the diff: no change to §1 defaults / `FEE_PCT` / `bracket.py` /
+  `resolver.py`; `data/journal.json` not hand-edited (only the `main` merge); read-only
+  scripts write nothing outside gitignored `data/shadow/`; `StudyConfig.null_rate` default
+  preserves the old study; tests green.
+- **Tier-2 entry leg DONE (§47):** maker ENTRY fill rate **86.6%** (read-only from the
+  journal's filled-vs-cancelled record) — clears the <60% kill. **REMAINING Tier-2 work:**
+  (a) **re-rate the candidate net with maker-ENTRY + taker-EXIT** (the BE/stop exit is taker
+  on crypto; the study's "low/maker" model assumed both-maker, so it under-charges crypto) —
+  a quick read-only re-run of `leverage_be_study`'s friction with an asymmetric model; (b) a
+  live **`BINANCE_TESTNET` micro-stake** confirmation that paper fills hold on a real venue.
+  Only THEN can the `lock+0.1R/≤10x/maker` candidate graduate — and even then micro-stake only.
+- **GO-LIVE (user-side, the ONLY remaining manual step):** report is MERGED + live at the
+  production URL `https://kudbee-quant-bot-v1-0.pages.dev/leverage-report.html`. To use the
+  custom domain: Cloudflare → Workers & Pages → `kudbee-quant-bot-v1-0` → Custom domains →
+  add `report.kudbeequant.com` (canonical already set). No code step left.
 - **Open risks / watch-items (still live):**
   - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31):** shaping the hourly bot's
     setups; A/B says the blanket flip HURTS majors. Validate on the bracket harness or test
@@ -103,5 +109,8 @@ PR #35 = **13 files** (plus the merged-in `data/journal.json` from `main`). Test
   cluster analyzer (§45) + leverage/BE viability study (§46) + paper-forward-test framework
   (Tier-1 shadow overlay, pre-registered) + a hosted investor report (`leverage-report.html`
   → report.kudbeequant.com, indexable, linked from the Lab). All read-only/additive; 363
-  tests green. **AWAITING_AUDIT.** Next scope: **Tier 2 — the maker-fill feasibility test**;
-  plus user-side go-live (merge #35 + attach the custom domain).
+  tests green. **Merged to `main`** (user-directed).
+- 2026-06-19: PR #36 (same branch) — Tier-2 maker ENTRY fill feasibility (read-only, §47):
+  86.6% fill rate from the journal's filled-vs-cancelled record → PASS the <60% kill; added
+  report Finding 4. Merged. **Both #35 + #36 post-hoc-audit pending.** Next scope: finish
+  Tier-2 (taker-exit re-rate + testnet micro-stake); user-side: attach `report.kudbeequant.com`.
