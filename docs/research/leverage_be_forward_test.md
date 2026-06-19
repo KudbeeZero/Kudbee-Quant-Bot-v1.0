@@ -41,8 +41,9 @@ To avoid fitting the result after the fact:
   **FDR-significant** (reuse `events/study.py`, the same Wilson+BH harness) at
   **n ≥ 150** resolved maker-venue trades. Below that n → "inconclusive," keep paper.
 - **Kill criteria (any one → stop, revert to original):** maker **fill rate < 60%**;
-  realized net expectancy **< −0.10R** over any rolling 100 trades; any **liquidation
-  event at the capped ≤10x sizing** (should be ~0 — if it isn't, the model is wrong).
+  realized net expectancy **< −0.10R** over any rolling 100 trades; **liquidation rate
+  at the capped ≤10x sizing materially above the study's ~1% baseline** (kill if **>2%**
+  — the study found ≈1% at 10x, so 0 is the wrong bar; a spike means the risk model broke).
 - **Horizon:** min 2 weeks of the hourly Action OR n≥150, whichever is later.
 - **Drawdown guard:** report max consecutive losing streak + peak-to-trough R; this
   is a survivability test, not a win-rate test.
