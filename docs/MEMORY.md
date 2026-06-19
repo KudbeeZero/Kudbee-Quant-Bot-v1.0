@@ -1437,3 +1437,59 @@ maps cleanly onto our existing significance-gated study harness
 (`confluence_directional_study`, Wilson CIs + FDR) over the live `data/journal.json`.
 That is the next unit (the "Cluster Analyzer"), and it directly answers Tino's
 "increase sample size, study the losers" point.
+
+## 45. Losing-cluster analyzer — built (read-only, significance-gated) — 2026-06-19 (PR #35)
+
+Built the §44 "next unit." `kudbee_quant/cluster.py` + CLI `kud losing-clusters`
+(+ `tests/test_cluster.py`, 88 lines). Read-only over `data/journal.json`, **no
+network, no journal writes.** For each context dimension (time-of-day, day-of-week,
+confluence-gate strength, ATR/vol regime *proxy* = stop-distance-%, timeframe,
+direction) it asks whether a bucket's **net-of-fee** win rate is significantly
+*below the book's own baseline* — reusing the confluence study's harness
+(`conditional_table`: Wilson CIs + Benjamini-Hochberg FDR). Key honesty choices,
+do not regress them: **null = the book's unconditional win rate, NOT 0.5** (this
+book wins ~1-in-5 by asymmetric design; testing vs a coin flip flags everything);
+a bucket is a "losing cluster" only if `sufficient` AND `significant_fdr` AND below
+baseline; **if nothing survives FDR the honest read is "variance, not regime."**
+ATR regime is a labelled proxy (offline by design). Re-run for the current verdict;
+the framework — not a frozen result — is the durable asset.
+
+## 46. Micro-stake / high-leverage / break-even viability — DISPROVEN at high lev; marginal-only at maker/≤10x; forward-test framework + hosted report — 2026-06-19 (PR #35)
+
+Tested the "tiny stake + high leverage + move stop to break-even once it proves
+direction" idea over **497 of 498 resolved bracket paths** (`scripts/leverage_be_study.py`,
+read-only, re-fetches each post-fill bar path). Durable findings (all reproducible):
+- **"Goes green" is real (95% touch profit) but mostly inside the friction band.**
+  Favourable move is near-immediate (median time-to-first-green ≈ 0h), so the BE
+  trigger must be EARLY — `lock+0.1R@first_green` tops every friction column; later
+  triggers (+0.5R/+1R) are WORSE than original (give the move back).
+- **Fees decide it.** Best variant: gross **+0.077R** → maker/zero-fee **+0.038R**
+  → realistic taker **−0.219R** → harsh **−0.518R**. `cost_R = roundtrip%/stop%`, so
+  tight stops (median 0.74%) amplify fees. The edge exists ONLY at ~0 fee.
+- **High leverage backfires — it's a liability, not a multiplier.** Liquidation band
+  ≈ 1/L−MMR; ordinary adverse wiggle (median MAE 1.62%, p90 3.87%) breaches it.
+  **50x liquidates ~55% of trades (RoR 100% by 500); 25x ~12% (RoR 92%); only 10x
+  survives (~1% liq, RoR 0%)** — and 10x is "best" only because it doesn't liquidate,
+  EV still ~breakeven-negative. **50x is a ruin machine — settled.**
+- Short-side less-bad than long (consistent with §44); tradfi/zero-fee venue least-bad.
+
+**Recommended candidate (paper only, NOT validated):** `lock+0.1R@first_green`, **≤10x**,
+**zero-fee/maker venue**, prefer short-side + stop>0.5%. Never taker-side, never >10x.
+
+**Paper-forward-test framework** (`docs/research/leverage_be_forward_test.md`): two
+gated tiers. **Tier 1 = shadow overlay** (`scripts/leverage_be_shadow.py`, BUILT,
+read-only, writes only to gitignored `data/shadow/`, never the journal) replays the
+rule OOS with PRE-REGISTERED thresholds (n≥150 gate; 90% bootstrap CIs; kill if
+rolling-100 net<−0.10R or liq>2% at ≤10x — the >2% reconciles with the study's ~1%
+baseline, NOT "any liq=0"). Current Tier-1 read: **zero-fee primary lane n=25 →
+INCONCLUSIVE** (below gate, mildly negative); **crypto maker-ASSUMED lane n=314 →
+PASS** (+0.106R net, 90% CI excludes 0; +0.427R vs original) **but it assumes maker
+fills we have NOT proven.** So the make-or-break is **maker-fill feasibility (§42)** —
+that is **Tier 2** (an isolated, default-OFF paper book that actually places the maker
+limits and measures fill rate; kill if <60%). A Tier-1 pass is necessary-not-sufficient.
+
+**Deliverable:** `leverage-report.html` — an investor-grade, CSS-only (CSP-safe)
+research brief on the existing Cloudflare Pages site; canonical/OG set to
+**report.kudbeequant.com**, indexable, featured from `lab.html`, in `sitemap.xml`.
+No live-edge claims. Going live on the custom domain needs (user-side) a `main` merge
++ a Cloudflare custom-domain attach.

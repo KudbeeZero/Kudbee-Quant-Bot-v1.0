@@ -719,6 +719,13 @@ def _review_trade_history(args) -> None:
     print(json.dumps(rep, indent=2, default=str) if args.json else render_history_text(rep))
 
 
+def _losing_clusters(args) -> None:
+    import json
+    from .cluster import losing_cluster_report, render_cluster_text
+    rep = losing_cluster_report(min_n=args.min_n, mode=args.mode, fdr_alpha=args.fdr_alpha)
+    print(json.dumps(rep, indent=2, default=str) if args.json else render_cluster_text(rep))
+
+
 def _notify_test(args) -> None:
     """Send a one-off Telegram test ping to confirm the wiring + secrets."""
     from .notifications import notify_test, telegram_enabled
@@ -1013,6 +1020,16 @@ def main() -> None:
                      help="skip MFE/MAE backfill (faster; no network)")
     rth.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
     rth.set_defaults(func=_review_trade_history)
+
+    lc = sub.add_parser("losing-clusters",
+                        help="do losing trades CLUSTER (regime mismatch) or is it variance?")
+    lc.add_argument("--min-n", type=int, default=20,
+                    help="min samples for a bucket to be trusted (default 20)")
+    lc.add_argument("--mode", choices=["paper", "live"], default=None, help="filter by mode")
+    lc.add_argument("--fdr-alpha", type=float, default=0.10,
+                    help="false-discovery-rate target across buckets (default 0.10)")
+    lc.add_argument("--json", action="store_true", help="emit graph-ready JSON instead of text")
+    lc.set_defaults(func=_losing_clusters)
 
     p = sub.add_parser("polymarkets", help="list Polymarket markets")
     p.add_argument("--limit", type=int, default=20)

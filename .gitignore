@@ -23,3 +23,6 @@ secrets.json
 data/chart_images/*
 !data/chart_images/.gitkeep
 data/chart_reviews.json
+
+# Tier-1 shadow-overlay run artifacts (generated; never committed)
+data/shadow/
