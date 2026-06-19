@@ -3,6 +3,15 @@
 **Date:** 2026-06-19 · **Branch:** `claude/trade-data-pull-9ympy0` · **Status:** analysis only,
 no live changes. **Reproduce:** `PYTHONPATH=. python scripts/leverage_be_study.py`
 (read-only over `data/journal.json`; re-fetches each trade's post-fill bar path).
+Per-trade metrics for all 497 trades (MFE/MAE, time-to-each-R-threshold, BE-saved /
+BE-cuts-a-winner flags, etc.) are exported to **`docs/research/leverage_be_trades.csv`**
+(`--csv` flag).
+
+**Timing note (why the BE trigger must be EARLY):** the favourable move arrives
+almost immediately — median time to first green ≈ **0h** (the entry bar), to +0.50R
+≈ 0.1h, to +1R ≈ 0.8h. The edge is in the first bar or two, which is exactly why
+`first-green` / `+0.10R` triggers beat the later ones — and why most of that "green"
+is small noise that lives inside the friction band.
 
 ## The question
 

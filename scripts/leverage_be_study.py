@@ -321,6 +321,47 @@ def main(argv):
     print(f"\n  BE@+0.25R vs original (path-replayed): saved {saved} trades from a "
           f"deeper loss; cut {cut} eventual winners short.")
 
+    # ---- timing: how fast does the favourable move arrive? -----------------
+    def med_hours(label):
+        hrs = [t.bars_to[label] * TF_MIN.get(t.p.timeframe, 60) / 60.0
+               for t in withp if t.bars_to.get(label) is not None]
+        return float(np.median(hrs)) if hrs else float("nan")
+    print("  Time to favourable excursion (median hours, among trades that reached it):")
+    for label in ("0.10", "0.25", "0.50", "1.00"):
+        print(f"      +{label}R: {med_hours(label):.1f}h", end="   ")
+    print()
+
+    # ---- per-trade export (every Required-metric, one row per trade) -------
+    recs = []
+    for t in withp:
+        b, b25 = base[id(t)], be25[id(t)]
+        tfm = TF_MIN.get(t.p.timeframe, 60) / 60.0
+        recs.append({
+            "id": t.p.id, "symbol": t.p.symbol, "market": market_class(t.p.symbol),
+            "timeframe": t.p.timeframe,
+            "direction": "long" if (t.p.direction or 0) > 0 else "short",
+            "entry": t.p.entry, "stop": t.p.stop, "target": t.p.target,
+            "target_r": t.target_r, "stop_pct": round(t.stop_pct, 4),
+            "mfe_r": round(t.mfe_r, 4), "mae_r": round(t.mae_r, 4),
+            "mae_pct": round(t.mae_pct, 4),
+            "hrs_first_green": (t.first_green_bar * tfm) if t.first_green_bar is not None else None,
+            "hrs_0.10R": (t.bars_to["0.10"] * tfm) if t.bars_to.get("0.10") is not None else None,
+            "hrs_0.25R": (t.bars_to["0.25"] * tfm) if t.bars_to.get("0.25") is not None else None,
+            "hrs_0.50R": (t.bars_to["0.50"] * tfm) if t.bars_to.get("0.50") is not None else None,
+            "hrs_1.00R": (t.bars_to["1.00"] * tfm) if t.bars_to.get("1.00") is not None else None,
+            "hit_1R": t.hit[1.0], "hit_2R": t.hit[2.0], "hit_3R": t.hit[3.0],
+            "green_then_stopped": t.green_then_stopped,
+            "final_r": round(b, 4), "be25_r": round(b25, 4),
+            "be_would_save": bool(b25 > b + 1e-6),
+            "be_cuts_winner": bool(b25 < b - 1e-6),
+        })
+    if "--csv" in argv:
+        cp = argv[argv.index("--csv") + 1]
+        pd.DataFrame(recs).to_csv(cp, index=False)
+        print(f"  Wrote per-trade table ({len(recs)} rows) -> {cp}", file=sys.stderr)
+    out["per_trade_sample"] = recs[:5]
+
+
     # ---- 4-5: variant expectancy, gross + each friction model -------------
     hold_days = {id(t): (t.bars_to.get("1.00") or len(t.rhi)) * TF_MIN.get(t.p.timeframe, 60) / 1440
                  for t in withp}
