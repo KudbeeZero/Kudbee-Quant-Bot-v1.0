@@ -62,6 +62,12 @@ class StudyConfig:
     min_n: int = 30          # below this, a bucket is "insufficient", never trusted
     z: float = 1.96          # 95% CI
     fdr_alpha: float = 0.10  # false-discovery-rate target across buckets
+    null_rate: float = 0.5   # the null P(win) each bucket is tested against. 0.5 is
+                             # a coin flip (the default for boolean forward-return
+                             # studies). Set it to the *overall* base rate when the
+                             # question is "does this bucket differ from the book's
+                             # own baseline?" (e.g. clustering of losses in a system
+                             # whose unconditional win rate is far from 50%).
 
 
 def conditional_table(
@@ -92,7 +98,7 @@ def conditional_table(
         n = len(g)
         wins = int(g[outcome_col].sum())
         lo, hi = wilson_ci(wins, n, config.z)
-        p = _two_sided_binom_p(wins, n, 0.5)
+        p = _two_sided_binom_p(wins, n, config.null_rate)
         key_tuple = keys if isinstance(keys, tuple) else (keys,)
         rows.append({**dict(zip(group_cols, key_tuple)),
                      "n": n, "wins": wins, "win_rate": wins / n if n else float("nan"),
