@@ -43,10 +43,11 @@ import numpy as np
 # Reuse the study's path-replay + simulation ENGINE verbatim (no duplication).
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from leverage_be_study import (  # noqa: E402
-    TF_MIN, VARIANTS, build_path, friction_r, liquidated, sim_policy,
+    TF_MIN, VARIANTS, build_path, friction_r, hold_days_of, liquidated, sim_policy,
 )
 
 from kudbee_quant.ingest import RouterClient            # noqa: E402
+from kudbee_quant.events.study import wilson_ci          # noqa: E402
 from kudbee_quant.journal.journal import (              # noqa: E402
     DEFAULT_PATH, Prediction, venue_of,
 )
@@ -64,7 +65,8 @@ KILL_ROLLING_N = 100             # rolling window for the drawdown kill
 KILL_ROLLING_R = -0.10           # rule net over any rolling-100 below this -> KILL
 KILL_FILL_RATE = 0.60            # Tier-2 kill (maker fill rate); NOT measurable in Tier 1
 MAX_LEVERAGE = 10                # leverage cap; the study (§8/10) found ~1% liq here, not 0
-KILL_LIQ_PCT = 0.02              # KILL if liq rate MATERIALLY exceeds the study's ~1% baseline
+LIQ_BASELINE_PCT = 0.01          # study's ~1% liq baseline at ≤10x; KILL only if the observed
+                                 # liq rate is 95%-CI SIGNIFICANTLY above it (not a noisy point est.)
 MAKER_MODEL = "low"             # the zero-fee/maker friction model in leverage_be_study.FRICTION
 
 SHADOW_DIR = os.path.join(os.path.dirname(DEFAULT_PATH), "shadow")
@@ -129,10 +131,15 @@ def verdict(ev):
     if ev["n"] < N_MIN:
         return "INCONCLUSIVE", [f"n={ev['n']} < pre-registered N_MIN={N_MIN}; keep collecting"]
     killed = False
-    if ev["pct_liquidated"] == ev["pct_liquidated"] and ev["pct_liquidated"] > KILL_LIQ_PCT:
+    # Kill on liquidation only when the rate is STATISTICALLY above the ~1% baseline
+    # (Wilson 95% CI lower bound > baseline), so a couple of liqs at the n-gate don't
+    # trip a false KILL from sampling noise around 1%.
+    n_liq, n = ev["n_liquidated_at_cap"], ev["n"]
+    liq_lo = wilson_ci(n_liq, n)[0] if n else 0.0
+    if liq_lo > LIQ_BASELINE_PCT:
         killed = True
-        reasons.append(f"liq rate {100*ev['pct_liquidated']:.1f}% at ≤{MAX_LEVERAGE}x "
-                       f"> kill {100*KILL_LIQ_PCT:.0f}% (study baseline ~1%); risk model broken")
+        reasons.append(f"liq rate {100*ev['pct_liquidated']:.1f}% (95% CI low {100*liq_lo:.1f}%) "
+                       f"significantly > {100*LIQ_BASELINE_PCT:.0f}% baseline at ≤{MAX_LEVERAGE}x; risk model broken")
     wr = ev["worst_rolling100_net"]
     if wr == wr and wr < KILL_ROLLING_R:
         killed = True
@@ -171,15 +178,14 @@ def main(argv):
     tradfi = [t for t in wide if venue_of(t.p) == "tradfi"]   # genuinely ~0-fee book
     crypto_maker = [t for t in wide if venue_of(t.p) == "crypto"]  # ASSUMES maker fills
 
-    hold_days = {id(t): (t.bars_to.get("1.00") or len(t.rhi)) * TF_MIN.get(t.p.timeframe, 60) / 1440
-                 for t in paths}
+    hold_days = {id(t): hold_days_of(t) for t in paths}
 
     print("\n" + "=" * 78)
     print("TIER-1 SHADOW OVERLAY — lock+0.1R @ first-green, zero-fee/maker, stop>0.5%")
     print("=" * 78)
     print(f"\nPre-registered: RULE={RULE}  vs  {BASELINE}; stop>{STOP_MIN_PCT}%; "
           f"N_MIN={N_MIN}; {int((1-CI_ALPHA)*100)}% CIs; "
-          f"kill if rolling-{KILL_ROLLING_N} net<{KILL_ROLLING_R:+.2f}R or liq>{100*KILL_LIQ_PCT:.0f}% at ≤{MAX_LEVERAGE}x.")
+          f"kill if rolling-{KILL_ROLLING_N} net<{KILL_ROLLING_R:+.2f}R or liq 95%-CI-low>{100*LIQ_BASELINE_PCT:.0f}% at ≤{MAX_LEVERAGE}x.")
     print(f"Subset of {len(paths)} usable paths: {len(tradfi)} zero-fee (tradfi), "
           f"{len(crypto_maker)} crypto (maker-assumed), after stop>{STOP_MIN_PCT}% filter.")
 
