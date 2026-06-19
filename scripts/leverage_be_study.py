@@ -224,6 +224,15 @@ _register_variants()
 # ----------------------------------------------------------------------------
 # Friction (price % -> R via stop distance) and leverage/liquidation.
 # ----------------------------------------------------------------------------
+def hold_days_of(tp: TradePath) -> float:
+    """Approx holding time (days) for the funding-cost term. Uses bars-to-+1R as a
+    proxy, falling back to the full path length. Explicit ``is None`` check — a +1R
+    touch on bar 0 (bars_to==0) is a REAL fast touch, not 'never reached'."""
+    b = tp.bars_to.get("1.00")
+    bars = b if b is not None else len(tp.rhi)
+    return bars * TF_MIN.get(tp.p.timeframe, 60) / 1440.0
+
+
 def friction_r(tp: TradePath, model: str, hold_days: float) -> float:
     f = FRICTION[model]
     cost_pct = f["roundtrip_pct"] * 100 + f["funding_per_day"] * 100 * hold_days
@@ -363,8 +372,7 @@ def main(argv):
 
 
     # ---- 4-5: variant expectancy, gross + each friction model -------------
-    hold_days = {id(t): (t.bars_to.get("1.00") or len(t.rhi)) * TF_MIN.get(t.p.timeframe, 60) / 1440
-                 for t in withp}
+    hold_days = {id(t): hold_days_of(t) for t in withp}
     rows = []
     for name, kw in VARIANTS.items():
         gross = [sim_policy(t, **kw) for t in withp]

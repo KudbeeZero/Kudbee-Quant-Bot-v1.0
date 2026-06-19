@@ -43,7 +43,10 @@ _PENDING = ("pending",)
 
 
 def _is_filled(p: Prediction) -> bool:
-    return p.status in _FILLED or bool(p.filled_at)
+    # Status is authoritative: a "cancelled" entry never filled, even if a stale
+    # filled_at lingers from an earlier partial/re-fill attempt (else it would be
+    # double-counted as BOTH filled and cancelled and corrupt the fill rate).
+    return p.status in _FILLED
 
 
 def market_class(sym: str) -> str:
