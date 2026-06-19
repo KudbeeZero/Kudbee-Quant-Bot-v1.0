@@ -2,16 +2,18 @@ name: Forward paper-trade (confluence-R)
 
 # Automated FORWARD paper trading of the validated strategy:
 # >=50% confluence, 3R target, 0.25-ATR limit-retrace (maker), both sides.
-# CRYPTO universe = the ~100-coin top-100 book (config/crypto_universe.yaml) on
-# 5m/15m/1h/2h/4h. Runs hourly: logs new setups, resolves pending/open trades,
-# commits the journal so a real forward track record accumulates with no babysitting.
+# CRYPTO universe = the validated TOP-10 majors (kudbee_quant.universe.TOP_10_CRYPTO)
+# on 1h only. Runs hourly: logs new setups, resolves pending/open trades, commits the
+# journal so a real forward track record accumulates with no babysitting.
 #
-# NOTE (user-directed 2026-06-14, §43): the top-100 universe AND the 5m timeframe
-# were turned ON at the user's explicit request. This runs AGAINST our own evidence
-# — 5m was net-negative purely on fees (§37) and the top-100 long tail is unproven
-# forward (§31). It is a PAPER forward experiment: the goal is to GENERATE the data
-# to confirm or refute the fee/edge concern, not a validated config. Watch fee drag,
-# API load (~100 symbols x 5 TF/hour) and journal growth; revert if it confirms §37.
+# NOTE (§45 diagnosis, 2026-06-19): the §43 top-100 + 5m experiment (2026-06-14) ran
+# AGAINST our own evidence and the live paper data confirmed it — the top-100 long
+# tail bled (-0.50R/trade, §31) and EVERY crypto timeframe was net-negative (5m -0.63R
+# §37, 15m -0.36, 2h -0.38, 4h -0.55), while top-10 majors on 1h sat ~breakeven. The
+# cluster analyzer (§45) further found losses concentrate in specific hours (18h: 2%
+# win, p<0.001) and on longs. So we REVERTED to the §1 validated config to re-measure
+# the real edge cleanly. (A killzone/hour gate — PR #20, currently OFF — is the next
+# candidate to cut the toxic-hour clusters; forward-validate before enabling.)
 
 on:
   schedule:
@@ -52,14 +54,15 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           # Crypto book (fee-paying: ~0.045%/side taker, see MEMORY §25).
-          # TOP-100 universe + 5m RE-ENABLED 2026-06-14 at user request (§43) — a
-          # paper forward experiment that runs AGAINST §37 (5m fee drag) and §31
-          # (long tail unproven). Symbols come from config/crypto_universe.yaml via
-          # the fail-safe universe loader; 5m is back in the interval set.
-          CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe_loader import universe_specs; print(" ".join(universe_specs()))')"
+          # REVERTED to the validated config 2026-06-19 (§45 diagnosis): the §43
+          # top-100 + 5m experiment was net-negative across the board — the top-100
+          # long tail bled (-0.50R, §31) and EVERY sub/multi-TF was net-negative
+          # (5m -0.63R §37, 15m -0.36, 2h -0.38, 4h -0.55), while top-10 majors on
+          # 1h sat ~breakeven. Back to the §1 forward set: TOP_10_CRYPTO, 1h only.
+          CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe import TOP_10_CRYPTO; print(" ".join(TOP_10_CRYPTO))')"
           python -m kudbee_quant.cli paper-scan \
             $CRYPTO_UNIVERSE \
-            --intervals 5m 15m 1h 2h 4h --trend-filter || true
+            --intervals 1h --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
           # indices, energy, FX, grains, rates, softs. 1h only: the validated
           # timeframe, Yahoo-supported, and avoids session-gap noise on
