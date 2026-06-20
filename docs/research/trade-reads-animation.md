@@ -41,6 +41,14 @@ expansion **reuses** all of it and generalizes the data.
    IntersectionObserver pause respects an explicit user pause.
 5. **Bubble de-overlap pass** in `placeBubble` so agent notes never stack on top
    of each other (was visible in the static / mobile frame).
+6. **Step controls (◀ ▶)** for reader-paced, candle-by-candle advance — the
+   "thinks on each candle" intent made literal. `startTimeline` precomputes a
+   `beats[]` list (one per candle + a final settle beat) and exposes a `seekTo(t)`
+   that renders the exact frozen frame at time `t` using the same per-tick logic
+   as the live loop (so a stepped frame matches a live pause). Stepping implies
+   paused; the Left/Right arrow keys work when the controls have focus; buttons
+   disable at the bounds; hidden under reduced motion (which already shows the
+   full static list).
 
 ## The five setups (all grounded — sources)
 
@@ -89,7 +97,7 @@ this is marketing-site front-end only.
 
 ## Not done here (candidates for a follow-up, if wanted)
 
-A discrete **step** control (advance candle-by-candle) to pair with play/pause; a
-dedicated **"How we read a trade"** explainer page (expand `trade-story.html` with
-all setups + glossary links) linked from the homepage card; and optionally
-surfacing the same engine inside `trade-flow.html`.
+A dedicated **"How we read a trade"** explainer page (expand `trade-story.html`
+with all setups + glossary links) linked from the homepage card; and optionally
+surfacing the same engine inside `trade-flow.html`. (The discrete **step** control
+to pair with play/pause — listed here previously — is now shipped, item 6 above.)
