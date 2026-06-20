@@ -257,9 +257,24 @@
     head.innerHTML =
       '<span class="ts-head__title"><span class="ts-head__dot"></span>' +
       "How Kudbee reads a trade</span>" +
-      '<span class="ts-head__badge"></span>';
+      '<span class="ts-head__right">' +
+        '<button class="ts-ctl" type="button" aria-label="Pause"></button>' +
+        '<span class="ts-head__badge"></span>' +
+      "</span>";
     mount.appendChild(head);
     var badgeEl = head.querySelector(".ts-head__badge");
+    var ctlBtn = head.querySelector(".ts-ctl");
+    var PAUSE_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
+      '<rect x="2" y="1.5" width="2.6" height="9" rx="1"></rect>' +
+      '<rect x="7.4" y="1.5" width="2.6" height="9" rx="1"></rect></svg>';
+    var PLAY_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
+      '<path d="M3 1.8 L10 6 L3 10.2 Z"></path></svg>';
+    function setCtl(playing) {
+      ctlBtn.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
+      ctlBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
+    }
+    setCtl(true);
+    if (reduce) ctlBtn.style.display = "none";
 
     // setup chips (clickable — jump between scenarios)
     var chips = el("div", "ts-setups");
@@ -580,6 +595,38 @@
       var top = a.side === "above" ? anchorY - bh - 14 : anchorY + 14;
       top = clamp(top, 6, H - bh - 6);
 
+      // de-overlap against other currently-visible bubbles: push this one off
+      // any it collides with (vertically first, nudging horizontally if stuck).
+      var rects = [];
+      Object.keys(bubbleEls).forEach(function (k) {
+        var ob = bubbleEls[k];
+        if (ob === b || ob.classList.contains("is-out")) return;
+        rects.push({
+          l: parseFloat(ob.style.left) || 0,
+          t: parseFloat(ob.style.top) || 0,
+          w: ob.offsetWidth || bw,
+          h: ob.offsetHeight || bh,
+        });
+      });
+      function hit(L, T) {
+        for (var r = 0; r < rects.length; r++) {
+          var o = rects[r];
+          if (L < o.l + o.w + 6 && L + bw + 6 > o.l &&
+              T < o.t + o.h + 6 && T + bh + 6 > o.t) return o;
+        }
+        return null;
+      }
+      var guard = 0;
+      while (guard++ < 24) {
+        var o = hit(left, top);
+        if (!o) break;
+        top = a.side === "above" ? o.t - bh - 8 : o.t + o.h + 8;
+        top = clamp(top, 6, H - bh - 6);
+        if (hit(left, top)) {
+          left = clamp(left + (a.side === "above" ? -1 : 1) * bw * 0.5, 8, W - bw - 8);
+        }
+      }
+
       b.style.left = left + "px";
       b.style.top = top + "px";
 
@@ -721,6 +768,9 @@
        =================================================================== */
     var raf = 0;
     var running = false;
+    var userPaused = false;
+    var pausedElapsed = 0;
+    var tl = {};            // timeline handles (populated by startTimeline)
     var CANDLE_MS = 920;
 
     function startTimeline() {
@@ -729,6 +779,11 @@
       var t0 = performance.now();
       var sched = [];
       var anims = [];
+
+      // expose pause/resume handles (frame is hoisted within this fn)
+      tl.elapsed = function () { return performance.now() - t0; };
+      tl.resumeFrom = function (e) { t0 = performance.now() - e; };
+      tl.kick = function () { raf = requestAnimationFrame(frame); };
 
       function at(ms, fn) { sched.push({ at: ms, fn: fn, done: false }); }
       function tween(start, dur, fn, after) {
@@ -854,6 +909,28 @@
       raf = requestAnimationFrame(frame);
     }
 
+    /* ---------- pause / play ---------- */
+    function togglePause() {
+      if (userPaused) {
+        userPaused = false;
+        setCtl(true);
+        if (!running) {
+          running = true;
+          if (tl.resumeFrom) tl.resumeFrom(pausedElapsed);
+          if (tl.kick) tl.kick();
+        }
+      } else {
+        userPaused = true;
+        setCtl(false);
+        if (running) {
+          running = false;
+          pausedElapsed = tl.elapsed ? tl.elapsed() : 0;
+          if (raf) cancelAnimationFrame(raf);
+        }
+      }
+    }
+    ctlBtn.addEventListener("click", togglePause);
+
     /* ---------- switch scenario (chip click) ---------- */
     function switchTo(i) {
       if (i === scenIndex && (running || reduce)) {
@@ -870,6 +947,8 @@
       if (reduce) {
         renderStatic();
       } else {
+        userPaused = false;
+        setCtl(true);
         running = true;
         startTimeline();
       }
@@ -921,7 +1000,7 @@
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
         var vis = entries[0] && entries[0].isIntersecting;
-        if (vis && !running) {
+        if (vis && !running && !userPaused) {
           running = true;
           clearScenarioDom();
           applyScenarioMeta();

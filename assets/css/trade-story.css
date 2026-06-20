@@ -91,6 +91,29 @@
   50%      { opacity: .55; transform: scale(.82); }
 }
 
+/* play / pause control */
+.ts-head__right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.ts-ctl {
+  display: inline-grid;
+  place-items: center;
+  width: 26px; height: 26px;
+  padding: 0;
+  border-radius: 8px;
+  color: var(--ts-muted);
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  cursor: pointer;
+  transition: color .2s var(--ts-ease), border-color .2s var(--ts-ease),
+              background .2s var(--ts-ease);
+}
+.ts-ctl:hover { color: var(--ts-text); border-color: var(--ts-border-2); }
+.ts-ctl:focus-visible { outline: 2px solid var(--ts-mint); outline-offset: 2px; }
+.ts-ctl svg { fill: currentColor; display: block; }
+
 /* ----- Stage (canvas + bubble layer) ----- */
 .ts-stage {
   position: relative;
