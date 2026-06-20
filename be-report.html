@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Break-even study — up-to-date snapshot</title>
+<style>
+  :root{
+    --bg:#0d1117; --card:#161b22; --card2:#1b2330; --line:#272e3a;
+    --ink:#e6edf3; --mut:#8b97a7; --grn:#34d399; --grn2:#10b981;
+    --amber:#f0b132; --red:#f0716a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:15px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;padding:22px 16px 60px}
+  .wrap{max-width:560px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 2px;letter-spacing:.2px}
+  .sub{color:var(--mut);font-size:13px;margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:18px 18px 16px;margin:0 0 16px}
+  .hl{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .hl .label{font-size:13px;letter-spacing:.10em;text-transform:uppercase;color:var(--mut)}
+  .hl .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+  .pos{color:var(--grn)} .neg{color:var(--red)} .warn{color:var(--amber)}
+  .note{color:var(--mut);font-size:13.5px;margin:12px 0 0}
+  .note b{color:var(--ink);font-weight:600}
+  .swing{font-variant-numeric:tabular-nums}
+  .panel-title{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--mut);
+    margin:2px 0 4px;font-weight:600}
+  .panel-lead{color:var(--mut);font-size:13.5px;margin:0 0 16px}
+  .panel-lead b{color:var(--ink)}
+  .row{display:grid;grid-template-columns:96px 1fr 92px;align-items:center;gap:12px;
+    padding:7px 0;border-top:1px solid var(--line)}
+  .row:first-of-type{border-top:none}
+  .row .k{color:var(--mut);font-size:13.5px}
+  .row .k.strong{color:var(--ink)}
+  .bar{height:18px;background:var(--card2);border-radius:6px;overflow:hidden}
+  .bar > i{display:block;height:100%;border-radius:6px;
+    background:linear-gradient(90deg,var(--grn2),var(--grn))}
+  .v{text-align:right;font-variant-numeric:tabular-nums}
+  .v .pct{font-weight:700}
+  .v .den{display:block;color:var(--mut);font-size:11.5px;margin-top:-1px}
+  .meta{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--mut);font-size:12.5px;
+    border-top:1px solid var(--line);padding-top:12px;margin-top:4px}
+  .meta b{color:var(--ink);font-weight:600}
+  .flag{background:rgba(240,177,50,.08);border:1px solid rgba(240,177,50,.28);
+    border-radius:12px;padding:13px 15px;color:#f4d9a3;font-size:13px;margin:0 0 16px}
+  .flag b{color:var(--amber)}
+  .foot{color:var(--mut);font-size:11.5px;margin-top:18px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Break-even study — up-to-date snapshot</h1>
+  <p class="sub">Recomputed on the live forward-test journal · 2026-06-20 ·
+     508 resolved bracket trades with usable bar paths</p>
+
+  <div class="flag">
+    <b>Read this first.</b> This refresh is on the FULLER sample (508 path-backed
+    trades, up from ~117 in the earlier version). The "stop-outs ran green first"
+    pattern <b>holds</b>. But the old headline — BE-only flipping the book to
+    <span class="swing">+3.2R</span> — <b>does not survive the bigger sample</b>:
+    moving the stop to break-even still <b>helps</b>, but the book stays
+    net-negative. Numbers below are the honest current read.
+  </div>
+
+  <!-- Panel A -->
+  <div class="card">
+    <div class="hl">
+      <span class="label">BE-only — at +1R move stop to break-even</span>
+      <span class="big warn">+21.3R</span>
+    </div>
+    <p class="note">
+      Moving the stop to break-even once a trade is +1R swings the book from
+      <b class="neg">&minus;152.1R</b> to <b class="warn">&minus;130.8R</b>
+      — a <b>+21.3R</b> rescue (&minus;0.299R &rarr; &minus;0.258R per trade).
+      The management tweak is real and positive, but it does <b>not</b> turn a
+      net-losing book into a winner: the entries themselves are the problem.
+    </p>
+  </div>
+
+  <!-- Panel B -->
+  <div class="card">
+    <div class="panel-title">"Were we ever in the green?" — how far stop-outs ran first</div>
+    <p class="panel-lead">
+      Maximum favorable excursion (MFE) for the <b>416 trades that ultimately
+      stopped out</b>. How deep into profit they got before reversing.
+    </p>
+
+    <div class="row">
+      <span class="k strong">reached green at all</span>
+      <span class="bar"><i style="width:94%"></i></span>
+      <span class="v"><span class="pct">94%</span><span class="den">390/416</span></span>
+    </div>
+    <div class="row">
+      <span class="k">&gt; +0.25R</span>
+      <span class="bar"><i style="width:81%"></i></span>
+      <span class="v"><span class="pct">81%</span><span class="den">339/416</span></span>
+    </div>
+    <div class="row">
+      <span class="k">&gt; +0.50R</span>
+      <span class="bar"><i style="width:65%"></i></span>
+      <span class="v"><span class="pct">65%</span><span class="den">271/416</span></span>
+    </div>
+    <div class="row">
+      <span class="k">&gt; +1.00R</span>
+      <span class="bar"><i style="width:45%"></i></span>
+      <span class="v"><span class="pct">45%</span><span class="den">188/416</span></span>
+    </div>
+    <div class="row">
+      <span class="k">&gt; +1.50R</span>
+      <span class="bar"><i style="width:30%"></i></span>
+      <span class="v"><span class="pct">30%</span><span class="den">123/416</span></span>
+    </div>
+    <div class="row">
+      <span class="k">&gt; +2.00R</span>
+      <span class="bar"><i style="width:20%"></i></span>
+      <span class="v"><span class="pct">20%</span><span class="den">84/416</span></span>
+    </div>
+
+    <div class="meta">
+      <span><b>Win rate</b> 18.1% (92/508)</span>
+      <span><b>Sample span</b> Jun 9 &rarr; Jun 19, 2026</span>
+      <span><b>Coverage</b> 508/509 paths (1 lacked OHLCV)</span>
+    </div>
+  </div>
+
+  <p class="foot">
+    Read-only analysis. Per-bar paths rebuilt from venue OHLCV; intrabar conflicts
+    resolved adverse-first (break-even is never over-credited). "Green" / MFE-touch
+    rates are TOUCHES at the wick, not guaranteed fills. Book R is gross of fees.
+    The takeaway is unchanged in spirit and stronger in evidence: most losers DO go
+    green first, so exit management matters — but on this fuller sample it mitigates
+    the bleed rather than curing it. Not financial advice; no live changes made.
+  </p>
+
+</div>
+</body>
+</html>
