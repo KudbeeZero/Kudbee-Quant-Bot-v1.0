@@ -95,9 +95,20 @@ this is marketing-site front-end only.
 - Visual review on the branch's Cloudflare Pages preview (homepage + the
   `trade-story.html` showcase page) before any merge to production.
 
+## The explainer page (`trade-story.html`)
+
+The standalone showcase is now a full **explainer**: the widget, a "reading the
+animation" legend (chips / play-pause / step / reasoning rail), a plain-English
+**glossary** of every reasoning-log concept (open · session · level · sweep ·
+vector · structure · confluence · backtest · risk · result) tied back to the
+methodology, and a five-setups summary with long/short badges. It's linked from
+the homepage hero card via a "How we read a trade, explained →" link. Page chrome
+is self-contained inline CSS (CSP-safe, same posture as the rest of the site);
+the one shared style (`.trade-story__more`, the homepage link) lives in
+`trade-story.css`. Kept `noindex` — it's an illustrative teaching page.
+
 ## Not done here (candidates for a follow-up, if wanted)
 
-A dedicated **"How we read a trade"** explainer page (expand `trade-story.html`
-with all setups + glossary links) linked from the homepage card; and optionally
-surfacing the same engine inside `trade-flow.html`. (The discrete **step** control
-to pair with play/pause — listed here previously — is now shipped, item 6 above.)
+Optionally surfacing the same engine inside `trade-flow.html`. (The discrete
+**step** control and the dedicated explainer page — both listed here previously —
+are now shipped.)

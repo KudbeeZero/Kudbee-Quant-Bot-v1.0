@@ -126,6 +126,20 @@
   border-color: var(--ts-border);
 }
 
+/* "explained →" link under the homepage card (page chrome, not the widget) */
+.trade-story__more {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: .9rem;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--ts-mint);
+  transition: color .2s var(--ts-ease), gap .2s var(--ts-ease);
+}
+.trade-story__more:hover { color: var(--ts-text); gap: 9px; }
+
 /* ----- Stage (canvas + bubble layer) ----- */
 .ts-stage {
   position: relative;
