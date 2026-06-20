@@ -35,8 +35,14 @@ expansion **reuses** all of it and generalizes the data.
    measured hypothesis, not a promise").
 3. **Direction-aware bracket** so short setups render a correct stop-above /
    target-below zone, with the target clamped into view at either edge.
+4. **Play/pause control** (keyboard-accessible; hidden under reduced motion) that
+   freezes the frame and the reasoning stream and resumes from the same elapsed
+   time — so a visitor can stop and actually read. The offscreen
+   IntersectionObserver pause respects an explicit user pause.
+5. **Bubble de-overlap pass** in `placeBubble` so agent notes never stack on top
+   of each other (was visible in the static / mobile frame).
 
-## The three setups (all grounded — sources)
+## The five setups (all grounded — sources)
 
 Every beat maps to a real concept in the engine; nothing is invented.
 
@@ -45,6 +51,8 @@ Every beat maps to a real concept in the engine; nothing is invented.
 | **W · liquidity sweep** | long | `scenarios/patterns.py` double-bottom; `signals/pvsra.py` climax/vector; `levels/builder.py` psych + PDL | sweep → bull-vector reclaim → higher-low → neckline break, 3R |
 | **Fade · psych-high → daily open** | short | `scenarios/library.py` `vector_fade` / `vector_at_daily_open`; round-number levels | climax spike *above* 65k round → bear-vector rejection → lower high → break the daily open |
 | **Asian sweep · London reversal** | long | `context/mm_cycle.py` sessions; `levels/builder.py` Asian range; `library.py` `sweep_reversal` | time-of-day: London opens, sweeps the overnight Asian-range low, reclaims, runs |
+| **PDH sweep · reclaim** | short | `levels/builder.py` PDH/PDL; `library.py` `sweep_reversal`; PVSRA bear vector | prior-day-high sweep → bear-vector reclaim → lower high → break to the PDL |
+| **Confluence stack · gate** | long | `confluence/scorer.py` + `stack.py` (≥50% gate); stacked daily-open/PDL/round | levels stack → sweep of the stack → bull vector → gate passes 75% → breakout |
 
 Volume classes use the engine's real thresholds (climax ≥2× avg vol; vector ≥1.5×;
 else norm — `signals/pvsra.py:13-16`). Confluence percentages shown by the
@@ -81,6 +89,7 @@ this is marketing-site front-end only.
 
 ## Not done here (candidates for a follow-up, if wanted)
 
-A 4th/5th setup (PDH sweep + reclaim short; multi-factor confluence-stack gate),
-and optionally surfacing the same engine inside `trade-flow.html`. Kept out to
-keep this PR reviewable.
+A discrete **step** control (advance candle-by-candle) to pair with play/pause; a
+dedicated **"How we read a trade"** explainer page (expand `trade-story.html` with
+all setups + glossary links) linked from the homepage card; and optionally
+surfacing the same engine inside `trade-flow.html`.

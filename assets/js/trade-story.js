@@ -218,6 +218,128 @@
         { at: 13, time: "London 10:00", concept: "result", text: "Target tagged at <strong>+3R</strong>. Illustrative — not a live fill." },
       ],
     },
+
+    /* ---------- 4) Prior-day-high sweep + reclaim (SHORT) ---------- */
+    {
+      id: "pdh-short",
+      name: "PDH sweep · short",
+      badge: "prior-day high sweep → reclaim (short)",
+      candles: [
+        { o: 64900, h: 65000, l: 64860, c: 64980, vol: "norm" },
+        { o: 64980, h: 65080, l: 64950, c: 65060, vol: "norm" },
+        { o: 65060, h: 65160, l: 65030, c: 65140, vol: "norm" },
+        { o: 65140, h: 65240, l: 65120, c: 65200, vol: "norm" },   // 3 at PDH
+        { o: 65200, h: 65480, l: 65170, c: 65190, vol: "climax" }, // 4 SWEEP above PDH
+        { o: 65190, h: 65220, l: 64880, c: 64920, vol: "vector" }, // 5 bear-vector reclaim
+        { o: 64920, h: 64960, l: 64780, c: 64820, vol: "norm" },
+        { o: 64820, h: 64860, l: 64740, c: 64800, vol: "norm" },   // 7 support
+        { o: 64800, h: 65020, l: 64780, c: 65000, vol: "norm" },   // 8 pullback
+        { o: 65000, h: 65080, l: 64960, c: 64980, vol: "norm" },   // 9 LOWER HIGH
+        { o: 64980, h: 65000, l: 64820, c: 64840, vol: "norm" },
+        { o: 64840, h: 64880, l: 64760, c: 64780, vol: "norm" },   // 11 retest support
+        { o: 64780, h: 64800, l: 64360, c: 64400, vol: "vector" }, // 12 BREAKDOWN
+        { o: 64400, h: 64440, l: 64080, c: 64140, vol: "norm" },   // PDL ~64,200 swept
+        { o: 64140, h: 64180, l: 63840, c: 63900, vol: "norm" },
+        { o: 63900, h: 63940, l: 63640, c: 63680, vol: "norm" },   // 15 TARGET
+      ],
+      idx: { SWEEP: 4, RECLAIM: 5, LOWERHIGH: 9, BREAKOUT: 12, TARGET: 15 },
+      levels: [
+        { price: 65200, label: "Prior-day High", color: "#F5A623", dash: [2, 3], faint: false },
+        { price: 64950, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
+        { price: 64200, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: false },
+      ],
+      bracket: { entry: 64760, stop: 65120, dir: -1, rMult: 3, startIdx: 12 },
+      result: { r: "+3R" },
+      agents: [
+        { key: "liquidity", cls: "ts-bubble--liquidity", emoji: "🔍", name: "Liquidity", tag: "sweep",
+          note: "Swept the <strong>prior-day high</strong> (65,200) — stops above run, instant rejection.",
+          anchor: 4, side: "above" },
+        { key: "pvsra", cls: "ts-bubble--pvsra", emoji: "🕯️", name: "PVSRA", tag: "vector",
+          note: "<strong>Bear vector</strong> reclaim back under the PDH — sellers absorbed the breakout.",
+          anchor: 5, side: "above" },
+        { key: "structure", cls: "ts-bubble--structure", emoji: "📐", name: "Structure", tag: "pattern",
+          note: "<strong>Lower high</strong> under the PDH → failed-breakout / distribution.",
+          anchor: 9, side: "above" },
+        { key: "reviewer", cls: "ts-bubble--reviewer", emoji: "✅", name: "Reviewer", tag: "review",
+          note: "Reviewed <strong>3 reads</strong> · confluence 57% · short bias confirmed.",
+          anchor: 9, side: "below", kind: "reviewer", scanTo: 9 },
+        { key: "risk", cls: "ts-bubble--risk", emoji: "🎯", name: "Risk", tag: "plan",
+          note: "<strong>Short the retest</strong> · stop &gt; lower high · 3R toward the PDL.",
+          anchor: 12, side: "below", kind: "risk" },
+      ],
+      thinking: [
+        { at: 0, time: "NY 09:30", concept: "open", text: "Day opens at 64,900, inside yesterday's range. Marking the <strong>prior-day high</strong> (65,200) overhead." },
+        { at: 3, time: "NY 10:10", concept: "level", text: "Pressing the <strong>PDH</strong> — a prior-day high is where breakout stops cluster." },
+        { at: 4, time: "NY 10:30", concept: "sweep", text: "Climax spike to <strong>65,480</strong> — above the PDH — then closes back under. Breakout buyers trapped." },
+        { at: 5, time: "NY 10:35", concept: "vector", text: "<strong>Bear vector</strong> reclaim under the PDH — the failed-breakout short trigger." },
+        { at: 9, time: "NY 11:30", concept: "structure", text: "<strong>Lower high</strong> (65,080) caps under the PDH. Distribution, not breakout." },
+        { at: 9, time: "NY 11:35", concept: "confluence", text: "Reviewer scans 0–9: swept PDH + bear vector + lower-high + premium location = <strong>57%</strong>. Past the gate." },
+        { at: 12, time: "NY 12:30", concept: "backtest", text: "Break of intraday support. Backtest lens: fading a swept prior-day high is a <strong>measured edge, not a sure thing</strong>." },
+        { at: 12, time: "NY 12:32", concept: "risk", text: "Plan: short 64,760, stop 65,120 (above the lower high), <strong>3R</strong> toward the prior-day low." },
+        { at: 15, time: "NY 14:00", concept: "result", text: "Target tagged at <strong>+3R</strong> into the PDL. Illustrative — not a live fill." },
+      ],
+    },
+
+    /* ---------- 5) Confluence-stack gate (LONG) ---------- */
+    {
+      id: "confluence-stack",
+      name: "Confluence stack",
+      badge: "confluence-stack gate → long",
+      candles: [
+        { o: 64900, h: 64940, l: 64820, c: 64850, vol: "norm" },
+        { o: 64850, h: 64880, l: 64700, c: 64740, vol: "norm" },
+        { o: 64740, h: 64780, l: 64600, c: 64640, vol: "norm" },
+        { o: 64640, h: 64680, l: 64500, c: 64540, vol: "norm" },   // 3 into the stack
+        { o: 64540, h: 64580, l: 64440, c: 64470, vol: "norm" },
+        { o: 64470, h: 64500, l: 64360, c: 64460, vol: "climax" }, // 5 SWEEP of the stack
+        { o: 64460, h: 64720, l: 64440, c: 64690, vol: "vector" }, // 6 bull-vector reclaim
+        { o: 64690, h: 64780, l: 64660, c: 64760, vol: "norm" },
+        { o: 64760, h: 64840, l: 64720, c: 64820, vol: "norm" },
+        { o: 64820, h: 64900, l: 64780, c: 64860, vol: "norm" },   // 9 base
+        { o: 64860, h: 64880, l: 64720, c: 64760, vol: "norm" },   // 10 HIGHER LOW
+        { o: 64760, h: 65040, l: 64740, c: 65010, vol: "vector" }, // 11 BREAKOUT
+        { o: 65010, h: 65180, l: 64980, c: 65140, vol: "norm" },
+        { o: 65140, h: 65320, l: 65100, c: 65280, vol: "norm" },   // 13 TARGET
+        { o: 65280, h: 65420, l: 65240, c: 65380, vol: "norm" },
+      ],
+      idx: { SWEEP: 5, RECLAIM: 6, NECKLINE: 9, RIGHTFOOT: 10, BREAKOUT: 11, TARGET: 13 },
+      levels: [
+        { price: 64500, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: false },
+        { price: 64450, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: true },
+        { price: 64000, label: "Psych Low", color: "#6A7488", dash: [], faint: true },
+      ],
+      bracket: { entry: 64760, stop: 64300, dir: 1, rMult: 3, startIdx: 11 },
+      result: { r: "+3R" },
+      agents: [
+        { key: "liquidity", cls: "ts-bubble--liquidity", emoji: "🔍", name: "Liquidity", tag: "sweep",
+          note: "Swept the <strong>prior-day low</strong> at the stack — quick grab, closed back inside.",
+          anchor: 5, side: "below" },
+        { key: "pvsra", cls: "ts-bubble--pvsra", emoji: "🕯️", name: "PVSRA", tag: "vector",
+          note: "<strong>Bull vector</strong> off the confluence zone — demand where levels stack.",
+          anchor: 6, side: "above" },
+        { key: "structure", cls: "ts-bubble--structure", emoji: "📐", name: "Structure", tag: "pattern",
+          note: "<strong>Higher low</strong> above the stack → reversal holding.",
+          anchor: 10, side: "below" },
+        { key: "reviewer", cls: "ts-bubble--reviewer", emoji: "✅", name: "Reviewer", tag: "review",
+          note: "<strong>4 levels aligned</strong> · confluence 75% · well above the 50% gate.",
+          anchor: 10, side: "above", kind: "reviewer", scanTo: 10 },
+        { key: "risk", cls: "ts-bubble--risk", emoji: "🎯", name: "Risk", tag: "plan",
+          note: "<strong>Long the breakout</strong> · stop &lt; stack sweep · 3R target.",
+          anchor: 11, side: "above", kind: "risk" },
+      ],
+      thinking: [
+        { at: 0, time: "NY 08:00", concept: "drift", text: "Pulling back from above. Watching a zone where several levels stack up." },
+        { at: 3, time: "NY 08:40", concept: "confluence", text: "Into the <strong>64,500 stack</strong>: daily open + prior-day low + a round number, all within an ATR." },
+        { at: 5, time: "NY 09:00", concept: "sweep", text: "Climax dips to <strong>64,360</strong> — under the stack — then closes back inside. Stops grabbed." },
+        { at: 6, time: "NY 09:05", concept: "vector", text: "<strong>Bull vector</strong> off the confluence zone. Multiple factors firing at once." },
+        { at: 9, time: "NY 09:50", concept: "structure", text: "Reclaims the daily open and bases above the stack." },
+        { at: 10, time: "NY 10:10", concept: "structure", text: "<strong>Higher low</strong> at 64,720 holds above the zone. Reversal intact." },
+        { at: 10, time: "NY 10:15", concept: "confluence", text: "Reviewer counts the agreeing factors: <strong>4 levels + vector = 75%</strong> confluence — well past the gate." },
+        { at: 11, time: "NY 10:30", concept: "backtest", text: "Breakout confirms. Backtest lens: confluence stacks raise the odds, they <strong>don't guarantee</strong> — a measured edge." },
+        { at: 11, time: "NY 10:32", concept: "risk", text: "Plan: long 64,760, stop below the swept stack, <strong>3R</strong> target." },
+        { at: 13, time: "NY 11:30", concept: "result", text: "Target tagged at <strong>+3R</strong>. Illustrative — not a live fill." },
+      ],
+    },
   ];
 
   /* ---------- color helpers (PVSRA-ish) ---------- */
