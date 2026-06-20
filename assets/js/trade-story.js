@@ -380,23 +380,43 @@
       '<span class="ts-head__title"><span class="ts-head__dot"></span>' +
       "How Kudbee reads a trade</span>" +
       '<span class="ts-head__right">' +
-        '<button class="ts-ctl" type="button" aria-label="Pause"></button>' +
+        '<span class="ts-ctls" role="group" aria-label="Playback">' +
+          '<button class="ts-ctl ts-ctl--step" data-step="back" type="button" aria-label="Step back"></button>' +
+          '<button class="ts-ctl" data-step="play" type="button" aria-label="Pause"></button>' +
+          '<button class="ts-ctl ts-ctl--step" data-step="fwd" type="button" aria-label="Step forward"></button>' +
+        "</span>" +
         '<span class="ts-head__badge"></span>' +
       "</span>";
     mount.appendChild(head);
     var badgeEl = head.querySelector(".ts-head__badge");
-    var ctlBtn = head.querySelector(".ts-ctl");
+    var ctlsWrap = head.querySelector(".ts-ctls");
+    var ctlBtn = head.querySelector('[data-step="play"]');
+    var stepBackBtn = head.querySelector('[data-step="back"]');
+    var stepFwdBtn = head.querySelector('[data-step="fwd"]');
     var PAUSE_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
       '<rect x="2" y="1.5" width="2.6" height="9" rx="1"></rect>' +
       '<rect x="7.4" y="1.5" width="2.6" height="9" rx="1"></rect></svg>';
     var PLAY_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
       '<path d="M3 1.8 L10 6 L3 10.2 Z"></path></svg>';
+    var STEP_BACK_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
+      '<rect x="2" y="1.6" width="1.6" height="8.8" rx="0.6"></rect>' +
+      '<path d="M10 1.8 L4.6 6 L10 10.2 Z"></path></svg>';
+    var STEP_FWD_SVG = '<svg viewBox="0 0 12 12" width="11" height="11" aria-hidden="true">' +
+      '<path d="M2 1.8 L7.4 6 L2 10.2 Z"></path>' +
+      '<rect x="8.4" y="1.6" width="1.6" height="8.8" rx="0.6"></rect></svg>';
+    stepBackBtn.innerHTML = STEP_BACK_SVG;
+    stepFwdBtn.innerHTML = STEP_FWD_SVG;
     function setCtl(playing) {
       ctlBtn.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
       ctlBtn.setAttribute("aria-label", playing ? "Pause" : "Play");
     }
+    function updateStepBtns() {
+      var n = tl.beats && tl.beats.length ? tl.beats.length : 0;
+      stepBackBtn.disabled = stepIdx <= 0 && stepIdx !== -1;
+      stepFwdBtn.disabled = stepIdx >= 0 && stepIdx >= n - 1;
+    }
     setCtl(true);
-    if (reduce) ctlBtn.style.display = "none";
+    if (reduce) ctlsWrap.style.display = "none";
 
     // setup chips (clickable — jump between scenarios)
     var chips = el("div", "ts-setups");
@@ -892,6 +912,7 @@
     var running = false;
     var userPaused = false;
     var pausedElapsed = 0;
+    var stepIdx = -1;       // current beat index when self-paced stepping (-1 = not stepping)
     var tl = {};            // timeline handles (populated by startTimeline)
     var CANDLE_MS = 920;
 
@@ -906,6 +927,26 @@
       tl.elapsed = function () { return performance.now() - t0; };
       tl.resumeFrom = function (e) { t0 = performance.now() - e; };
       tl.kick = function () { raf = requestAnimationFrame(frame); };
+      // seek: render the exact frozen frame at time `targetT` (no rAF, no advance) —
+      // same per-tick logic as frame(), so a stepped frame matches a live pause.
+      tl.seekTo = function (targetT) {
+        for (var k = 0; k < anims.length; k++) {
+          var an = anims[k];
+          if (an.done) continue;
+          if (targetT >= an.start) {
+            var p = an.dur <= 0 ? 1 : (targetT - an.start) / an.dur;
+            if (p >= 1) { an.fn(1); if (an.after) an.after(); an.done = true; }
+            else { an.fn(p); }
+          }
+        }
+        for (var s = 0; s < sched.length; s++) {
+          if (!sched[s].done && targetT >= sched[s].at) {
+            sched[s].done = true;
+            sched[s].fn();
+          }
+        }
+        compose(state);
+      };
 
       function at(ms, fn) { sched.push({ at: ms, fn: fn, done: false }); }
       function tween(start, dur, fn, after) {
@@ -968,6 +1009,15 @@
         resultEl.classList.add("is-in");
       });
       lastBeat = Math.max(lastBeat, resultAt);
+
+      // reader-paced "beats": one per candle (lands just after that candle's
+      // reasoning line + any bubble at it), plus a final beat that settles the
+      // bracket / stamps / result. Used by the step ◀ ▶ controls.
+      tl.beats = [];
+      for (var bi = 0; bi < SC.candles.length; bi++) {
+        tl.beats.push(tCandle(bi) + 260);
+      }
+      tl.beats.push(lastBeat + 120);
 
       var holdEnd = lastBeat + 3600;
       var fadeMs = 1100;
@@ -1035,6 +1085,7 @@
     function togglePause() {
       if (userPaused) {
         userPaused = false;
+        stepIdx = -1;               // resume play from wherever stepping left off
         setCtl(true);
         if (!running) {
           running = true;
@@ -1050,8 +1101,54 @@
           if (raf) cancelAnimationFrame(raf);
         }
       }
+      updateStepBtns();
     }
     ctlBtn.addEventListener("click", togglePause);
+
+    /* ---------- step (reader-paced, candle-by-candle) ---------- */
+    function nearestBeatIdx(t) {
+      var idx = -1;
+      if (!tl.beats) return -1;
+      for (var i = 0; i < tl.beats.length; i++) {
+        if (tl.beats[i] <= t) idx = i; else break;
+      }
+      return idx;
+    }
+    // rebuild the scenario fresh (paused) and freeze it at beat `beatIdx`.
+    // Rebuilding both directions keeps the forward-only done-flags consistent.
+    function seekToBeat(beatIdx) {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+      feed.classList.remove("is-fading");
+      clearScenarioDom();
+      applyScenarioMeta();
+      measure();
+      startTimeline();              // rebuilds sched/anims/state/tl.beats/tl.seekTo
+      if (raf) cancelAnimationFrame(raf); // cancel the frame startTimeline kicks (no-ops while paused, but be tidy)
+      stepIdx = clamp(beatIdx, 0, tl.beats.length - 1);
+      pausedElapsed = tl.beats[stepIdx];
+      tl.seekTo(pausedElapsed);
+      updateStepBtns();
+    }
+    function stepBy(dir) {
+      if (reduce) return;
+      // stepping implies paused
+      if (!userPaused) { userPaused = true; setCtl(false); }
+      if (running) {
+        running = false;
+        pausedElapsed = tl.elapsed ? tl.elapsed() : 0;
+        if (raf) cancelAnimationFrame(raf);
+      }
+      if (!tl.beats || !tl.beats.length) return;
+      var cur = stepIdx >= 0 ? stepIdx : nearestBeatIdx(pausedElapsed);
+      seekToBeat(cur + dir);
+    }
+    stepBackBtn.addEventListener("click", function () { stepBy(-1); });
+    stepFwdBtn.addEventListener("click", function () { stepBy(1); });
+    ctlsWrap.addEventListener("keydown", function (e) {
+      if (e.key === "ArrowRight") { e.preventDefault(); stepBy(1); }
+      else if (e.key === "ArrowLeft") { e.preventDefault(); stepBy(-1); }
+    });
 
     /* ---------- switch scenario (chip click) ---------- */
     function switchTo(i) {
@@ -1070,9 +1167,11 @@
         renderStatic();
       } else {
         userPaused = false;
+        stepIdx = -1;
         setCtl(true);
         running = true;
         startTimeline();
+        updateStepBtns();
       }
     }
 
@@ -1118,6 +1217,7 @@
     bindResize();
     running = true;
     startTimeline();
+    updateStepBtns();
 
     if ("IntersectionObserver" in window) {
       var io = new IntersectionObserver(function (entries) {
