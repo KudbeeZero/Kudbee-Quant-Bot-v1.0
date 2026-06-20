@@ -313,10 +313,167 @@
   .ts-bubble { width: 134px; }
 }
 
+/* ----- Setup chips (clickable scenario switch) ----- */
+.ts-setups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 11px 18px 2px;
+  position: relative;
+  z-index: 4;
+}
+.ts-chip {
+  font-family: var(--ts-font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ts-muted);
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: 999px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: color .25s var(--ts-ease), border-color .25s var(--ts-ease),
+              background .25s var(--ts-ease);
+}
+.ts-chip:hover { color: var(--ts-text); border-color: var(--ts-border-2); }
+.ts-chip:focus-visible { outline: 2px solid var(--ts-mint); outline-offset: 2px; }
+.ts-chip.is-active {
+  color: var(--ts-honey-lt);
+  background: rgba(245,166,35,.10);
+  border-color: rgba(245,166,35,.35);
+}
+
+/* ----- Main: chart stage + reasoning rail side by side ----- */
+.ts-main {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+}
+.ts-stage {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.ts-rail {
+  flex: 0 0 300px;
+  width: 300px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--ts-border);
+  background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.10));
+}
+.ts-rail__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 14px;
+  font-family: var(--ts-font-mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ts-muted-2);
+  border-bottom: 1px solid var(--ts-border);
+}
+.ts-rail__dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ts-honey);
+  box-shadow: 0 0 8px 1px var(--ts-honey);
+}
+.ts-rail__cursor {
+  width: 7px; height: 13px;
+  margin-left: 2px;
+  background: var(--ts-honey-lt);
+  opacity: .85;
+  animation: ts-blink 1.1s steps(1) infinite;
+}
+@keyframes ts-blink { 0%, 50% { opacity: .85; } 50.01%, 100% { opacity: 0; } }
+.ts-rail__feed {
+  flex: 1 1 auto;
+  overflow: hidden;
+  padding: 10px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  transition: opacity .6s var(--ts-ease);
+}
+.ts-rail__feed.is-fading { opacity: 0; }
+
+/* a streamed reasoning line */
+.ts-think-row {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity .45s var(--ts-ease), transform .45s var(--ts-ease);
+}
+.ts-think-row.is-in { opacity: 1; transform: none; }
+.ts-think-row__meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 3px;
+}
+.ts-think-row__time {
+  font-family: var(--ts-font-mono);
+  font-size: 9.5px;
+  letter-spacing: .02em;
+  color: var(--ts-muted-2);
+}
+.ts-think-row__tag {
+  font-family: var(--ts-font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  color: var(--ts-muted);
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+}
+.ts-think-row__text {
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--ts-muted);
+}
+.ts-think-row__text strong { color: var(--ts-text); font-weight: 600; }
+
+/* concept-tag accents */
+.ts-tag--open       { color:#9AA6BC; border-color:rgba(154,166,188,.4); }
+.ts-tag--drift,
+.ts-tag--level      { color:#9AA6BC; border-color:rgba(154,166,188,.4); }
+.ts-tag--session    { color:#8b9dff; border-color:rgba(139,157,255,.45); background:rgba(139,157,255,.08); }
+.ts-tag--sweep      { color:#ff8a3c; border-color:rgba(255,138,60,.45); background:rgba(255,138,60,.08); }
+.ts-tag--vector     { color:#3ddc84; border-color:rgba(61,220,132,.45); background:rgba(61,220,132,.08); }
+.ts-tag--structure  { color:#2DD4BF; border-color:rgba(45,212,191,.45); background:rgba(45,212,191,.08); }
+.ts-tag--confluence { color:#FFD45E; border-color:rgba(255,212,94,.45); background:rgba(255,212,94,.08); }
+.ts-tag--backtest   { color:#c46bff; border-color:rgba(196,107,255,.45); background:rgba(196,107,255,.08); }
+.ts-tag--risk       { color:#FFD45E; border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10); }
+.ts-tag--result     { color:#5eead4; border-color:rgba(45,212,191,.5);  background:rgba(45,212,191,.10); }
+
+/* rail stacks below the chart on narrow screens */
+@media (max-width: 720px) {
+  .ts-main { flex-direction: column; }
+  .ts-rail {
+    flex: none;
+    width: 100%;
+    height: 172px;
+    border-left: none;
+    border-top: 1px solid var(--ts-border);
+  }
+  .ts-rail__feed { overflow-y: auto; }
+}
+@media (max-width: 560px) {
+  .ts-setups { padding: 10px 14px 2px; }
+  .ts-chip { font-size: 10.5px; padding: 4px 10px; }
+  .ts-rail { height: 156px; }
+  .ts-think-row__text { font-size: 11px; }
+}
+
 /* ----- Reduced motion: no animation, static composed frame ----- */
 @media (prefers-reduced-motion: reduce) {
   .ts-head__dot { animation: none; }
   .ts-think span { animation: none; opacity: .7; }
+  .ts-rail__cursor { animation: none; opacity: .6; }
+  .ts-rail__feed { overflow-y: auto; }
+  .ts-think-row { opacity: 1; transform: none; transition: none !important; }
   .ts-bubble,
   .ts-result,
   .ts-bubble__pin,
