@@ -576,6 +576,7 @@ def _paper_scan(args) -> None:
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
+                        tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
                         trend_filter=args.trend_filter)
     notify_trades_opened(logged)   # no-op unless Telegram is configured
@@ -989,6 +990,10 @@ def main() -> None:
                     help="stop distance in ATR (1.5 = validated)")
     ps.add_argument("--tp1-r", type=float, default=None,
                     help="optional TARGET ONE (partial bank), e.g. 1.5; default off (full target)")
+    ps.add_argument("--tp1-frac", type=float, default=0.5,
+                    help="fraction banked at TP1 (0.0 = breakeven-only: bank nothing, ride full size to target)")
+    ps.add_argument("--no-be", action="store_true",
+                    help="do NOT move stop to breakeven after TP1")
     ps.add_argument("--risk-per-trade", type=float, default=0.01,
                     help="risk per trade as a fraction of account (0.01 = 1%)")
     ps.add_argument("--max-symbol-risk", type=float, default=0.02,

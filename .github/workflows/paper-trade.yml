@@ -62,7 +62,7 @@ jobs:
           CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe import TOP_10_CRYPTO; print(" ".join(TOP_10_CRYPTO))')"
           python -m kudbee_quant.cli paper-scan \
             $CRYPTO_UNIVERSE \
-            --intervals 1h --trend-filter || true
+            --intervals 1h --tp1-r 1.0 --tp1-frac 0.0 --trend-filter || true
           # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
           # indices, energy, FX, grains, rates, softs. 1h only: the validated
           # timeframe, Yahoo-supported, and avoids session-gap noise on
@@ -75,7 +75,7 @@ jobs:
             yahoo:CL=F yahoo:BZ=F yahoo:NG=F yahoo:EURUSD=X yahoo:GBPUSD=X \
             yahoo:HG=F yahoo:PL=F yahoo:PA=F yahoo:ZW=F yahoo:ZC=F yahoo:ZS=F \
             yahoo:ZN=F yahoo:ZB=F yahoo:SB=F yahoo:KC=F yahoo:CC=F \
-            --intervals 1h --trend-filter || true
+            --intervals 1h --tp1-r 1.0 --tp1-frac 0.0 --trend-filter || true
           python -m kudbee_quant.cli journal-check || true
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true

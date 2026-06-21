@@ -38,7 +38,8 @@ def paper_scan(
     biases=None,
     require_bias: bool = False,
     tp1_r: float | None = None,    # optional TARGET ONE (partial bank); None = full target only
-    tp1_frac: float = 0.5,
+    tp1_frac: float = 0.5,         # fraction banked at TP1 (0.0 = breakeven-only: bank nothing, ride full size)
+    be_after_tp1: bool = True,     # move stop to breakeven once TP1 is reached
     risk_per_trade: float = 0.01,      # each defined-risk trade ~= 1% of the account
     max_symbol_risk: float = 0.02,     # cap COMBINED long+short risk per coin (two-sided guard)
     trend_filter: bool = False,        # tested: skip signals fighting the 800-EMA HTF trend
@@ -125,7 +126,7 @@ def paper_scan(
         pred = Prediction(
             symbol=sym, kind="bracket", level=limit, entry=limit, stop=stop,
             target=target, direction=direction, target_r=target_r,
-            tp1=tp1, tp1_frac=tp1_frac,
+            tp1=tp1, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1,
             deadline_days=tf_deadline, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
