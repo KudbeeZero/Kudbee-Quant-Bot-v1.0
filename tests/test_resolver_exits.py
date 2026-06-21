@@ -92,6 +92,45 @@ def test_tp2_off_matches_single_leg_tp1():
     assert abs(base.outcome_r - 2.25) < 1e-9
 
 
+# --- Breakeven-only exit: tp1_r=1.0, tp1_frac=0.0, be_after_tp1=True ----------
+# This is exactly what the hourly paper bot arms via `--tp1-r 1.0 --tp1-frac 0.0`:
+# bank NOTHING at +1R, keep full size, move the stop to breakeven, ride to +3R.
+# tp1 = 1R above entry = 101.0 (sd=1.0). These three cases pin the behaviour the
+# bot relies on — most importantly (b), the -1R -> ~0R leak being plugged.
+
+
+def test_be_only_runner_rides_full_size_to_target():
+    # (a) Runner — tags +1R (101) on bar 0, banks nothing, then runs to the +3R
+    # target (103) on bar 1 with full size -> 0 + 1.0*3.0 = +3.0R.
+    out = _long([101.5, 103.5], [100.5, 101.0], [101.2, 103.2],
+                tp1=101.0, tp1_r=1.0, tp1_frac=0.0, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 1
+    assert abs(out.outcome_r - 3.0) < 1e-9
+    assert out.tp1_offset == 0
+
+
+def test_be_only_breakeven_save_exits_at_zero_not_minus_one():
+    # (b) THE LEAK BEING PLUGGED. Tags +1R (101) on bar 0 -> stop moves to
+    # breakeven (100). Bar 1 reverses into that breakeven stop. Old behaviour
+    # (no tp1) would have ridden to the original -1R stop; here the full size
+    # exits at ~0R -> 0 + 1.0*0.0 = 0.0R, NOT -1.0R.
+    out = _long([101.5, 100.2], [100.5, 99.9], [101.2, 100.0],
+                tp1=101.0, tp1_r=1.0, tp1_frac=0.0, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 1
+    assert abs(out.outcome_r - 0.0) < 1e-9
+    assert out.outcome_r > -1.0 + 1e-9   # explicitly: NOT a full -1R stop
+
+
+def test_be_only_clean_stop_takes_full_minus_one_r():
+    # (c) Clean stop — never reaches +1R (high stays < 101), hits the -1R stop
+    # (99) on bar 0. Full size, nothing banked, BE never armed -> -1.0R.
+    out = _long([100.5, 100.6], [98.9, 99.5], [99.5, 100.0],
+                tp1=101.0, tp1_r=1.0, tp1_frac=0.0, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 0
+    assert abs(out.outcome_r - (-1.0)) < 1e-9
+    assert out.tp1_offset is None   # TP1 never banked
+
+
 def test_random_equivalence_no_exits():
     # Fuzz: resolver with no exits == a plain stop-then-target reference walk.
     rng = np.random.default_rng(0)
