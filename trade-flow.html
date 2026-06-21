@@ -13,6 +13,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="stylesheet" href="assets/css/trade-story.css" />
   <style>
     /* Trade-flow page tokens — namespaced --tf-* so the mission-control
        dashboard chat can lift this block wholesale. Dark purple/blue base,
@@ -82,6 +83,14 @@
       border-left: 3px solid var(--tf-edge); padding-left: .9rem; min-height: 1.2em; }
     .tf-disc { margin-top: 1.2rem; font-size: .82rem; color: var(--tf-muted);
       border-left: 3px solid var(--tf-yellow); padding-left: .9rem; }
+    /* Walkthrough tab — embeds the self-contained trade-story teaching widget. */
+    .tf-controls[hidden] { display: none; }
+    .tf-walk { margin-top: .2rem; }
+    .tf-walk__intro { color: var(--tf-muted); font-size: .9rem; line-height: 1.55;
+      max-width: 72ch; margin-bottom: 1rem; }
+    .tf-walk__more { margin-top: 1rem; }
+    .tf-walk__more a { color: var(--tf-yellow); text-decoration: none; font-weight: 600; }
+    .tf-walk__more a:hover { text-decoration: underline; }
     @media (max-width: 760px) {
       #tf-canvas { height: 860px; }
       .tf-wrap { padding: 5.5rem 1rem 3rem; }
@@ -124,6 +133,7 @@
       <button class="tf-tab is-active" data-tab="live" role="tab">Live Flow</button>
       <button class="tf-tab" data-tab="sandbox" role="tab">Sandbox <span class="tf-badge">UNVALIDATED</span></button>
       <button class="tf-tab" data-tab="replay" role="tab">Trade Replay</button>
+      <button class="tf-tab" data-tab="walkthrough" role="tab">Walkthrough</button>
     </div>
 
     <div id="tf-banner" class="tf-banner" hidden>
@@ -160,6 +170,16 @@
       <div id="tf-shelf" class="tf-shelf" hidden>inactive shelf — drag a factor here to drop it from the stack</div>
     </div>
 
+    <!-- Walkthrough: the same read as a teaching story (self-contained widget; no data fetch). -->
+    <div id="tf-walk" class="tf-walk" hidden>
+      <p class="tf-walk__intro">New to the stack? This is the same read, told as a teaching
+        story — watch the agents flag the sweep, the vector, the structure and the
+        confluence gate on a hand-crafted setup, then see it as the live node-graph in the
+        other tabs. Switch setups with the chips, or step through one candle at a time.</p>
+      <div class="trade-story" id="tf-trade-story"></div>
+      <p class="tf-walk__more"><a href="trade-story.html">How we read a trade, explained &rarr;</a></p>
+    </div>
+
     <div id="tf-detail" class="tf-detail"></div>
 
     <p class="tf-disc" id="tf-disc">
@@ -172,6 +192,7 @@
   </main>
 
   <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/trade-story.js"></script>
   <script src="assets/js/trade-flow.js"></script>
 </body>
 </html>

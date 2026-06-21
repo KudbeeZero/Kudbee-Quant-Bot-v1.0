@@ -107,8 +107,18 @@ is self-contained inline CSS (CSP-safe, same posture as the rest of the site);
 the one shared style (`.trade-story__more`, the homepage link) lives in
 `trade-story.css`. Kept `noindex` — it's an illustrative teaching page.
 
-## Not done here (candidates for a follow-up, if wanted)
+## Surfaced in `trade-flow.html` (Walkthrough tab)
 
-Optionally surfacing the same engine inside `trade-flow.html`. (The discrete
-**step** control and the dedicated explainer page — both listed here previously —
-are now shipped.)
+`trade-flow.html` now carries a fourth **Walkthrough** tab that embeds the
+self-contained teaching widget alongside the Live / Sandbox / Replay node-graph —
+"the same read, told as a teaching story." It is purely additive: `setTab`'s
+walkthrough branch hides the live graph + controls + detail, shows the widget, and
+**makes no network request** (skips `buildGraph` and every `load*`). The widget is
+unchanged and re-measures itself when the tab is shown (its IntersectionObserver +
+ResizeObserver). Includes a link onward to the full explainer page.
+
+## Not done here
+
+Nothing outstanding for the trade-story engine — the multi-setup animation, the
+play/pause + step controls, the de-overlap pass, the explainer page, and the
+trade-flow Walkthrough surfacing are all shipped.

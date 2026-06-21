@@ -488,12 +488,27 @@
     document.querySelectorAll(".tf-tab").forEach(function (b) {
       b.classList.toggle("is-active", b.dataset.tab === tab);
     });
+    var isWalk = tab === "walkthrough";
     $("tf-banner").hidden = tab !== "sandbox";
     $("tf-sandbox-controls").hidden = tab !== "sandbox";
     $("tf-replay-controls").hidden = tab !== "replay";
     $("tf-shelf").hidden = tab !== "sandbox";
-    $("tf-symbol").disabled = tab === "replay";
-    $("tf-interval").disabled = tab === "replay";
+    $("tf-symbol").disabled = tab === "replay" || isWalk;
+    $("tf-interval").disabled = tab === "replay" || isWalk;
+
+    // Walkthrough is a self-contained teaching view — hide the live node-graph,
+    // controls and detail, show the embedded trade-story widget, and make NO
+    // network request (skip buildGraph + all loads).
+    var controls = document.querySelector(".tf-controls");
+    if (controls) controls.hidden = isWalk;
+    $("tf-canvas").hidden = isWalk;
+    $("tf-detail").hidden = isWalk;
+    $("tf-walk").hidden = !isWalk;
+    if (isWalk) {
+      $("tf-status").textContent = "An illustrative walkthrough — not live data, not a signal.";
+      return;
+    }
+
     buildGraph();
     if (tab === "replay") { state.bars = []; state.trade = null; render(); loadTrades(); }
     else if (tab === "sandbox") { state.minPct = Number($("tf-minpct").value) / 100; loadSandbox(); }
