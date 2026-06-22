@@ -782,6 +782,20 @@ def _notify_summary(args) -> None:
     print("Summary sent." if notify_summary() else "Telegram send failed (check token/chat id).")
 
 
+def _notify_session(args) -> None:
+    """Fire a Telegram session-open alert (Asia/London/NY + key levels) if the
+    current hour is a session open. Used by the hourly Action; muted if Telegram
+    is unconfigured or no session opens this hour."""
+    from .notifications import telegram_enabled
+    if not telegram_enabled():
+        print("Telegram is not configured — no session alert sent.")
+        return
+    from .notifications.session_alerts import run_session_alerts
+    fired = run_session_alerts(verbose=True)
+    print(f"Session alert(s) fired: {', '.join(fired)}" if fired
+          else "No session open this hour — nothing sent.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -1113,6 +1127,9 @@ def main() -> None:
     nt.set_defaults(func=_notify_test)
     nsum = sub.add_parser("notify-summary", help="send the portfolio snapshot to Telegram")
     nsum.set_defaults(func=_notify_summary)
+    nses = sub.add_parser("notify-session",
+                          help="fire a Telegram session-open alert (Asia/London/NY + key levels)")
+    nses.set_defaults(func=_notify_session)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")
