@@ -62,6 +62,10 @@
     "midweek_reversal",
     "weekly_ib",
     "level_count_3day",
-    "three_push_stophunt"
+    "three_push_stophunt",
+    "three_push_4",
+    "three_push_pure",
+    "three_push_kz",
+    "three_push_2r"
   ]
 }

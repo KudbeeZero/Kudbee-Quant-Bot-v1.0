@@ -679,6 +679,54 @@ def c_three_push_stophunt(df, scored, base_sig):
     return _gate(base_sig, primed & against & (s != 0)), None, {}
 
 
+# --- three_push deep-dive (the one §58 lead worth chasing) --------------------
+# §58 found c_three_push_stophunt the only candidate with Δ>0 AND both halves +ve
+# (Δ+0.144, but n=122≈floor, p=0.19). These probe whether a version clears the full
+# luck-proof gate on more data (run -h_run/3x history): stronger exhaustion, a bigger
+# sample without the trend-align shrink, killzone timing, and a quicker target.
+
+
+def _push_against(df, base_sig, min_run):
+    """base entries that FADE a same-direction run of length >= min_run."""
+    s = pd.Series(base_sig, index=df.index).fillna(0.0)
+    primed = df["consec_run_len"] >= min_run
+    against = np.sign(s) == -np.sign(df["consec_run_dir"])
+    return s, primed & against & (s != 0)
+
+
+def c_three_push_4(df, scored, base_sig):
+    """Deeper exhaustion: fade only after >=4 consecutive same-direction closes."""
+    s, keep = _push_against(df, base_sig, 4)
+    return _gate(s, keep), None, {}
+
+
+def c_three_push_pure(df, scored, base_sig):
+    """Bigger sample: fade a >=3 run using the raw confluence direction (>=50%) WITHOUT
+    the trend-align gate that shrank the original to n=122 — the fade is inherently
+    counter-trend, so trend_align was fighting it. Tests if the effect survives at n."""
+    pct, direction = scored["confluence_pct"], scored["direction"]
+    primed = df["consec_run_len"] >= 3
+    fade = np.sign(direction) == -np.sign(df["consec_run_dir"])
+    sig = np.where(primed & fade & (pct >= 0.5), direction, 0.0)
+    return pd.Series(sig, index=df.index).astype(float), None, {}
+
+
+def c_three_push_kz(df, scored, base_sig):
+    """Combine the two §58 mild-positives: fade a >=3 run, but ONLY inside the
+    London/NY-Brinks/overlap killzones (where stop-hunts cluster)."""
+    s, keep = _push_against(df, base_sig, 3)
+    flags = [c for c in ("in_london_kz", "in_ny_brinks", "in_overlap") if c in df.columns]
+    active = (df[flags].astype(bool).any(axis=1) if flags else pd.Series(True, index=df.index))
+    return _gate(s, keep & active), None, {}
+
+
+def c_three_push_2r(df, scored, base_sig):
+    """A reversal off a stop-hunt may not run a full 3R — fade a >=3 run with a
+    nearer 2R target (test whether a quicker exit banks the edge more reliably)."""
+    s, keep = _push_against(df, base_sig, 3)
+    return _gate(s, keep), None, {"target_r": 2.0}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -748,4 +796,9 @@ REGISTRY: dict[str, tuple] = {
     "weekly_ib": (c_weekly_ib, "BTMM: fade rejections back into the Mon+Tue IB box, target opposite edge"),
     "level_count_3day": (c_level_count_3day, "BTMM: continuation on L1/L3 days (Mon/Wed), half-size L2 (Tue)"),
     "three_push_stophunt": (c_three_push_stophunt, "BTMM: after >=3-run, fade the run (stop-hunt reversal)"),
+    # three_push deep-dive (chasing the §58 lead on 3x history).
+    "three_push_4": (c_three_push_4, "three_push: deeper exhaustion, fade only after >=4-run"),
+    "three_push_pure": (c_three_push_pure, "three_push: fade >=3-run on raw confluence (no trend-align shrink)"),
+    "three_push_kz": (c_three_push_kz, "three_push: fade >=3-run only inside killzones"),
+    "three_push_2r": (c_three_push_2r, "three_push: fade >=3-run with a nearer 2R target"),
 }
