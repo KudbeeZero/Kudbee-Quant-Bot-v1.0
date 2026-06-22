@@ -66,6 +66,17 @@
     "three_push_4",
     "three_push_pure",
     "three_push_kz",
-    "three_push_2r"
+    "three_push_2r",
+    "bb_fade",
+    "bb_squeeze",
+    "rsi_div_confirm",
+    "kdj_div_confirm",
+    "osc_div_combo",
+    "bb_div_combo",
+    "fib_confluence",
+    "fib_at_price",
+    "spider_touch",
+    "mzone_band",
+    "mzone_daycolor"
   ]
 }
