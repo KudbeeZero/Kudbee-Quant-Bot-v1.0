@@ -254,14 +254,14 @@ def test_book_label_buckets():
     assert _book_label(None) == "core"
 
 
-def test_realized_today_sums_fee_net_closes_since_midnight_utc():
+def test_realized_today_sums_fee_net_closes_since_asia_open():
     from datetime import datetime, timezone
     now = datetime.now(timezone.utc)
     today_iso = now.isoformat()
     old_iso = now.replace(year=now.year - 1).isoformat()
     preds = [
-        _pred(status="hit", outcome_r=3.0),    # resolved today -> counts
-        _pred(status="miss", outcome_r=-1.0),  # resolved today -> counts
+        _pred(status="hit", outcome_r=3.0),    # resolved now -> counts
+        _pred(status="miss", outcome_r=-1.0),  # resolved now -> counts
         _pred(status="open"),                  # still open -> ignored
     ]
     preds[0].resolved_at = today_iso
@@ -273,6 +273,20 @@ def test_realized_today_sums_fee_net_closes_since_midnight_utc():
     # a close dated last year is excluded
     preds[1].resolved_at = old_iso
     assert _realized_today(preds)["n"] == 1
+
+
+def test_realized_today_rolls_at_asia_open_not_utc_midnight():
+    # The day boundary is the most recent Asia session open (19:00 NY), not UTC
+    # midnight: a close 1 min BEFORE that instant is excluded, 1 min AFTER included.
+    from datetime import timedelta
+    from kudbee_quant.context.calendar import session_day_start
+    start = session_day_start()
+    before = _pred(status="hit", outcome_r=2.0)
+    after = _pred(status="hit", outcome_r=2.0)
+    before.resolved_at = (start - timedelta(minutes=1)).isoformat()
+    after.resolved_at = (start + timedelta(minutes=1)).isoformat()
+    out = _realized_today([before, after])
+    assert out["n"] == 1                        # only the post-Asia-open close counts
 
 
 def test_split_long_message():
