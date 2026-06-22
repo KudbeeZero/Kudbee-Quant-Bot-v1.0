@@ -1759,9 +1759,12 @@ history / across regimes, or as a separately-tagged paper book if the owner stil
 Owner's pain: ~70% of scheduled runs drop, so Telegram goes quiet and trades are missed. He asked if a
 **database** would fix it. **It would not** — the drops are GitHub Actions' best-effort `schedule:` cron
 silently skipping runs (a *trigger* problem), not a storage problem. Three honest layers, in order of power:
-1. **External Cloudflare Worker cron → `workflow_dispatch`** (already built, `cloudflare/trade-bot-cron`,
-   PR #66) — the bulletproof fix. **OWNER-ONLY to deploy** (needs his Cloudflare login + a fine-grained
-   GitHub PAT with Actions:write; my integration token gets 403 on dispatch). README has 5-min steps.
+1. **External reliable trigger → `workflow_dispatch`** — the bulletproof fix. **OWNER-ONLY to deploy**
+   (needs his login + a fine-grained GitHub PAT with Actions:write; my integration token gets 403 on
+   dispatch). Two equivalent options, both documented in **`docs/RELIABLE_TRIGGER.md`**: (A) **cron-job.org**
+   — free website, no CLI, the owner's chosen path (POST the dispatches endpoint with the PAT in an
+   Authorization header, body `{"ref":"main"}`, every 15 min); (B) the **Cloudflare Worker**
+   (`cloudflare/trade-bot-cron`, PR #66) for those who prefer wrangler. Only one is needed.
 2. **Denser in-repo cron** — bumped `paper-trade.yml` from 2→**4 attempts/hour** (`5,20,35,50`). Idempotent
    per-(symbol,tf,book) dedup makes re-scans safe (no dup OPENS); more independent attempts ⇒ higher chance
    one lands each hour. Costs only Action minutes.
