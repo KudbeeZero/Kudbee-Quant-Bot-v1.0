@@ -11,21 +11,25 @@
   only then start the next. This chat ran units **serially and compliantly** — each unit
   was its own PR, merged before the next began (one brief user-directed exception: the docs
   PR was queued while #50 was open, then deferred to after #50 merged).
-- **This chat = the EXECUTION chat.** Five PRs, **ALL MERGED to `main` this session:**
+- **This chat = the EXECUTION chat.** Six PRs **MERGED to `main` this session:**
   **#46** (your trade-flow Walkthrough tab — cleared the board), **#47** (arm pay-yourself
   breakeven exit, §49), **#48** (flatten 40 stale 2h/4h zombies, §50), **#49** (exit-geometry
-  5m study, §51), **#50** (Experiment §A — 5m long-only book, §52). This PR
-  (`docs/update-handoff-memory-s47-sA`) is the docs/baton refresh.
+  5m study, §51), **#50** (Experiment §A — 5m long-only book, §52), **#51** (docs §49–§52 +
+  baton). This branch (`docs/update-handoff-memory-s47-sA`) carries the **`/closeout`** PR —
+  the final baton.
+- **Owner closeout answers (authoritative):** shipped = *breakeven + flatten + 5m study + §A*;
+  next priority = **resolve §B**; top risk = *§A unvalidated + VWAP flip*; off-limits = *standard*.
 - **Two LIVE changes shipped this session (watch them):**
   1. **Breakeven exit is now ARMED on the hourly 1h book** (§49) — new predictions stamp
      `tp1 = entry+1R`, stop→breakeven, ride to +3R. **Confirm:** look for `tp1=1.0`-equivalent
      (`tp1` non-null) on the first new opens.
   2. **Experiment §A 5m long-only book is LIVE** (§52), separately tagged `_lo` — a
      forward-test HYPOTHESIS, not a validated edge.
-- **Audit status:** `MERGED — POST-HOC AUDIT OPTIONAL`. #47–#50 each shipped with green CI,
-  scoped diffs, and honest PR bodies; none touch §1 geometry / `FEE_PCT` / `bracket.py` /
-  `resolver.py` logic. `data/journal.json` was edited ONLY by the idempotent flatten script
-  (#48, 3 fields × 40 records) — otherwise bot-owned.
+- **Audit status:** this `/closeout` PR is **`AWAITING_AUDIT`** (next chat's `/handoff-audit`
+  is the merge gate for the baton). The six work PRs (#46–#51) are **already MERGED** — review
+  them **post-hoc**: each shipped green CI, scoped diffs, honest bodies; none touch §1 geometry /
+  `FEE_PCT` / `bracket.py` / `resolver.py` logic. `data/journal.json` was edited ONLY by the
+  idempotent flatten script (#48, 3 fields × 40 records) — otherwise bot-owned.
 - **🟡 §B "dynamic volume universe" — PENDING REF.** The owner says §B exists elsewhere; it is
   **not in this repo** (searched all 47 branches + every commit — no trace). This baton does
   NOT document §B (no fabrication). **NEXT: owner provides the §B PR/commit/branch ref (or
@@ -55,8 +59,10 @@
 
 ## NEXT chat
 
-- **🟡 FIRST: get the §B ref** (dynamic volume universe) from the owner, then document it
-  (MEMORY §53 + baton). Not found anywhere in this repo.
+- **🟡 OWNER'S CHOSEN PRIORITY — RESOLVE §B** (dynamic volume universe). The owner confirms
+  it exists elsewhere; it is **not in this repo** (47 branches + all commits searched). Get the
+  ref (PR/commit/branch/other-repo, or the spec if unbuilt), then document (MEMORY §53 + baton)
+  or build it as the next serial unit. Advisory slug hint: `claude/resolve-dynamic-volume-univ`.
 - **WATCH the two live changes:**
   - **§A 5m long-only book (§52):** after ≥30 forward `_lo` trades, run `journal-score`
     filtered to `timeframe=5m`. Net expectancy > 0R net of fees → continue; else → **revert the
@@ -101,5 +107,7 @@
 - 2026-06-22: PR #49 — exit-geometry 5m study: no geometry rescues 5m, quarter-Kelly ≤0 (§51). Merged.
 - 2026-06-22: PR #50 — Experiment §A: 5m long-only book + long_only/killzone_gate flags (§52);
   long-only is a forward-test hypothesis, killzone gate ships unarmed. Merged.
-- 2026-06-22: PR (this) — docs/baton refresh capturing §49–§52. §B (dynamic volume universe)
-  PENDING the owner's ref. Next: document §B; watch the §A book + the breakeven arm forward.
+- 2026-06-22: PR #51 — docs/baton refresh capturing §49–§52. Merged.
+- 2026-06-22: PR (this, `/closeout`) — final baton, `AWAITING_AUDIT`. Owner priority: resolve
+  §B (not in repo). Watch the §A 5m long-only book + the breakeven arm forward. §A unvalidated
+  + VWAP flip are the live risks.
