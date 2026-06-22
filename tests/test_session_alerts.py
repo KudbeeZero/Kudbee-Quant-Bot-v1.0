@@ -124,3 +124,16 @@ def test_nan_atr_suppresses_levels_not_crash():
     fired, sent = _fire(df)
     assert fired == ["ny"]
     assert "M0 Monthly open" not in sent[0]   # atr unknown -> no proximity claim
+
+
+def test_brinks_open_marking():
+    import pandas as pd
+    from kudbee_quant.notifications.session_alerts import _brinks_open_lines
+    row = pd.Series({"daily_open": 100.0, "ny_brinks_high": 105.0, "ny_brinks_low": 95.0})
+    out = _brinks_open_lines(row, 106.0)                      # above open, above box high
+    assert any("Day open 100" in l and "above" in l for l in out)
+    assert any("NY Brinks 95–105" in l and "HIGH swept" in l for l in out)
+    out2 = _brinks_open_lines(row, 98.0)                      # below open, inside box
+    assert any("below" in l for l in out2) and any("inside box" in l for l in out2)
+    nan = pd.Series({"daily_open": 100.0, "ny_brinks_high": float("nan"), "ny_brinks_low": float("nan")})
+    assert all("NY Brinks" not in l for l in _brinks_open_lines(nan, 101.0))   # box not formed -> omitted
