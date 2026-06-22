@@ -1,7 +1,7 @@
 """Paper-trading scan (see package docstring)."""
 from __future__ import annotations
 
-from ..confluence.stack import confluence_score
+from ..confluence.stack import KILLZONE_GATE_FLAGS, confluence_score
 from ..ingest import RouterClient
 from ..ingest.router import parse_spec
 from ..journal import Prediction, TradeJournal
@@ -43,6 +43,8 @@ def paper_scan(
     risk_per_trade: float = 0.01,      # each defined-risk trade ~= 1% of the account
     max_symbol_risk: float = 0.02,     # cap COMBINED long+short risk per coin (two-sided guard)
     trend_filter: bool = False,        # tested: skip signals fighting the 800-EMA HTF trend
+    long_only: bool = False,           # skip SHORT signals (5m excursion_audit: longs 32% vs shorts 14%, n=48)
+    killzone_gate: bool = False,       # skip signals outside London/NY/Brinks windows (NOT validated for 5m)
     dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
@@ -99,6 +101,17 @@ def paper_scan(
         if trend_filter and "ema_800" in last and last["ema_800"] == last["ema_800"]:
             if direction != (1.0 if last["close"] > last["ema_800"] else -1.0):
                 continue
+        # LONG-ONLY (experiment §A): skip shorts. 5m excursion_audit (n=48): longs
+        # 32% (11/34) win vs shorts 14% (2/14). Tagged "_lo" for separate scoring.
+        if long_only and direction < 0:
+            continue
+        # KILLZONE GATE (experimental, default OFF — NOT validated for 5m): keep
+        # only signals inside the active London/NY/Brinks windows. No-op when the
+        # frame lacks those flag columns (so it never silently blocks every trade).
+        if killzone_gate:
+            present = [c for c in KILLZONE_GATE_FLAGS if c in last.index]
+            if present and not any(bool(last[c]) for c in present):
+                continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
         if bias is not None:
@@ -130,7 +143,9 @@ def paper_scan(
             deadline_days=tf_deadline, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
-                  + ("_tf" if trend_filter else "") + venue_tag,
+                  + ("_tf" if trend_filter else "")
+                  + ("_lo" if long_only else "")
+                  + ("_kz" if killzone_gate else "") + venue_tag,
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (" [TradFi 0-fee venue]" if is_tradfi else "") +

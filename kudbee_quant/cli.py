@@ -578,7 +578,8 @@ def _paper_scan(args) -> None:
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
                         tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
-                        trend_filter=args.trend_filter)
+                        trend_filter=args.trend_filter,
+                        long_only=args.long_only, killzone_gate=args.killzone_gate)
     notify_trades_opened(logged)   # no-op unless Telegram is configured
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
@@ -1000,6 +1001,12 @@ def main() -> None:
                     help="cap on COMBINED long+short risk per coin (0.02 = 2%)")
     ps.add_argument("--trend-filter", action="store_true",
                     help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%)")
+    ps.add_argument("--long-only", action="store_true",
+                    help="only take LONG signals, skip shorts "
+                         "(5m excursion: longs 32%% vs shorts 14%%, n=48 — experimental)")
+    ps.add_argument("--killzone-gate", action="store_true",
+                    help="only take signals in London/NY/Brinks windows "
+                         "(NOT validated for 5m — experimental, default off)")
     ps.set_defaults(func=_paper_scan)
 
     vs = sub.add_parser("vector-scan",
