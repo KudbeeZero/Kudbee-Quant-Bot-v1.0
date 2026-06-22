@@ -1708,3 +1708,24 @@ lookahead-audited — and ran **all 12** TR/BTMM candidates pooled across the to
 The only leads worth a *future* deeper look (NOT a ship): `three_push_stophunt` (Δ+0.144, both halves
 strongly +ve, but n=122 ≈ floor and p=0.19) and `mlevel_reject` (robust both-halves but p=0.40). Same
 verdict as §57/§2: this layer doesn't add a significant edge. Nothing wired live. `419 passed`.
+
+## 59. three_push lead chased on 3x history — it EVAPORATED (TR/BTMM experiment CLOSED) — 2026-06-22 (PR feat/three-push-deepdive)
+
+Followed up the only §58 lead (`three_push_stophunt`, Δ+0.144 / both halves +ve / n=122 / p=0.19) by
+re-running it + 4 variants on **3x the history (12000 1h bars, 499 days vs the prior 4000)**, where the
+baseline is a much harder +0.0068R (the 2025 window was leaner):
+
+| variant | ΔR | n | h1/h2 | verdict |
+|---|---|---|---|---|
+| three_push_stophunt (the lead) | −0.031 | 392 | −0.136 / +0.081 | HURTS (no longer both-halves +ve) |
+| three_push_pure (raw confluence, bigger n) | −0.040 | 476 | −/+ | HURTS |
+| three_push_2r (nearer target) | −0.003 | 395 | −/+ | NEUTRAL |
+| three_push_4 (>=4 run) | −0.139 | 116 | −/− | THIN |
+| three_push_kz (killzone-gated) | −0.257 | 175 | −/− | HURTS |
+
+**The lead was a small-sample artifact** — tripling the data flipped Δ+0.144 → −0.031 and broke the
+both-halves robustness. This is the gate working as designed: the p<0.05 + both-halves requirement is
+exactly what stops a lucky n=122 from being shipped. **TR/BTMM experiment is now CLOSED — 0 winners
+across §57–§59 (28 candidate evaluations). Do not re-chase three_push.** The lesson (re-confirms §2):
+the confluence edge is saturated and structural; more signals/structure don't add a luck-proof edge.
+Nothing wired live; the M-level/weekly columns remain available for charts.
