@@ -1,15 +1,21 @@
-"""Multi-timeframe (15m entry / 30m bias) backtest — STANDALONE, read-only.
+"""Multi-timeframe MTF backtest — STANDALONE, read-only.
 
-Hypothesis: take a 15m PVSRA vector/climax candle ONLY when the 30m EMA trend
-agrees (5>13>50 up / 5<13<50 down). Entry on the 15m climax (market), shipping
-bracket geometry. The 30m bias is merged onto the 15m bars CAUSALLY — a 15m
-decision at time t may use only the 30m bar that has already CLOSED at/before t,
-never the forming 30m bar (the merge that makes or breaks an MTF study).
+Hypothesis line: take a lower-TF PVSRA climax CONTRARIAN to the spike but WITH the
+higher-TF EMA trend (long a bear climax in an up-bias; short a bull climax in a
+down-bias). The higher-TF bias is merged onto the entry bars CAUSALLY — an entry
+decision at time t may use only the higher-TF bar that has ALREADY CLOSED at/before
+t, never the forming one (the merge that makes or breaks an MTF study).
+
+Runs a 2x2 matrix: {15m entry / 30m bias, 2h entry / 4h bias} x {full-ride 3R,
+TP1 scale-out (half at 1.5R + breakeven, rest to 3R)}.
 
 Does NOT touch live trading, the validated stack, the workflow, or the journal.
 Run: PYTHONPATH=. python scripts/mtf_backtest.py
 """
 from __future__ import annotations
+
+import os
+import sys
 
 import numpy as np
 import pandas as pd
@@ -22,36 +28,45 @@ from kudbee_quant.levels import build_levels
 from kudbee_quant.signals.pvsra import pvsra_vector_candles
 from kudbee_quant.universe import TOP_10_CRYPTO
 
-# overnight_research helpers (pooling + bootstrap) — same yardstick as the harness
-import os
-import sys
 sys.path.insert(0, os.path.dirname(__file__))
 from overnight_research import _bootstrap_p, _pool_expectancy  # noqa: E402
 
-LIMIT_15M = 16000          # ~166 days of 15m bars (as many as the client paginates)
 FEE_PCT = TAKER_FEE_PCT    # MARKET entry on the climax -> taker cost is the honest fee
 
+# (label, entry interval, fetch limit, entry minutes, bias resample rule, bias minutes)
+TIMEFRAMES = [
+    ("15m/30m", "15m", 16000, 15, "30min", 30),
+    ("2h/4h",   "2h",   6000, 120, "4h",   240),
+]
+# (label, bracket exit kwargs)
+EXITS = [
+    ("full-ride 3R",        {"target_r": TARGET_R}),
+    ("scale-out 1.5R/3R",   {"tp1_r": 1.5, "tp1_frac": 0.5, "be_after_tp1": True,
+                             "target_r": TARGET_R}),
+]
 
-def compute_bias30(df30: pd.DataFrame) -> pd.Series:
+
+def compute_bias(dfb: pd.DataFrame) -> pd.Series:
     """+1 when ema_5>ema_13>ema_50 (stacked up), -1 when stacked down, else 0."""
-    e5, e13, e50 = df30["ema_5"], df30["ema_13"], df30["ema_50"]
+    e5, e13, e50 = dfb["ema_5"], dfb["ema_13"], dfb["ema_50"]
     up = (e5 > e13) & (e13 > e50)
     dn = (e5 < e13) & (e13 < e50)
-    return pd.Series(np.where(up, 1, np.where(dn, -1, 0)), index=df30.index).astype(float)
+    return pd.Series(np.where(up, 1, np.where(dn, -1, 0)), index=dfb.index).astype(float)
 
 
-def causal_bias_merge(lv15: pd.DataFrame, df30: pd.DataFrame) -> pd.DataFrame:
-    """Align ``df30['bias30']`` onto the 15m frame WITHOUT lookahead.
+def causal_bias_merge(lv: pd.DataFrame, dfb: pd.DataFrame,
+                      entry_minutes: int = 15, bias_minutes: int = 30) -> pd.DataFrame:
+    """Align ``dfb['bias30']`` onto the entry frame WITHOUT lookahead.
 
-    A 30m bar at ``timestamp`` T closes at T+30m; a 15m bar at ``timestamp`` t
-    decides at t+15m. We backward-asof-join so each 15m decision picks the most
-    recent 30m bar that has ALREADY CLOSED at/before the decision — never the
-    forming 30m bar. Returns lv15 (original order) with a ``bias30`` column.
+    A higher-TF bar at ``timestamp`` T closes at T+bias_minutes; an entry bar at
+    ``timestamp`` t decides at t+entry_minutes. We backward-asof-join so each entry
+    decision picks the most recent higher-TF bar that has ALREADY CLOSED at/before
+    the decision — never the forming one. Returns ``lv`` (original order) + ``bias30``.
     """
-    left = lv15.copy()
-    left["decision_time"] = pd.to_datetime(left["timestamp"], utc=True) + pd.Timedelta(minutes=15)
-    right = df30[["timestamp", "bias30"]].copy()
-    right["close_time"] = pd.to_datetime(right["timestamp"], utc=True) + pd.Timedelta(minutes=30)
+    left = lv.copy()
+    left["decision_time"] = pd.to_datetime(left["timestamp"], utc=True) + pd.Timedelta(minutes=entry_minutes)
+    right = dfb[["timestamp", "bias30"]].copy()
+    right["close_time"] = pd.to_datetime(right["timestamp"], utc=True) + pd.Timedelta(minutes=bias_minutes)
     right = right[["close_time", "bias30"]].sort_values("close_time")
     merged = pd.merge_asof(
         left.sort_values("decision_time").reset_index(drop=True),
@@ -62,9 +77,9 @@ def causal_bias_merge(lv15: pd.DataFrame, df30: pd.DataFrame) -> pd.DataFrame:
 
 
 def mtf_signal(frame: pd.DataFrame) -> pd.Series:
-    """CONTRARIAN: FADE the climax in the direction of the 30m trend.
-    +1 (long) on a BEAR climax during a 30m up-bias (fade the down-spike);
-    -1 (short) on a BULL climax during a 30m down-bias (fade the up-spike)."""
+    """CONTRARIAN: FADE the climax in the direction of the higher-TF trend.
+    +1 (long) on a BEAR climax during an up-bias; -1 (short) on a BULL climax
+    during a down-bias."""
     vec = frame["vector"]
     bias = frame["bias30"]
     long_ = (vec == "bear_climax") & (bias > 0)
@@ -72,55 +87,70 @@ def mtf_signal(frame: pd.DataFrame) -> pd.Series:
     return pd.Series(np.where(long_, 1.0, np.where(short_, -1.0, 0.0)), index=frame.index)
 
 
-def run_symbol(client: BinanceClient, symbol: str):
-    """Return the list of per-trade R for one symbol (chronological)."""
-    df15 = client.klines(symbol, interval="15m", limit=LIMIT_15M, cache_ttl=86400)
-    df30 = build_levels(resample_ohlcv(df15, "30min"))
-    df30 = df30.assign(bias30=compute_bias30(df30))
-    lv15 = pvsra_vector_candles(build_levels(df15))
-    frame = causal_bias_merge(lv15, df30)
-    sig = mtf_signal(frame)
-    res = bracket_backtest(frame, sig, stop_atr=STOP_ATR, target_r=TARGET_R,
-                           max_bars=MAX_BARS, fee_pct=FEE_PCT, limit_retrace_atr=None)
+def prep_symbol(client: BinanceClient, symbol: str, entry_tf: str, limit: int,
+                entry_min: int, bias_rule: str, bias_min: int):
+    """Fetch + build + signal once for a (symbol, timeframe). Returns (frame, signal)."""
+    df = client.klines(symbol, interval=entry_tf, limit=limit, cache_ttl=86400)
+    dfb = build_levels(resample_ohlcv(df, bias_rule))
+    dfb = dfb.assign(bias30=compute_bias(dfb))
+    lv = pvsra_vector_candles(build_levels(df))
+    frame = causal_bias_merge(lv, dfb, entry_min, bias_min)
+    return frame, mtf_signal(frame)
+
+
+def eval_exit(frame: pd.DataFrame, sig: pd.Series, exit_kw: dict) -> list:
+    """Per-trade R for one exit config (chronological)."""
+    res = bracket_backtest(frame, sig, stop_atr=STOP_ATR, max_bars=MAX_BARS,
+                           fee_pct=FEE_PCT, limit_retrace_atr=None, **exit_kw)
     return list(res.trades)
+
+
+def _summary(label: str, trades: list, h1: list, h2: list):
+    n, exp, win = _pool_expectancy(trades)
+    _, e1, _ = _pool_expectancy(h1)
+    _, e2, _ = _pool_expectancy(h2)
+    p = _bootstrap_p([0.0] * len(trades), trades) if n else 1.0
+    edge = exp > 0 and e1 > 0 and e2 > 0 and p < 0.05
+    verdict = "✅ EDGE" if edge else "🔴 NOT AN EDGE"
+    print(f"  {label:<20} n={n:>5}  exp={exp:+.4f}R  win={100*win:4.1f}%  "
+          f"h1={e1:+.4f} h2={e2:+.4f}  p={p:.3f}  {verdict}")
 
 
 def main():
     client = BinanceClient()
-    print(f"MTF 15m-entry / 30m-bias backtest — {len(TOP_10_CRYPTO)} majors, "
-          f"limit={LIMIT_15M} 15m bars, taker fee={FEE_PCT}, "
-          f"stop={STOP_ATR}ATR target={TARGET_R}R market-entry\n")
-    all_trades, h1, h2 = [], [], []
-    print(f"  {'symbol':<10} {'n':>5} {'expR':>8} {'win%':>6}")
-    for s in TOP_10_CRYPTO:
-        try:
-            t = run_symbol(client, s)
-        except Exception as e:  # noqa: BLE001
-            print(f"  {s:<10}  FETCH/RUN FAILED ({type(e).__name__}: {e})")
-            continue
-        n, exp, win = _pool_expectancy(t)
-        print(f"  {s:<10} {n:>5} {exp:>+8.4f} {100*win:>6.1f}")
-        all_trades += t
-        mid = len(t) // 2
-        h1 += t[:mid]; h2 += t[mid:]
+    print(f"Contrarian MTF backtest — {len(TOP_10_CRYPTO)} majors, market entry, "
+          f"taker fee={FEE_PCT}, stop={STOP_ATR}ATR, max_bars={MAX_BARS}\n")
 
-    n, exp, win = _pool_expectancy(all_trades)
-    _, e1, _ = _pool_expectancy(h1)
-    _, e2, _ = _pool_expectancy(h2)
-    p = _bootstrap_p([0.0] * len(all_trades), all_trades) if n else 1.0
-    print("\n" + "=" * 60)
-    print("POOLED (net of taker fees)")
-    print("=" * 60)
-    print(f"  trades            : {n}")
-    print(f"  expectancy        : {exp:+.4f} R/trade")
-    print(f"  win rate          : {100*win:.1f}%")
-    print(f"  split-half exp    : h1 {e1:+.4f}  |  h2 {e2:+.4f}")
-    print(f"  bootstrap p (vs 0): {p:.4f}")
-    edge = exp > 0 and e1 > 0 and e2 > 0 and p < 0.05
-    print("\n  VERDICT: " + (
-        "✅ EDGE — expectancy>0, both halves>0, p<0.05. Worth a forward paper book."
-        if edge else
-        "🔴 NOT AN EDGE — fails one of {expectancy>0, both halves>0, p<0.05}. Do not ship."))
+    for tf_label, entry_tf, limit, entry_min, bias_rule, bias_min in TIMEFRAMES:
+        print("=" * 78)
+        print(f"TIMEFRAME {tf_label}  (entry {entry_tf}, bias {bias_rule}, "
+              f"max_bars={MAX_BARS} = {MAX_BARS*entry_min/60:.0f}h horizon)")
+        print("=" * 78)
+        preps = {}
+        for s in TOP_10_CRYPTO:
+            try:
+                preps[s] = prep_symbol(client, s, entry_tf, limit, entry_min, bias_rule, bias_min)
+            except Exception as e:  # noqa: BLE001
+                print(f"  {s}: PREP FAILED ({type(e).__name__}: {e})")
+        # per-symbol (both exits side by side)
+        print(f"  {'symbol':<10} {'n':>5} {'fullR':>9} {'scaleR':>9}")
+        pooled = {lbl: [] for lbl, _ in EXITS}
+        halves = {lbl: ([], []) for lbl, _ in EXITS}
+        for s, (frame, sig) in preps.items():
+            row = [s]
+            n_show = None
+            for lbl, kw in EXITS:
+                t = eval_exit(frame, sig, kw)
+                pooled[lbl] += t
+                mid = len(t) // 2
+                halves[lbl][0].extend(t[:mid]); halves[lbl][1].extend(t[mid:])
+                _, exp, _ = _pool_expectancy(t)
+                row.append(exp); n_show = len(t)
+            print(f"  {s:<10} {n_show:>5} {row[1]:>+9.4f} {row[2]:>+9.4f}")
+        print()
+        for lbl, _ in EXITS:
+            _summary(lbl, pooled[lbl], halves[lbl][0], halves[lbl][1])
+        print()
 
 
 if __name__ == "__main__":
