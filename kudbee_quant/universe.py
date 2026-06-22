@@ -22,9 +22,17 @@ UNCORRELATED_STOCKS = [
 # universe; this pool is only the set we RANK BY VOLUME when explicitly asked —
 # nothing here changes the validated book. Unavailable tickers are skipped at
 # rank time (the ranker fetches each and drops any that error).
+#
+# Expanded 2026-06-22 to ~40 liquid USDT pairs so the volume-ranker can answer the
+# owner's "scan the top 30-40 most-liquid pairs" question. Whether trading that
+# wider universe actually ADDS edge (vs. bleeding like the §48 top-100 tail) is a
+# backtest question, answered by scripts/validate_volume_universe.py — this pool is
+# only the candidate set, still OFF the validated forward book.
 CRYPTO_CANDIDATES = [
     "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "ADAUSDT", "DOGEUSDT",
     "AVAXUSDT", "LINKUSDT", "DOTUSDT", "LTCUSDT", "BCHUSDT", "TRXUSDT", "NEARUSDT",
     "ATOMUSDT", "UNIUSDT", "FILUSDT", "APTUSDT", "ARBUSDT", "OPUSDT", "INJUSDT",
-    "SUIUSDT", "TIAUSDT", "LDOUSDT",
+    "SUIUSDT", "TIAUSDT", "LDOUSDT", "ETCUSDT", "XLMUSDT", "HBARUSDT", "ICPUSDT",
+    "VETUSDT", "ALGOUSDT", "AAVEUSDT", "MKRUSDT", "RUNEUSDT", "SANDUSDT", "MANAUSDT",
+    "AXSUSDT", "EGLDUSDT", "GRTUSDT", "FLOWUSDT", "SEIUSDT", "PEPEUSDT", "SHIBUSDT",
 ]

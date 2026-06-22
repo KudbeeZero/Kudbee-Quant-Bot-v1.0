@@ -1729,3 +1729,27 @@ exactly what stops a lucky n=122 from being shipped. **TR/BTMM experiment is now
 across §57–§59 (28 candidate evaluations). Do not re-chase three_push.** The lesson (re-confirms §2):
 the confluence edge is saturated and structural; more signals/structure don't add a luck-proof edge.
 Nothing wired live; the M-level/weekly columns remain available for charts.
+
+## 60. "Scan the top 30-40 most-liquid pairs" — BACKTESTED, REJECTED for live (HOLD) — 2026-06-22 (PR claude/arm-pay-yourself-exit)
+
+The owner asked to widen the live scan to the top 30-40 most-liquid pairs. Instead of wiring it
+(against §48), I backtested it: expanded `universe.CRYPTO_CANDIDATES` to ~40 liquid USDT pairs,
+ranked by mean quote-volume, and ran the **canonical validated confluence bracket net of fees**
+(`scripts/validate_volume_universe.py`, real Binance 1h, ~8000 bars). Split CORE (top-10 by vol)
+vs TAIL (ranks 11-40):
+
+| split | IS exp | OOS exp | OOS n |
+|---|---|---|---|
+| CORE (top-10) | −0.0125R | −0.0072R | 368 |
+| TAIL (11-40) | −0.0251R | **+0.0373R** | 1087 |
+| ALL (top-40) | −0.0219R | +0.0260R | 1455 |
+
+The pooled OOS number for the tail looked *marginally positive* (+0.037R, > core) — **but the
+significance-gated harness REJECTED it**: profitable OOS on only **3% of 30 assets**, median OOS
+Sharpe **−2.60**, **effective-N 1.3** (median ρ=0.79 — the alts all move together), worst DD −62%.
+The positive pooled blip is a **single-regime artifact**: 30 correlated alts riding one up-move in
+the recent 30% OOS window, not a stable cross-asset edge. **RECONCILED VERDICT = HOLD / DO NOT WIRE**
+(pooled-R and the harness must agree before even paper-trading; they don't). Re-confirms §48 (the
+long tail bled). The expanded candidate pool + `volume_ranked_universe` stay OFF the validated path;
+the live book remains **top-10 only**. `reconcile_verdict()` is unit-tested. Revisit only on more
+history / across regimes, or as a separately-tagged paper book if the owner still wants forward data.
