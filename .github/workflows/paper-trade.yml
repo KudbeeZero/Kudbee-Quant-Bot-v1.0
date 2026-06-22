@@ -134,6 +134,17 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: python -m kudbee_quant.cli notify-summary || true
 
+      - name: Session crossover alerts
+        # Asia (20:00 ET) / London (02:00 ET) / NY-Brinks (08:00 ET) context ping:
+        # weekly bias + nearby M/W-open, pivot, ADR and Asian-range levels. Stateless —
+        # fires once when this hourly run lands in a session-open hour. Deliberately
+        # NOT added to the :35 status job (paper-status.yml), to avoid a double-ping.
+        # No-op without TELEGRAM_* secrets. See docs/NOTIFICATIONS.md.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m kudbee_quant.cli notify-session || true
+
       - name: Commit journal if changed
         run: |
           git config user.name "kudbee-paper-bot"
