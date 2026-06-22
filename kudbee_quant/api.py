@@ -11,6 +11,7 @@ intervals from backtests — not advice, not a guarantee.
 from __future__ import annotations
 
 import hashlib
+import hmac
 import os
 import re
 from pathlib import Path
@@ -317,6 +318,25 @@ def alert_webhook(a: AlertPayload,
     return {"logged": True, "id": p.id, "symbol": p.symbol, "entry": p.entry,
             "stop": p.stop, "target": p.target, "status": p.status,
             "inbox": push_inbox_entry(entry)}
+
+
+@app.post("/api/telegram")
+async def telegram_webhook(request: Request) -> dict:
+    """Two-way Telegram command webhook (paper-only). Three gates protect it:
+    (2) the Telegram webhook secret header is verified HERE; (1) the chat-id
+    whitelist and (3) the trade confirmation gate live in telegram_commands.
+    Never touches a live exchange. See kudbee_quant/telegram_commands.py."""
+    expected = os.environ.get("TELEGRAM_WEBHOOK_SECRET", "")
+    provided = request.headers.get("X-Telegram-Bot-Api-Secret-Token", "")
+    if not expected or not hmac.compare_digest(provided, expected):
+        raise HTTPException(status_code=403, detail="forbidden")
+    from .telegram_commands import handle_update
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="invalid JSON")
+    handle_update(body)                 # gate-1 whitelist + dispatch + reply
+    return {"ok": True}
 
 
 class ScanRequest(BaseModel):
