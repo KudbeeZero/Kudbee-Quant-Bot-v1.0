@@ -1,0 +1,15 @@
+name = "kudbee-trade-bot-cron"
+main = "src/worker.js"
+compatibility_date = "2024-11-01"
+
+# Cloudflare Cron Triggers ARE reliable (unlike GitHub Actions' schedule). Fire the
+# paper-trade workflow hourly; add more lines for a denser cadence if you want.
+[triggers]
+crons = ["5 * * * *"]
+
+# Non-secret config. GH_TOKEN is a SECRET set out-of-band:  wrangler secret put GH_TOKEN
+[vars]
+GH_OWNER = "KudbeeZero"
+GH_REPO = "Kudbee-Quant-Bot-v1.0"
+WORKFLOW_FILE = "paper-trade.yml"
+GH_REF = "main"

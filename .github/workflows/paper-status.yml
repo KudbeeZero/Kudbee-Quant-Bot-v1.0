@@ -11,7 +11,10 @@ name: Paper-trade status ping (off-half-hour)
 
 on:
   schedule:
-    - cron: "35 * * * *"       # :35 — halfway between the hourly :05 scans
+    # Read-only open-position reminders, interleaved with the scan (:05/:35) so you get
+    # a "your trades are open" ping roughly every 15 min — :20 and :50. Sends only the
+    # portfolio snapshot (no scan/write), so denser cadence is safe and can't race the bot.
+    - cron: "20,50 * * * *"
   workflow_dispatch:           # manual run button
 
 permissions:
