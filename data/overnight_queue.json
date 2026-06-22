@@ -56,6 +56,12 @@
     "daycolor_target",
     "daycolor_filter",
     "brinks_window",
-    "session_return"
+    "session_return",
+    "monday_skip",
+    "monday_fade",
+    "midweek_reversal",
+    "weekly_ib",
+    "level_count_3day",
+    "three_push_stophunt"
   ]
 }

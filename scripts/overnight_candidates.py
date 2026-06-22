@@ -609,6 +609,76 @@ def c_session_return(df, scored, base_sig):
     return _gate(base_sig, keep), None, {"target_price": tgt.where(keep), "tp1_r": None}
 
 
+# --- Weekly-cycle / BTMM candidates ------------------------------------------
+# These read the weekly-cycle features build_levels emits (day_of_week, level_day,
+# week_ib_high/low, consec_run_*). Candidate-local only; the live stack is untouched.
+
+
+def c_monday_skip(df, scored, base_sig):
+    """WEEKLY: take NO new entries on Monday (NY day). Tests the BTMM claim that
+    Monday is an accumulation/trap day and its trades are net-negative."""
+    return _gate(base_sig, df["day_of_week"] != 0), None, {}
+
+
+def c_monday_fade(df, scored, base_sig):
+    """WEEKLY: Monday only — fade the Monday low. Keep LONGS only when price sits in
+    the lower third of the day's RUNNING range, and suppress fresh shorts; off Monday
+    the baseline passes through unchanged."""
+    is_mon = (df["day_of_week"] == 0).to_numpy()
+    day_hi = df.groupby("ny_date")["high"].cummax()
+    day_lo = df.groupby("ny_date")["low"].cummin()
+    pos = (df["close"] - day_lo) / (day_hi - day_lo).replace(0, np.nan)
+    s = pd.Series(base_sig, index=df.index).fillna(0.0)
+    keep = (~is_mon) | ((s.to_numpy() > 0) & (pos.to_numpy() <= 1.0 / 3.0))
+    return s.where(keep, 0.0).astype(float), None, {}
+
+
+def c_midweek_reversal(df, scored, base_sig):
+    """WEEKLY: on Tue/Wed keep only COUNTER-TREND entries (against the week-to-date
+    direction = price vs the weekly open) — the midweek reversal of the early-week
+    push — and give them more room (48-bar hold, 4R target)."""
+    midweek = df["day_of_week"].isin([1, 2])
+    week_dir = np.sign(df["close"] - df["weekly_open"])
+    s = pd.Series(base_sig, index=df.index).fillna(0.0)
+    counter = np.sign(s) == -week_dir
+    return _gate(s, midweek & counter & (s != 0)), None, {"max_bars": 48, "target_r": 4.0}
+
+
+def c_weekly_ib(df, scored, base_sig):
+    """WEEKLY: the Mon+Tue range is the weekly initial-balance box. Fade rejections
+    back INTO the box — pierced above week_ib_high but closed back inside -> short
+    toward week_ib_low; pierced below and closed back inside -> long toward
+    week_ib_high. Standalone signal; targets the opposite IB edge (Wed+ only)."""
+    hi, lo, close = df["week_ib_high"], df["week_ib_low"], df["close"]
+    short = (df["high"] > hi) & (close < hi)
+    long_ = (df["low"] < lo) & (close > lo)
+    sig = pd.Series(np.where(long_, 1.0, np.where(short, -1.0, 0.0)), index=df.index)
+    tgt = pd.Series(np.where(sig > 0, hi, np.where(sig < 0, lo, np.nan)), index=df.index)
+    ahead = ((sig > 0) & (tgt > close)) | ((sig < 0) & (tgt < close))
+    return sig.where(ahead, 0.0), None, {"target_price": tgt.where(ahead), "tp1_r": None}
+
+
+def c_level_count_3day(df, scored, base_sig):
+    """WEEKLY/BTMM: take trend-continuation (the baseline) only on the aggressive MM
+    'level days' — L1/L3 (Mon/Wed) at full size, L2 (Tue) de-weighted to half size,
+    nothing on L4 (Thu/Fri) or weekends."""
+    ld = df["level_day"]
+    s = pd.Series(base_sig, index=df.index).fillna(0.0)
+    sig = s.where(ld.isin([1, 2, 3]), 0.0)
+    size = pd.Series(np.where(ld.to_numpy() == 2, 0.5, 1.0), index=df.index)
+    return sig, size, {}
+
+
+def c_three_push_stophunt(df, scored, base_sig):
+    """BTMM 'three pushes + stop hunt': after >=3 consecutive same-direction closes,
+    expect a stop-raid reversal — keep only entries AGAINST the run direction. Uses
+    the completed-bar consec_run (no current-bar leak)."""
+    primed = df["consec_run_len"] >= 3
+    s = pd.Series(base_sig, index=df.index).fillna(0.0)
+    against = np.sign(s) == -np.sign(df["consec_run_dir"])
+    return _gate(base_sig, primed & against & (s != 0)), None, {}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -671,4 +741,11 @@ REGISTRY: dict[str, tuple] = {
     "daycolor_filter": (c_daycolor_filter, "TR: day-color mean-reversion filter (fade extremes toward range)"),
     "brinks_window": (c_brinks_window, "TR: entries only in London/NY-Brinks/overlap killzones"),
     "session_return": (c_session_return, "TR: target nearest prior-session/Asian extreme within 4 ATR"),
+    # Weekly-cycle / BTMM (day-of-week, level day, weekly IB, run-count).
+    "monday_skip": (c_monday_skip, "BTMM: no new entries on Monday (NY day)"),
+    "monday_fade": (c_monday_fade, "BTMM: Monday only — longs in lower-third running range, suppress shorts"),
+    "midweek_reversal": (c_midweek_reversal, "BTMM: Tue/Wed counter-trend reversal vs week-to-date, 48-bar/4R"),
+    "weekly_ib": (c_weekly_ib, "BTMM: fade rejections back into the Mon+Tue IB box, target opposite edge"),
+    "level_count_3day": (c_level_count_3day, "BTMM: continuation on L1/L3 days (Mon/Wed), half-size L2 (Tue)"),
+    "three_push_stophunt": (c_three_push_stophunt, "BTMM: after >=3-run, fade the run (stop-hunt reversal)"),
 }

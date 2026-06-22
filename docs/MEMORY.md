@@ -1680,3 +1680,31 @@ a nearby level forfeits the 3R right-tail the edge depends on (cand win-rate ris
 Consistent with §2 (the confluence stack is saturated; price-derived structure doesn't add edge).
 **Do not re-test these.** Levels remain available as frame columns for charts/other uses; nothing was
 wired into the live stack or workflow. `415 passed`.
+
+## 58. TR/BTMM weekly-cycle confluence layer — BUILT + measured; still NO edge — 2026-06-22 (PR feat/tr-confluence-candidates)
+
+Extended §57 with the weekly-cycle features (`day_of_week`, `level_day`, `week_ib_high/low` [Mon+Tue IB,
+NaN until Wed], `consec_run_len/dir` [completed bars only]) — all on the existing NY-day anchor,
+lookahead-audited — and ran **all 12** TR/BTMM candidates pooled across the top-10 majors (1h, baseline
++0.0555R, split-half + bootstrap p). Spec gate: WINNER = Δ≥+0.015 ∧ both halves +ve ∧ p<0.05.
+
+| candidate | ΔR | n | p | both+ | verdict |
+|---|---|---|---|---|---|
+| three_push_stophunt (fade a ≥3 run) | +0.144 | 122 | 0.19 | YES | INCONCLUSIVE (p≫0.05, n thin) |
+| mlevel_reject | +0.029 | 289 | 0.40 | YES | INCONCLUSIVE |
+| weekly_ib (fade into Mon+Tue box) | +0.025 | 539 | 0.39 | no | INCONCLUSIVE |
+| brinks_window | +0.022 | 334 | 0.41 | no | INCONCLUSIVE |
+| monday_skip | −0.035 | 583 | — | — | HURTS |
+| monday_fade | −0.040 | 597 | — | — | HURTS |
+| daycolor_target | −0.097 | 612 | — | — | HURTS |
+| level_count_3day | −0.117 | 289 | — | — | HURTS |
+| mlevel_magnet | −0.118 | 759 | — | — | HURTS |
+| session_return | −0.131 | 560 | — | — | HURTS |
+| daycolor_filter | −0.248 | 142 | — | — | HURTS |
+| midweek_reversal | −0.380 | 74 | — | — | INCONCLUSIVE (thin, n<120) |
+
+**WON: 0 · HURT: 7 · INCONCLUSIVE: 5.** No candidate clears the full luck-proof gate.
+`monday_skip`/`monday_fade` HURT → Monday trades are NOT the drag (removing them removes good trades).
+The only leads worth a *future* deeper look (NOT a ship): `three_push_stophunt` (Δ+0.144, both halves
+strongly +ve, but n=122 ≈ floor and p=0.19) and `mlevel_reject` (robust both-halves but p=0.40). Same
+verdict as §57/§2: this layer doesn't add a significant edge. Nothing wired live. `419 passed`.
