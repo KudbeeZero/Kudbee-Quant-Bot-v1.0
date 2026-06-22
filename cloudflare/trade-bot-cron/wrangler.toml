@@ -2,12 +2,18 @@ name = "kudbee-trade-bot-cron"
 main = "src/worker.js"
 compatibility_date = "2024-11-01"
 
-# Cloudflare Cron Triggers ARE reliable (unlike GitHub Actions' schedule). Fire the
-# paper-trade workflow hourly; add more lines for a denser cadence if you want.
+# Fires 2 minutes BEFORE each of the 4 GitHub cron attempts (:05/:20/:35/:50).
+# Cloudflare Cron Triggers are reliable — this guarantees the workflow_dispatch
+# lands even when GitHub's own scheduler silently drops/delays the run.
+# 4 triggers/hour x 24h = 96 Worker invocations/day — well within free tier.
 [triggers]
-crons = ["5 * * * *"]
+crons = [
+  "3 * * * *",
+  "18 * * * *",
+  "33 * * * *",
+  "48 * * * *",
+]
 
-# Non-secret config. GH_TOKEN is a SECRET set out-of-band:  wrangler secret put GH_TOKEN
 [vars]
 GH_OWNER = "KudbeeZero"
 GH_REPO = "Kudbee-Quant-Bot-v1.0"
