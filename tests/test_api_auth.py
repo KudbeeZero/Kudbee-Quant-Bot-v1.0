@@ -66,7 +66,13 @@ def test_expired_session_is_rejected(monkeypatch):
 def test_tampered_cookie_is_rejected(monkeypatch):
     c = _client(monkeypatch)
     token = auth.issue_session()
-    bad = token[:-2] + ("aa" if not token.endswith("aa") else "bb")
+    # Flip the FIRST signature char — it always carries 6 meaningful bits of the
+    # HMAC's byte 0, so the tamper is GUARANTEED to change the decoded signature.
+    # (Mutating trailing base64 chars was brittle: their low bits are padding and
+    # can decode unchanged, so the tamper was occasionally a no-op -> flaky pass.)
+    payload, sig = token.split(".")
+    flipped = "B" if sig[0] != "B" else "C"
+    bad = f"{payload}.{flipped}{sig[1:]}"
     assert auth.verify_session(bad) is False
     assert c.get("/dashboard", cookies={auth.COOKIE_NAME: bad}).status_code == 302
 
