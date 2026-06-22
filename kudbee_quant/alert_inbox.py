@@ -83,6 +83,12 @@ def log_alert(j: TradeJournal, alert: dict, inbox_id: str) -> Prediction | None:
     Returns None without logging if the inbox id was already ingested or a
     bracket is already open/pending on that symbol+timeframe — the same
     duplicate rule the bot uses.
+
+    The setup tag defaults to ``tv_alert[_NNpct]`` but an ``alert["setup"]``
+    override (set server-side, never from user free-text) lets other webhook
+    sources tag their own book — e.g. the Telegram ``/trade`` command tags
+    ``tg_manual``. The override travels in the inbox file, so the hourly
+    ingest applies the same tag in the repo journal.
     """
     marker = f"inbox={inbox_id}"
     if any(marker in p.note for p in j.predictions):
@@ -93,13 +99,14 @@ def log_alert(j: TradeJournal, alert: dict, inbox_id: str) -> Prediction | None:
     if (alert["symbol"].upper(), tf) in open_keys:
         return None
     conf = alert.get("conf")
+    setup = alert.get("setup") or "tv_alert" + (f"_{int(round(conf * 100))}pct" if conf else "")
     return j.add(Prediction(
         symbol=alert["symbol"].upper(), kind="bracket", level=alert["entry"],
         entry=alert["entry"], stop=alert["stop"], target=alert["target"],
         direction=1.0 if float(alert["direction"]) > 0 else -1.0,
         target_r=alert.get("target_r", 3.0), deadline_days=3.0, timeframe=tf,
         pending_limit=True, signal_price=alert["entry"],
-        setup="tv_alert" + (f"_{int(round(conf * 100))}pct" if conf else ""),
+        setup=setup,
         note=f"TradingView alert: {alert.get('note', '')}. conf={conf}. {marker}",
         source="human",
     ))

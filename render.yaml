@@ -41,3 +41,12 @@ services:
         sync: false
       - key: KUDBEE_GH_REPO
         value: KudbeeZero/Kudbee-Quant-Bot-v1.0
+      # Two-way Telegram command webhook (/api/telegram). TELEGRAM_BOT_TOKEN +
+      # TELEGRAM_CHAT_ID gate + send replies; TELEGRAM_WEBHOOK_SECRET is the
+      # shared secret verified on every Telegram POST. All set in the dashboard.
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_CHAT_ID
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
