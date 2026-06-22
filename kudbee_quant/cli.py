@@ -789,6 +789,18 @@ def _notify_summary(args) -> None:
         print("Telegram send failed (check token/chat id).")
 
 
+def _record_run(args) -> None:
+    """Stamp the run heartbeat and print scheduler health (gap since last run +
+    24h coverage). Called once per hourly scan so dropped runs become visible."""
+    from .notifications.heartbeat import record_run, health_line
+    health = record_run()
+    line = health_line(health)
+    if line:
+        print(line)
+    else:
+        print("Heartbeat recorded (first run — no prior history to compare).")
+
+
 def _notify_session(args) -> None:
     """Fire a Telegram session-open alert (Asia/London/NY + key levels) if the
     current hour is a session open. Used by the hourly Action; muted if Telegram
@@ -1190,6 +1202,9 @@ def main() -> None:
     nses = sub.add_parser("notify-session",
                           help="fire a Telegram session-open alert (Asia/London/NY + key levels)")
     nses.set_defaults(func=_notify_session)
+    rr = sub.add_parser("record-run",
+                        help="stamp the run heartbeat (data/heartbeat.json) — scheduler-gap visibility")
+    rr.set_defaults(func=_record_run)
     scd = sub.add_parser("scorecard",
                          help="forward-validation scorecard: per-book KEEP/REVERT/WAIT (net of fees)")
     scd.add_argument("--mode", choices=["paper", "live", "all"], default="paper")

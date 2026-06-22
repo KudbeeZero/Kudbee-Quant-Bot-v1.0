@@ -1753,3 +1753,27 @@ the recent 30% OOS window, not a stable cross-asset edge. **RECONCILED VERDICT =
 long tail bled). The expanded candidate pool + `volume_ranked_universe` stay OFF the validated path;
 the live book remains **top-10 only**. `reconcile_verdict()` is unit-tested. Revisit only on more
 history / across regimes, or as a separately-tagged paper book if the owner still wants forward data.
+
+## 61. Dropped-run problem: it's the TRIGGER, not storage — heartbeat + denser cron + (owner) external trigger — 2026-06-22 (PR claude/arm-pay-yourself-exit)
+
+Owner's pain: ~70% of scheduled runs drop, so Telegram goes quiet and trades are missed. He asked if a
+**database** would fix it. **It would not** — the drops are GitHub Actions' best-effort `schedule:` cron
+silently skipping runs (a *trigger* problem), not a storage problem. Three honest layers, in order of power:
+1. **External Cloudflare Worker cron → `workflow_dispatch`** (already built, `cloudflare/trade-bot-cron`,
+   PR #66) — the bulletproof fix. **OWNER-ONLY to deploy** (needs his Cloudflare login + a fine-grained
+   GitHub PAT with Actions:write; my integration token gets 403 on dispatch). README has 5-min steps.
+2. **Denser in-repo cron** — bumped `paper-trade.yml` from 2→**4 attempts/hour** (`5,20,35,50`). Idempotent
+   per-(symbol,tf,book) dedup makes re-scans safe (no dup OPENS); more independent attempts ⇒ higher chance
+   one lands each hour. Costs only Action minutes.
+3. **Run heartbeat / gap detector (NEW, this PR)** — `notifications/heartbeat.py`: `record-run` CLI stamps
+   `data/heartbeat.json` each scan (bot-written, like the journal; committed by the scan). The Telegram
+   summary now carries a health line: `⏱ Runs: last 8m ago • 22/24h covered`, or when dropping
+   `⚠️ Scheduler gap 3h10m • only 9/24h covered (62% dropped) — deploy the external trigger`. `runs_24h`
+   counts DISTINCT covered clock-hours (dense retries don't inflate it). This makes a silent scheduler
+   VISIBLE — answers "I'd rather have accurate info than 70% dropped." Read-only in the summary; gated so
+   absent heartbeat ⇒ no line (back-compat). 9 unit tests; `450 passed`.
+
+**Answer to "slow down trades?"** — no; trade cadence isn't the cause, the hourly scan is fine and the
+dedup already makes re-runs safe. The fix is reliability of the trigger + visibility, not fewer trades.
+**The one thing still on the owner: deploy layer 1** (Cloudflare Worker) for a true fix; layers 2–3 are
+shipped and reduce/expose drops in the meantime.
