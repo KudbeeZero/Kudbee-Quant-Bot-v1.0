@@ -275,9 +275,9 @@ def test_realized_today_sums_fee_net_closes_since_asia_open():
     assert _realized_today(preds)["n"] == 1
 
 
-def test_realized_today_rolls_at_asia_open_not_utc_midnight():
-    # The day boundary is the most recent Asia session open (19:00 NY), not UTC
-    # midnight: a close 1 min BEFORE that instant is excluded, 1 min AFTER included.
+def test_realized_today_rolls_at_ny_open_not_utc_midnight():
+    # The day boundary is the most recent New York open (08:00 NY), not UTC midnight:
+    # a close 1 min BEFORE that instant is excluded, 1 min AFTER included.
     from datetime import timedelta
     from kudbee_quant.context.calendar import session_day_start
     start = session_day_start()

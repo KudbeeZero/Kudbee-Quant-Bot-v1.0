@@ -167,7 +167,7 @@ def format_summary(report: dict, *, record: dict | None = None,
     ``report`` is the dict that function returns; ``record`` is an optional
     ``{venue: {...}}`` map from ``TradeJournal.venue_record`` for a one-line
     track-record footer. ``realized_today`` is an optional ``{"r": float, "n": int}``
-    of fee-net R closed since the Asia session open (19:00 NY — see :func:`_realized_today`).
+    of fee-net R closed since the New York open (08:00 NY — see :func:`_realized_today`).
     """
     p = report.get("portfolio", {})
     trades = report.get("trades", []) or []
@@ -207,7 +207,7 @@ def format_summary(report: dict, *, record: dict | None = None,
 
 def _realized_today(predictions: list["Prediction"]) -> dict:
     """``{"r": fee-net R, "n": closes}`` for trades resolved since the current trading
-    day began — the most recent **Asia session open (19:00 NY)**, NOT UTC midnight, so the
+    day began — the most recent **New York open (08:00 NY)**, NOT UTC midnight, so the
     day rolls when the session does (matches the desk's day / the Asia-open alerts).
     Uses :func:`net_outcome_r` (after-fee). Unparseable/unresolved records are skipped."""
     from datetime import datetime, timezone
