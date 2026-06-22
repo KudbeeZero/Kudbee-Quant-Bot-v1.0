@@ -71,46 +71,19 @@ jobs:
           python -m kudbee_quant.cli paper-scan \
             $CRYPTO_UNIVERSE \
             --intervals 1h --tp1-r 1.0 --tp1-frac 0.0 --trend-filter || true
-          # TradFi book (0-fee promo venue, MEMORY §26) via Yahoo data — metals,
-          # indices, energy, FX, grains, rates, softs. 1h only: the validated
-          # timeframe, Yahoo-supported, and avoids session-gap noise on
-          # sub-hourly bars. Tagged "*_tradfi" so it scores separately.
-          # +11 symbols (§30 probe, user-approved): HG/PL/PA metals, ZW/ZC/ZS
-          # grains, ZN/ZB rates at full Globex quality; SB/KC/CC softs are
-          # RTH-like. CT=F excluded (broken feed).
-          python -m kudbee_quant.cli paper-scan \
-            yahoo:GC=F yahoo:SI=F yahoo:^GSPC yahoo:^NDX yahoo:^DJI \
-            yahoo:CL=F yahoo:BZ=F yahoo:NG=F yahoo:EURUSD=X yahoo:GBPUSD=X \
-            yahoo:HG=F yahoo:PL=F yahoo:PA=F yahoo:ZW=F yahoo:ZC=F yahoo:ZS=F \
-            yahoo:ZN=F yahoo:ZB=F yahoo:SB=F yahoo:KC=F yahoo:CC=F \
-            --intervals 1h --tp1-r 1.0 --tp1-frac 0.0 --trend-filter || true
+          # TradFi book CUT 2026-06-22 (owner-approved): net-negative forward —
+          # scorecard verdict REVERT (~-0.29R net over n=46; it led a -4R day on
+          # 2026-06-22). The Yahoo universe is no longer scanned. Any still-open
+          # tradfi positions resolve normally via journal-check below.
           python -m kudbee_quant.cli journal-check || true
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true
 
-      - name: "Experiment §A — 5m crypto book (trailing-stop, long-only)"
-        # §A (2026-06-22): 5m long-only experiment. NOW uses a CHANDELIER TRAILING
-        # STOP (--trailing-atr 1.5 = 1R behind the extreme at stop_atr 1.5) instead
-        # of the tp1+breakeven pay-yourself. Rationale: a 1R trail gives the SAME
-        # breakeven at +1R AND keeps locking profit beyond it — a 2.9R near-miss that
-        # would scratch at 0R under tp1-BE instead exits ~+1.9R. Target 2.9R. Long-only
-        # is the filter under test: excursion_audit.json (n=48, Jun 9-13) had 5m longs
-        # 32% (11/34) vs shorts 14% (2/14), but the full-journal 5m sample is ~16/17%
-        # — so this stays a HYPOTHESIS, separately tagged (timeframe=5m, setup has
-        # "_lo"), never touching the validated 1h book. Killzone gate stays UNARMED
-        # (it HURT 5m: 20% inside vs 28% outside). Runs after the 1h scan so the
-        # net-exposure guard sees existing positions.
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe import TOP_10_CRYPTO; print(" ".join(TOP_10_CRYPTO))')"
-          python -m kudbee_quant.cli paper-scan \
-            $CRYPTO_UNIVERSE \
-            --intervals 5m \
-            --trailing-atr 1.5 --target-r 2.9 \
-            --trend-filter --long-only || true
-          python -m kudbee_quant.cli journal-check || true
+      # Experiment §A (5m long-only crypto book) CUT 2026-06-22 (owner-approved):
+      # net-negative forward — scorecard verdict REVERT (~-0.25R net), and 5m has lost
+      # money on every prior look (§37 -0.63R, etc.). No 5m scan runs anymore; any
+      # still-open "_lo" positions resolve via the journal-check above. The flags
+      # (--long-only / --trailing-atr) remain in the CLI if we ever re-test it offline.
 
       - name: "§C — clean trend stack (1h, experiment, +0.1152R CLAIM unverified)"
         # §C (2026-06-22): overnight-harness top candidate (claimed n=804, delta
