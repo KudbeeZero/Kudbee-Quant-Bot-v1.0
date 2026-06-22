@@ -61,6 +61,7 @@ def bracket_backtest(
     trailing_atr: float | None = None,
     mae_giveup: tuple | None = None,
     time_decay: tuple | None = None,
+    target_price: "pd.Series | np.ndarray | None" = None,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -119,6 +120,11 @@ def bracket_backtest(
     sig = pd.Series(signal, index=df.index).fillna(0.0).to_numpy()
     sz = (pd.Series(size, index=df.index).fillna(0.0).to_numpy()
           if size is not None else np.ones(len(df)))
+    # Optional per-bar absolute TARGET PRICE (research candidates that target a
+    # specific level — TR M-levels, session extremes — instead of a fixed R). When
+    # None (the default / live path) the scalar target_r path below is byte-identical.
+    tp_arr = (pd.Series(target_price, index=df.index).to_numpy()
+              if target_price is not None else None)
     n = len(df)
 
     trades: list[float] = []
@@ -147,16 +153,25 @@ def bracket_backtest(
                 continue  # retrace never came; signal missed (realistic)
             entry = limit
         stop = entry - direction * sd
-        target = entry + direction * sd * target_r
+        if tp_arr is None:
+            tr_t = target_r
+        else:                                   # target a specific price -> its R-distance
+            tgt = tp_arr[t]
+            if not np.isfinite(tgt):
+                continue
+            tr_t = direction * (tgt - entry) / sd
+            if tr_t <= 0.1:                     # level at/behind entry: not a tradable target
+                continue
+        target = entry + direction * sd * tr_t  # == tgt when tp_arr is set
         end = min(entry_bar + max_bars, n - 1)
         if tp1_r is None:
             outcome, exit_j = _resolve_full(direction, entry, stop, target, sd,
-                                            target_r, high, low, close, entry_bar, end,
+                                            tr_t, high, low, close, entry_bar, end,
                                             atr_at_entry=atr[t], trailing_atr=trailing_atr,
                                             mae_giveup=mae_giveup, time_decay=time_decay)
             extra_exit = 0.0
         else:
-            outcome, exit_j = _resolve_partial(direction, entry, sd, target_r, tp1_r,
+            outcome, exit_j = _resolve_partial(direction, entry, sd, tr_t, tp1_r,
                                                tp1_frac, be_after_tp1, high, low, close,
                                                entry_bar, end, tp2_r=tp2_r, tp2_frac=tp2_frac)
             extra_exit = tp1_frac + (tp2_frac if tp2_r is not None else 0.0)

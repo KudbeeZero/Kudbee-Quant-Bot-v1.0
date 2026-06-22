@@ -1,21 +1,5 @@
 {
-  "pending": [
-    "range_expansion",
-    "ret_percentile_self",
-    "near_high_recovery",
-    "run_streak_gate",
-    "jump_continuation",
-    "atr_vs_tr_compression",
-    "ema50_slope_accel",
-    "structural_stop_swing",
-    "contraction_reclaim",
-    "exit_trail_3atr",
-    "exit_mae_giveup",
-    "exit_time_decay",
-    "bb_band_reject",
-    "exit_showme",
-    "exit_tight_showme"
-  ],
+  "pending": [],
   "done": [
     "vol_regime_mid",
     "skip_vol_shock",
@@ -51,6 +35,27 @@
     "inside_bar",
     "conf_60",
     "trend_strong_sep",
-    "two_bar_momentum"
+    "two_bar_momentum",
+    "range_expansion",
+    "ret_percentile_self",
+    "near_high_recovery",
+    "run_streak_gate",
+    "jump_continuation",
+    "atr_vs_tr_compression",
+    "ema50_slope_accel",
+    "structural_stop_swing",
+    "contraction_reclaim",
+    "exit_trail_3atr",
+    "exit_mae_giveup",
+    "exit_time_decay",
+    "bb_band_reject",
+    "exit_showme",
+    "exit_tight_showme",
+    "mlevel_reject",
+    "mlevel_magnet",
+    "daycolor_target",
+    "daycolor_filter",
+    "brinks_window",
+    "session_return"
   ]
 }
