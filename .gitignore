@@ -29,3 +29,6 @@ data/shadow/
 
 # Daily trade graph — generated SVG (derived from the bot-owned journal; never committed)
 data/daily_graph.svg
+
+# Graphify knowledge-graph output (if trialed) — never commit (incl. cost.json)
+graphify-out/
