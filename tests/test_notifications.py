@@ -225,6 +225,27 @@ def test_format_summary_realized_today():
     assert "Today:" not in format_summary(report, realized_today={"r": 0.0, "n": 0})
 
 
+def test_format_summary_deadline_alert():
+    base = {"total_open": 3, "total_unrealized_r": 0.0, "total_unrealized_usd": None,
+            "winners_open": 0, "losers_open": 0, "total_open_risk_pct": 3.0}
+    trades = [
+        {"symbol": "BTCUSDT", "setup": "confluence_r_60pct_tf", "unrealized_r": 0.1,
+         "pnl_pct": 0.2, "hours_to_deadline": 40.0},    # far off -> ignored
+        {"symbol": "SOLUSDT", "setup": "confluence_r_60pct_tf", "unrealized_r": -0.2,
+         "pnl_pct": -0.5, "hours_to_deadline": 2.1},    # expiring soon
+        {"symbol": "XRPUSDT", "setup": "confluence_r_60pct_tf", "unrealized_r": 0.0,
+         "pnl_pct": 0.0, "hours_to_deadline": -3.0},     # overdue
+    ]
+    msg = format_summary({"portfolio": base, "trades": trades})
+    assert "⏰" in msg
+    assert "Expiring: SOLUSDT 2.1h" in msg
+    assert "overdue: XRPUSDT" in msg
+    assert "BTCUSDT" not in msg.split("⏰")[1]  # far-off trade not in the alert
+    # nothing near deadline -> no alert line
+    far = [dict(t, hours_to_deadline=50.0) for t in trades]
+    assert "⏰" not in format_summary({"portfolio": base, "trades": far})
+
+
 def test_book_label_buckets():
     assert _book_label("confluence_r_60pct_tf") == "core"
     assert _book_label("confluence_r_60pct_tf_cts") == "trend"

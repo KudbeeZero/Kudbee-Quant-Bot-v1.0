@@ -136,6 +136,30 @@ def _best_worst_line(trades: list[dict]) -> str | None:
     return f"Best: {_bit(best)}  •  Worst: {_bit(worst)}"
 
 
+def _deadline_line(trades: list[dict], *, soon_hours: float = 6.0) -> str | None:
+    """`⏰ Expiring: SOL 2.1h • overdue: XRP` — open trades at/over their deadline
+    (overdue) or within ``soon_hours`` of it, so nothing rots unresolved. None when
+    nothing is close. Trades with no deadline info are skipped."""
+    overdue, soon = [], []
+    for t in trades:
+        h = t.get("hours_to_deadline")
+        if h is None:
+            continue
+        if h <= 0:
+            overdue.append(t["symbol"])
+        elif h <= soon_hours:
+            soon.append((t["symbol"], h))
+    if not overdue and not soon:
+        return None
+    bits = []
+    if soon:
+        soon.sort(key=lambda x: x[1])
+        bits.append("Expiring: " + ", ".join(f"{s} {h:.1f}h" for s, h in soon))
+    if overdue:
+        bits.append("overdue: " + ", ".join(dict.fromkeys(overdue)))
+    return "⏰ " + "  •  ".join(bits)
+
+
 def format_summary(report: dict, *, record: dict | None = None,
                    realized_today: dict | None = None) -> str:
     """Portfolio snapshot from :func:`review.open_trades_report` (+ optional record).
@@ -162,6 +186,9 @@ def format_summary(report: dict, *, record: dict | None = None,
     bw_line = _best_worst_line(trades)
     if bw_line:
         lines.append(bw_line)
+    dl_line = _deadline_line(trades)
+    if dl_line:
+        lines.append(dl_line)
     if realized_today and realized_today.get("n"):
         lines.append(f"Today: {realized_today.get('r', 0):+.2f}R on "
                      f"{realized_today['n']} closed")
