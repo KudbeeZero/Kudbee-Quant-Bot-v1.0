@@ -40,6 +40,7 @@ MLEVEL_COLUMNS = [
     "prev_day_color", "amr", "amr_high", "amr_low",
     "day_of_week", "level_day", "week_ib_high", "week_ib_low",
     "consec_run_len", "consec_run_dir",
+    "ny_brinks_high", "ny_brinks_low",
 ]
 
 
@@ -141,6 +142,17 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int =
     brinks = out[in_brinks].groupby("ny_date").agg(_bh=("high", "max"), _bl=("low", "min"))
     out["brinks_high"] = out["ny_date"].map(brinks["_bh"]).astype(float)
     out["brinks_low"] = out["ny_date"].map(brinks["_bl"]).astype(float)
+
+    # NEW YORK Brinks box: the 08:00-09:00 NY accumulation window the desk marks the
+    # day's open against (MM load liquidity here before the ~09:50 run). CAUSAL — only
+    # revealed to bars AT/AFTER 09:00 NY (box closed); NaN while it's still forming, so
+    # it can never be "known" early. (Above is the London box; this is the NY one.)
+    ny_hour = ny.dt.hour
+    in_ny_brinks = (ny_hour >= 8) & (ny_hour < 9)
+    nyb = out[in_ny_brinks].groupby("ny_date").agg(_h=("high", "max"), _l=("low", "min"))
+    formed = (ny_hour >= 9).to_numpy()
+    out["ny_brinks_high"] = np.where(formed, out["ny_date"].map(nyb["_h"]), np.nan)
+    out["ny_brinks_low"] = np.where(formed, out["ny_date"].map(nyb["_l"]), np.nan)
 
     # Psychological round numbers bracketing the current close.
     step = _round_step(out["close"])

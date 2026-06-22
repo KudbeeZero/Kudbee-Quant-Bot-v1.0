@@ -84,8 +84,31 @@ def build_session_alert(session: str, emoji: str, tip: str, *, is_week_start: bo
             ln = _level_line(lbl, val, cur, atr)
             if ln:
                 lines.append(ln)
+        lines.extend(_brinks_open_lines(row, cur))   # today's open + NY Brinks box, marked off
         lines.append("")
     return "\n".join(lines).strip()
+
+
+def _brinks_open_lines(row, cur: float) -> list[str]:
+    """Mark off the two levels the desk tracks all day/week: TODAY'S OPEN (price above
+    or below it) and the NY BRINKS BOX (08:00-09:00 NY) with its sweep status. The box
+    is only shown once it has formed (build_levels leaves it NaN until 09:00 NY)."""
+    out: list[str] = []
+    dop = row.get("daily_open")
+    if dop is not None and not pd.isna(dop) and cur:
+        side = "📈 above" if cur > dop else "📉 below"
+        pct = (cur - dop) / dop * 100 if dop else 0.0
+        out.append(f"  📌 Day open {_g(dop)} — price {side} ({pct:+.2f}%)")
+    bh, bl = row.get("ny_brinks_high"), row.get("ny_brinks_low")
+    if bh is not None and bl is not None and not pd.isna(bh) and not pd.isna(bl):
+        if cur > bh:
+            status = "⬆️ HIGH swept"
+        elif cur < bl:
+            status = "⬇️ LOW swept"
+        else:
+            status = "📦 inside box"
+        out.append(f"  🥊 NY Brinks {_g(bl)}–{_g(bh)}  {status}")
+    return out
 
 
 def check_and_fire_session_alerts(df_by_symbol: dict, notify_fn, *,

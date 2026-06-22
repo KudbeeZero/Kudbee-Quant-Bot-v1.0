@@ -154,3 +154,14 @@ def test_slice_overrides_is_positional_and_passes_scalars():
     assert isinstance(out["target_price"], np.ndarray)
     assert list(out["target_price"]) == [11.0, 12.0, 13.0]   # positional [1:4], index ignored
     assert out["tp1_r"] is None and out["stop_atr"] == 1.5    # scalars pass through
+
+
+def test_ny_brinks_box_is_causal():
+    import pandas as pd
+    from kudbee_quant.context.calendar import NY
+    f = build_levels(_ohlcv())
+    nyh = pd.to_datetime(f["timestamp"], utc=True).dt.tz_convert(NY).dt.hour
+    # NaN while the 08:00-09:00 NY box is still forming; present (high>=low) after 09:00 NY
+    assert f.loc[nyh < 9, "ny_brinks_high"].isna().all()
+    after = f.loc[nyh >= 9, ["ny_brinks_high", "ny_brinks_low"]].dropna()
+    assert len(after) > 0 and (after["ny_brinks_high"] >= after["ny_brinks_low"]).all()
