@@ -48,6 +48,7 @@
 
   <link rel="stylesheet" href="assets/css/style.css" />
   <link rel="stylesheet" href="assets/css/trade-story.css" />
+  <link rel="stylesheet" href="assets/css/confluence-engine.css" />
 
   <!-- Structured Data (single @graph for AI & search engines) -->
   <script type="application/ld+json">
@@ -187,6 +188,7 @@
         <div class="hero__glow hero__glow--1"></div>
         <div class="hero__glow hero__glow--2"></div>
         <div class="hero__grid"></div>
+        <canvas class="hero__fx" id="hero-fx"></canvas>
       </div>
 
       <div class="container hero__inner">
@@ -309,6 +311,25 @@
             <p>Max drawdown, VaR/CVaR, risk-of-ruin and capped fractional Kelly — reported next to every return, never buried beneath it.</p>
           </article>
         </div>
+      </div>
+    </section>
+
+    <!-- ===== CONFLUENCE ENGINE (interactive) ===== -->
+    <section class="section engine" id="engine">
+      <div class="engine__bg" aria-hidden="true"></div>
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">Interactive</span>
+          <h2>The Confluence Engine</h2>
+          <p class="engine__lead">
+            Ten <strong>measured</strong> factors read every bar and vote — trend, levels and
+            smart-money behaviour. No single one is trusted on its own: a setup only fires when
+            <strong>at least half agree</strong> and the trend lines up. Tap a factor to see how
+            it votes, and watch the consensus build.
+          </p>
+          <p class="engine__note">These are the real factors from the engine — not a mock-up. Nothing here predicts price; it measures agreement, then hands qualifying setups to the backtester.</p>
+        </div>
+        <div id="confluence-engine"></div>
       </div>
     </section>
 
@@ -773,5 +794,7 @@
 
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/trade-story.js" defer></script>
+  <script src="assets/js/confluence-engine.js" defer></script>
+  <script src="assets/js/hero-fx.js" defer></script>
 </body>
 </html>
