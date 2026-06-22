@@ -579,7 +579,8 @@ def _paper_scan(args) -> None:
                         tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
                         trend_filter=args.trend_filter,
-                        long_only=args.long_only, killzone_gate=args.killzone_gate)
+                        long_only=args.long_only, killzone_gate=args.killzone_gate,
+                        trailing_atr=args.trailing_atr)
     notify_trades_opened(logged)   # no-op unless Telegram is configured
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
@@ -1007,6 +1008,9 @@ def main() -> None:
     ps.add_argument("--killzone-gate", action="store_true",
                     help="only take signals in London/NY/Brinks windows "
                          "(NOT validated for 5m — experimental, default off)")
+    ps.add_argument("--trailing-atr", type=float, default=None,
+                    help="chandelier trailing stop: trail at this many ATR behind the "
+                         "favourable extreme (e.g. 1.5 = 1R at stop_atr 1.5); default off")
     ps.set_defaults(func=_paper_scan)
 
     vs = sub.add_parser("vector-scan",

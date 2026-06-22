@@ -45,6 +45,7 @@ def paper_scan(
     trend_filter: bool = False,        # tested: skip signals fighting the 800-EMA HTF trend
     long_only: bool = False,           # skip SHORT signals (5m excursion_audit: longs 32% vs shorts 14%, n=48)
     killzone_gate: bool = False,       # skip signals outside London/NY/Brinks windows (NOT validated for 5m)
+    trailing_atr: float | None = None, # chandelier trail at trailing_atr*ATR behind the extreme (None = off)
     dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
@@ -140,6 +141,8 @@ def paper_scan(
             symbol=sym, kind="bracket", level=limit, entry=limit, stop=stop,
             target=target, direction=direction, target_r=target_r,
             tp1=tp1, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1,
+            trailing_atr=trailing_atr,
+            atr_at_entry=(atr if trailing_atr is not None else None),
             deadline_days=tf_deadline, timeframe=interval,
             pending_limit=True, signal_price=signal_price, fill_deadline_days=tf_fill,
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
