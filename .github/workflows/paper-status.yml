@@ -1,0 +1,43 @@
+name: Paper-trade status ping (off-half-hour)
+
+# READ-ONLY status heartbeat between the hourly scans. The validated scan
+# (paper-trade.yml) runs at :05 on the 1h bar close and OWNS new trades, journal
+# resolution, and the journal commit. This job runs at :35 and ONLY re-sends the
+# portfolio snapshot (notify-summary) with fresh live marks — it does NOT scan,
+# resolve, or write data/journal.json, so it can never race the bot or trade a
+# half-formed 1h bar. Net effect: a Telegram status update every ~30 minutes.
+#
+# No-op (silent) unless the TELEGRAM_* repo secrets are set.
+
+on:
+  schedule:
+    - cron: "35 * * * *"       # :35 — halfway between the hourly :05 scans
+  workflow_dispatch:           # manual run button
+
+permissions:
+  contents: read               # read-only: this job never commits
+
+concurrency:
+  group: paper-status
+  cancel-in-progress: false
+
+jobs:
+  status-ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install -q -r requirements.txt
+
+      - name: Telegram status snapshot (read-only)
+        # Recomputes open-trade marks live and sends the portfolio snapshot.
+        # Reads the journal committed by the last hourly run; writes nothing.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m kudbee_quant.cli notify-summary || true

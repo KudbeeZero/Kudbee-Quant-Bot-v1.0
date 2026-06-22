@@ -44,6 +44,24 @@ def _book_tag(setup: str | None) -> str:
     return ""
 
 
+def _book_label(setup: str | None) -> str:
+    """Human bucket for the per-book summary breakdown. The validated book is
+    'core'; the separately-tagged experiments split out (§C '_cts' -> trend,
+    §A '_lo' -> longs, tradfi venue -> tradfi)."""
+    s = setup or ""
+    if "_cts" in s:
+        return "trend"
+    if "_lo" in s:
+        return "longs"
+    if "_tradfi" in s:
+        return "tradfi"
+    return "core"
+
+
+# Stable display order for the book breakdown (validated book first).
+_BOOK_ORDER = ("core", "trend", "longs", "tradfi")
+
+
 def _opened_line(p: "Prediction") -> str:
     pend = " (limit pending)" if getattr(p, "pending_limit", False) else ""
     tr = f" {p.target_r:g}R" if getattr(p, "target_r", None) is not None else ""
@@ -81,14 +99,54 @@ def format_trades_resolved(preds: list["Prediction"]) -> str:
     return "\n".join([head, *lines])
 
 
-def format_summary(report: dict, *, record: dict | None = None) -> str:
+def _book_breakdown_line(trades: list[dict]) -> str | None:
+    """`By book: core 3 (+0.4R) • trend 1 (+0.1R)` — open count + unrealized R per
+    book, validated 'core' first. None when there are no open trades to split."""
+    if not trades:
+        return None
+    agg: dict[str, list[float]] = {}
+    for t in trades:
+        b = agg.setdefault(_book_label(t.get("setup")), [0.0, 0.0])  # [count, sum_r]
+        b[0] += 1
+        ur = t.get("unrealized_r")
+        if ur is not None:
+            b[1] += ur
+    if len(agg) < 2:
+        return None  # one book -> the headline already says it; don't be noisy
+    books = sorted(agg, key=lambda b: (_BOOK_ORDER.index(b) if b in _BOOK_ORDER else 99, b))
+    return "By book: " + "  •  ".join(
+        f"{b} {int(agg[b][0])} ({agg[b][1]:+.2f}R)" for b in books)
+
+
+def _best_worst_line(trades: list[dict]) -> str | None:
+    """`Best: ETH +1.2R (+3.1%) • Worst: SOL -0.6R (-1.4%)` over marked open trades."""
+    marked = [t for t in trades if t.get("unrealized_r") is not None]
+    if not marked:
+        return None
+    best = max(marked, key=lambda t: t["unrealized_r"])
+    worst = min(marked, key=lambda t: t["unrealized_r"])
+
+    def _bit(t: dict) -> str:
+        pct = t.get("pnl_pct")
+        pct_txt = "" if pct is None else f" ({pct:+.1f}%)"
+        return f"{t['symbol']} {t['unrealized_r']:+.2f}R{pct_txt}"
+
+    if best is worst:
+        return f"Open: {_bit(best)}"
+    return f"Best: {_bit(best)}  •  Worst: {_bit(worst)}"
+
+
+def format_summary(report: dict, *, record: dict | None = None,
+                   realized_today: dict | None = None) -> str:
     """Portfolio snapshot from :func:`review.open_trades_report` (+ optional record).
 
     ``report`` is the dict that function returns; ``record`` is an optional
     ``{venue: {...}}`` map from ``TradeJournal.venue_record`` for a one-line
-    track-record footer.
+    track-record footer. ``realized_today`` is an optional ``{"r": float, "n": int}``
+    of fee-net R closed since 00:00 UTC (see :func:`_realized_today`).
     """
     p = report.get("portfolio", {})
+    trades = report.get("trades", []) or []
     n = p.get("total_open", 0)
     usd = p.get("total_unrealized_usd")
     usd_txt = "" if usd is None else f" / {usd:+.2f} USD"
@@ -98,6 +156,15 @@ def format_summary(report: dict, *, record: dict | None = None) -> str:
         f"Up/Down: {p.get('winners_open', 0)}/{p.get('losers_open', 0)}  •  "
         f"Open risk: {p.get('total_open_risk_pct', 0):.1f}% of account",
     ]
+    book_line = _book_breakdown_line(trades)
+    if book_line:
+        lines.append(book_line)
+    bw_line = _best_worst_line(trades)
+    if bw_line:
+        lines.append(bw_line)
+    if realized_today and realized_today.get("n"):
+        lines.append(f"Today: {realized_today.get('r', 0):+.2f}R on "
+                     f"{realized_today['n']} closed")
     if p.get("closest_to_stop") or p.get("closest_to_tp"):
         lines.append(f"Closest to stop: {p.get('closest_to_stop') or '—'}  •  "
                      f"closest to target: {p.get('closest_to_tp') or '—'}")
@@ -109,6 +176,29 @@ def format_summary(report: dict, *, record: dict | None = None) -> str:
         if bits:
             lines.append("Record: " + "  ".join(bits))
     return "\n".join(lines)
+
+
+def _realized_today(predictions: list["Prediction"]) -> dict:
+    """``{"r": fee-net R, "n": closes}`` for trades resolved since 00:00 UTC today.
+    Uses :func:`net_outcome_r` so the daily number matches the honest (after-fee)
+    record. Unparseable / unresolved records are skipped, never raise."""
+    from datetime import datetime, timezone
+    from ..journal import net_outcome_r
+
+    today = datetime.now(timezone.utc).date()
+    rs: list[float] = []
+    for p in predictions:
+        if p.status not in ("hit", "miss", "cancelled") or not p.resolved_at:
+            continue
+        try:
+            if datetime.fromisoformat(p.resolved_at).date() != today:
+                continue
+        except ValueError:
+            continue
+        nr = net_outcome_r(p)
+        if nr is not None:
+            rs.append(nr)
+    return {"r": round(sum(rs), 2), "n": len(rs)}
 
 
 # --- high-level hooks (guarded + non-raising) -------------------------------
@@ -136,7 +226,9 @@ def notify_summary() -> bool:
         j = TradeJournal()
         report = open_trades_report(journal=j)
         record = {v: r for v, r in j.venue_record().items() if r["n"]}
-        return send_telegram(format_summary(report, record=record or None))
+        realized = _realized_today(j.predictions)
+        return send_telegram(format_summary(report, record=record or None,
+                                            realized_today=realized))
     except Exception:  # noqa: BLE001 — a summary failure must not break the run
         return False
 
