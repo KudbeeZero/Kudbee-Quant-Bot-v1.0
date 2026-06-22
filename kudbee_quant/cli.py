@@ -779,7 +779,14 @@ def _notify_summary(args) -> None:
     if not telegram_enabled():
         print("Telegram is not configured — no summary sent.")
         return
-    print("Summary sent." if notify_summary() else "Telegram send failed (check token/chat id).")
+    only_if_open = getattr(args, "only_if_open", False)
+    sent = notify_summary(only_if_open=only_if_open)
+    if sent:
+        print("Summary sent.")
+    elif only_if_open:
+        print("No open positions — reminder skipped (silent when flat).")
+    else:
+        print("Telegram send failed (check token/chat id).")
 
 
 def _notify_session(args) -> None:
@@ -1165,6 +1172,8 @@ def main() -> None:
     nt = sub.add_parser("notify-test", help="send a Telegram test ping (verify token/chat id)")
     nt.set_defaults(func=_notify_test)
     nsum = sub.add_parser("notify-summary", help="send the portfolio snapshot to Telegram")
+    nsum.add_argument("--only-if-open", action="store_true", dest="only_if_open",
+                      help="skip sending when there are no open positions (silent when flat)")
     nsum.set_defaults(func=_notify_summary)
     nses = sub.add_parser("notify-session",
                           help="fire a Telegram session-open alert (Asia/London/NY + key levels)")
