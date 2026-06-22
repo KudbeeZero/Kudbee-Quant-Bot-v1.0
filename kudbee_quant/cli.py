@@ -796,6 +796,45 @@ def _notify_session(args) -> None:
           else "No session open this hour — nothing sent.")
 
 
+def _scorecard(args) -> None:
+    """Forward-validation scorecard: per-book net-of-fee verdicts (KEEP/REVERT/WAIT),
+    optionally with toxic-hour and regime breakdowns. Read-only over the journal."""
+    from . import scorecard as sc
+    mode = None if args.mode == "all" else args.mode
+    if args.report is not None:
+        sc.write_forward_report(args.report, mode=mode, since=args.since)
+        print(f"Wrote forward report -> {args.report}")
+    if args.notify:
+        ok = sc.notify_scorecard(mode=mode, since=args.since)
+        print("Scorecard sent to Telegram." if ok else "Telegram muted/failed — not sent.")
+    card = sc.book_scorecard(mode=mode, since=args.since)
+    win = f" since {args.since}" if args.since else ""
+    print(f"\nForward scorecard ({mode or 'all'} mode{win}, net of fees; "
+          f"KEEP/REVERT need >={card['wait_min_n']} trades):")
+    if not card["books"]:
+        print("  (no resolved trades in this window)")
+        return
+    print(f"  {'book':14} {'n':>4} {'expR/t':>8} {'win%':>5} {'totalR':>8} {'maxDD':>7}  verdict")
+    for b, st in sorted(card["books"].items(), key=lambda kv: kv[1]["expectancy_r"], reverse=True):
+        print(f"  {b:14} {st['n']:>4} {st['expectancy_r']:>+8.3f} {st['win_rate']:>5.0%} "
+              f"{st['total_r']:>+8.1f} {st['max_drawdown_r']:>7.1f}  {st['verdict']}")
+    ov = card["overall"]
+    if ov:
+        print(f"  {'OVERALL':14} {ov['n']:>4} {ov['expectancy_r']:>+8.3f} {ov['win_rate']:>5.0%} "
+              f"{ov['total_r']:>+8.1f} {ov['max_drawdown_r']:>7.1f}")
+    if args.by_hour:
+        hrs = sc.book_hour_breakdown(mode=mode, since=args.since)
+        toxic = ", ".join(f"{h:02d}h" for h in hrs["toxic_hours"]) or "none"
+        print(f"\n  Toxic entry hours (UTC, >={hrs['min_n']} trades & net-negative): {toxic}")
+    if args.by_regime:
+        reg = sc.book_regime_breakdown(mode=mode, since=args.since)
+        print("\n  By entry-vol regime (ATR% terciles):")
+        for rn in ("low", "mid", "high", "unknown"):
+            st = reg["regimes"].get(rn)
+            if st:
+                print(f"    {rn:8} n={st['n']:>4}  exp {st['expectancy_r']:+.3f}R/t  total {st['total_r']:+.1f}R")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -1130,6 +1169,19 @@ def main() -> None:
     nses = sub.add_parser("notify-session",
                           help="fire a Telegram session-open alert (Asia/London/NY + key levels)")
     nses.set_defaults(func=_notify_session)
+    scd = sub.add_parser("scorecard",
+                         help="forward-validation scorecard: per-book KEEP/REVERT/WAIT (net of fees)")
+    scd.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
+    scd.add_argument("--since", default=None,
+                     help="only score trades resolved on/after this date (YYYY-MM-DD) — the forward window")
+    scd.add_argument("--by-hour", action="store_true", dest="by_hour",
+                     help="also show toxic entry-hour breakdown")
+    scd.add_argument("--by-regime", action="store_true", dest="by_regime",
+                     help="also show expectancy by entry-vol regime")
+    scd.add_argument("--report", default=None, metavar="PATH",
+                     help="write a markdown forward report to PATH")
+    scd.add_argument("--notify", action="store_true", help="also send the scorecard to Telegram")
+    scd.set_defaults(func=_scorecard)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")
