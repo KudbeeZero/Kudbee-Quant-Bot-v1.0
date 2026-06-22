@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import json
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 
 import numpy as np
@@ -42,7 +42,10 @@ from kudbee_quant.journal.journal import DEFAULT_PATH, Prediction
 # ----------------------------------------------------------------------------
 TRIGGERS = [("first_green", 1e-9), ("+0.10R", 0.10), ("+0.25R", 0.25),
             ("+0.50R", 0.50), ("+1.00R", 1.00)]
-LEVERAGES = [10, 25, 50]
+LEVERAGES = [1, 10, 25, 50]   # 1 = no leverage (spot-equivalent) baseline
+# Exit-geometry sweep: stop distance as a MULTIPLE of today's stop (1.0 = current).
+# Target is held at 3R of the (scaled) stop and break-even arms at trigger_R of it.
+STOP_WIDTHS = [0.5, 1.0, 1.5, 2.0]
 MMR = 0.005          # maintenance-margin rate assumption (~0.5%); liq ≈ 1/L − MMR
 STAKE_USD = 1.0      # micro margin posted per trade ($1)
 BANKROLL_UNITS = 100  # ruin sim: bankroll = 100 stakes ($100); each trade risks ≤1 stake
@@ -278,7 +281,318 @@ def risk_of_ruin(net_usd: list[float], horizons=(100, 500, 1000), trials=2000,
     return out
 
 
+# ----------------------------------------------------------------------------
+# EXIT-GEOMETRY SWEEP (5m) — read-only offline study (research/exit-geometry-sweep)
+#
+# Sweeps the STOP WIDTH (a multiple of today's stop) x the BREAK-EVEN TRIGGER,
+# holding the target at 3R of the (scaled) stop, on 5m trades only. Everything is
+# re-walked ADVERSE-FIRST via the SAME tested sim_policy: we just rescale each
+# path's R arrays by 1/w so that 1 NEW-R == w * (original stop distance). Outcomes
+# and expectancy are reported in NEW-R, i.e. normalised to the risk actually taken
+# at that width, so widths are directly comparable. Friction (a price% cost) maps
+# to NEW-R as friction_r_original / w, since a wider stop dilutes a fixed % cost.
+#
+# NOTHING here changes the engine, the journal, the workflow, or any live path.
+# ----------------------------------------------------------------------------
+def _scaled(tp: TradePath, w: float) -> TradePath:
+    """A view of the path at stop width ``w``: R arrays rescaled to NEW-R (1 NEW-R
+    = w*original stop) and the target pinned at 3R. Reuses sim_policy unchanged."""
+    return replace(tp, rhi=tp.rhi / w, rlo=tp.rlo / w, rclose=tp.rclose / w,
+                   target_r=3.0)
+
+
+def _session(p: Prediction) -> str:
+    """UTC session bucket from the fill hour (the §48 toxic-window lens)."""
+    try:
+        h = datetime.fromisoformat(p.filled_at or p.created_at).hour
+    except Exception:
+        return "unknown"
+    if 0 <= h < 8:
+        return "asia_00-08"
+    if 8 <= h < 13:
+        return "london_08-13"
+    if 13 <= h < 21:
+        return "ny_13-21"
+    return "late_21-24"
+
+
+def _band(p: Prediction) -> str:
+    """Confluence-pct band from the setup label (e.g. confluence_r_60pct_tf -> 60pct)."""
+    s = p.setup or ""
+    for b in ("50pct", "60pct", "70pct", "80pct", "90pct"):
+        if b in s:
+            return b
+    return "other"
+
+
+def sizing_sim(per_trade_r, risks=(0.02, 0.03, 0.05), n_trades=100,
+               start=1000.0, trials=4000, seed=11):
+    """Bootstrap the best combo's per-trade R outcomes and COMPOUND at a fixed
+    fraction-of-balance risk (risk*R per trade; -1R loses the full risk fraction).
+    Returns median ending balance and median worst drawdown for each risk %.
+    (Same i.i.d. bootstrap spirit as risk_of_ruin; treat as a floor — real streaks
+    autocorrelate.)"""
+    arr = np.array([r for r in per_trade_r if r == r])
+    out = {}
+    if len(arr) == 0:
+        return {r: {"median_end": float("nan"), "median_maxdd": float("nan")} for r in risks}
+    rng = np.random.default_rng(seed)
+    for risk in risks:
+        ends, dds = [], []
+        for _ in range(trials):
+            draws = arr[rng.integers(0, len(arr), size=n_trades)]
+            bal = peak = start
+            mdd = 0.0
+            for r in draws:
+                bal *= (1.0 + risk * r)
+                if bal <= 0:
+                    bal = 0.0
+                peak = max(peak, bal)
+                mdd = max(mdd, (peak - bal) / peak if peak > 0 else 1.0)
+                if bal == 0.0:
+                    break
+            ends.append(bal)
+            dds.append(mdd)
+        out[risk] = {"median_end": float(np.median(ends)),
+                     "median_maxdd": float(np.median(dds))}
+    return out
+
+
+def quarter_kelly_pct(per_trade_r) -> float:
+    """Approx growth-optimal risk fraction f* ~= mean(R)/E[R^2] (continuous-Kelly
+    small-edge form), then quarter-Kelly. <=0 means the edge says DON'T BET."""
+    arr = np.array([r for r in per_trade_r if r == r])
+    if len(arr) < 2:
+        return float("nan")
+    e_r2 = float(np.mean(arr ** 2))
+    if e_r2 <= 0:
+        return float("nan")
+    return (float(np.mean(arr)) / e_r2) / 4.0 * 100.0
+
+
+def exit_geometry_5m(argv):
+    """STEP 4-6: stop-width x BE-trigger sweep on 5m, best combo, condition
+    breakdown, and the 2/3/5% + quarter-Kelly sizing answer. Writes the two
+    committed reports. Read-only over the journal; no engine/live change."""
+    import os
+
+    path = DEFAULT_PATH
+    trades = [Prediction(**d) for d in json.loads(path.read_text())]
+    resolved = [p for p in trades
+                if p.status in ("hit", "miss") and p.kind == "bracket"
+                and p.timeframe == "5m"]                     # 5m ONLY (STEP 4)
+    client = RouterClient()
+    klcache: dict = {}
+    print(f"[exit-geometry] building paths for {len(resolved)} resolved 5m trades...",
+          file=sys.stderr)
+    paths = []
+    for i, p in enumerate(resolved):
+        tp = build_path(p, client, klcache)
+        if tp is not None and tp.has_path and len(tp.rhi) > 0:
+            paths.append(tp)
+        if (i + 1) % 50 == 0:
+            print(f"  {i+1}/{len(resolved)}", file=sys.stderr)
+    n = len(paths)
+    if n == 0:
+        print("No 5m paths with OHLCV coverage — cannot run the sweep.")
+        return
+
+    hold = {id(t): hold_days_of(t) for t in paths}
+    triggers = [("no_BE", None)] + TRIGGERS     # baseline + each BE trigger (NEW-R)
+
+    # ---- the sweep: per (stop_width x BE_trigger), target fixed at 3R ----------
+    combos = []
+    # cache per (w, trigger) the per-trade gross so we can also do save/cut + sizing
+    gross_cache: dict = {}
+    for w in STOP_WIDTHS:
+        nobe = [sim_policy(_scaled(t, w), be_trigger=None, be_level=0.0) for t in paths]
+        gross_cache[(w, "no_BE")] = nobe
+        for tlabel, thr in triggers:
+            gross = (nobe if tlabel == "no_BE"
+                     else [sim_policy(_scaled(t, w), be_trigger=thr, be_level=0.0)
+                           for t in paths])
+            gross_cache[(w, tlabel)] = gross
+            net_real = [g - friction_r(t, "real", hold[id(t)]) / w
+                        for g, t in zip(gross, paths)]
+            net_harsh = [g - friction_r(t, "harsh", hold[id(t)]) / w
+                         for g, t in zip(gross, paths)]
+            er, _ = expectancy(net_real)
+            eh, _ = expectancy(net_harsh)
+            wins = sum(1 for x in net_real if x > 1e-9)
+            saved = sum(1 for a, b in zip(gross, nobe) if a > b + 1e-6)
+            cut = sum(1 for a, b in zip(gross, nobe) if a < b - 1e-6)
+            combos.append({
+                "stop_width": w, "be_trigger": tlabel, "target_r": 3.0,
+                "n": n, "exp_net_real": er, "exp_net_harsh": eh,
+                "win_rate": wins / n,
+                "be_would_save": saved, "be_cuts_winner": cut,
+            })
+
+    combos.sort(key=lambda c: c["exp_net_real"], reverse=True)
+    best = combos[0]
+
+    # ---- best combo per-trade NET-real R distribution (for sizing) ------------
+    bw, bt = best["stop_width"], best["be_trigger"]
+    best_gross = gross_cache[(bw, bt)]
+    best_net_real = [g - friction_r(t, "real", hold[id(t)]) / bw
+                     for g, t in zip(best_gross, paths)]
+
+    # ---- condition breakdown at the BEST combo (cells shown with counts) ------
+    def breakdown(keyfn):
+        cells = {}
+        for t, r in zip(paths, best_net_real):
+            k = keyfn(t.p)
+            cells.setdefault(k, []).append(r)
+        rows = []
+        for k, rs in cells.items():
+            e, _ = expectancy(rs)
+            rows.append({"cell": k, "n": len(rs), "exp_net_real": e,
+                         "seed": len(rs) < 20})
+        return sorted(rows, key=lambda x: (-x["n"]))
+    cond = {
+        "direction": breakdown(lambda p: "long" if (p.direction or 0) > 0 else "short"),
+        "band": breakdown(_band),
+        "session": breakdown(_session),
+        "symbol": breakdown(lambda p: p.symbol),
+    }
+
+    # ---- STEP 6: sizing sim on the best combo's real edge --------------------
+    sizing = sizing_sim(best_net_real)
+    qk = quarter_kelly_pct(best_net_real)
+
+    out = {
+        "scope": "5m resolved bracket trades, exit-geometry sweep (read-only)",
+        "n_5m_resolved": len(resolved), "n_with_path": n,
+        "axes": {"stop_widths": STOP_WIDTHS,
+                 "be_triggers": [t[0] for t in triggers],
+                 "target_r": 3.0, "note": "target held at 3R of the scaled stop (STEP 4)"},
+        "friction_models": {"real": FRICTION["real"], "harsh": FRICTION["harsh"]},
+        "combos": combos,
+        "best": best,
+        "condition_breakdown_at_best": cond,
+        "sizing_sim": {f"{int(r*100)}pct": v for r, v in sizing.items()},
+        "quarter_kelly_pct": qk,
+        "caveats": [
+            "cells under ~20 trades are hypothesis seeds, confirm out-of-sample before trusting.",
+            "R is normalised to the risk taken at each stop width (1 NEW-R = w*original stop).",
+            "intrabar resolved ADVERSE-FIRST (reused sim_policy); BE never over-credited.",
+            "expectancy is net of the labelled friction model; touches are not guaranteed fills.",
+            "5m sample pools the §44 VWAP-flip regime; descriptive, not causal.",
+        ],
+    }
+
+    # ---- write committed reports ---------------------------------------------
+    os.makedirs("data", exist_ok=True)
+    os.makedirs("reports", exist_ok=True)
+    with open("data/exit_geometry_5m.json", "w") as fh:
+        json.dump(out, fh, indent=2, default=str)
+
+    _write_geometry_md("reports/exit_geometry_5m.md", out)
+
+    # ---- console summary ------------------------------------------------------
+    print("\n" + "=" * 78)
+    print("EXIT-GEOMETRY SWEEP — 5m ONLY (read-only; no live change)")
+    print("=" * 78)
+    print(f"5m resolved: {len(resolved)}  |  with usable path: {n}")
+    print("\n[STEP 5] stop_width x BE_trigger (target = 3R of scaled stop), "
+          "expectancy in R net of real & harsh fees:\n")
+    print(f"    {'width':>6}{'BE_trig':>12}{'n':>5}{'win%':>7}"
+          f"{'net_real':>10}{'net_harsh':>11}{'BE_save':>9}{'BE_cut':>8}")
+    for c in combos:
+        print(f"    {c['stop_width']:>6.1f}{c['be_trigger']:>12}{c['n']:>5}"
+              f"{100*c['win_rate']:>6.0f}%{c['exp_net_real']:>10.3f}"
+              f"{c['exp_net_harsh']:>11.3f}{c['be_would_save']:>9}{c['be_cuts_winner']:>8}")
+    print(f"\n  BEST by net-of-real: stop_width={best['stop_width']}x  "
+          f"BE_trigger={best['be_trigger']}  target=3R  ->  "
+          f"{best['exp_net_real']:+.3f}R/trade (net real), "
+          f"{best['exp_net_harsh']:+.3f}R (harsh), win {100*best['win_rate']:.0f}%, n={best['n']}.")
+
+    print("\n[STEP 5] Condition breakdown at the best combo "
+          "(net-real R; * = <20 trades = hypothesis seed):")
+    for dim, rows in cond.items():
+        print(f"  by {dim}:")
+        for r in rows[:12]:
+            mark = " *" if r["seed"] else ""
+            print(f"      {str(r['cell']):<14} n={r['n']:<4} {r['exp_net_real']:+.3f}R{mark}")
+    print("  cells under ~20 trades are hypothesis seeds, confirm out-of-sample "
+          "before trusting.")
+
+    print(f"\n[STEP 6] Sizing on the BEST combo's REAL edge "
+          f"({best['exp_net_real']:+.3f}R/trade), 100 trades, $1,000 start:")
+    print(f"    {'risk/trade':>11}{'median end $':>14}{'median worst DD':>18}")
+    for r in (0.02, 0.03, 0.05):
+        s = sizing[r]
+        print(f"    {int(r*100):>10}%{s['median_end']:>14.0f}{100*s['median_maxdd']:>17.0f}%")
+    qk_txt = (f"{qk:.2f}% risk/trade" if qk == qk and qk > 0
+              else "<= 0% (edge says DO NOT BET)")
+    print(f"    Quarter-Kelly suggested: {qk_txt}")
+    print("\nNot financial advice. Offline analysis only — no live changes made.")
+    return out
+
+
+def _write_geometry_md(fpath: str, out: dict) -> None:
+    best = out["best"]
+    L = []
+    L.append("# Exit-geometry sweep — 5m (read-only study)\n")
+    L.append("> Offline replay over resolved **5m** bracket trades. Sweeps the **stop "
+             "width** (a multiple of today's stop) against the **break-even trigger**, "
+             "target held at **3R** of the scaled stop. R is normalised to the risk "
+             "taken at each width (1 NEW-R = w x original stop), so widths compare "
+             "directly. Intrabar resolved **adverse-first** (reused `sim_policy`). "
+             "**No engine / journal / workflow / live change.**\n")
+    L.append(f"- 5m resolved bracket trades: **{out['n_5m_resolved']}** "
+             f"(usable path: **{out['n_with_path']}**)")
+    L.append(f"- Axes: stop_widths {out['axes']['stop_widths']} x BE_triggers "
+             f"{out['axes']['be_triggers']}, target=3R\n")
+    L.append(f"## Best combo (by expectancy net of **real** fees)\n")
+    L.append(f"**stop_width = {best['stop_width']}x, BE_trigger = {best['be_trigger']}, "
+             f"target = 3R** -> **{best['exp_net_real']:+.3f} R/trade** net-real "
+             f"({best['exp_net_harsh']:+.3f} harsh), win {100*best['win_rate']:.0f}%, "
+             f"n={best['n']}, BE saved {best['be_would_save']} / cut {best['be_cuts_winner']}.\n")
+    L.append("## Full sweep (net-of-real / net-of-harsh expectancy in R)\n")
+    L.append("| stop_width | BE_trigger | n | win% | net_real | net_harsh | BE_save | BE_cut |")
+    L.append("|---:|---|---:|---:|---:|---:|---:|---:|")
+    for c in out["combos"]:
+        L.append(f"| {c['stop_width']:.1f}x | {c['be_trigger']} | {c['n']} | "
+                 f"{100*c['win_rate']:.0f}% | {c['exp_net_real']:+.3f} | "
+                 f"{c['exp_net_harsh']:+.3f} | {c['be_would_save']} | {c['be_cuts_winner']} |")
+    L.append("\n## Condition breakdown at the best combo (net-real R)\n")
+    L.append("> `*` marks cells under ~20 trades — **hypothesis seeds, confirm "
+             "out-of-sample before trusting.**\n")
+    for dim, rows in out["condition_breakdown_at_best"].items():
+        L.append(f"### by {dim}\n")
+        L.append("| cell | n | net_real R |")
+        L.append("|---|---:|---:|")
+        for r in rows:
+            mark = " *" if r["seed"] else ""
+            L.append(f"| {r['cell']}{mark} | {r['n']} | {r['exp_net_real']:+.3f} |")
+        L.append("")
+    sz = out["sizing_sim"]
+    L.append("## Sizing on the best combo's real edge (100 trades, $1,000 start)\n")
+    L.append("| risk/trade | median ending $ | median worst drawdown |")
+    L.append("|---:|---:|---:|")
+    for key in ("2pct", "3pct", "5pct"):
+        if key in sz:
+            v = sz[key]
+            L.append(f"| {key.replace('pct','%')} | {v['median_end']:.0f} | "
+                     f"{100*v['median_maxdd']:.0f}% |")
+    qk = out["quarter_kelly_pct"]
+    qk_txt = (f"{qk:.2f}% risk/trade" if isinstance(qk, (int, float)) and qk == qk and qk > 0
+              else "<= 0% (edge says DO NOT BET)")
+    L.append(f"\n**Quarter-Kelly suggested risk:** {qk_txt}\n")
+    L.append("## Caveats\n")
+    for c in out["caveats"]:
+        L.append(f"- {c}")
+    L.append("\n_Not financial advice. Offline analysis/simulation only — no live "
+             "changes made._\n")
+    with open(fpath, "w") as fh:
+        fh.write("\n".join(L))
+
+
 def main(argv):
+    if "--exit-geometry" in argv:
+        exit_geometry_5m(argv)
+        return
     path = DEFAULT_PATH
     trades = [Prediction(**d) for d in json.loads(path.read_text())]
     resolved = [p for p in trades if p.status in ("hit", "miss") and p.kind == "bracket"]
