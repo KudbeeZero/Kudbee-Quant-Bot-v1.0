@@ -140,19 +140,45 @@ def _prev_day_opens(df: pd.DataFrame, n_days: int) -> list[pd.Series]:
     return out
 
 
-def level_cluster(df: pd.DataFrame, tol_atr: float = 0.20, n_days: int = 6) -> pd.Series:
+def _cluster_group(col: str) -> str:
+    """Map a level column to a source group (for ablation)."""
+    if col.startswith("mlevel_"):
+        return "mlevel"
+    if col.startswith("pivot_"):
+        return "pivot"
+    if col in ("daily_open", "weekly_open", "monthly_open", "ny_open", "asian_open"):
+        return "open"
+    if col in ("pdh", "pdl", "pwh", "pwl", "asian_high", "asian_low",
+               "ny_brinks_high", "ny_brinks_low"):
+        return "prior"
+    if col in ("adr_high", "adr_low", "awr_high", "awr_low", "week_ib_high", "week_ib_low"):
+        return "range"
+    if col == "vwap":
+        return "vwap"
+    if col in ("round_below", "round_above"):
+        return "round"
+    return "other"
+
+
+def level_cluster(df: pd.DataFrame, tol_atr: float = 0.20, n_days: int = 6,
+                  exclude_groups: set | None = None) -> pd.Series:
     """Count how many INDEPENDENT levels stack within ``tol_atr`` ATR of the close —
     the owner's 'M2 lines up with a prior-day/weekly level / a 3-day-old daily open'
     idea. Sources: the M-level grid, pivots, session opens, prior day/week H/L, ADR/
     AWR bands, VWAP, round numbers, weekly IB, PLUS the daily opens of the last
-    ``n_days`` days (so today's M1 sitting on a 3-day-old open counts as a stack).
-    Causal: every source is prior-bar-derived or a confirmed past day's open.
+    ``n_days`` days (group 'prevopen'). Causal: every source is prior-bar-derived or
+    a confirmed past day's open. ``exclude_groups`` drops source groups (ablation):
+    mlevel | pivot | open | prior | range | vwap | round | prevopen.
     """
+    exclude_groups = exclude_groups or set()
     close = df["close"].to_numpy()
     atr = df["atr"].to_numpy()
     tol = tol_atr * atr
-    cols = [c for c in _CLUSTER_LEVELS if c in df.columns]
-    levels = [df[c].to_numpy() for c in cols] + [s.to_numpy() for s in _prev_day_opens(df, n_days)]
+    cols = [c for c in _CLUSTER_LEVELS
+            if c in df.columns and _cluster_group(c) not in exclude_groups]
+    levels = [df[c].to_numpy() for c in cols]
+    if "prevopen" not in exclude_groups:
+        levels += [s.to_numpy() for s in _prev_day_opens(df, n_days)]
     count = np.zeros(len(df))
     for lv in levels:
         with np.errstate(invalid="ignore"):
