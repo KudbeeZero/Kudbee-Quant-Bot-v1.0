@@ -62,11 +62,13 @@ def causal_bias_merge(lv15: pd.DataFrame, df30: pd.DataFrame) -> pd.DataFrame:
 
 
 def mtf_signal(frame: pd.DataFrame) -> pd.Series:
-    """+1 on a bull climax with 30m up-bias, -1 on a bear climax with down-bias."""
+    """CONTRARIAN: FADE the climax in the direction of the 30m trend.
+    +1 (long) on a BEAR climax during a 30m up-bias (fade the down-spike);
+    -1 (short) on a BULL climax during a 30m down-bias (fade the up-spike)."""
     vec = frame["vector"]
     bias = frame["bias30"]
-    long_ = (vec == "bull_climax") & (bias > 0)
-    short_ = (vec == "bear_climax") & (bias < 0)
+    long_ = (vec == "bear_climax") & (bias > 0)
+    short_ = (vec == "bull_climax") & (bias < 0)
     return pd.Series(np.where(long_, 1.0, np.where(short_, -1.0, 0.0)), index=frame.index)
 
 
