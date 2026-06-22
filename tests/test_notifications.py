@@ -20,7 +20,7 @@ from kudbee_quant.notifications.notify import (
     format_trades_opened,
     format_trades_resolved,
 )
-from kudbee_quant.notifications.notify import _g
+from kudbee_quant.notifications.notify import _g, _realized_today, _book_label
 from kudbee_quant.notifications.telegram import _split
 
 
@@ -173,6 +173,85 @@ def test_format_summary():
     assert "+1.25R" in msg
     assert "near stop" in msg
     assert "crypto 4/10" in msg
+    # back-compat: no trades / no realized_today -> none of the new blocks appear
+    assert "By book" not in msg and "Best:" not in msg and "Today:" not in msg
+
+
+def _t(symbol, setup, ur, pct=None):
+    return {"symbol": symbol, "setup": setup, "unrealized_r": ur, "pnl_pct": pct}
+
+
+def test_format_summary_per_book_breakdown_and_best_worst():
+    report = {
+        "portfolio": {"total_open": 3, "total_unrealized_r": 0.7,
+                      "total_unrealized_usd": None, "winners_open": 2, "losers_open": 1,
+                      "total_open_risk_pct": 3.0},
+        "trades": [
+            _t("BTCUSDT", "confluence_r_60pct_tf", 0.8, 2.1),       # core
+            _t("ETHUSDT", "confluence_r_60pct_tf_cts", 0.4, 1.0),   # trend
+            _t("SOLUSDT", "confluence_r_60pct_tf_lo", -0.5, -1.3),  # longs
+        ],
+    }
+    msg = format_summary(report)
+    # per-book breakdown, validated 'core' listed first
+    assert "By book:" in msg
+    assert "core 1 (+0.80R)" in msg and "trend 1 (+0.40R)" in msg and "longs 1 (-0.50R)" in msg
+    assert msg.index("core") < msg.index("trend") < msg.index("longs")
+    # best & worst by unrealized R
+    assert "Best: ETHUSDT" not in msg          # ETH +0.4 is not the best
+    assert "Best: BTCUSDT +0.80R (+2.1%)" in msg
+    assert "Worst: SOLUSDT -0.50R (-1.3%)" in msg
+
+
+def test_format_summary_single_book_skips_breakdown():
+    # One book -> headline already covers it; don't emit a noisy "By book" line.
+    report = {"portfolio": {"total_open": 2, "total_unrealized_r": 1.0,
+                            "total_unrealized_usd": None, "winners_open": 2,
+                            "losers_open": 0, "total_open_risk_pct": 2.0},
+              "trades": [_t("BTCUSDT", "confluence_r_60pct_tf", 0.6, 1.0),
+                         _t("ETHUSDT", "confluence_r_60pct_tf", 0.4, 0.5)]}
+    msg = format_summary(report)
+    assert "By book" not in msg
+    assert "Best: BTCUSDT" in msg and "Worst: ETHUSDT" in msg
+
+
+def test_format_summary_realized_today():
+    report = {"portfolio": {"total_open": 0, "total_unrealized_r": 0.0,
+                            "total_unrealized_usd": None, "winners_open": 0,
+                            "losers_open": 0, "total_open_risk_pct": 0.0}}
+    assert "Today:" in format_summary(report, realized_today={"r": 1.8, "n": 4})
+    assert "+1.80R on 4 closed" in format_summary(report, realized_today={"r": 1.8, "n": 4})
+    # no closes today -> line omitted
+    assert "Today:" not in format_summary(report, realized_today={"r": 0.0, "n": 0})
+
+
+def test_book_label_buckets():
+    assert _book_label("confluence_r_60pct_tf") == "core"
+    assert _book_label("confluence_r_60pct_tf_cts") == "trend"
+    assert _book_label("confluence_r_60pct_tf_lo") == "longs"
+    assert _book_label("confluence_r_60pct_tradfi") == "tradfi"
+    assert _book_label(None) == "core"
+
+
+def test_realized_today_sums_fee_net_closes_since_midnight_utc():
+    from datetime import datetime, timezone
+    now = datetime.now(timezone.utc)
+    today_iso = now.isoformat()
+    old_iso = now.replace(year=now.year - 1).isoformat()
+    preds = [
+        _pred(status="hit", outcome_r=3.0),    # resolved today -> counts
+        _pred(status="miss", outcome_r=-1.0),  # resolved today -> counts
+        _pred(status="open"),                  # still open -> ignored
+    ]
+    preds[0].resolved_at = today_iso
+    preds[1].resolved_at = today_iso
+    out = _realized_today(preds)
+    assert out["n"] == 2
+    # fee-net, so strictly less than the gross 3.0 + (-1.0) = 2.0
+    assert out["r"] < 2.0
+    # a close dated last year is excluded
+    preds[1].resolved_at = old_iso
+    assert _realized_today(preds)["n"] == 1
 
 
 def test_split_long_message():

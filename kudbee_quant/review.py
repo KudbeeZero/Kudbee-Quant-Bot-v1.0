@@ -108,6 +108,7 @@ def open_trades_report(journal: TradeJournal | None = None,
         trades.append({
             "id": p.id, "symbol": p.symbol, "timeframe": p.timeframe, "mode": p.mode,
             "status": p.status, "entry_time": p.filled_at or p.created_at,
+            "setup": p.setup,
             "entry_price": p.entry, "current_price": exc.current_price,
             "unrealized_r": ur, "unrealized_pnl_usd": pnl_usd, "pnl_pct": exc.pnl_pct,
             "mfe_r": exc.mfe_r, "mae_r": exc.mae_r,
