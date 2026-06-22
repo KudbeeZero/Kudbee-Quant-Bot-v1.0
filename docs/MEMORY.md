@@ -1833,3 +1833,24 @@ than bb_squeeze). NOT yet a confirmed WINNER (SUGGESTIVE, didn't clear p<0.05) �
 run on 3× history before a tagged paper book. **Honest counter-finding:** the vector-candle pairing
 HURT (−0.185R) and using clusters as profit TARGETS hurt — the cluster is an ENTRY-LOCATION filter,
 not a target or a vector-candle combo. Nothing wired live; stays in the candidate harness.
+
+## 63. Level-cluster CONFIRMATION deep-dive — promising near-miss, NOT confirmed — 2026-06-22 (PR claude/level-cluster-confirm)
+
+Chased the §62 level-cluster lead (3-pass `scripts/validate_level_cluster.py` on 3× history, 12000
+bars top-10, + a 22-symbol power test). Findings:
+- **PASS 1 (threshold×tolerance grid):** OOS-positive across nearly the whole grid; tol=0.20/K≥3 →
+  +0.18R OOS (ΔR +0.12); dose-response holds (K=2→3→4 climbs). Robust to tolerance choice.
+- **PASS 2 (ablation):** no single source group is essential — dropping any one keeps 87–136% of the
+  edge (round-numbers most load-bearing at 66% when dropped). It's the STACKING, not one level type.
+- **PASS 3 (robustness):** 8/10 symbols beat baseline OOS, but bootstrap **OOS p=0.18 / IS p=0.34** —
+  not significant; IS half only +0.03R on top-10.
+- **Power test (22 symbols, 8000 bars):** BOTH halves clearly positive (IS ΔR +0.093, OOS +0.081),
+  IS p→0.07, **OOS p=0.22** — still not <0.05.
+
+**Verdict: PROMISING NEAR-MISS, NOT CONFIRMED.** The cluster effect is consistently positive, dose-
+responsive, cross-symbol and ablation-robust — but never clears p<0.05 OOS. The best near-miss in the
+project (most leads fail sign/both-halves; this fails only statistical power). Per the honesty
+contract: **NOT wired live, NOT claimed validated.** Defensible next step = a separately-tagged PAPER
+book (like §C) to accrue forward trades and settle significance over time — owner's call. Do not
+re-bolt the vector-candle pairing (HURT) or cluster-as-target (HURT); the edge is ENTRY-LOCATION only.
+`level_cluster()` gained an `exclude_groups` ablation param. Nothing wired live; tests still green.
