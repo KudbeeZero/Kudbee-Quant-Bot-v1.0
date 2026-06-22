@@ -248,8 +248,12 @@ def notify_trades_resolved(preds: list["Prediction"]) -> bool:
     return send_telegram(format_trades_resolved(closed))
 
 
-def notify_summary() -> bool:
-    """Build + send the portfolio snapshot. Returns False if muted or on error."""
+def notify_summary(only_if_open: bool = False) -> bool:
+    """Build + send the portfolio snapshot. Returns False if muted or on error.
+
+    ``only_if_open``: skip sending when there are NO open positions — used by the
+    dense (every-5-min) open-position reminder so it pings while you hold trades but
+    stays silent when flat (no spam)."""
     if not telegram_enabled():
         return False
     try:
@@ -257,6 +261,8 @@ def notify_summary() -> bool:
         from ..review import open_trades_report
         j = TradeJournal()
         report = open_trades_report(journal=j)
+        if only_if_open and report.get("portfolio", {}).get("total_open", 0) == 0:
+            return False
         record = {v: r for v, r in j.venue_record().items() if r["n"]}
         realized = _realized_today(j.predictions)
         return send_telegram(format_summary(report, record=record or None,

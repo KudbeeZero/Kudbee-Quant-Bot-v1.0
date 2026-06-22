@@ -289,6 +289,31 @@ def test_realized_today_rolls_at_asia_open_not_utc_midnight():
     assert out["n"] == 1                        # only the post-Asia-open close counts
 
 
+def test_notify_summary_only_if_open(monkeypatch):
+    import types
+    import kudbee_quant.notifications.notify as nt
+    monkeypatch.setattr(nt, "telegram_enabled", lambda: True)
+    sent = []
+    monkeypatch.setattr(nt, "send_telegram", lambda msg: sent.append(msg) or True)
+    monkeypatch.setattr("kudbee_quant.journal.TradeJournal",
+                        lambda *a, **k: types.SimpleNamespace(predictions=[], venue_record=lambda: {}))
+
+    # flat -> silent (no send) under only_if_open
+    monkeypatch.setattr("kudbee_quant.review.open_trades_report",
+                        lambda **k: {"portfolio": {"total_open": 0}, "trades": []})
+    assert nt.notify_summary(only_if_open=True) is False
+    assert sent == []
+
+    # holding positions -> it pings
+    monkeypatch.setattr("kudbee_quant.review.open_trades_report",
+                        lambda **k: {"portfolio": {"total_open": 2, "total_unrealized_r": 0.3,
+                                                   "total_unrealized_usd": None, "winners_open": 1,
+                                                   "losers_open": 1, "total_open_risk_pct": 2.0},
+                                     "trades": []})
+    assert nt.notify_summary(only_if_open=True) is True
+    assert len(sent) == 1
+
+
 def test_split_long_message():
     chunks = _split("x" * 5000)
     assert len(chunks) >= 2

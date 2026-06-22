@@ -1,20 +1,21 @@
-name: Paper-trade status ping (off-half-hour)
+name: Paper-trade status ping (every 5 min, read-only)
 
-# READ-ONLY status heartbeat between the hourly scans. The validated scan
-# (paper-trade.yml) runs at :05 on the 1h bar close and OWNS new trades, journal
-# resolution, and the journal commit. This job runs at :35 and ONLY re-sends the
-# portfolio snapshot (notify-summary) with fresh live marks — it does NOT scan,
-# resolve, or write data/journal.json, so it can never race the bot or trade a
-# half-formed 1h bar. Net effect: a Telegram status update every ~30 minutes.
+# READ-ONLY open-position reminder, MAXED to every 5 minutes (GitHub's cron floor).
+# The validated scan (paper-trade.yml) OWNS new trades, journal resolution and the
+# journal commit; this job ONLY re-sends the portfolio snapshot (notify-summary) with
+# fresh live marks — it does NOT scan, resolve, or write data/journal.json, so the
+# dense cadence can never race the bot or trade a half-formed bar. Runs with
+# --only-if-open, so it pings while you hold positions and is silent when flat.
 #
 # No-op (silent) unless the TELEGRAM_* repo secrets are set.
 
 on:
   schedule:
-    # Read-only open-position reminders, interleaved with the scan (:05/:35) so you get
-    # a "your trades are open" ping roughly every 15 min — :20 and :50. Sends only the
-    # portfolio snapshot (no scan/write), so denser cadence is safe and can't race the bot.
-    - cron: "20,50 * * * *"
+    # MAXED to every 5 minutes — GitHub's smallest cron interval — so you get a
+    # "your trades are open" reminder as often as the platform allows. It's READ-ONLY
+    # (no scan/write), so the dense cadence can't race the bot or trade a half-formed
+    # bar, and it runs with --only-if-open so it stays SILENT when you're flat (no spam).
+    - cron: "*/5 * * * *"
   workflow_dispatch:           # manual run button
 
 permissions:
@@ -33,6 +34,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: pip                 # cache deps so the every-5-min job is cheap/fast
 
       - name: Install deps
         run: pip install -q -r requirements.txt
@@ -43,4 +45,4 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: python -m kudbee_quant.cli notify-summary || true
+        run: python -m kudbee_quant.cli notify-summary --only-if-open || true
