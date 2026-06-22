@@ -9942,8 +9942,8 @@
     "note": "Auto confluence-R long scalp: 60% confluence (strength 6). LIMIT 0.2111 (retrace 0.25 ATR from 0.2137), stop 0.1956, target 0.2577 (3.0R, maker).",
     "created_at": "2026-06-15T23:50:25.032983+00:00",
     "id": "593bb69f",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.21111428571428573,
     "stop": 0.19560000000000002,
     "target": 0.25765714285714286,
@@ -9963,7 +9963,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=-0.001 @ 0.2111"
   },
   {
     "symbol": "ZECUSDT",
@@ -11064,8 +11064,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.08755 (retrace 0.25 ATR from 0.08722), stop 0.0895, target 0.08168 (3.0R, maker).",
     "created_at": "2026-06-16T04:26:31.116913+00:00",
     "id": "69925d11",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.0875457142857143,
     "stop": 0.08950000000000001,
     "target": 0.08168285714285715,
@@ -11085,7 +11085,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+2.510 @ 0.08264"
   },
   {
     "symbol": "AVAXUSDT",
@@ -11130,8 +11130,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.6765 (retrace 0.25 ATR from 0.672), stop 0.7035, target 0.5955 (3.0R, maker).",
     "created_at": "2026-06-16T04:26:38.209559+00:00",
     "id": "8db9a44a",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.6765,
     "stop": 0.7035,
     "target": 0.5955,
@@ -11151,7 +11151,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.981 @ 0.65"
   },
   {
     "symbol": "WLDUSDT",
@@ -11196,8 +11196,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.07888 (retrace 0.25 ATR from 0.0785), stop 0.08116, target 0.07203 (3.0R, maker).",
     "created_at": "2026-06-16T04:27:02.382569+00:00",
     "id": "c92e8dcf",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.07888035714285714,
     "stop": 0.0811625,
     "target": 0.07203392857142857,
@@ -11217,7 +11217,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.131 @ 0.0763"
   },
   {
     "symbol": "SKLUSDT",
@@ -11229,8 +11229,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.004404 (retrace 0.25 ATR from 0.00437), stop 0.004611, target 0.003784 (3.0R, maker).",
     "created_at": "2026-06-16T04:27:03.303142+00:00",
     "id": "5e98d58b",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.004404464285714286,
     "stop": 0.00461125,
     "target": 0.003784107142857143,
@@ -11250,7 +11250,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.859 @ 0.00402"
   },
   {
     "symbol": "GMTUSDT",
@@ -12615,8 +12615,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.02032 (retrace 0.25 ATR from 0.02019), stop 0.02113, target 0.0179 (3.0R, maker).",
     "created_at": "2026-06-16T10:13:31.397754+00:00",
     "id": "c387ba10",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.020324821428571428,
     "stop": 0.02113375,
     "target": 0.017898035714285717,
@@ -12636,7 +12636,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.896 @ 0.0196"
   },
   {
     "symbol": "YAHOO:HG=F",
@@ -13902,8 +13902,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 3.75 (retrace 0.25 ATR from 3.73), stop 3.871, target 3.387 (3.0R, maker).",
     "created_at": "2026-06-16T16:00:51.754454+00:00",
     "id": "b213534d",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 3.7501785714285716,
     "stop": 3.87125,
     "target": 3.3869642857142863,
@@ -13923,7 +13923,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+2.479 @ 3.45"
   },
   {
     "symbol": "ANKRUSDT",
@@ -13935,8 +13935,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.003962 (retrace 0.25 ATR from 0.00394), stop 0.004095, target 0.003564 (3.0R, maker).",
     "created_at": "2026-06-16T16:00:57.943710+00:00",
     "id": "65c18c5d",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.003962142857142857,
     "stop": 0.004095,
     "target": 0.0035635714285714285,
@@ -13956,7 +13956,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+2.048 @ 0.00369"
   },
   {
     "symbol": "BANDUSDT",
@@ -13968,8 +13968,8 @@
     "note": "Auto confluence-R short scalp: 70% confluence (strength 7). LIMIT 0.171 (retrace 0.25 ATR from 0.17), stop 0.1772, target 0.1524 (3.0R, maker).",
     "created_at": "2026-06-16T16:00:58.991719+00:00",
     "id": "f3c00d34",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.1710357142857143,
     "stop": 0.17725,
     "target": 0.1523928571428572,
@@ -13989,7 +13989,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.615 @ 0.161"
   },
   {
     "symbol": "CVCUSDT",
@@ -14067,8 +14067,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.01632 (retrace 0.25 ATR from 0.01618), stop 0.01713, target 0.01387 (3.0R, maker).",
     "created_at": "2026-06-16T16:01:07.790891+00:00",
     "id": "3fc901c5",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.01631589285714286,
     "stop": 0.01713125,
     "target": 0.013869821428571428,
@@ -14088,7 +14088,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.878 @ 0.0156"
   },
   {
     "symbol": "YAHOO:^DJI",
@@ -16773,8 +16773,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.2439 (retrace 0.25 ATR from 0.2425), stop 0.2521, target 0.2193 (3.0R, maker).",
     "created_at": "2026-06-17T11:53:42.689493+00:00",
     "id": "261931af",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.24386607142857142,
     "stop": 0.2520625,
     "target": 0.21927678571428566,
@@ -16794,7 +16794,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.545 @ 0.2312"
   },
   {
     "symbol": "YAHOO:GBPUSD=X",
@@ -17433,8 +17433,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 213.7 (retrace 0.25 ATR from 212.1), stop 223.4, target 184.6 (3.0R, maker).",
     "created_at": "2026-06-17T21:12:07.720980+00:00",
     "id": "8a5b08f5",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 213.71964285714284,
     "stop": 223.4375,
     "target": 184.56607142857138,
@@ -17454,7 +17454,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.782 @ 196.4"
   },
   {
     "symbol": "SANDUSDT",
@@ -18984,8 +18984,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.03827 (retrace 0.25 ATR from 0.038), stop 0.03993, target 0.03332 (3.0R, maker).",
     "created_at": "2026-06-18T09:18:38.585122+00:00",
     "id": "bcadc2aa",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.038274999999999997,
     "stop": 0.039925,
     "target": 0.033324999999999994,
@@ -19005,7 +19005,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.500 @ 0.0358"
   },
   {
     "symbol": "PEOPLEUSDT",
@@ -19017,8 +19017,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.005726 (retrace 0.25 ATR from 0.0057), stop 0.005881, target 0.00526 (3.0R, maker).",
     "created_at": "2026-06-18T09:18:48.457021+00:00",
     "id": "75042dd7",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.005725892857142857,
     "stop": 0.00588125,
     "target": 0.005259821428571429,
@@ -19038,7 +19038,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.390 @ 0.00551"
   },
   {
     "symbol": "JASMYUSDT",
@@ -19050,8 +19050,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.004933 (retrace 0.25 ATR from 0.00491), stop 0.005071, target 0.004518 (3.0R, maker).",
     "created_at": "2026-06-18T09:18:48.956779+00:00",
     "id": "f060205d",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.0049330357142857145,
     "stop": 0.00507125,
     "target": 0.004518392857142857,
@@ -19071,7 +19071,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+2.410 @ 0.0046"
   },
   {
     "symbol": "EGLDUSDT",
@@ -19380,8 +19380,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.7969 (retrace 0.25 ATR from 0.791), stop 0.8321, target 0.6911 (3.0R, maker).",
     "created_at": "2026-06-18T12:58:36.967810+00:00",
     "id": "467a1c0d",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.796875,
     "stop": 0.832125,
     "target": 0.6911250000000001,
@@ -19401,7 +19401,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.280 @ 0.787"
   },
   {
     "symbol": "ENJUSDT",
@@ -19413,8 +19413,8 @@
     "note": "Auto confluence-R long scalp: 50% confluence (strength 5). LIMIT 0.03519 (retrace 0.25 ATR from 0.03558), stop 0.03285, target 0.0422 (3.0R, maker).",
     "created_at": "2026-06-18T12:58:49.948164+00:00",
     "id": "d4e45eac",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.03519035714285714,
     "stop": 0.0328525,
     "target": 0.04220392857142857,
@@ -19434,7 +19434,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=-0.873 @ 0.03315"
   },
   {
     "symbol": "YAHOO:ZB=F",
@@ -19710,8 +19710,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.0836 (retrace 0.25 ATR from 0.0829), stop 0.08779, target 0.07103 (3.0R, maker).",
     "created_at": "2026-06-18T19:34:10.011944+00:00",
     "id": "0bd608d4",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.08359821428571429,
     "stop": 0.0877875,
     "target": 0.07103035714285715,
@@ -19731,7 +19731,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.334 @ 0.0822"
   },
   {
     "symbol": "BTCUSDT",
@@ -20040,8 +20040,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 8.014 (retrace 0.25 ATR from 7.985), stop 8.187, target 7.495 (3.0R, maker).",
     "created_at": "2026-06-18T22:13:38.091792+00:00",
     "id": "a0ee00bd",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 8.013839285714287,
     "stop": 8.186875,
     "target": 7.494732142857145,
@@ -20061,7 +20061,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.109 @ 7.822"
   },
   {
     "symbol": "XLMUSDT",
@@ -20106,8 +20106,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.08057 (retrace 0.25 ATR from 0.08025), stop 0.08246, target 0.07489 (3.0R, maker).",
     "created_at": "2026-06-18T22:13:43.074554+00:00",
     "id": "b5660f7c",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.08056553571428572,
     "stop": 0.08245875000000001,
     "target": 0.07488589285714287,
@@ -20127,7 +20127,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.975 @ 0.07872"
   },
   {
     "symbol": "SANDUSDT",
@@ -20205,8 +20205,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.006716 (retrace 0.25 ATR from 0.00668), stop 0.006929, target 0.006076 (3.0R, maker).",
     "created_at": "2026-06-18T22:14:01.083008+00:00",
     "id": "cdbaf5e3",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.006715535714285715,
     "stop": 0.006928750000000001,
     "target": 0.006075892857142858,
@@ -20226,7 +20226,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.870 @ 0.00653"
   },
   {
     "symbol": "HBARUSDT",
@@ -20238,8 +20238,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.08072 (retrace 0.25 ATR from 0.0803), stop 0.08327, target 0.07308 (3.0R, maker).",
     "created_at": "2026-06-18T22:14:21.254261+00:00",
     "id": "162c174a",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.08072464285714286,
     "stop": 0.0832725,
     "target": 0.07308107142857143,
@@ -20259,7 +20259,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.787 @ 0.07872"
   },
   {
     "symbol": "DYDXUSDT",
@@ -20964,8 +20964,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.04616 (retrace 0.25 ATR from 0.0458), stop 0.0483, target 0.03973 (3.0R, maker).",
     "created_at": "2026-06-19T07:12:30.096654+00:00",
     "id": "b18bbed4",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.046157142857142855,
     "stop": 0.048299999999999996,
     "target": 0.03972857142857143,
@@ -20985,7 +20985,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.913 @ 0.0442"
   },
   {
     "symbol": "DASHUSDT",
@@ -21063,8 +21063,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.02152 (retrace 0.25 ATR from 0.02138), stop 0.02239, target 0.01892 (3.0R, maker).",
     "created_at": "2026-06-19T12:10:36.152317+00:00",
     "id": "a11ab9a0",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.021524821428571428,
     "stop": 0.02239375,
     "target": 0.018918035714285714,
@@ -21084,7 +21084,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.777 @ 0.02085"
   },
   {
     "symbol": "GMXUSDT",
@@ -21129,8 +21129,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.01583 (retrace 0.25 ATR from 0.01574), stop 0.01636, target 0.01423 (3.0R, maker).",
     "created_at": "2026-06-19T12:10:51.253121+00:00",
     "id": "d558e7d4",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.015829107142857145,
     "stop": 0.01636375,
     "target": 0.014225178571428576,
@@ -21150,7 +21150,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.541 @ 0.01554"
   },
   {
     "symbol": "LTCUSDT",
@@ -21228,8 +21228,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.02156 (retrace 0.25 ATR from 0.02136), stop 0.02276, target 0.01795 (3.0R, maker).",
     "created_at": "2026-06-19T12:11:12.366856+00:00",
     "id": "e85c3e5f",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.021560357142857145,
     "stop": 0.0227625,
     "target": 0.017953928571428576,
@@ -21249,7 +21249,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.591 @ 0.02085"
   },
   {
     "symbol": "GMXUSDT",
@@ -21294,8 +21294,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.01586 (retrace 0.25 ATR from 0.01571), stop 0.01673, target 0.01324 (3.0R, maker).",
     "created_at": "2026-06-19T12:11:27.962477+00:00",
     "id": "1a55b960",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.01585535714285714,
     "stop": 0.016727499999999996,
     "target": 0.013238928571428572,
@@ -21315,7 +21315,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.362 @ 0.01554"
   },
   {
     "symbol": "KAVAUSDT",
@@ -21888,8 +21888,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 1.139 (retrace 0.25 ATR from 1.136), stop 1.159, target 1.078 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:05.766369+00:00",
     "id": "57b95d48",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 1.1389624999999999,
     "stop": 1.1591375,
     "target": 1.0784375,
@@ -21909,7 +21909,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.484 @ 1.1292"
   },
   {
     "symbol": "ADAUSDT",
@@ -21921,8 +21921,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.1622 (retrace 0.25 ATR from 0.1616), stop 0.166, target 0.1509 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:06.262341+00:00",
     "id": "47973f0e",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.1622267857142857,
     "stop": 0.16598749999999998,
     "target": 0.15094464285714285,
@@ -21942,7 +21942,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.911 @ 0.1588"
   },
   {
     "symbol": "APTUSDT",
@@ -21987,8 +21987,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.1046 (retrace 0.25 ATR from 0.1039), stop 0.1089, target 0.09185 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:13.689938+00:00",
     "id": "ba6d03fe",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.10460892857142857,
     "stop": 0.1088625,
     "target": 0.09184821428571428,
@@ -22008,7 +22008,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.919 @ 0.1007"
   },
   {
     "symbol": "AXSUSDT",
@@ -22053,8 +22053,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.08947 (retrace 0.25 ATR from 0.0891), stop 0.0917, target 0.08279 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:25.698831+00:00",
     "id": "7aee82b5",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.08947142857142858,
     "stop": 0.0917,
     "target": 0.0827857142857143,
@@ -22074,7 +22074,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.571 @ 0.0882"
   },
   {
     "symbol": "YFIUSDT",
@@ -22086,8 +22086,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 1861 (retrace 0.25 ATR from 1855), stop 1900, target 1746 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:26.653812+00:00",
     "id": "cc0fa242",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 1861.4285714285713,
     "stop": 1900.0,
     "target": 1745.7142857142856,
@@ -22107,7 +22107,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.541 @ 1802"
   },
   {
     "symbol": "KNCUSDT",
@@ -22185,8 +22185,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.269 (retrace 0.25 ATR from 0.2682), stop 0.2737, target 0.2549 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:35.055029+00:00",
     "id": "5758cd29",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.26898214285714284,
     "stop": 0.27367499999999995,
     "target": 0.25490357142857145,
@@ -22206,7 +22206,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 2h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.550 @ 0.2664"
   },
   {
     "symbol": "OGNUSDT",
@@ -22284,8 +22284,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.1625 (retrace 0.25 ATR from 0.1616), stop 0.168, target 0.146 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:43.906981+00:00",
     "id": "c1938cc6",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.1625160714285714,
     "stop": 0.16801249999999998,
     "target": 0.14602678571428568,
@@ -22305,7 +22305,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.676 @ 0.1588"
   },
   {
     "symbol": "OPUSDT",
@@ -22317,8 +22317,8 @@
     "note": "Auto confluence-R short scalp: 70% confluence (strength 7). LIMIT 0.1049 (retrace 0.25 ATR from 0.1039), stop 0.111, target 0.08666 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:48.111627+00:00",
     "id": "a8cabaf7",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.10491428571428572,
     "stop": 0.11100000000000002,
     "target": 0.08665714285714286,
@@ -22338,7 +22338,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.692 @ 0.1007"
   },
   {
     "symbol": "STXUSDT",
@@ -22350,8 +22350,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.1832 (retrace 0.25 ATR from 0.1821), stop 0.1898, target 0.1634 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:51.817178+00:00",
     "id": "d5fd0b64",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.1832,
     "stop": 0.1898,
     "target": 0.1634,
@@ -22371,7 +22371,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.591 @ 0.1793"
   },
   {
     "symbol": "SNXUSDT",
@@ -22383,8 +22383,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.2444 (retrace 0.25 ATR from 0.243), stop 0.2529, target 0.219 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:55.529738+00:00",
     "id": "b1b508ca",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.2444107142857143,
     "stop": 0.252875,
     "target": 0.21901785714285713,
@@ -22404,7 +22404,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.876 @ 0.237"
   },
   {
     "symbol": "YFIUSDT",
@@ -22416,8 +22416,8 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 1864 (retrace 0.25 ATR from 1855), stop 1921, target 1694 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:58.820910+00:00",
     "id": "62537c66",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 1864.4642857142858,
     "stop": 1921.25,
     "target": 1694.107142857143,
@@ -22437,7 +22437,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+1.100 @ 1802"
   },
   {
     "symbol": "SUSHIUSDT",
@@ -22449,8 +22449,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 0.1788 (retrace 0.25 ATR from 0.1774), stop 0.1869, target 0.1543 (3.0R, maker).",
     "created_at": "2026-06-19T16:09:59.323227+00:00",
     "id": "edec6ef2",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 0.17875714285714286,
     "stop": 0.1869,
     "target": 0.15432857142857143,
@@ -22470,7 +22470,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.498 @ 0.1747"
   },
   {
     "symbol": "GALAUSDT",
@@ -22977,8 +22977,8 @@
     "note": "Auto confluence-R short scalp: 60% confluence (strength 6). LIMIT 4.773e-06 (retrace 0.25 ATR from 4.75e-06), stop 4.914e-06, target 4.352e-06 (3.0R, maker).",
     "created_at": "2026-06-19T18:59:06.022194+00:00",
     "id": "ad252788",
-    "status": "open",
-    "resolved_at": null,
+    "status": "flattened",
+    "resolved_at": "2026-06-21T23:08:04.829582+00:00",
     "entry": 4.773392857142858e-06,
     "stop": 4.91375e-06,
     "target": 4.35232142857143e-06,
@@ -22998,7 +22998,7 @@
     "strategy_version": null,
     "position_size_usd": null,
     "exchange_order_id": null,
-    "reason_closed": null
+    "reason_closed": "flatten_stale_tf_2026-06-21: retired stale 4h book after 1h-only revert (PR #39); excluded from scoring; mark_r=+0.879 @ 4.65e-06"
   },
   {
     "symbol": "MANAUSDT",
