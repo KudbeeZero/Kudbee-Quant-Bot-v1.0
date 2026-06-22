@@ -167,7 +167,7 @@ def format_summary(report: dict, *, record: dict | None = None,
     ``report`` is the dict that function returns; ``record`` is an optional
     ``{venue: {...}}`` map from ``TradeJournal.venue_record`` for a one-line
     track-record footer. ``realized_today`` is an optional ``{"r": float, "n": int}``
-    of fee-net R closed since 00:00 UTC (see :func:`_realized_today`).
+    of fee-net R closed since the Asia session open (19:00 NY — see :func:`_realized_today`).
     """
     p = report.get("portfolio", {})
     trades = report.get("trades", []) or []
@@ -206,21 +206,26 @@ def format_summary(report: dict, *, record: dict | None = None,
 
 
 def _realized_today(predictions: list["Prediction"]) -> dict:
-    """``{"r": fee-net R, "n": closes}`` for trades resolved since 00:00 UTC today.
-    Uses :func:`net_outcome_r` so the daily number matches the honest (after-fee)
-    record. Unparseable / unresolved records are skipped, never raise."""
+    """``{"r": fee-net R, "n": closes}`` for trades resolved since the current trading
+    day began — the most recent **Asia session open (19:00 NY)**, NOT UTC midnight, so the
+    day rolls when the session does (matches the desk's day / the Asia-open alerts).
+    Uses :func:`net_outcome_r` (after-fee). Unparseable/unresolved records are skipped."""
     from datetime import datetime, timezone
     from ..journal import net_outcome_r
+    from ..context.calendar import session_day_start
 
-    today = datetime.now(timezone.utc).date()
+    start = session_day_start()
     rs: list[float] = []
     for p in predictions:
         if p.status not in ("hit", "miss", "cancelled") or not p.resolved_at:
             continue
         try:
-            if datetime.fromisoformat(p.resolved_at).date() != today:
-                continue
+            dt = datetime.fromisoformat(p.resolved_at)
         except ValueError:
+            continue
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+        if dt < start:
             continue
         nr = net_outcome_r(p)
         if nr is not None:

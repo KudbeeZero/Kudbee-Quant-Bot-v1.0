@@ -90,6 +90,25 @@ def ny_session_date(ts_utc: pd.Series) -> pd.Series:
     return pd.to_datetime(ts_utc, utc=True).dt.tz_convert(NY).dt.date
 
 
+# The trading DAY rolls when the Asia session opens — 19:00 New York, the canonical
+# start of the broad asian window (``_SESSIONS["asian"]``). The crypto trading day/week
+# begins with Asia's evening liquidity, so anchor "today" here instead of at UTC/NY
+# midnight. (DST-correct via NY; in winter 19:00 NY = 00:00 UTC, in summer = 23:00 UTC.)
+ASIA_SESSION_START_HOUR_NY = _SESSIONS["asian"][0]   # 19
+
+
+def session_day_start(now=None):
+    """Instant the current trading day began: the most recent Asia session open
+    (19:00 NY) at or before ``now``. Returns a tz-aware UTC ``datetime``."""
+    from datetime import datetime, timedelta, timezone
+    now = now or datetime.now(timezone.utc)
+    ny_now = now.astimezone(NY)
+    start = ny_now.replace(hour=ASIA_SESSION_START_HOUR_NY, minute=0, second=0, microsecond=0)
+    if ny_now < start:                       # before 19:00 NY -> day opened yesterday 19:00
+        start -= timedelta(days=1)
+    return start.astimezone(timezone.utc)
+
+
 def complete_period_mask(counts: pd.Series, min_frac: float = 0.5) -> pd.Series:
     """True for periods whose bar count is "full" (>= ``min_frac`` x median).
 
