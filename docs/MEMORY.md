@@ -1656,3 +1656,27 @@ NOT claim to be it and may differ — structured to reconcile easily. **OFF by d
 `paper-trade.yml`** — the validated book still trades the static `TOP_10_CRYPTO`. Stub-tested (no
 network) + live-smoked (BTC>ETH>DOGE by USD vol). `396 passed`. **NEXT:** owner confirms whether
 this matches the intended §B or supplies the real spec to reconcile.
+
+## 57. Traders-Reality M-level system — BUILT + measured; NO edge (do not ship) — 2026-06-22 (PR feat/tr-mlevel-system)
+
+Built the full TR M-level grid (floor-pivot midpoints M0–M5 + R3/S3), prior-day color, and AMR band
+in `build_levels` (lookahead-audited; kept OUT of the live-scored `LEVEL_COLUMNS` so the live
+`factor_votes` stack is untouched), plus a per-bar `target_price` option in `bracket_backtest`
+(scalar path byte-identical) so the harness can target specific levels. Then ran **6 candidates** that
+test whether Tino's actual method adds edge, pooled across the top-10 majors (1h, ~4000 bars,
+split-half + bootstrap p), baseline +0.081R:
+
+| candidate | ΔR | n | p | h1/h2 | verdict |
+|---|---|---|---|---|---|
+| mlevel_reject (level-rejection vote) | −0.006 | 293 | 0.52 | −/+ | INCONCLUSIVE (neutral) |
+| brinks_window (killzone-only entries) | +0.030 | 338 | 0.40 | +/− | INCONCLUSIVE (not robust, p≫0.05) |
+| daycolor_target (M3/M1, M4/M2 targets) | −0.093 | 613 | 0.88 | −/− | HURTS |
+| session_return (prior-session/Asian targets) | −0.139 | 561 | 0.97 | −/− | HURTS |
+| mlevel_magnet (nearest-M-level target) | −0.132 | 765 | 0.97 | −/− | HURTS |
+| daycolor_filter (fade extremes) | −0.290 | 140 | 0.98 | −/− | HURTS |
+
+**NO WINNERS.** The dynamic-target ideas (magnet/day-color/session) HURT hardest — capping winners at
+a nearby level forfeits the 3R right-tail the edge depends on (cand win-rate rises but mean-R falls).
+Consistent with §2 (the confluence stack is saturated; price-derived structure doesn't add edge).
+**Do not re-test these.** Levels remain available as frame columns for charts/other uses; nothing was
+wired into the live stack or workflow. `415 passed`.

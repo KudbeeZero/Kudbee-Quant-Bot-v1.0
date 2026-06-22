@@ -133,6 +133,21 @@ def _trades(df: pd.DataFrame, sig: pd.Series, size, overrides: dict) -> list:
     return list(res.trades)
 
 
+def _slice_overrides(overrides: dict, lo: int, hi: int) -> dict:
+    """Slice any per-bar (array-like) override value to the [lo:hi] window so a
+    candidate's per-bar ``target_price`` lines up with the sliced split-half frame.
+    Scalar overrides (target_r, stop_atr, …) pass through unchanged."""
+    out = {}
+    for k, v in overrides.items():
+        if isinstance(v, pd.Series):
+            out[k] = v.to_numpy()[lo:hi]
+        elif isinstance(v, np.ndarray):
+            out[k] = v[lo:hi]
+        else:
+            out[k] = v
+    return out
+
+
 def _pool_expectancy(trades: list) -> tuple[int, float, float]:
     arr = np.asarray(trades, dtype=float)
     if arr.size == 0:
@@ -177,7 +192,7 @@ def evaluate(name: str, frames: dict) -> dict:
             cs = cand_sig.iloc[lo:hi].reset_index(drop=True)
             sz = None if size is None else size.iloc[lo:hi].reset_index(drop=True)
             bbin += _trades(d, bs, None, {})
-            cbin += _trades(d, cs, sz, overrides)
+            cbin += _trades(d, cs, sz, _slice_overrides(overrides, lo, hi))
 
     bn, bexp, bwin = _pool_expectancy(base_full)
     cn, cexp, cwin = _pool_expectancy(cand_full)

@@ -28,6 +28,18 @@ _DEFAULT_LEVEL_COLUMNS = [
 OPTIONAL_LEVEL_COLUMNS = ["vp_poc", "vp_vah", "vp_val", "vp_naked_poc"]
 LEVEL_COLUMNS = _DEFAULT_LEVEL_COLUMNS + OPTIONAL_LEVEL_COLUMNS
 
+# Traders-Reality M-level grid + monthly-range band + day color. These are always
+# built (below) and emitted as frame columns, but they are deliberately NOT in
+# LEVEL_COLUMNS: the live confluence path (confluence.stack.factor_votes) doesn't
+# touch LEVEL_COLUMNS, and the research proximity scorer (confluence.scorer) does —
+# adding them there would change scored behaviour. They're consumed directly by the
+# backtest candidate harness (scripts/overnight_candidates.py), not the live stack.
+MLEVEL_COLUMNS = [
+    "pivot_r3", "pivot_s3",
+    "mlevel_m0", "mlevel_m1", "mlevel_m2", "mlevel_m3", "mlevel_m4", "mlevel_m5",
+    "prev_day_color", "amr", "amr_high", "amr_low",
+]
+
 
 def _per_date_range_avg(out: pd.DataFrame, n: int) -> pd.Series:
     """Average of the prior ``n`` FULL daily ranges, mapped back to bars.
@@ -73,7 +85,7 @@ def range_stats(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 
     }
 
 
-def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
+def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int = 14,
                  features=None) -> pd.DataFrame:
     """Annotate bars with the full reference-level set + range-completion stats.
 
@@ -146,7 +158,8 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
     # A TradFi stub day (Sunday Globex reopen — §29) must not set Monday's
     # pivots; stub-day bars themselves take pivots from the last full day.
     dd = out.groupby("ny_date").agg(_dh=("high", "max"), _dl=("low", "min"),
-                                    _dc=("close", "last"), _n=("close", "size"))
+                                    _do=("open", "first"), _dc=("close", "last"),
+                                    _n=("close", "size"))
     full_day = complete_period_mask(dd["_n"])
     fd = dd[full_day]
 
@@ -156,6 +169,7 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
             "pivot_pp": pp,
             "pivot_r1": 2 * pp - l, "pivot_s1": 2 * pp - h,
             "pivot_r2": pp + (h - l), "pivot_s2": pp - (h - l),
+            "pivot_r3": h + 2 * (pp - l), "pivot_s3": l - 2 * (h - pp),
         }, index=h.index)
 
     piv_prior = _floor_pivots(fd["_dh"].shift(1), fd["_dl"].shift(1), fd["_dc"].shift(1))
@@ -164,6 +178,34 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8,
         s = (piv_prior[col].reindex(dd.index).ffill()
              .where(full_day, piv_own[col].reindex(dd.index).ffill()))
         out[col] = out["ny_date"].map(s).astype(float)
+
+    # Traders-Reality M-level grid: the 6 midpoint pivots between the floor pivots.
+    # Derived from the (prior-day, lookahead-safe) floor-pivot columns above, so
+    # they inherit the same causality. M3/M2 bracket the pivot; M5..M4 sit in the
+    # resistance band, M1..M0 in the support band.
+    pp, r1, r2, r3 = out["pivot_pp"], out["pivot_r1"], out["pivot_r2"], out["pivot_r3"]
+    s1, s2, s3 = out["pivot_s1"], out["pivot_s2"], out["pivot_s3"]
+    out["mlevel_m5"] = (r2 + r3) / 2.0
+    out["mlevel_m4"] = (r1 + r2) / 2.0
+    out["mlevel_m3"] = (pp + r1) / 2.0
+    out["mlevel_m2"] = (s1 + pp) / 2.0
+    out["mlevel_m1"] = (s2 + s1) / 2.0
+    out["mlevel_m0"] = (s3 + s2) / 2.0
+
+    # Prior-day color (drives the TR day-projection): +1 green / -1 red, from the
+    # PRIOR completed full NY day's open->close. Stub days inherit the last full
+    # day's prior color (mirrors the pivot fallback). No current-day data used.
+    color_prior = np.sign(fd["_dc"].shift(1) - fd["_do"].shift(1))
+    out["prev_day_color"] = out["ny_date"].map(
+        color_prior.reindex(dd.index).ffill()).astype(float)
+
+    # AMR (Average Monthly Range) band — the monthly analogue of AWR. Lagged one
+    # month (shift(1)) so the current month's own range never feeds its own band.
+    mo = out.groupby("_month_id").agg(_mh=("high", "max"), _ml=("low", "min"))
+    mo["_mr"] = (mo["_mh"] - mo["_ml"]).shift(1).rolling(amr_n, min_periods=1).mean()
+    out["amr"] = out["_month_id"].map(mo["_mr"]).astype(float)
+    out["amr_high"] = out["monthly_open"] + out["amr"]
+    out["amr_low"] = out["monthly_open"] - out["amr"]
 
     # ICT/Hybrid microstructure (VWAP, premium/discount, FVGs, macro windows).
     from .microstructure import add_microstructure

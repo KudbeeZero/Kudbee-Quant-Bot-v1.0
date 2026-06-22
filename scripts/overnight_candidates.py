@@ -500,6 +500,115 @@ def c_exit_tight_showme(df, scored, base_sig):
     return base_sig, None, {"stop_atr": 1.0, "mae_giveup": (2, 0.0, 0.3)}
 
 
+# --- Traders-Reality M-level candidates --------------------------------------
+# These read the M-level grid / day-color / session levels that build_levels emits
+# (kudbee_quant.levels.MLEVEL_COLUMNS). They are candidate-LOCAL: nothing here is a
+# live vote (the live stack's factor_votes is untouched). The dynamic-target ones
+# pass a per-bar absolute `target_price` (supported by bracket_backtest); the harness
+# slices it for the split-half tests.
+
+import warnings  # noqa: E402
+
+_MLEVELS = ["mlevel_m0", "mlevel_m1", "mlevel_m2", "mlevel_m3", "mlevel_m4", "mlevel_m5"]
+
+
+def _augmented_signal(df, scored, extra_vote, min_pct=0.50):
+    """Re-derive the SHIPPING signal (min_pct=0.5 + trend_align) with one EXTRA
+    candidate-local vote folded into the confluence score (n_factors -> n+1). This
+    is the honest 'add a vote' — it shifts the threshold like a real factor would."""
+    net = scored["net_score"] + extra_vote
+    n = scored["n_factors"] + 1
+    direction = np.sign(net)
+    gate = (net.abs() / n) >= min_pct
+    if "ema_800" in df:                                  # trend_align (price vs 800-EMA)
+        gate = gate & (direction == np.sign(df["close"] - df["ema_800"]))
+    return pd.Series(np.where(gate, direction, 0.0), index=df.index).astype(float)
+
+
+def _dir_extreme(df, sig, cols):
+    """Per-bar nearest level among ``cols`` in the trade direction: the smallest
+    level ABOVE close for longs, the largest BELOW close for shorts (NaN if none)."""
+    close = df["close"].to_numpy()
+    M = df[cols].to_numpy()
+    with warnings.catch_warnings():                      # all-NaN row -> NaN (gated out)
+        warnings.simplefilter("ignore", RuntimeWarning)
+        up = np.nanmin(np.where(M > close[:, None], M, np.nan), axis=1)
+        dn = np.nanmax(np.where(M < close[:, None], M, np.nan), axis=1)
+    s = pd.Series(sig, index=df.index).fillna(0.0).to_numpy()
+    return pd.Series(np.where(s > 0, up, np.where(s < 0, dn, np.nan)), index=df.index)
+
+
+def c_mlevel_reject(df, scored, base_sig):
+    """VOTE (candidate-local): an M-level REJECTION. Low pierces within 0.3 ATR of
+    any M-level and the bar CLOSES back above it -> +1 (support held); the mirror
+    (high tags a level, close below) -> -1. Folded into the confluence score and
+    re-thresholded like the shipping signal. The TRUE level-rejection vote (the live
+    v_pivot is direction-only)."""
+    atr = df["atr"].to_numpy()
+    close, low, high = df["close"].to_numpy(), df["low"].to_numpy(), df["high"].to_numpy()
+    M = df[_MLEVELS].to_numpy()
+    tol = (0.3 * atr)[:, None]
+    bull = ((np.abs(low[:, None] - M) <= tol) & (close[:, None] > M)).any(axis=1)
+    bear = ((np.abs(high[:, None] - M) <= tol) & (close[:, None] < M)).any(axis=1)
+    vote = pd.Series(np.where(bull, 1.0, np.where(bear, -1.0, 0.0)), index=df.index)
+    return _augmented_signal(df, scored, vote), None, {}
+
+
+def c_mlevel_magnet(df, scored, base_sig):
+    """EXECUTION: replace the fixed 3R target with the NEAREST M-level in the trade
+    direction (Tino's 'price returns to the levels'). All-or-nothing at the level
+    (tp1 off); gated to bars where such a level exists ahead of price."""
+    tgt = _dir_extreme(df, base_sig, _MLEVELS)
+    return _gate(base_sig, tgt.notna()), None, {"target_price": tgt, "tp1_r": None}
+
+
+def c_daycolor_target(df, scored, base_sig):
+    """PROJECTION as target-mapper: on a RED prior day long->M3 / short->M1; on a
+    GREEN day long->M4 / short->M2 (Tino's day-color range projection). Kept only
+    when the projected level is ahead of price."""
+    red = (df["prev_day_color"] < 0).to_numpy()
+    s = pd.Series(base_sig, index=df.index).fillna(0.0).to_numpy()
+    long_t = np.where(red, df["mlevel_m3"], df["mlevel_m4"])
+    short_t = np.where(red, df["mlevel_m1"], df["mlevel_m2"])
+    tgt = pd.Series(np.where(s > 0, long_t, np.where(s < 0, short_t, np.nan)), index=df.index)
+    close = df["close"]
+    ahead = ((pd.Series(s, index=df.index) > 0) & (tgt > close)) | \
+            ((pd.Series(s, index=df.index) < 0) & (tgt < close))
+    return _gate(base_sig, ahead), None, {"target_price": tgt.where(ahead), "tp1_r": None}
+
+
+def c_daycolor_filter(df, scored, base_sig):
+    """PROJECTION as a mean-reversion ENTRY FILTER: fade the extremes back toward the
+    projected range. RED day -> favor shorts in the upper band (close>=M3), longs in
+    the lower band (close<=M2); GREEN day -> inverse."""
+    close = df["close"]
+    upper, lower = close >= df["mlevel_m3"], close <= df["mlevel_m2"]
+    red = df["prev_day_color"] < 0
+    long_ok = (red & lower) | (~red & upper)
+    short_ok = (red & upper) | (~red & lower)
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_brinks_window(df, scored, base_sig):
+    """ENTRY TIMING: take entries ONLY inside the London-Brinks / NY-Brinks / overlap
+    killzones (reuses the existing in_london_kz / in_ny_brinks / in_overlap flags)."""
+    flags = [c for c in ("in_london_kz", "in_ny_brinks", "in_overlap") if c in df.columns]
+    active = (df[flags].astype(bool).any(axis=1) if flags
+              else pd.Series(True, index=df.index))
+    return _gate(base_sig, active), None, {}
+
+
+def c_session_return(df, scored, base_sig):
+    """EXECUTION: target the nearest PRIOR-SESSION extreme (prior NY high/low or the
+    Asian-range edge) in the trade direction, when it's within reach (<=4 ATR) —
+    Tino's 'price revisits last session's extremes'. All-or-nothing at the level."""
+    levels = ["prior_ny_high", "prior_ny_low", "asian_high", "asian_low"]
+    have = [c for c in levels if c in df.columns]
+    tgt = _dir_extreme(df, base_sig, have)
+    keep = tgt.notna() & ((tgt - df["close"]).abs() <= 4.0 * df["atr"])
+    return _gate(base_sig, keep), None, {"target_price": tgt.where(keep), "tp1_r": None}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
@@ -554,4 +663,12 @@ REGISTRY: dict[str, tuple] = {
     "bb_band_reject": (c_bb_band_reject, "KudbeeX read: shooting-star@upper / hammer@lower BB(26,2) reversal"),
     "exit_showme": (c_exit_showme, "KudbeeX fast-fail: exit if not +0.5R by bar 3 (cuts loss tail)"),
     "exit_tight_showme": (c_exit_tight_showme, "KudbeeX fast-fail: 1.0 stop + exit if not +0.3R by bar 2"),
+    # Traders-Reality M-level system (level-rejection vote / level-magnet targets /
+    # day-color projection / killzone timing / session-extreme targets).
+    "mlevel_reject": (c_mlevel_reject, "TR: candidate-local M-level REJECTION vote (low/high tags level, closes back)"),
+    "mlevel_magnet": (c_mlevel_magnet, "TR: target the nearest M-level in trade direction (price returns to levels)"),
+    "daycolor_target": (c_daycolor_target, "TR: day-color projection as target (red->M3/M1, green->M4/M2)"),
+    "daycolor_filter": (c_daycolor_filter, "TR: day-color mean-reversion filter (fade extremes toward range)"),
+    "brinks_window": (c_brinks_window, "TR: entries only in London/NY-Brinks/overlap killzones"),
+    "session_return": (c_session_return, "TR: target nearest prior-session/Asian extreme within 4 ATR"),
 }
