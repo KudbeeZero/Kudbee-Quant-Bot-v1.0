@@ -1609,3 +1609,50 @@ reads ~16%/17%**, so long-only is a **HYPOTHESIS being forward-tested, NOT a val
 from **1h** cluster analysis (§48), not 5m. `380 passed` (+2 flag tests). **WATCH:** after ≥30
 forward `_lo` trades, `journal-score` filtered to `timeframe=5m` — net-negative → **revert the §A
 step** (same trigger as §37). Both flags default-off → no change to the validated path.
+
+## 53. Experiment §C — clean_trend_stack (1h) + PER-BOOK dedup (UNVERIFIED claim) — 2026-06-22 (PR #55)
+
+Owner-directed forward experiment from an external overnight harness (owner reports n=804,
++0.1152R — **NOT verified in this repo**; shipped as an UNVERIFIED, separately-tagged paper book).
+`paper.py`/`cli.py` gain `--clean-trend-stack`: gate to 13/50/800-EMA cleanly stacked one
+direction for 10 bars AND a **widening** 13/50 gap (a separating trend; skips braided ones).
+Setup tags gain `_cts`. **Key structural change — PER-BOOK dedup:** the one-open-trade key went
+from `(symbol, timeframe)` to `(symbol, timeframe, book)` where `book` = the flag/venue suffix
+(`_book_of()` strips the `…pct` prefix → `_tf_cts` etc.). WITHOUT this, §C (a strict subset of the
+baseline 1h signals) collides with the baseline on `(symbol, 1h)` and logs NOTHING. The net-exposure
+guard still caps COMBINED per-coin risk. Backward-compatible (baseline-vs-baseline behavior
+unchanged). `385 passed`. **WATCH:** forward `_cts` record; revert §C step if net-negative.
+
+## 54. Per-book Telegram summary + :35 read-only status heartbeat — 2026-06-22 (PR #56)
+
+Enriched `format_summary` (3 gated blocks, message only grows when there's something to say,
+back-compat tested): **per-book breakdown** (open count + unrealized R split core/trend/longs/tradfi,
+validated `core` first), **best & worst** open by unrealized R, **today** = fee-net R closed since
+00:00 UTC (`net_outcome_r`, so it matches the honest record). `review.open_trades_report` trades now
+carry `setup` (book derived from it). **New workflow `paper-status.yml`:** `cron "35 * * * *"`,
+`permissions: contents: read`, runs `notify-summary` ONLY — no scan, no journal write, no commit —
+so it can't race the bot or trade a half-formed 1h bar. The 1h SCAN cadence is deliberately
+untouched (validated book needs closed bars). Silent no-op without `TELEGRAM_*`. `390 passed`.
+
+## 55. Deadline/stale-trade alert + de-flaked auth test — 2026-06-22 (PR #57)
+
+4th summary block: `⏰ Expiring: SOL 2.1h • overdue: XRP` — open trades within 6h of (or past)
+their deadline, via `hours_to_deadline` on the report (off `p.deadline()`), gated/omitted when
+nothing's close. **Also fixed a PRE-EXISTING flaky test** (`test_tampered_cookie_is_rejected`):
+it tampered the LAST 2 base64 chars of the 32-byte HMAC signature, but those carry padding
+('don't care') bits, so the mutation sometimes decoded UNCHANGED → the "tampered" token stayed
+validly signed → intermittent CI failure (keyed off the time-based `exp`). Fix: flip the FIRST
+signature char (always 6 meaningful bits of byte 0). Stress-ran 40/40. Auth logic untouched.
+`391 passed`.
+
+## 56. §B dynamic volume universe — opt-in, OFF the validated path (NET-NEW, may differ from owner's spec) — 2026-06-22 (PR #58)
+
+`universe_rank.py`: `rank_by_volume()` / `volume_ranked_universe()` rank a candidate pool by mean
+`quote_volume` (exchange USD volume) over a lookback; unfetchable/delisted symbols skipped (never
+fatal); `min_quote_volume` floor. `universe.CRYPTO_CANDIDATES` = broader liquid-major pool. CLI
+`universe-rank` (read-only — ranks + prints, never trades). **HONESTY:** built from the descriptive
+NAME; the owner's external §B spec is **not in this repo** (searched prior sessions), so this does
+NOT claim to be it and may differ — structured to reconcile easily. **OFF by default, NOT wired into
+`paper-trade.yml`** — the validated book still trades the static `TOP_10_CRYPTO`. Stub-tested (no
+network) + live-smoked (BTC>ETH>DOGE by USD vol). `396 passed`. **NEXT:** owner confirms whether
+this matches the intended §B or supplies the real spec to reconcile.
