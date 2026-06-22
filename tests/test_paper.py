@@ -247,3 +247,37 @@ def test_paper_scan_killzone_gate_filters_off_hours(tmp_path, monkeypatch):
     j3 = TradeJournal(path=tmp_path / "kz3.json", client=_C1())
     assert len(pp.paper_scan(["SOLUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
                              killzone_gate=True, journal=j3, client=_C1())) == 1
+
+
+def test_paper_scan_trailing_atr_stamps_atr_at_entry(tmp_path, monkeypatch):
+    """--trailing-atr stamps trailing_atr + the signal-time ATR on the Prediction
+    (and leaves tp1 None); default leaves both None."""
+    import kudbee_quant.paper.paper as pp
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    lvl = pd.DataFrame({"close": [100.0], "atr": [2.0], "strength": [6.0],
+                        "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: lvl)
+
+    j = TradeJournal(path=tmp_path / "tr.json", client=_C1())
+    p = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.9, stop_atr=1.5,
+                      trailing_atr=1.5, journal=j, client=_C1())[0]
+    assert p.trailing_atr == 1.5 and p.atr_at_entry == 2.0 and p.tp1 is None
+
+    j2 = TradeJournal(path=tmp_path / "tr2.json", client=_C1())
+    p2 = pp.paper_scan(["ETHUSDT"], min_pct=0.5, stop_atr=1.5, journal=j2, client=_C1())[0]
+    assert p2.trailing_atr is None and p2.atr_at_entry is None
+
+
+def test_trailing_stop_wires_through_journal(tmp_path):
+    """A Prediction carrying trailing_atr/atr_at_entry resolves via the chandelier
+    trail in resolve_bracket: a runner to +3.5R that reverses locks ~+2.5R (a 1R
+    trail), NOT the far target and NOT the −1R stop. Proves the journal wiring."""
+    j = _journal(tmp_path, [100, 103, 101])  # high 103.5 then low 100.5
+    p = Prediction(symbol="X", kind="bracket", level=100, entry=100, stop=99,
+                   target=110, direction=1.0, target_r=10.0, deadline_days=1.0,
+                   trailing_atr=1.0, atr_at_entry=1.0, setup="trail")
+    p.created_at = (datetime.now(timezone.utc) - timedelta(hours=10)).isoformat()
+    j.add(p)
+    changed = j.check_open()
+    assert changed and changed[-1].status == "hit"
+    assert abs(changed[-1].outcome_r - 2.5) < 1e-9

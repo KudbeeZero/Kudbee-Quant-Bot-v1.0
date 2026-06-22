@@ -80,16 +80,18 @@ jobs:
           echo "---- scorecard ----"
           python -m kudbee_quant.cli journal-score || true
 
-      - name: "Experiment §A — 5m crypto book (pay-yourself, long-only)"
-        # §A (2026-06-22): re-test 5m WITH pay-yourself + long-only. Pre-fix 5m was
-        # -0.63R (§37). excursion_audit.json (n=48, Jun 9-13): 5m longs 32% (11/34)
-        # win vs shorts 14% (2/14) -> long-only is the filter under test. NOTE the
-        # full-journal 5m sample is closer to 16/17% (longs/shorts), so this is a
-        # HYPOTHESIS being forward-tested, separately tagged (timeframe=5m AND setup
-        # contains "_lo"), never touching the validated 1h book. Killzone gate is
-        # deliberately NOT armed: it HURT 5m in the same audit (20% inside sessions
-        # vs 28% outside) — the flag ships for future 1h validation only. Runs after
-        # the 1h scan so the net-exposure guard sees existing positions.
+      - name: "Experiment §A — 5m crypto book (trailing-stop, long-only)"
+        # §A (2026-06-22): 5m long-only experiment. NOW uses a CHANDELIER TRAILING
+        # STOP (--trailing-atr 1.5 = 1R behind the extreme at stop_atr 1.5) instead
+        # of the tp1+breakeven pay-yourself. Rationale: a 1R trail gives the SAME
+        # breakeven at +1R AND keeps locking profit beyond it — a 2.9R near-miss that
+        # would scratch at 0R under tp1-BE instead exits ~+1.9R. Target 2.9R. Long-only
+        # is the filter under test: excursion_audit.json (n=48, Jun 9-13) had 5m longs
+        # 32% (11/34) vs shorts 14% (2/14), but the full-journal 5m sample is ~16/17%
+        # — so this stays a HYPOTHESIS, separately tagged (timeframe=5m, setup has
+        # "_lo"), never touching the validated 1h book. Killzone gate stays UNARMED
+        # (it HURT 5m: 20% inside vs 28% outside). Runs after the 1h scan so the
+        # net-exposure guard sees existing positions.
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -98,7 +100,7 @@ jobs:
           python -m kudbee_quant.cli paper-scan \
             $CRYPTO_UNIVERSE \
             --intervals 5m \
-            --tp1-r 1.0 --tp1-frac 0.0 \
+            --trailing-atr 1.5 --target-r 2.9 \
             --trend-filter --long-only || true
           python -m kudbee_quant.cli journal-check || true
 

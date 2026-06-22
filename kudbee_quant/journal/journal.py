@@ -67,6 +67,10 @@ class Prediction:
     position_size_usd: float | None = None
     exchange_order_id: str | None = None   # set only for real (live) fills
     reason_closed: str | None = None       # human-readable exit reason
+    # chandelier trailing stop (optional, default OFF -> resolver behaves as before):
+    # trail the stop at `trailing_atr * atr_at_entry` behind the favourable extreme.
+    trailing_atr: float | None = None
+    atr_at_entry: float | None = None
 
     def __post_init__(self):
         if self.kind not in KINDS:
@@ -229,6 +233,7 @@ class TradeJournal:
             fwd["high"].to_numpy(), fwd["low"].to_numpy(), fwd["close"].to_numpy(),
             force_close_at_end=deadline_passed,
             tp1=p.tp1, tp1_r=tp1_r, tp1_frac=p.tp1_frac, be_after_tp1=p.be_after_tp1,
+            trailing_atr=p.trailing_atr, atr_at_entry=p.atr_at_entry,
         )
         if p.tp1 is not None and out.tp1_offset is not None and p.tp1_filled_at is None:
             p.tp1_filled_at = str(fwd["timestamp"].iloc[out.tp1_offset])
