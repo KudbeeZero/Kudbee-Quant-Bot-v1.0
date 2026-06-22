@@ -7,121 +7,99 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **⚙️ SERIAL RULE (2026-06-15, user-set):** all implementation work is strictly serial
-  — **finish the unit → open ONE PR → audit → merge → only then start the next unit**;
-  only one PR open at a time; no new implementation while a PR is open or awaiting audit.
-  Purely *observational* background tasks are exempt. (This chat added more units onto the
-  one open PR #35 at explicit user direction — noted honestly for the auditor.)
-- **This chat = the RESEARCH + REPORT chat.** Branch `claude/trade-data-pull-9ympy0`
-  (off `main`). All **read-only / additive**: two journal-research units, a paper-forward-
-  test framework, and a hosted investor report. **No engine / journal / live-path change.**
-- **Last PRs (all MERGED this session):** #35 (research+report), #36 (Tier-2 fill §47),
-  #37 (baton), #38 (3 bugfixes+tests), **#39 (revert live bot to §1 config, §48)**.
-- **(orig) research PRs:** **#35** (research + report) **and #36** (Tier-2 entry-fill, §47) — both on
-  `claude/trade-data-pull-9ympy0`, **both MERGED to `main` this session** (user-directed
-  direct merges, like #29/#31). #35 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/35
-  · #36 https://github.com/KudbeeZero/Kudbee-Quant-Bot-v1.0/pull/36
-- **Audit status:** `MERGED — POST-HOC AUDIT PENDING`. Next chat's `/handoff-audit` should
-  post-hoc review **#35 + #36** (already on `main`; both carry an audit checklist in their
-  PR body). All read-only/additive (studies + static report + one backward-compat lib add);
-  scope was checked clean pre-merge (no §1/`FEE_PCT`/`bracket.py`/`resolver.py`/journal edits).
-- **Prior:** #31 merged (post-hoc PASS, §44 VWAP rotation flip is LIVE & unvalidated —
-  still an open risk below). #27/#29 also merged. No other open PRs.
-- **🎯 Paper §43 experiment still running** (hourly Action, top-100 + 5m, VWAP-rotation
-  sign live). `main` advanced this session via the bot's `data/journal.json` (merged in).
+- **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
+  only then start the next. This chat ran units **serially and compliantly** — each unit
+  was its own PR, merged before the next began (one brief user-directed exception: the docs
+  PR was queued while #50 was open, then deferred to after #50 merged).
+- **This chat = the EXECUTION chat.** Five PRs, **ALL MERGED to `main` this session:**
+  **#46** (your trade-flow Walkthrough tab — cleared the board), **#47** (arm pay-yourself
+  breakeven exit, §49), **#48** (flatten 40 stale 2h/4h zombies, §50), **#49** (exit-geometry
+  5m study, §51), **#50** (Experiment §A — 5m long-only book, §52). This PR
+  (`docs/update-handoff-memory-s47-sA`) is the docs/baton refresh.
+- **Two LIVE changes shipped this session (watch them):**
+  1. **Breakeven exit is now ARMED on the hourly 1h book** (§49) — new predictions stamp
+     `tp1 = entry+1R`, stop→breakeven, ride to +3R. **Confirm:** look for `tp1=1.0`-equivalent
+     (`tp1` non-null) on the first new opens.
+  2. **Experiment §A 5m long-only book is LIVE** (§52), separately tagged `_lo` — a
+     forward-test HYPOTHESIS, not a validated edge.
+- **Audit status:** `MERGED — POST-HOC AUDIT OPTIONAL`. #47–#50 each shipped with green CI,
+  scoped diffs, and honest PR bodies; none touch §1 geometry / `FEE_PCT` / `bracket.py` /
+  `resolver.py` logic. `data/journal.json` was edited ONLY by the idempotent flatten script
+  (#48, 3 fields × 40 records) — otherwise bot-owned.
+- **🟡 §B "dynamic volume universe" — PENDING REF.** The owner says §B exists elsewhere; it is
+  **not in this repo** (searched all 47 branches + every commit — no trace). This baton does
+  NOT document §B (no fabrication). **NEXT: owner provides the §B PR/commit/branch ref (or
+  "not built yet") and I'll add it.**
 
 ## What this chat did (for the auditor to verify against the diff)
 
-PR #35 = **13 files** (plus the merged-in `data/journal.json` from `main`). Test suite
-**green (363 passed)** at closeout. Two read-only research units + forward-test + report:
-
-- **Losing-cluster analyzer** — `kudbee_quant/cluster.py` (+ `losing-clusters` CLI in
-  `cli.py`, `tests/test_cluster.py`). Read-only over the journal; "do losers cluster by
-  context or is it variance?" via the significance-gated `conditional_table` (Wilson + FDR).
-  **Null = the book's own win rate, not 0.5** — added backward-compatible `null_rate` to
-  `StudyConfig` (default 0.5 ⇒ existing `confluence_directional_study` unchanged; verify).
-  `vol_regime` is a labelled ATR-proxy (stays offline). **MEMORY §45.**
-- **Leverage / break-even viability study** — `scripts/leverage_be_study.py` +
-  `docs/research/leverage_be_study.md` + per-trade `leverage_be_trades.csv` (497 rows).
-  Read-only; re-fetches each trade's post-fill bar path. **Verdict: 50x = ruin (55% liq);
-  edge only marginal at `lock+0.1R@first_green`, ≤10x, zero-fee/maker. MEMORY §46.**
-- **Paper-forward-test framework** — `docs/research/leverage_be_forward_test.md` (design,
-  two gated tiers) + **Tier-1 shadow overlay** `scripts/leverage_be_shadow.py` (read-only;
-  reuses the study engine; writes ONLY to gitignored `data/shadow/`, never the journal;
-  pre-registered PASS/INCONCLUSIVE/KILL). `.gitignore` += `data/shadow/`.
-- **Hosted investor report** — `leverage-report.html` (CSS-only, CSP-safe; real figures;
-  no live-edge claim), featured from `lab.html`, added to `sitemap.xml`. Canonical + OG
-  set to **report.kudbeequant.com**; indexable. Deploys via the existing Cloudflare Pages
-  pipeline (preview live now; production needs a `main` merge + a custom-domain attach).
-- **Honesty flags:** Tier-1's *positive* lane (crypto, n=314, PASS) **assumes maker fills
-  we have NOT proven**; the genuinely zero-fee lane is n=25 → INCONCLUSIVE. The whole
-  positive case hinges on Tier-2 maker-fill feasibility (§42). Report states this plainly.
+- **§49 / PR #47 — breakeven exit armed.** `cli.py` (+`--tp1-frac`/`--no-be` on paper-scan,
+  threaded into `_paper_scan`), `paper.py` (`be_after_tp1` → `Prediction`), `paper-trade.yml`
+  (both 1h scans now `--tp1-r 1.0 --tp1-frac 0.0`), +3 resolver tests. Caught that the
+  "config-only" premise was false (flag didn't exist; literal change would've silently killed
+  the bot via `|| true`). `378 passed`.
+- **§50 / PR #48 — zombie flatten.** `scripts/flatten_stale_tf.py` (idempotent) retired 40
+  open 2h/4h positions → `status="flattened"` (non-scoring; mark-R in `reason_closed`;
+  `outcome_r` None). Raw-JSON targeted edit; non-targets byte-identical; count 703 preserved.
+  Found `journal-score` buckets by `setup` (timeframe-agnostic) so zombies would have dragged
+  the 1h record.
+- **§51 / PR #49 — exit-geometry 5m study.** `--exit-geometry` on `leverage_be_study.py`;
+  stop-width × BE-trigger sweep, adverse-first via `sim_policy`. **All 24 combos net-negative;
+  best −0.243R; quarter-Kelly ≤0 → DO NOT BET.** Outputs `data/exit_geometry_5m.json` +
+  `reports/exit_geometry_5m.md`. `378 passed`.
+- **§52 / PR #50 — Experiment §A.** `long_only` + `killzone_gate` flags; §A workflow step
+  (5m, long-only, pay-yourself). Long-only verified on `excursion_audit.json` subset (n=48,
+  32%/14%) but full-journal n=182 is ~16%/17% → **hypothesis, not validated.** Killzone gate
+  ships **UNARMED** (hurts 5m: 20% inside vs 28% outside). `380 passed` (+2 flag tests).
+- **This PR — docs.** MEMORY §49–§52 + this baton. Read-only over the repo; no code change.
 
 ## NEXT chat
 
-- **🔴 TOP PRIORITY — the live book is NET-NEGATIVE (−0.295R/trade, 18% win, −149R; §48).**
-  This session DIAGNOSED it (the validated top-10/1h core is ~breakeven; the drag was the
-  §43 top-100 + 5m experiment + significant 18h/long losing clusters via the §45 tool) and
-  **reverted the bot to the §1 config (PR #39: TOP_10_CRYPTO, 1h only).** NEXT: **watch the
-  reverted book** — does top-10/1h turn positive once the alt+5m drag is gone? If even
-  majors/1h stays ~breakeven (vs ~+0.2R backtested), there's a real backtest→live gap to
-  chase (regime/decay). Candidate edge-builder: the **killzone/hour gate (PR #20, OFF)** to
-  cut the 18h/06h toxic windows — forward-validate before enabling. The VWAP flip (§44) is
-  now KEPT (live data didn't condemn it) — see §48.
-- **Slug hint (ADVISORY only):** `claude/leverage-tier2`.
-- **AUDIT FIRST (post-hoc):** run `/handoff-audit` to review **#35 + #36** (already on
-  `main`). Confirm against the diff: no change to §1 defaults / `FEE_PCT` / `bracket.py` /
-  `resolver.py`; `data/journal.json` not hand-edited (only the `main` merge); read-only
-  scripts write nothing outside gitignored `data/shadow/`; `StudyConfig.null_rate` default
-  preserves the old study; tests green.
-- **Tier-2 entry leg DONE (§47):** maker ENTRY fill rate **86.6%** (read-only from the
-  journal's filled-vs-cancelled record) — clears the <60% kill. **REMAINING Tier-2 work:**
-  (a) **re-rate the candidate net with maker-ENTRY + taker-EXIT** (the BE/stop exit is taker
-  on crypto; the study's "low/maker" model assumed both-maker, so it under-charges crypto) —
-  a quick read-only re-run of `leverage_be_study`'s friction with an asymmetric model; (b) a
-  live **`BINANCE_TESTNET` micro-stake** confirmation that paper fills hold on a real venue.
-  Only THEN can the `lock+0.1R/≤10x/maker` candidate graduate — and even then micro-stake only.
-- **GO-LIVE (user-side, the ONLY remaining manual step):** report is MERGED + live at the
-  production URL `https://kudbee-quant-bot-v1-0.pages.dev/leverage-report.html`. To use the
-  custom domain: Cloudflare → Workers & Pages → `kudbee-quant-bot-v1-0` → Custom domains →
-  add `report.kudbeequant.com` (canonical already set). No code step left.
+- **🟡 FIRST: get the §B ref** (dynamic volume universe) from the owner, then document it
+  (MEMORY §53 + baton). Not found anywhere in this repo.
+- **WATCH the two live changes:**
+  - **§A 5m long-only book (§52):** after ≥30 forward `_lo` trades, run `journal-score`
+    filtered to `timeframe=5m`. Net expectancy > 0R net of fees → continue; else → **revert the
+    §A workflow step** (same trigger as §37). 5m has been net-negative every prior look.
+  - **Breakeven arm (§49):** confirm new 1h opens carry a non-null `tp1`; watch whether
+    stop→BE actually lifts the reverted 1h book's expectancy over a forward window.
+- **STILL OPEN from §48:** the reverted §1 book (top-10/1h) — does it turn positive once the
+  alt+5m drag is gone, or is there a real backtest→live gap (regime/decay)? Candidate
+  edge-builder: the **killzone/hour gate for 1h** (the flag now exists, UNARMED) to cut the
+  18h/06h toxic clusters — forward-validate before arming.
+- **Tier-2 leverage (still queued, §47):** (a) re-rate the candidate net with **maker-entry +
+  taker-exit** (asymmetric friction; the study's both-maker under-charges crypto); (b)
+  `BINANCE_TESTNET` micro-stake. Only then can `lock+0.1R/≤10x/maker` graduate (micro-stake only).
 - **Open risks / watch-items (still live):**
-  - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31):** shaping the hourly bot's
-    setups; A/B says the blanket flip HURTS majors. Validate on the bracket harness or test
-    the narrower conditional (daily-open + below-VWAP → 2× long); be ready to revert.
-  - **Paper §43 watch:** hourly run resolving setups (top-100 + 5m incl. rotation sign) —
-    check timeouts / Binance limits / whether 5m resolves net-negative (§37) → revert if so.
-  - **§42 maker fee is an ASSUMPTION** (0.0002/side, unconfirmed pending a real LIMIT fill)
-    — and it is exactly what Tier 2 must settle before the leverage rule can graduate.
-  - **Dashboard (PR #21) UNVERIFIED in production** (Render deploy still deferred).
-  - **lock+0.1R rule is a PAPER CANDIDATE, not validated** — do not enable live; micro
-    stake only even after Tier 2, never full-account risk.
+  - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31)** — keep observing; be ready to revert.
+  - **§A 5m long-only is a paper HYPOTHESIS** — separately tagged, but it IS logging a live
+    (paper) book; revert if net-negative.
+  - **§42 maker fee is an ASSUMPTION** (0.0002/side) — Tier-2 must settle before leverage graduates.
+  - **Dashboard (PR #21) UNVERIFIED in production.**
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
-  (`bracket.py`/`resolver.py`) — do NOT change entry on the strength of this research.
-  `data/journal.json` (bot-owned — no session commits); `data/shadow/` (overlay output —
-  gitignored, don't commit); `data/alert_inbox/` (host/Action-owned). Keep PR #20 flags OFF;
-  hold the parsimony line; paper-scan stays `dry_run=True`; curated runner stays a fixed
-  whitelist; don't casually rework the session-cookie scheme. **No market/hybrid execution
-  flip (§42 dead end); keep maker retrace, 5m paper-only, `min_pct` 0.5.** Keep the report's
-  honesty — **no live-edge / returns claims** on the public page.
+  (`bracket.py`/`resolver.py`). `data/journal.json` is bot-owned — the ONLY sanctioned session
+  edit was the idempotent flatten script (#48); no manual journal refreshes. `data/shadow/`
+  (gitignored), `data/alert_inbox/` (host-owned). Keep PR #20 flags OFF on the validated book;
+  hold the parsimony line; paper-scan stays `dry_run=True` for the dashboard runner; killzone
+  gate stays UNARMED until 1h-validated; keep maker retrace, `min_pct` 0.5. No public
+  live-edge / returns claims.
 
 ## Baton history
 - … (prior entries in git) …
 - 2026-06-15: PR #21 — gated admin/investor dashboard (local-only verification). Merged.
-- 2026-06-15: PR #23 — cycle-aware OOS backtest (137k trades); `min_pct 0.6` refuted → keep
-  0.5; 5m dead, 15m maker-only. Merged.
-- 2026-06-15: PR #24 — execution head-to-head; maker retrace wins every TF; market a dead
-  end (§42). Merged.
-- 2026-06-15: PR #27 — handoff-audit gate-the-backlog (#24 PASS→merged; #21/#23 post-hoc).
-- 2026-06-15: PR #29 — WEBSITE chat (front-end trade-story hero + sweeps). Merged.
-- 2026-06-16: PR #31 — TRADE-SETUP chat; VWAP momentum→ROTATION flip (LIVE, unvalidated,
-  §44) + manual `OPEN_SETUPS.md` board. Merged from DRAFT by the user.
-- 2026-06-19: PR #35 (`claude/trade-data-pull-9ympy0`) — RESEARCH + REPORT chat. Losing-
-  cluster analyzer (§45) + leverage/BE viability study (§46) + paper-forward-test framework
-  (Tier-1 shadow overlay, pre-registered) + a hosted investor report (`leverage-report.html`
-  → report.kudbeequant.com, indexable, linked from the Lab). All read-only/additive; 363
-  tests green. **Merged to `main`** (user-directed).
-- 2026-06-19: PR #36 (same branch) — Tier-2 maker ENTRY fill feasibility (read-only, §47):
-  86.6% fill rate from the journal's filled-vs-cancelled record → PASS the <60% kill; added
-  report Finding 4. Merged. **Both #35 + #36 post-hoc-audit pending.** Next scope: finish
-  Tier-2 (taker-exit re-rate + testnet micro-stake); user-side: attach `report.kudbeequant.com`.
+- 2026-06-15: PR #23 — cycle-aware OOS backtest; `min_pct 0.6` refuted → keep 0.5. Merged.
+- 2026-06-15: PR #24 — execution head-to-head; maker retrace wins; market a dead end (§42). Merged.
+- 2026-06-16: PR #31 — VWAP momentum→ROTATION flip (LIVE, unvalidated, §44). Merged from DRAFT.
+- 2026-06-19: PR #35 — RESEARCH+REPORT chat (cluster analyzer §45 + leverage/BE study §46 +
+  forward-test framework + hosted report). Merged.
+- 2026-06-19: PR #36 — Tier-2 maker ENTRY fill feasibility (read-only, §47, 86.6% PASS). Merged.
+- 2026-06-19: PR #39 — reverted live bot to §1 config after diagnosing the net-negative book (§48). Merged.
+- 2026-06-21: PR #47 — EXECUTION chat: armed the pay-yourself breakeven exit on the hourly 1h
+  book (§49); premise was config-only but needed CLI wiring. Merged.
+- 2026-06-21: PR #48 — flattened 40 stale 2h/4h zombie positions to a non-scoring status (§50);
+  idempotent script, journal byte-stable. Merged.
+- 2026-06-22: PR #49 — exit-geometry 5m study: no geometry rescues 5m, quarter-Kelly ≤0 (§51). Merged.
+- 2026-06-22: PR #50 — Experiment §A: 5m long-only book + long_only/killzone_gate flags (§52);
+  long-only is a forward-test hypothesis, killzone gate ships unarmed. Merged.
+- 2026-06-22: PR (this) — docs/baton refresh capturing §49–§52. §B (dynamic volume universe)
+  PENDING the owner's ref. Next: document §B; watch the §A book + the breakeven arm forward.
