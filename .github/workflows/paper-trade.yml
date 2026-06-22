@@ -104,6 +104,27 @@ jobs:
             --trend-filter --long-only || true
           python -m kudbee_quant.cli journal-check || true
 
+      - name: "§C — clean trend stack (1h, experiment, +0.1152R CLAIM unverified)"
+        # §C (2026-06-22): overnight-harness top candidate (claimed n=804, delta
+        # +0.1152R — NOT verified in this repo) — gate to clean 13/50/800-EMA stacks
+        # with a WIDENING 13/50 gap (a separating trend, skips braided ones). Runs on
+        # the SAME top-10/1h as the baseline, but per-book dedup (setup "_cts") lets it
+        # hold its own trade alongside the validated book; the net-exposure guard still
+        # caps combined per-coin risk. Separately scored (setup contains "_cts"), shown
+        # as [trend] in Telegram. Pay-yourself breakeven, like the baseline 1h book.
+        # UNVERIFIED paper experiment — watch its forward _cts record; revert if negative.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          CRYPTO_UNIVERSE="$(python -c 'from kudbee_quant.universe import TOP_10_CRYPTO; print(" ".join(TOP_10_CRYPTO))')"
+          python -m kudbee_quant.cli paper-scan \
+            $CRYPTO_UNIVERSE \
+            --intervals 1h \
+            --tp1-r 1.0 --tp1-frac 0.0 \
+            --trend-filter --clean-trend-stack || true
+          python -m kudbee_quant.cli journal-check || true
+
       - name: Telegram hourly summary
         # No-op unless the TELEGRAM_* repo secrets are set; trade-open and
         # resolved pings fire from the scan/journal-check steps above (also

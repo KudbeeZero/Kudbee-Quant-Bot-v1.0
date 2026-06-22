@@ -33,11 +33,22 @@ def _g(x: float | None) -> str:
     return f"{x:.5g}"        # 0.08349 -> "0.08349"  (DOGE etc)
 
 
+def _book_tag(setup: str | None) -> str:
+    """Short label for the experiment 'book' so pings are distinguishable on mobile:
+    §C clean-trend-stack -> [trend], §A long-only -> [longs]; baseline -> ''."""
+    s = setup or ""
+    if "_cts" in s:
+        return " [trend]"
+    if "_lo" in s:
+        return " [longs]"
+    return ""
+
+
 def _opened_line(p: "Prediction") -> str:
     pend = " (limit pending)" if getattr(p, "pending_limit", False) else ""
     tr = f" {p.target_r:g}R" if getattr(p, "target_r", None) is not None else ""
-    return (f"• {_side(p)} {p.symbol} [{p.timeframe}] entry {_g(p.entry)} "
-            f"stop {_g(p.stop)} target {_g(p.target)}{tr}{pend}")
+    return (f"• {_side(p)} {p.symbol} [{p.timeframe}]{_book_tag(getattr(p, 'setup', None))} "
+            f"entry {_g(p.entry)} stop {_g(p.stop)} target {_g(p.target)}{tr}{pend}")
 
 
 def format_trades_opened(preds: list["Prediction"]) -> str:

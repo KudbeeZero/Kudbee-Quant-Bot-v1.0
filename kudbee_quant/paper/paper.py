@@ -23,6 +23,16 @@ def _bars_to_days(interval: str, bars: int) -> float:
     return bars * _INTERVAL_MIN.get(interval, 60) / 1440.0
 
 
+def _book_of(setup: str) -> str:
+    """Experiment 'book' identity = the flag/venue suffix after the '...pct' token
+    (e.g. 'confluence_r_50pct_tf_cts' -> '_tf_cts'; baseline -> ''). Lets a
+    separately-tagged experiment (§C '_cts', §A '_lo') hold its OWN open trade per
+    symbol+timeframe alongside the baseline book, instead of colliding on
+    (symbol, timeframe). The net-exposure guard still caps COMBINED per-coin risk."""
+    i = setup.find("pct")
+    return setup[i + 3:] if i != -1 else setup
+
+
 def paper_scan(
     symbols: list[str],
     min_pct: float = 0.5,
@@ -46,6 +56,7 @@ def paper_scan(
     long_only: bool = False,           # skip SHORT signals (5m excursion_audit: longs 32% vs shorts 14%, n=48)
     killzone_gate: bool = False,       # skip signals outside London/NY/Brinks windows (NOT validated for 5m)
     trailing_atr: float | None = None, # chandelier trail at trailing_atr*ATR behind the extreme (None = off)
+    clean_trend_stack: bool = False,   # §C: only trade when 13/50/800-EMA cleanly stacked 10 bars + gap widening
     dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
@@ -72,8 +83,10 @@ def paper_scan(
     if biases is None:
         from ..bias import BiasBook
         biases = BiasBook()
-    # One open trade per (symbol, timeframe) -> multi-TF widens the chances.
-    open_keys = {(p.symbol, p.timeframe) for p in j.predictions
+    # One open trade per (symbol, timeframe, BOOK) — the book = the experiment's
+    # flag/venue suffix (§C '_cts', §A '_lo', baseline '') — so separately-tagged
+    # paper experiments coexist with the validated book on the same symbol+timeframe.
+    open_keys = {(p.symbol, p.timeframe, _book_of(p.setup or "")) for p in j.predictions
                  if p.status in ("open", "pending") and p.kind == "bracket"}
     tf_list = intervals or [interval]
 
@@ -90,8 +103,12 @@ def paper_scan(
         source, _ = parse_spec(sym)
         is_tradfi = source != "binance"
         venue_tag = "_tradfi" if is_tradfi else ""
-        if (sym, interval) in open_keys:
-            continue  # already in a paper trade on this symbol+timeframe
+        # This scan's book = its flag/venue suffix (must match the setup built below).
+        book = (("_tf" if trend_filter else "") + ("_lo" if long_only else "")
+                + ("_kz" if killzone_gate else "") + ("_cts" if clean_trend_stack else "")
+                + venue_tag)
+        if (sym, interval, book) in open_keys:
+            continue  # already in a paper trade on this symbol+timeframe+book
         f = build_levels(client.klines(sym, interval=interval, limit=600))
         last = confluence_score(f).iloc[-1]
         pct, direction = float(last["confluence_pct"]), float(last["direction"])
@@ -113,6 +130,19 @@ def paper_scan(
             present = [c for c in KILLZONE_GATE_FLAGS if c in last.index]
             if present and not any(bool(last[c]) for c in present):
                 continue
+        # CLEAN TREND STACK gate (§C experiment, default OFF; UNVERIFIED): only trade
+        # when 13/50/800-EMA are cleanly stacked one direction for 10 bars AND the
+        # 13/50 gap is WIDENING (a separating trend, not a braided one). Runs on the
+        # feature frame `f` and checks the latest bar; no-op if columns are missing.
+        if clean_trend_stack and {"ema_13", "ema_50", "ema_800", "atr"} <= set(f.columns):
+            up = (f["ema_13"] > f["ema_50"]) & (f["ema_50"] > f["ema_800"])
+            dn = (f["ema_13"] < f["ema_50"]) & (f["ema_50"] < f["ema_800"])
+            stacked = (up.rolling(10, min_periods=10).min().fillna(0).astype(bool)
+                       | dn.rolling(10, min_periods=10).min().fillna(0).astype(bool))
+            gap = (f["ema_13"] - f["ema_50"]).abs() / f["atr"]
+            widening = gap > gap.shift(10)
+            if not bool((stacked & widening).iloc[-1]):
+                continue   # not a clean, separating trend -> skip this signal
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
         if bias is not None:
@@ -148,7 +178,8 @@ def paper_scan(
             setup=("bias_scalp" if bias is not None else "confluence_r") + f"_{int(round(pct*100))}pct"
                   + ("_tf" if trend_filter else "")
                   + ("_lo" if long_only else "")
-                  + ("_kz" if killzone_gate else "") + venue_tag,
+                  + ("_kz" if killzone_gate else "")
+                  + ("_cts" if clean_trend_stack else "") + venue_tag,
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (" [TradFi 0-fee venue]" if is_tradfi else "") +
