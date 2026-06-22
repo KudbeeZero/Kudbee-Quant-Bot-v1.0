@@ -56,6 +56,16 @@ def test_since_filter_excludes_old_era():
     assert forward["n"] == 40 and forward["verdict"] == "KEEP"       # forward window is positive
 
 
+def test_resolved_on_or_after_includes_same_day():
+    # a bare-date `since` must INCLUDE a same-day UTC trade and exclude the day before
+    # (locks the lexicographic ISO compare against future timestamp-format drift).
+    same = _p("confluence_r_60pct_tf", 1.0, when="2026-06-21T00:00:00+00:00")
+    prev = _p("confluence_r_60pct_tf", 1.0, when="2026-06-20T23:59:59+00:00")
+    assert sc._resolved_on_or_after(same, "2026-06-21") is True
+    assert sc._resolved_on_or_after(prev, "2026-06-21") is False
+    assert sc._resolved_on_or_after(same, None) is True
+
+
 def test_mode_filter():
     preds = [_p("confluence_r_60pct_tf", 1.0, mode="paper") for _ in range(10)] + \
             [_p("confluence_r_60pct_tf", 1.0, mode="live") for _ in range(3)]
