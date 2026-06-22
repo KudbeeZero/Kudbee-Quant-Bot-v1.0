@@ -16,3 +16,15 @@ TOP_10_CRYPTO = [
 UNCORRELATED_STOCKS = [
     "yahoo:SPY", "yahoo:AAPL", "yahoo:NVDA", "yahoo:MSFT", "yahoo:TSLA", "yahoo:AMZN",
 ]
+
+# Broader liquid-major candidate pool for the OPT-IN dynamic volume universe
+# (kudbee_quant.universe_rank). The static TOP_10 above is the validated/forward
+# universe; this pool is only the set we RANK BY VOLUME when explicitly asked —
+# nothing here changes the validated book. Unavailable tickers are skipped at
+# rank time (the ranker fetches each and drops any that error).
+CRYPTO_CANDIDATES = [
+    "BTCUSDT", "ETHUSDT", "BNBUSDT", "SOLUSDT", "XRPUSDT", "ADAUSDT", "DOGEUSDT",
+    "AVAXUSDT", "LINKUSDT", "DOTUSDT", "LTCUSDT", "BCHUSDT", "TRXUSDT", "NEARUSDT",
+    "ATOMUSDT", "UNIUSDT", "FILUSDT", "APTUSDT", "ARBUSDT", "OPUSDT", "INJUSDT",
+    "SUIUSDT", "TIAUSDT", "LDOUSDT",
+]

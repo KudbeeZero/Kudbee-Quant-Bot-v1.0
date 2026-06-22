@@ -43,6 +43,23 @@ def _klines(args) -> None:
     print(df.tail(args.rows).to_string(index=False))
 
 
+def _universe_rank(args) -> None:
+    # OPT-IN dynamic volume universe (§B). Read-only: ranks + prints, never trades.
+    from .universe_rank import rank_by_volume
+    from .universe import CRYPTO_CANDIDATES
+    cands = args.candidates or list(CRYPTO_CANDIDATES)
+    ranked = rank_by_volume(cands, interval=args.interval, lookback_bars=args.lookback)
+    if not ranked:
+        print("No rankable symbols (all candidates failed to fetch?).")
+        return
+    top = ranked[: args.top_n]
+    print(f"Dynamic volume universe — top {len(top)} of {len(ranked)} ranked "
+          f"({args.interval}, {args.lookback} bars, by mean USD volume):")
+    for i, (sym, qv) in enumerate(top, 1):
+        print(f"  {i:2}. {sym:10} {qv:,.0f} USD/bar")
+    print("\nUniverse: " + " ".join(s for s, _ in top))
+
+
 def _vectors(args) -> None:
     df = BinanceClient().klines(args.symbol, interval=args.interval, limit=args.limit)
     annotated = pvsra_vector_candles(df)
@@ -781,6 +798,15 @@ def main() -> None:
     k.add_argument("--limit", type=int, default=300)
     k.add_argument("--rows", type=int, default=10)
     k.set_defaults(func=_klines)
+
+    ur = sub.add_parser("universe-rank",
+                        help="rank a candidate pool by USD volume (opt-in dynamic universe, §B)")
+    ur.add_argument("candidates", nargs="*",
+                    help="symbols to rank (default: universe.CRYPTO_CANDIDATES)")
+    ur.add_argument("--top-n", type=int, default=10, dest="top_n")
+    ur.add_argument("--interval", default="1h")
+    ur.add_argument("--lookback", type=int, default=168, help="bars of volume to average")
+    ur.set_defaults(func=_universe_rank)
 
     v = sub.add_parser("vectors", help="fetch OHLCV + PVSRA vector candles")
     v.add_argument("symbol")
