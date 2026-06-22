@@ -186,13 +186,17 @@ def _today_breakdown_lines(today: dict) -> list[str]:
 
 
 def format_summary(report: dict, *, record: dict | None = None,
-                   realized_today: dict | None = None) -> str:
+                   realized_today: dict | None = None,
+                   schedule_health: dict | None = None) -> str:
     """Portfolio snapshot from :func:`review.open_trades_report` (+ optional record).
 
     ``report`` is the dict that function returns; ``record`` is an optional
     ``{venue: {...}}`` map from ``TradeJournal.venue_record`` for a one-line
     track-record footer. ``realized_today`` is an optional ``{"r": float, "n": int}``
     of fee-net R closed since the New York open (08:00 NY — see :func:`_realized_today`).
+    ``schedule_health`` is an optional heartbeat dict (see
+    :mod:`notifications.heartbeat`) — when runs are being dropped it adds a visible
+    warning line so a silent scheduler can't masquerade as 'nothing to report'.
     """
     p = report.get("portfolio", {})
     trades = report.get("trades", []) or []
@@ -223,6 +227,11 @@ def format_summary(report: dict, *, record: dict | None = None,
                      f"closest to target: {p.get('closest_to_tp') or '—'}")
     if p.get("warnings"):
         lines.append("⚠ " + "; ".join(p["warnings"]))
+    if schedule_health is not None:
+        from .heartbeat import health_line
+        hl = health_line(schedule_health)
+        if hl:
+            lines.append(hl)
     if record:
         bits = [f"{v} {r['hits']}/{r['n']} ({r['net_expectancy_r']:+.2f}R net)"
                 for v, r in record.items() if r.get("n")]
@@ -292,8 +301,11 @@ def notify_summary(only_if_open: bool = False) -> bool:
         record = {v: r for v, r in j.venue_record().items() if r["n"]}
         from ..scorecard import today_autopsy           # richer "Today" (by book + best/worst)
         realized = today_autopsy(j)
+        from .heartbeat import load_health               # read-only run-health line
+        health = load_health()
         return send_telegram(format_summary(report, record=record or None,
-                                            realized_today=realized))
+                                            realized_today=realized,
+                                            schedule_health=health))
     except Exception:  # noqa: BLE001 — a summary failure must not break the run
         return False
 

@@ -1729,3 +1729,54 @@ exactly what stops a lucky n=122 from being shipped. **TR/BTMM experiment is now
 across §57–§59 (28 candidate evaluations). Do not re-chase three_push.** The lesson (re-confirms §2):
 the confluence edge is saturated and structural; more signals/structure don't add a luck-proof edge.
 Nothing wired live; the M-level/weekly columns remain available for charts.
+
+## 60. "Scan the top 30-40 most-liquid pairs" — BACKTESTED, REJECTED for live (HOLD) — 2026-06-22 (PR claude/arm-pay-yourself-exit)
+
+The owner asked to widen the live scan to the top 30-40 most-liquid pairs. Instead of wiring it
+(against §48), I backtested it: expanded `universe.CRYPTO_CANDIDATES` to ~40 liquid USDT pairs,
+ranked by mean quote-volume, and ran the **canonical validated confluence bracket net of fees**
+(`scripts/validate_volume_universe.py`, real Binance 1h, ~8000 bars). Split CORE (top-10 by vol)
+vs TAIL (ranks 11-40):
+
+| split | IS exp | OOS exp | OOS n |
+|---|---|---|---|
+| CORE (top-10) | −0.0125R | −0.0072R | 368 |
+| TAIL (11-40) | −0.0251R | **+0.0373R** | 1087 |
+| ALL (top-40) | −0.0219R | +0.0260R | 1455 |
+
+The pooled OOS number for the tail looked *marginally positive* (+0.037R, > core) — **but the
+significance-gated harness REJECTED it**: profitable OOS on only **3% of 30 assets**, median OOS
+Sharpe **−2.60**, **effective-N 1.3** (median ρ=0.79 — the alts all move together), worst DD −62%.
+The positive pooled blip is a **single-regime artifact**: 30 correlated alts riding one up-move in
+the recent 30% OOS window, not a stable cross-asset edge. **RECONCILED VERDICT = HOLD / DO NOT WIRE**
+(pooled-R and the harness must agree before even paper-trading; they don't). Re-confirms §48 (the
+long tail bled). The expanded candidate pool + `volume_ranked_universe` stay OFF the validated path;
+the live book remains **top-10 only**. `reconcile_verdict()` is unit-tested. Revisit only on more
+history / across regimes, or as a separately-tagged paper book if the owner still wants forward data.
+
+## 61. Dropped-run problem: it's the TRIGGER, not storage — heartbeat + denser cron + (owner) external trigger — 2026-06-22 (PR claude/arm-pay-yourself-exit)
+
+Owner's pain: ~70% of scheduled runs drop, so Telegram goes quiet and trades are missed. He asked if a
+**database** would fix it. **It would not** — the drops are GitHub Actions' best-effort `schedule:` cron
+silently skipping runs (a *trigger* problem), not a storage problem. Three honest layers, in order of power:
+1. **External reliable trigger → `workflow_dispatch`** — the bulletproof fix. **OWNER-ONLY to deploy**
+   (needs his login + a fine-grained GitHub PAT with Actions:write; my integration token gets 403 on
+   dispatch). Two equivalent options, both documented in **`docs/RELIABLE_TRIGGER.md`**: (A) **cron-job.org**
+   — free website, no CLI, the owner's chosen path (POST the dispatches endpoint with the PAT in an
+   Authorization header, body `{"ref":"main"}`, every 15 min); (B) the **Cloudflare Worker**
+   (`cloudflare/trade-bot-cron`, PR #66) for those who prefer wrangler. Only one is needed.
+2. **Denser in-repo cron** — bumped `paper-trade.yml` from 2→**4 attempts/hour** (`5,20,35,50`). Idempotent
+   per-(symbol,tf,book) dedup makes re-scans safe (no dup OPENS); more independent attempts ⇒ higher chance
+   one lands each hour. Costs only Action minutes.
+3. **Run heartbeat / gap detector (NEW, this PR)** — `notifications/heartbeat.py`: `record-run` CLI stamps
+   `data/heartbeat.json` each scan (bot-written, like the journal; committed by the scan). The Telegram
+   summary now carries a health line: `⏱ Runs: last 8m ago • 22/24h covered`, or when dropping
+   `⚠️ Scheduler gap 3h10m • only 9/24h covered (62% dropped) — deploy the external trigger`. `runs_24h`
+   counts DISTINCT covered clock-hours (dense retries don't inflate it). This makes a silent scheduler
+   VISIBLE — answers "I'd rather have accurate info than 70% dropped." Read-only in the summary; gated so
+   absent heartbeat ⇒ no line (back-compat). 9 unit tests; `450 passed`.
+
+**Answer to "slow down trades?"** — no; trade cadence isn't the cause, the hourly scan is fine and the
+dedup already makes re-runs safe. The fix is reliability of the trigger + visibility, not fewer trades.
+**The one thing still on the owner: deploy layer 1** (Cloudflare Worker) for a true fix; layers 2–3 are
+shipped and reduce/expose drops in the meantime.

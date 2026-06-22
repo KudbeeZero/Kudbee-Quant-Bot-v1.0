@@ -17,15 +17,19 @@ name: Forward paper-trade (confluence-R)
 
 on:
   schedule:
-    # TWO attempts/hour. GitHub's cron is best-effort and silently drops/delays many
-    # scheduled runs (observed: ~6 of 18 hourly runs fired, 15-40 min late), which is
-    # why Telegram alerts only arrived on manual triggers. A backup at :35 means a
-    # dropped :05 still gets a run that hour. The per-(symbol,timeframe,book) dedup
-    # makes a re-scan idempotent for OPENS (no duplicate trades); it just also resolves
-    # trades and re-sends the summary sooner. (For rock-solid timing, an external
-    # Cloudflare Worker cron also fires this workflow — see cloudflare/trade-bot-cron.)
+    # FOUR attempts/hour (every 15 min). GitHub's cron is best-effort and silently
+    # drops/delays many scheduled runs (observed: ~6 of 18 hourly runs fired, 15-40
+    # min late), which is why Telegram alerts only arrived on manual triggers. More
+    # independent attempts => higher chance at least one lands each hour. The
+    # per-(symbol,timeframe,book) dedup makes a re-scan idempotent for OPENS (no
+    # duplicate trades); it just also resolves trades and re-sends the summary sooner.
+    # The run heartbeat (record-run below) makes any remaining drops VISIBLE in the
+    # summary. For rock-solid timing, deploy the external Cloudflare Worker cron —
+    # see cloudflare/trade-bot-cron (the bulletproof fix).
     - cron: "5 * * * *"        # primary, ~5 min after the hour
-    - cron: "35 * * * *"       # backup, in case GitHub drops the :05 run
+    - cron: "20 * * * *"       # +15
+    - cron: "35 * * * *"       # +30 (original backup)
+    - cron: "50 * * * *"       # +45
   workflow_dispatch:           # manual run button
 
 permissions:
@@ -106,10 +110,18 @@ jobs:
             --trend-filter --clean-trend-stack || true
           python -m kudbee_quant.cli journal-check || true
 
+      - name: Stamp run heartbeat
+        # Records this run in data/heartbeat.json BEFORE the summary, so the
+        # summary's scheduler-health line reflects how many of the last 24h
+        # actually had a run (vs. were silently dropped by GitHub's cron). The
+        # heartbeat is committed below alongside the journal.
+        run: python -m kudbee_quant.cli record-run || true
+
       - name: Telegram hourly summary
         # No-op unless the TELEGRAM_* repo secrets are set; trade-open and
         # resolved pings fire from the scan/journal-check steps above (also
-        # silently no-op without secrets). See docs/NOTIFICATIONS.md.
+        # silently no-op without secrets). Now also carries a scheduler-health
+        # line (last-run gap + 24h coverage) from the heartbeat. See docs/NOTIFICATIONS.md.
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -131,7 +143,8 @@ jobs:
           git config user.name "kudbee-paper-bot"
           git config user.email "actions@users.noreply.github.com"
           # -A so consumed inbox files (deletions/renames) are staged too.
-          git add -A data/journal.json data/alert_inbox
+          # data/heartbeat.json is bot-written each run (scheduler-gap visibility).
+          git add -A data/journal.json data/alert_inbox data/heartbeat.json
           if ! git diff --cached --quiet; then
             git commit -m "paper-trade: update journal [skip ci]"
             # An alert can land in the inbox mid-run — rebase so the push
