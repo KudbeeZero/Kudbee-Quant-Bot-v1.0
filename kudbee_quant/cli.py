@@ -803,6 +803,18 @@ def _notify_session(args) -> None:
           else "No session open this hour — nothing sent.")
 
 
+def _notify_scorecard(args) -> None:
+    """Send the per-book forward scorecard (KEEP/REVERT/WAIT) to Telegram."""
+    from .notifications import telegram_enabled
+    if not telegram_enabled():
+        print("Telegram is not configured — no scorecard sent.")
+        return
+    from . import scorecard as sc
+    mode = None if args.mode == "all" else args.mode
+    ok = sc.notify_scorecard(mode=mode, since=args.since)
+    print("Scorecard sent to Telegram." if ok else "Telegram muted/failed — not sent.")
+
+
 def _scorecard(args) -> None:
     """Forward-validation scorecard: per-book net-of-fee verdicts (KEEP/REVERT/WAIT),
     optionally with toxic-hour and regime breakdowns. Read-only over the journal."""
@@ -1191,6 +1203,11 @@ def main() -> None:
                      help="write a markdown forward report to PATH")
     scd.add_argument("--notify", action="store_true", help="also send the scorecard to Telegram")
     scd.set_defaults(func=_scorecard)
+    nsc = sub.add_parser("notify-scorecard",
+                         help="send the per-book forward scorecard (KEEP/REVERT/WAIT) to Telegram")
+    nsc.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
+    nsc.add_argument("--since", default=None, help="only score trades resolved on/after this date")
+    nsc.set_defaults(func=_notify_scorecard)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")

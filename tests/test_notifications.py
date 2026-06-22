@@ -320,3 +320,24 @@ def test_split_long_message():
     assert all(len(c) <= tg._MAX_LEN for c in chunks)
     short = _split("just one line")
     assert short == ["just one line"]
+
+
+def test_summary_today_breakdown_and_cut_watch():
+    base = {"portfolio": {"total_open": 0, "total_unrealized_r": 0.0, "total_unrealized_usd": None,
+                          "winners_open": 0, "losers_open": 0, "total_open_risk_pct": 0.0}}
+    today = {"r": -8.0, "n": 18,
+             "by_book": {"tradfi": {"n": 5, "r": -4.0}, "core": {"n": 5, "r": -3.0},
+                         "longs": {"n": 8, "r": -2.0}},
+             "best": ("ETH", 2.4), "worst": ("HG=F", -1.0)}
+    msg = format_summary(base, realized_today=today)
+    assert "Today: -8.00R on 18 closed" in msg
+    assert "Today by book:" in msg and "tradfi -4.0R" in msg
+    assert msg.index("tradfi -4.0R") < msg.index("longs -2.0R")   # worst book first
+    assert "Today best: ETH +2.40R" in msg and "worst: HG=F -1.00R" in msg
+    assert "🛑 Cut watch (today): core -3.0R, tradfi -4.0R" in msg   # both books at/under -3R
+    # thin NY-day (one book, best==worst, not bleeding) -> just the headline line
+    thin = {"r": -1.0, "n": 1, "by_book": {"core": {"n": 1, "r": -1.0}},
+            "best": ("DOT", -1.0), "worst": ("DOT", -1.0)}
+    m2 = format_summary(base, realized_today=thin)
+    assert "Today: -1.00R on 1 closed" in m2
+    assert "Today by book:" not in m2 and "Today best:" not in m2 and "Cut watch" not in m2

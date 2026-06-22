@@ -160,6 +160,31 @@ def _deadline_line(trades: list[dict], *, soon_hours: float = 6.0) -> str | None
     return "⏰ " + "  •  ".join(bits)
 
 
+# A book down at least this much R since the day open gets a 🛑 cut-watch flag.
+_CUT_WATCH_R = -3.0
+
+
+def _today_breakdown_lines(today: dict) -> list[str]:
+    """The daily-autopsy lines under 'Today:' — which book dragged, the single
+    best/worst trade, and a cut-watch flag for any book bleeding hard today. All
+    gated on the richer keys (by_book/best/worst) so older callers are unaffected."""
+    out: list[str] = []
+    by_book = today.get("by_book") or {}
+    if len(by_book) >= 2:
+        items = sorted(by_book.items(), key=lambda kv: kv[1]["r"])   # worst book first
+        out.append("Today by book: " + "  •  ".join(
+            f"{b} {v['r']:+.1f}R" for b, v in items))
+    best, worst = today.get("best"), today.get("worst")
+    if best and worst and best != worst:
+        out.append(f"Today best: {best[0]} {best[1]:+.2f}R  •  "
+                   f"worst: {worst[0]} {worst[1]:+.2f}R")
+    bleeding = sorted((f"{b} {v['r']:+.1f}R" for b, v in by_book.items()
+                       if v["r"] <= _CUT_WATCH_R))
+    if bleeding:
+        out.append("🛑 Cut watch (today): " + ", ".join(bleeding))
+    return out
+
+
 def format_summary(report: dict, *, record: dict | None = None,
                    realized_today: dict | None = None) -> str:
     """Portfolio snapshot from :func:`review.open_trades_report` (+ optional record).
@@ -192,6 +217,7 @@ def format_summary(report: dict, *, record: dict | None = None,
     if realized_today and realized_today.get("n"):
         lines.append(f"Today: {realized_today.get('r', 0):+.2f}R on "
                      f"{realized_today['n']} closed")
+        lines.extend(_today_breakdown_lines(realized_today))
     if p.get("closest_to_stop") or p.get("closest_to_tp"):
         lines.append(f"Closest to stop: {p.get('closest_to_stop') or '—'}  •  "
                      f"closest to target: {p.get('closest_to_tp') or '—'}")
@@ -264,7 +290,8 @@ def notify_summary(only_if_open: bool = False) -> bool:
         if only_if_open and report.get("portfolio", {}).get("total_open", 0) == 0:
             return False
         record = {v: r for v, r in j.venue_record().items() if r["n"]}
-        realized = _realized_today(j.predictions)
+        from ..scorecard import today_autopsy           # richer "Today" (by book + best/worst)
+        realized = today_autopsy(j)
         return send_telegram(format_summary(report, record=record or None,
                                             realized_today=realized))
     except Exception:  # noqa: BLE001 — a summary failure must not break the run
