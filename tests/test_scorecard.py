@@ -110,3 +110,13 @@ def test_write_forward_report(tmp_path):
     assert out.exists()
     assert "Forward-validation scorecard" in text and "Per-book verdicts" in text
     assert "core" in text and "KEEP" in text
+
+
+def test_today_autopsy_groups_and_extremes():
+    preds = [_p("confluence_r_60pct_tf", 2.0), _p("confluence_r_60pct_tf", -1.0),
+             _p("confluence_r_60pct_tradfi", -1.0), _p("confluence_r_60pct_tf_lo", 0.5)]
+    a = sc.today_autopsy(_journal(preds), since="2020-01-01")
+    assert a["n"] == 4
+    assert a["by_book"]["core"]["n"] == 2 and "tradfi" in a["by_book"] and "longs(_lo)" in a["by_book"]
+    assert a["best"][1] > 0 > a["worst"][1]              # a real winner and a real loser
+    assert a["best"][0] == "BTCUSDT"                      # the +2R trade is the day's best

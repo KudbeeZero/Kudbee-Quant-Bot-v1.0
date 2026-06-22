@@ -282,3 +282,35 @@ def write_forward_report(path, journal: TradeJournal | None = None, *,
     Path(path).write_text(text)
     return text
 
+
+
+def today_autopsy(journal: TradeJournal | None = None, *, mode: str | None = "paper",
+                  since: str | None = None) -> dict:
+    """Today's closed trades (net of fees) for the summary's daily breakdown — total
+    R + count, per-book {n, r}, and the single best/worst trade. ``since`` defaults to
+    the current trading-day open (NY session, calendar.session_day_start). Doubles as
+    the ``realized_today`` payload (keys ``r``/``n``), so 'what moved today' is always
+    visible without a separate query."""
+    from .context.calendar import session_day_start
+    j = journal or TradeJournal()
+    cut = since or session_day_start().isoformat()
+    by_book: dict[str, dict] = {}
+    best = worst = None
+    total = 0.0
+    n = 0
+    for p in _closed(j, mode, cut):
+        nr = _net(p)
+        if nr is None:
+            continue
+        n += 1
+        total += nr
+        d = by_book.setdefault(book_of(p.setup), {"n": 0, "r": 0.0})
+        d["n"] += 1
+        d["r"] += nr
+        if best is None or nr > best[1]:
+            best = (p.symbol, round(nr, 2))
+        if worst is None or nr < worst[1]:
+            worst = (p.symbol, round(nr, 2))
+    return {"r": round(total, 2), "n": n,
+            "by_book": {b: {"n": v["n"], "r": round(v["r"], 2)} for b, v in by_book.items()},
+            "best": best, "worst": worst}
