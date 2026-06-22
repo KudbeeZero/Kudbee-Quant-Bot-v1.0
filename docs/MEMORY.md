@@ -1810,3 +1810,26 @@ both halves positive, n=288) — worth a confirmation run on 3× history before 
 oscillator-divergence combos look strong (+0.25–0.42R, both halves +) but are THIN (n=25–30): they
 filter so hard there aren't enough trades to trust — need much more history/symbols to judge. Nothing
 wired live; all gates stay in the candidate harness (off the validated path). `455 passed`.
+
+### §62 addendum — LEVEL-CLUSTER ("magnet") is the real lead (2026-06-22)
+
+Follow-up to the owner's question "what about when M2 lines up with a prior-day/weekly level or a
+3-day-old daily open — they always come back to these areas, especially with vector candles." Built
+`level_cluster()` (scripts/lab_indicators.py): counts INDEPENDENT levels stacking within 0.20 ATR of
+the close — M-grid + pivots + session opens + prior day/week H/L + ADR/AWR + VWAP + round numbers +
+**the last 6 days' daily opens** (causal, via daily_open day-grouping). Verdicts vs baseline +0.075R:
+
+| candidate | verdict | ΔR | n | halves |
+|---|---|---|---|---|
+| **level_cluster (>=3 stacked)** | **SUGGESTIVE** | **+0.110** | 230 | +0.097 / +0.138 |
+| level_cluster_strong (>=4 stacked) | THIN | +0.239 | 91 | +0.203 / +0.283 |
+| level_cluster_vector (cluster + climax) | THIN | −0.185 | 46 | −/− |
+| level_cluster_magnet (cluster as target) | HURTS | −0.076 | 495 | −/− |
+
+**The owner's clustering intuition is VALIDATED** — entering only where ≥3 independent levels stack
+roughly TRIPLES per-trade expectancy (+0.075→+0.185R) with both halves positive, and there's a clean
+DOSE-RESPONSE (≥4 → +0.24R). This is the strongest forward-looking lead in the project so far (better
+than bb_squeeze). NOT yet a confirmed WINNER (SUGGESTIVE, didn't clear p<0.05) — needs a confirmation
+run on 3× history before a tagged paper book. **Honest counter-finding:** the vector-candle pairing
+HURT (−0.185R) and using clusters as profit TARGETS hurt — the cluster is an ENTRY-LOCATION filter,
+not a target or a vector-candle combo. Nothing wired live; stays in the candidate harness.

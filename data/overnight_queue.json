@@ -77,6 +77,10 @@
     "fib_at_price",
     "spider_touch",
     "mzone_band",
-    "mzone_daycolor"
+    "mzone_daycolor",
+    "level_cluster",
+    "level_cluster_strong",
+    "level_cluster_vector",
+    "level_cluster_magnet"
   ]
 }

@@ -112,6 +112,54 @@ def spider_touch(df: pd.DataFrame, slope_atr: float = 1.0, tol_atr: float = 0.2)
     return sup_touch.fillna(False), res_touch.fillna(False)
 
 
+# Static structural levels to stack at a price (only those present are used).
+_CLUSTER_LEVELS = (
+    "mlevel_m0", "mlevel_m1", "mlevel_m2", "mlevel_m3", "mlevel_m4", "mlevel_m5",
+    "pivot_pp", "pivot_r1", "pivot_r2", "pivot_r3", "pivot_s1", "pivot_s2", "pivot_s3",
+    "daily_open", "weekly_open", "monthly_open", "ny_open", "asian_open",
+    "pdh", "pdl", "pwh", "pwl", "asian_high", "asian_low",
+    "ny_brinks_high", "ny_brinks_low", "adr_high", "adr_low", "awr_high", "awr_low",
+    "vwap", "round_below", "round_above", "week_ib_high", "week_ib_low",
+)
+
+
+def _prev_day_opens(df: pd.DataFrame, n_days: int) -> list[pd.Series]:
+    """The daily_open from each of the last ``n_days`` PRIOR days, as columns
+    aligned to every bar. Causal: a day's open enters only on later days.
+
+    Uses ``daily_open`` (constant within a NY day, changes at the boundary) so we
+    don't need the timestamp: distinct daily_open values ARE the day opens.
+    """
+    do = df["daily_open"]
+    day_id = (do != do.shift(1)).cumsum()
+    open_by_day = do.groupby(day_id).first()
+    out = []
+    for k in range(1, n_days + 1):
+        shifted = open_by_day.shift(k)                   # the open k days ago
+        out.append(day_id.map(shifted))
+    return out
+
+
+def level_cluster(df: pd.DataFrame, tol_atr: float = 0.20, n_days: int = 6) -> pd.Series:
+    """Count how many INDEPENDENT levels stack within ``tol_atr`` ATR of the close —
+    the owner's 'M2 lines up with a prior-day/weekly level / a 3-day-old daily open'
+    idea. Sources: the M-level grid, pivots, session opens, prior day/week H/L, ADR/
+    AWR bands, VWAP, round numbers, weekly IB, PLUS the daily opens of the last
+    ``n_days`` days (so today's M1 sitting on a 3-day-old open counts as a stack).
+    Causal: every source is prior-bar-derived or a confirmed past day's open.
+    """
+    close = df["close"].to_numpy()
+    atr = df["atr"].to_numpy()
+    tol = tol_atr * atr
+    cols = [c for c in _CLUSTER_LEVELS if c in df.columns]
+    levels = [df[c].to_numpy() for c in cols] + [s.to_numpy() for s in _prev_day_opens(df, n_days)]
+    count = np.zeros(len(df))
+    for lv in levels:
+        with np.errstate(invalid="ignore"):
+            count += (np.abs(close - lv) <= tol).astype(float)
+    return pd.Series(count, index=df.index)
+
+
 def kdj_divergence(df: pd.DataFrame, left: int = 3, right: int = 3, persist: int = 4):
     """+1 bullish / -1 bearish KDJ divergence at confirmed swings (causal),
     mirroring the existing RSI add_divergence logic but on the KDJ %K line."""

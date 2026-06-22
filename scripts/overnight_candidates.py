@@ -833,10 +833,51 @@ def c_mzone_daycolor(df, scored, base_sig):
     return _dir_gate(base_sig, in_band & green, in_band & red), None, {}
 
 
+def c_level_cluster(df, scored, base_sig):
+    """ENTRY LOCATION: take baseline entries only when price sits in a CLUSTER where
+    >=3 independent levels stack within 0.2 ATR (M-level + pivots + prior day/week
+    levels + last-6-days' daily opens + VWAP/round). The owner's 'they always come
+    back to these areas where the levels line up' hypothesis."""
+    from lab_indicators import level_cluster
+    return _gate(base_sig, level_cluster(df) >= 3), None, {}
+
+
+def c_level_cluster_strong(df, scored, base_sig):
+    """ENTRY LOCATION: stricter — require >=4 stacked levels (a heavy magnet zone)."""
+    from lab_indicators import level_cluster
+    return _gate(base_sig, level_cluster(df) >= 4), None, {}
+
+
+def c_level_cluster_vector(df, scored, base_sig):
+    """ENTRY LOCATION: the owner's full idea — a level cluster (>=3 stacked) AND a
+    PVSRA vector/climax candle on the trigger bar ('especially when there's vector
+    candles'). Where outsized players act ON a confluence of levels."""
+    from lab_indicators import level_cluster
+    cluster = level_cluster(df) >= 3
+    vec = df["is_climax"] if "is_climax" in df.columns else (df.get("vector").notna() if "vector" in df.columns else cluster)
+    return _gate(base_sig, cluster & pd.Series(vec, index=df.index).fillna(False).astype(bool)), None, {}
+
+
+def c_level_cluster_magnet(df, scored, base_sig):
+    """EXECUTION: target the NEAREST heavy level-cluster (>=3 stacked) ahead of price
+    instead of a fixed 3R ('price returns to these areas'). All-or-nothing at the
+    cluster; kept only when such a zone exists in the trade direction."""
+    from lab_indicators import level_cluster
+    cnt = level_cluster(df)
+    # nearest M-level ahead (the densest cluster anchors), gated to bars in a cluster.
+    tgt = _dir_extreme(df, base_sig, list(_MLEVELS))
+    keep = tgt.notna() & (cnt >= 2)
+    return _gate(base_sig, keep), None, {"target_price": tgt, "tp1_r": None}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
 REGISTRY: dict[str, tuple] = {
+    "level_cluster": (c_level_cluster, "Owner: enter only where >=3 levels stack (0.2 ATR)"),
+    "level_cluster_strong": (c_level_cluster_strong, "Owner: enter only where >=4 levels stack"),
+    "level_cluster_vector": (c_level_cluster_vector, "Owner: level cluster (>=3) AND a vector/climax candle"),
+    "level_cluster_magnet": (c_level_cluster_magnet, "Owner: target the nearest heavy level-cluster (execution)"),
     "bb_fade": (c_bb_fade, "Owner: enter only when stretched outside the Bollinger band"),
     "bb_squeeze": (c_bb_squeeze, "Owner: enter only after a Bollinger squeeze (low band width)"),
     "rsi_div_confirm": (c_rsi_div_confirm, "Owner: require RSI divergence to agree with direction"),

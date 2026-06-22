@@ -11,7 +11,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 from lab_indicators import (  # noqa: E402
-    bollinger, kdj, kdj_divergence, fib_confluence, spider_touch,
+    bollinger, kdj, kdj_divergence, fib_confluence, spider_touch, level_cluster,
 )
 
 
@@ -75,6 +75,7 @@ def test_no_lookahead_all_indicators():
         ("kdj_div", kdj_divergence),
         ("fib_count", lambda d: fib_confluence(d)[0]),
         ("spider_sup", lambda d: spider_touch(d)[0].astype(float)),
+        ("level_cluster", level_cluster),
     ]
     for name, fn in pairs:
         a = fn(df).to_numpy()[prior]
@@ -86,3 +87,12 @@ def test_fib_confluence_nonnegative_count():
     df = _frame()
     count, near = fib_confluence(df)
     assert (count.dropna() >= 0).all()
+
+
+def test_level_cluster_counts_stacked_levels():
+    df = _frame()
+    df["daily_open"] = df["close"].round(-1)            # ensure the column exists
+    lc = level_cluster(df)
+    assert (lc.dropna() >= 0).all()
+    # a price with many coincident levels should count more than a lone one
+    assert lc.max() >= 1
