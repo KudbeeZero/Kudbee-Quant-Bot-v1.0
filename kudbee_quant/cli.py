@@ -580,7 +580,8 @@ def _paper_scan(args) -> None:
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
                         trend_filter=args.trend_filter,
                         long_only=args.long_only, killzone_gate=args.killzone_gate,
-                        trailing_atr=args.trailing_atr)
+                        trailing_atr=args.trailing_atr,
+                        clean_trend_stack=args.clean_trend_stack)
     notify_trades_opened(logged)   # no-op unless Telegram is configured
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
@@ -1011,6 +1012,9 @@ def main() -> None:
     ps.add_argument("--trailing-atr", type=float, default=None,
                     help="chandelier trailing stop: trail at this many ATR behind the "
                          "favourable extreme (e.g. 1.5 = 1R at stop_atr 1.5); default off")
+    ps.add_argument("--clean-trend-stack", action="store_true", default=False,
+                    help="[§C experiment, UNVERIFIED] only trade when 13/50/800-EMA are "
+                         "cleanly stacked for 10 bars AND the 13/50 gap is widening")
     ps.set_defaults(func=_paper_scan)
 
     vs = sub.add_parser("vector-scan",

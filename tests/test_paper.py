@@ -249,6 +249,63 @@ def test_paper_scan_killzone_gate_filters_off_hours(tmp_path, monkeypatch):
                              killzone_gate=True, journal=j3, client=_C1())) == 1
 
 
+def _trend_frame(stacked: bool, n: int = 14) -> pd.DataFrame:
+    """Feature frame for the §C gate. stacked=True => a clean, WIDENING 13>50>800
+    up-stack; False => ema_13 < ema_50 (no clean stack in either direction)."""
+    if stacked:
+        e13 = [102.0 + i * 0.2 for i in range(n)]   # widening gap over ema_50
+        e50 = [101.0] * n
+        e800 = [100.0] * n
+    else:
+        e13 = [100.5] * n                            # below ema_50 -> not up; not down either
+        e50 = [101.0] * n
+        e800 = [100.0] * n
+    return pd.DataFrame({"ema_13": e13, "ema_50": e50, "ema_800": e800,
+                         "atr": [1.0] * n, "close": [103.0] * n})
+
+
+def test_paper_scan_clean_trend_stack_gate(tmp_path, monkeypatch):
+    """§C gate blocks signals when EMAs are NOT cleanly stacked/widening, and
+    passes (tagging '_cts') when they are."""
+    import kudbee_quant.paper.paper as pp
+    sig = pd.DataFrame({"close": [103.0], "atr": [1.0], "strength": [6.0],
+                        "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: sig)
+
+    monkeypatch.setattr(pp, "build_levels", lambda df: _trend_frame(False))
+    j = TradeJournal(path=tmp_path / "cts0.json", client=_C1())
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                         clean_trend_stack=True, journal=j, client=_C1()) == []
+
+    monkeypatch.setattr(pp, "build_levels", lambda df: _trend_frame(True))
+    j2 = TradeJournal(path=tmp_path / "cts1.json", client=_C1())
+    logged = pp.paper_scan(["ETHUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                           clean_trend_stack=True, journal=j2, client=_C1())
+    assert len(logged) == 1 and "_cts" in logged[0].setup
+
+
+def test_per_book_dedup_lets_experiment_coexist(tmp_path, monkeypatch):
+    """Per-book dedup: the §C (_cts) book holds its OWN trade on a symbol+timeframe
+    the baseline book already occupies; re-running §C does NOT duplicate."""
+    import kudbee_quant.paper.paper as pp
+    monkeypatch.setattr(pp, "build_levels", lambda df: _trend_frame(True))
+    sig = pd.DataFrame({"close": [103.0], "atr": [1.0], "strength": [6.0],
+                        "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: sig)
+    j = TradeJournal(path=tmp_path / "book.json", client=_C1())
+
+    base = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                         max_symbol_risk=0.05, journal=j, client=_C1())
+    assert len(base) == 1 and "_cts" not in base[0].setup
+    # baseline already holds (BTC,1h,'') -> §C opens a SECOND BTC 1h trade (book '_cts')
+    cts = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                        clean_trend_stack=True, max_symbol_risk=0.05, journal=j, client=_C1())
+    assert len(cts) == 1 and "_cts" in cts[0].setup
+    # re-running §C is deduped within its own book
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                         clean_trend_stack=True, max_symbol_risk=0.05, journal=j, client=_C1()) == []
+
+
 def test_paper_scan_trailing_atr_stamps_atr_at_entry(tmp_path, monkeypatch):
     """--trailing-atr stamps trailing_atr + the signal-time ATR on the Prediction
     (and leaves tp1 None); default leaves both None."""
