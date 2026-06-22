@@ -23,8 +23,14 @@ def _side(p: "Prediction") -> str:
 
 
 def _g(x: float | None) -> str:
-    """Compact price format (4 significant figures), '?' for missing."""
-    return f"{x:.4g}" if x is not None else "?"
+    """Compact price format — never scientific notation on mobile."""
+    if x is None:
+        return "?"
+    if abs(x) >= 1_000:
+        return f"{x:,.0f}"   # 64170 -> "64,170"  |  1735 -> "1,735"
+    if abs(x) >= 1:
+        return f"{x:.4g}"    # 591.3 -> "591.3"
+    return f"{x:.5g}"        # 0.08349 -> "0.08349"  (DOGE etc)
 
 
 def _opened_line(p: "Prediction") -> str:

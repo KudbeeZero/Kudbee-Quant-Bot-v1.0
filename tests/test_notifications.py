@@ -20,7 +20,21 @@ from kudbee_quant.notifications.notify import (
     format_trades_opened,
     format_trades_resolved,
 )
+from kudbee_quant.notifications.notify import _g
 from kudbee_quant.notifications.telegram import _split
+
+
+def test_g_price_format_no_scientific_notation():
+    # The bug: BTC at 64,170 rendered as "6.417e+04" on mobile. Now: thousands
+    # separators >=1000, 4g mid-range, 5g sub-1 — never scientific notation.
+    assert _g(64170.0) == "64,170"
+    assert _g(1735.0) == "1,735"
+    assert _g(591.3) == "591.3"
+    assert _g(8.0134) == "8.013"
+    assert _g(0.08349) == "0.08349"   # DOGE-range unaffected
+    assert _g(None) == "?"
+    for v in (64170.0, 1735.0, 999999.0):
+        assert "e" not in _g(v).lower()   # no scientific notation
 
 
 def _pred(symbol="BTCUSDT", direction=1.0, status="open", outcome_r=None, pending=True):
