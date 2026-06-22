@@ -190,3 +190,60 @@ def test_paper_scan_tags_tradfi_venue(tmp_path, monkeypatch):
     crypto = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
                            stop_atr=1.0, journal=j2, client=C())
     assert crypto and "_tradfi" not in crypto[0].setup
+
+
+class _C1:
+    def klines(self, *a, **k):
+        return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
+
+
+def test_paper_scan_long_only_skips_shorts(tmp_path, monkeypatch):
+    """--long-only: a SHORT signal is skipped; a LONG is taken and tagged '_lo'."""
+    import kudbee_quant.paper.paper as pp
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+
+    short = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                          "direction": [-1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: short)
+    j = TradeJournal(path=tmp_path / "lo.json", client=_C1())
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                         long_only=True, journal=j, client=_C1()) == []
+
+    long = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                         "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: long)
+    j2 = TradeJournal(path=tmp_path / "lo2.json", client=_C1())
+    logged = pp.paper_scan(["ETHUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                           long_only=True, journal=j2, client=_C1())
+    assert len(logged) == 1 and logged[0].direction == 1.0 and "_lo" in logged[0].setup
+
+
+def test_paper_scan_killzone_gate_filters_off_hours(tmp_path, monkeypatch):
+    """--killzone-gate: skip when all session flags are False; take (tag '_kz')
+    when one is True; NO-OP when the frame lacks the flag columns entirely."""
+    import kudbee_quant.paper.paper as pp
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+
+    off = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                        "direction": [1.0], "confluence_pct": [0.6],
+                        "in_london_kz": [False], "in_ny_brinks": [False],
+                        "in_overlap": [False]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: off)
+    j = TradeJournal(path=tmp_path / "kz.json", client=_C1())
+    assert pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                         killzone_gate=True, journal=j, client=_C1()) == []
+
+    on = off.copy()
+    on["in_ny_brinks"] = [True]
+    monkeypatch.setattr(pp, "confluence_score", lambda df: on)
+    j2 = TradeJournal(path=tmp_path / "kz2.json", client=_C1())
+    logged = pp.paper_scan(["ETHUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                           killzone_gate=True, journal=j2, client=_C1())
+    assert len(logged) == 1 and "_kz" in logged[0].setup
+
+    nokz = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                         "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "confluence_score", lambda df: nokz)
+    j3 = TradeJournal(path=tmp_path / "kz3.json", client=_C1())
+    assert len(pp.paper_scan(["SOLUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                             killzone_gate=True, journal=j3, client=_C1())) == 1
