@@ -1541,3 +1541,71 @@ No change to §1 geometry / `FEE_PCT` / `bracket.py` / `resolver.py`.
 cut the 18h/06h toxic clusters — forward-validate before enabling. Watch the reverted book:
 does top-10/1h turn positive once the alt+5m drag is gone? Even majors/1h is only ~breakeven
 live vs ~+0.2R backtested, so a real backtest→live gap (regime/decay) may still remain.
+
+## 49. Pay-yourself (breakeven) exit ARMED on the hourly bot — config-premise was wrong; needed CLI wiring — 2026-06-21 (PR #47)
+
+**The bug (confirmed):** the hourly Action had **never** armed the breakeven exit — `0 of 701`
+journal trades had `tp1` set. The cron ran `paper-scan` with no TP1 flag, so every prediction
+got `tp1=None` and the "stop→breakeven at +1R" logic in `resolver.py` could never fire; deep-
+in-profit trades took full −1R stops.
+**The premise that it was config-only was FALSE:** `paper-scan` exposed only `--tp1-r`, NOT
+`--tp1-frac`/`--no-be` (those were on the *backtest* parser), and `_paper_scan` never threaded
+`tp1_frac`/`be_after_tp1`. Adding `--tp1-frac 0.0` to the cron as-specified would have errored
+(`unrecognized arguments`), been swallowed by the trailing `|| true`, and **silently stopped
+both books from logging any trades.** Caught it audit-first before shipping.
+**Fix (minimal wiring, mirrors the tested backtest parser):** `cli.py` — add `--tp1-frac`
+(default 0.5 = prior `paper_scan` default, backward-compatible) + `--no-be` to the paper-scan
+parser, thread both into `_paper_scan`. `paper.py` — `paper_scan` accepts `be_after_tp1`, passes
+to `Prediction`. `paper-trade.yml` — both 1h scans now pass `--tp1-r 1.0 --tp1-frac 0.0`
+(**breakeven-only**: bank nothing at +1R, stop→breakeven, ride full size to +3R). Three
+adversarial resolver tests added (runner→+3R, **breakeven-save→0R not −1R**, clean-stop→−1R).
+`378 passed`. **LIVE now** — new 1h predictions stamp `tp1=entry+1R`; forward-only (the 701
+historical trades stay `tp1=None`). Note: `paper-scan --help` still crashes on a PRE-EXISTING
+bare-`%` argparse bug (`1%)` in help strings) — cosmetic, cron-irrelevant, left untouched.
+
+## 50. Flattened 40 stale-timeframe (2h/4h) zombie positions in the journal — honest retirement — 2026-06-21 (PR #48)
+
+The 2026-06-19 §1 revert (§48 / PR #39 → 1h-only) left **40 filled positions open on retired
+TFs (26× 4h, 14× 2h)**, predating the §49 breakeven fix (`tp1=None`), re-managed into stop/
+target every hour. **KEY AUDIT FINDING:** `journal-score`'s `scorecard()` buckets by **`setup`
+only**, and the setup label is **timeframe-agnostic** (`confluence_r_50pct_tf` is the same on 1h
+and 4h) — so once these resolved they'd have **dragged the 1h-only record**. Corollary used:
+`scorecard`/`venue_record`/`source_record`/`resolved_series` all filter to `status in (hit,miss)`
+and `check_open` only touches `open`/`pending`, so a non-scoring status both hides them from every
+record surface AND stops them being re-managed. **Mechanism (B):** `scripts/flatten_stale_tf.py`
+(idempotent) sets the 40 → `status="flattened"` (truthful — they filled; *not* `cancelled`,
+*not* hit/miss), `reason_closed` carries the read-only at-mark R snapshot, `outcome_r` stays
+`None` (no mark figure can leak into a bucket). Raw-JSON targeted edit (NOT via `TradeJournal.save`)
+so every non-target record stays byte-for-byte identical; only 3 fields × 40 change; count stays
+703; idempotent (2nd run = 0 changes). The 6→5 open 1h positions and all resolved records
+untouched. Most of the 40 were *in profit* at flatten (would have given it back with no BE).
+
+## 51. Exit-geometry sweep (5m) — NO geometry rescues 5m; quarter-Kelly says DO NOT BET — 2026-06-22 (PR #49)
+
+Extended `scripts/leverage_be_study.py` with `--exit-geometry` (read-only, offline): on **5m
+only**, sweep **stop width** (0.5/1.0/1.5/2.0× today's stop) × **BE trigger**, target held at 3R
+of the scaled stop, re-walking each path **adverse-first** via the existing tested `sim_policy`
+(R arrays rescaled so 1 NEW-R = w×original stop → widths compare directly; friction maps as
+`friction_r/w`). **Honest result: ALL 24 combos net-negative.** Least-bad = **2.0× stop /
+BE@first_green / 3R = −0.243R/trade (real), −0.476 (harsh), 3% win, n=182**; tightening (0.5×) is
+worst (−0.96…−1.18R). Sizing the −0.243R edge over 100 trades / $1,000: 2% risk → $610 (−40% DD),
+3% → $475 (−53%), **5% → $283 (−72% DD)**; **quarter-Kelly ≤ 0 → DO NOT BET.** Corroborates §37/§48
+— 5m has no exit-geometry rescue. Outputs `data/exit_geometry_5m.json` + `reports/exit_geometry_5m.md`
+(committed). Also added `1` (no-lev) to `LEVERAGES`. Journal/engine/workflow untouched; `378 passed`.
+
+## 52. Experiment §A — 5m long-only book + long_only/killzone_gate flags (FORWARD-TEST, not validated) — 2026-06-22 (PR #50)
+
+User-directed forward experiment, separately tagged so it never touches the validated 1h book.
+`paper.py`/`cli.py` gain `long_only` (skip shorts) + `killzone_gate` (keep only London/NY/Brinks
+windows, reuses `KILLZONE_GATE_FLAGS`, no-op without the columns); setup tags gain `_lo`/`_kz`.
+`paper-trade.yml` adds an **Experiment §A** step: **5m, `--long-only`, pay-yourself
+(`--tp1-r 1.0 --tp1-frac 0.0`), `--trend-filter`**, run after the 1h scan so the net-exposure
+guard sees open positions. **HONESTY (the reason I paused mid-task):** the commit's original
+"longs 32% vs shorts 14%" is a **subset** figure — VERIFIED against `excursion_audit.json`
+(n=48, Jun 9-13: longs 11/34=32%, shorts 2/14=14%) — but the **full-journal 5m sample (n=182)
+reads ~16%/17%**, so long-only is a **HYPOTHESIS being forward-tested, NOT a validated edge.**
+**Killzone gate ships UNARMED:** the same audit shows it HURTS 5m (20% win *inside* sessions vs
+28% *outside*); the flag is there for future **1h** validation only. The "18h-UTC toxic" claim is
+from **1h** cluster analysis (§48), not 5m. `380 passed` (+2 flag tests). **WATCH:** after ≥30
+forward `_lo` trades, `journal-score` filtered to `timeframe=5m` — net-negative → **revert the §A
+step** (same trigger as §37). Both flags default-off → no change to the validated path.
