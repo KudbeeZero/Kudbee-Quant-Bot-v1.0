@@ -116,10 +116,22 @@ def check_and_fire_session_alerts(df_by_symbol: dict, notify_fn, *,
     return fired
 
 
+def _is_session_hour_now() -> bool:
+    """True iff the current NY wall-clock hour is a session open — a cheap guard so
+    we skip the fetch+build_levels work on the ~21 non-session hours of the day."""
+    from datetime import datetime
+    return datetime.now(NY).hour in {h for h, *_ in SESSION_OPENS}
+
+
 def run_session_alerts(symbols: tuple[str, ...] = ("BTCUSDT", "ETHUSDT", "SOLUSDT"), *,
                        client=None, interval: str = "1h", limit: int = 200,
                        notify_fn=None, verbose: bool = False) -> list[str]:
-    """Fetch -> build_levels -> check_and_fire. A bad symbol is skipped, not fatal."""
+    """Fetch -> build_levels -> check_and_fire. A bad symbol is skipped, not fatal.
+    Short-circuits (no I/O) when the current hour isn't a session open."""
+    if not _is_session_hour_now():
+        if verbose:
+            print("[session_alerts] not a session-open hour — skipping fetch.")
+        return []
     from ..ingest.router import RouterClient
     from ..levels.builder import build_levels
     client = client or RouterClient()

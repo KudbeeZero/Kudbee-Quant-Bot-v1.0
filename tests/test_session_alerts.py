@@ -92,6 +92,32 @@ def test_empty_input_is_safe():
     assert check_and_fire_session_alerts({}, notify_fn=lambda m: None) == []
 
 
+def test_run_skips_all_io_off_session(monkeypatch):
+    import kudbee_quant.notifications.session_alerts as sa
+    monkeypatch.setattr(sa, "_is_session_hour_now", lambda: False)
+
+    class Boom:
+        def klines(self, *a, **k):
+            raise AssertionError("must not fetch outside a session hour")
+
+    assert sa.run_session_alerts(client=Boom(), notify_fn=lambda m: None) == []
+
+
+def test_run_fetches_and_fires_on_session(monkeypatch):
+    import kudbee_quant.notifications.session_alerts as sa
+    monkeypatch.setattr(sa, "_is_session_hour_now", lambda: True)
+    monkeypatch.setattr("kudbee_quant.levels.builder.build_levels", lambda d: d)
+    df = _frame_at("2026-06-22 08:00", monthly_open=100.4)   # NY open + nearby level
+
+    class Stub:
+        def klines(self, *a, **k):
+            return df
+
+    sent: list[str] = []
+    fired = sa.run_session_alerts(symbols=("BTCUSDT",), client=Stub(), notify_fn=sent.append)
+    assert fired == ["ny"] and "NY Open" in sent[0]
+
+
 def test_nan_atr_suppresses_levels_not_crash():
     # NaN atr must not slip every level past the 1.5-ATR proximity gate (or crash).
     df = _frame_at("2026-06-22 08:00", close=100.0, atr=float("nan"), monthly_open=100.4)
