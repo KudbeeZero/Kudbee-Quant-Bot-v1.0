@@ -1854,3 +1854,31 @@ contract: **NOT wired live, NOT claimed validated.** Defensible next step = a se
 book (like §C) to accrue forward trades and settle significance over time — owner's call. Do not
 re-bolt the vector-candle pairing (HURT) or cluster-as-target (HURT); the edge is ENTRY-LOCATION only.
 `level_cluster()` gained an `exclude_groups` ablation param. Nothing wired live; tests still green.
+
+## 64. TR Level Intelligence — D1 persistence layer (BUILT, off the trading path; D1 UNVERIFIED) — 2026-06-22 (PR claude/tr-level-intelligence-qc4i2p)
+
+A NON-CRITICAL side-channel that records what the bot already computes — it adds NO signal and
+touches NO trading logic. New `kudbee_quant/intelligence/` package:
+- **d1_client.py** — thin Cloudflare D1 REST client (`d1_query` / `d1_execute`).
+- **level_recorder.py** — writes the LAST bar's full TR grid (M0–M5, pivots, opens, Asia/Brinks,
+  ADR/AWR/AMR, EMA stack, week-IB, range-used, DOW/level-day) to `daily_levels` via INSERT OR
+  REPLACE → idempotent per (date, symbol, timeframe). All 54 LEVEL_FIELDS verified present in
+  `build_levels()` output.
+- **vector_tracker.py** — upserts PVSRA `bull_climax`/`bear_climax` bars to `unrecovered_vectors`
+  (INSERT OR IGNORE), then marks recovery within 0.3% tolerance (bull→low zone, bear→high zone) and
+  updates `days_open`.
+
+Wiring: `cli._record_intelligence()` runs AFTER `paper_scan()` (NOT inside paper.py — trading logic
+left byte-identical), fetches a fresh 1h frame per symbol, and is gated on `D1_DATABASE_ID` +
+wrapped in try/except per-symbol AND overall → a D1 outage can never block a scan or an alert.
+Telegram: `/levels` `/history` `/vectors` (read-only; D1 errors degrade to friendly text).
+Schema in `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql` (3 tables; `session_analytics`
+defined but not yet populated). 9 new tests over an in-memory sqlite D1 proxy; full suite 474 green.
+
+**HONESTY CAVEAT — D1 is UNVERIFIED end-to-end.** No Cloudflare creds/network in the build sandbox,
+so: (a) `wrangler d1 create` + migration were NOT run (owner must, with their CF account);
+(b) `wrangler.toml` `database_id` is a `REPLACE_WITH_DATABASE_ID` placeholder; (c) `/levels`
+`/vectors` `/history` were rendered against an in-memory sqlite D1 (faithful proxy), NOT real D1.
+The recorder only sees the scan's loaded window — a vector older than ~600 bars can't be re-checked
+for price recovery (its `days_open` still ticks via SQL). Layer is OFF until the three CF_*/D1 env
+vars are set; default path is a silent no-op.
