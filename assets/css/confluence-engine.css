@@ -1,0 +1,155 @@
+/* =========================================================
+   Kudbee Quant — Confluence Engine (interactive factor grid)
+   Honest demo: 10 measured factors vote; a setup only qualifies
+   when >=50% agree AND the trend group aligns. No returns claims.
+   Tokens reused from style.css (--bg, --honey, --mint, --radius…).
+   ========================================================= */
+
+.engine { position: relative; overflow: hidden; }
+.engine__bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(60% 50% at 18% 0%, rgba(245,166,35,.07), transparent 70%),
+    radial-gradient(50% 60% at 100% 30%, rgba(46,211,168,.06), transparent 70%);
+}
+.engine > .container { position: relative; z-index: 1; }
+
+.engine__lead {
+  max-width: 680px; color: var(--muted);
+  font-size: clamp(1rem, 1.4vw, 1.12rem); margin: 14px 0 6px;
+}
+.engine__note {
+  font-family: var(--font-mono); font-size: 12.5px; color: var(--muted-2, #8b97ad);
+  letter-spacing: .01em;
+}
+
+/* ---- layout: grid of factor groups + the consensus panel ---- */
+.engine__grid {
+  display: grid; grid-template-columns: 1.55fr .95fr; gap: 22px; margin-top: 34px;
+}
+@media (max-width: 920px) { .engine__grid { grid-template-columns: 1fr; } }
+
+.engine__groups { display: grid; gap: 18px; }
+.fgroup__label {
+  display: flex; align-items: center; gap: 9px;
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 11px;
+}
+.fgroup__label::before {
+  content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--g-color, var(--honey));
+  box-shadow: 0 0 10px 0 var(--g-color, var(--honey));
+}
+.fgroup[data-group="trend"]       { --g-color: #FFD45E; }
+.fgroup[data-group="level"]       { --g-color: #6FB7FF; }
+.fgroup[data-group="smart_money"] { --g-color: #2ED3A8; }
+
+.fcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 620px) { .fcards { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 380px) { .fcards { grid-template-columns: 1fr; } }
+
+/* ---- factor card (button: keyboard-operable, CSP-safe) ---- */
+.fcard {
+  position: relative; text-align: left; cursor: pointer;
+  background: linear-gradient(180deg, var(--bg-3) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--border, #1d2942); border-radius: var(--radius-sm, 12px);
+  padding: 13px 13px 12px; color: var(--text); width: 100%;
+  transition: transform .25s var(--ease, cubic-bezier(.2,.7,.2,1)),
+              border-color .25s, box-shadow .25s, background .25s;
+}
+.fcard:hover { transform: translateY(-3px); border-color: var(--g-color, var(--honey)); }
+.fcard:focus-visible { outline: 2px solid var(--g-color, var(--honey)); outline-offset: 2px; }
+.fcard__top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.fcard__label { font-family: var(--font-head); font-weight: 600; font-size: 14px; line-height: 1.2; }
+.fcard__tag {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--g-color, var(--honey)); opacity: .85; white-space: nowrap;
+}
+.fcard__what { color: var(--muted); font-size: 12px; line-height: 1.45; margin-top: 7px; }
+
+/* the vote pip + active (toggled "voting") state */
+.fcard__vote {
+  position: absolute; top: 11px; right: 11px; width: 9px; height: 9px; border-radius: 50%;
+  background: var(--border-2, #243352); transition: background .25s, box-shadow .25s; display: none;
+}
+.fcard.is-on {
+  border-color: var(--g-color);
+  box-shadow: inset 0 0 0 1px var(--g-color), 0 8px 26px -16px var(--g-color);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g-color) 12%, var(--bg-3)) 0%, var(--bg-2) 100%);
+}
+.fcard.is-on .fcard__vote { background: var(--g-color); box-shadow: 0 0 12px 0 var(--g-color); }
+
+/* expandable detail (how it votes) */
+.fcard__detail {
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: max-height .3s var(--ease), opacity .25s, margin-top .25s;
+  font-family: var(--font-mono); font-size: 11px; line-height: 1.5; color: var(--muted);
+}
+.fcard.is-open .fcard__detail { max-height: 160px; opacity: 1; margin-top: 10px;
+  border-top: 1px dashed var(--border, #1d2942); padding-top: 9px; }
+
+/* ---- consensus panel ---- */
+.consensus {
+  position: sticky; top: 90px; align-self: start;
+  background: linear-gradient(180deg, var(--bg-3) 0%, var(--bg-2) 100%);
+  border: 1px solid var(--border, #1d2942); border-radius: var(--radius, 18px);
+  padding: 20px 20px 18px;
+}
+.consensus__title { display: flex; align-items: center; gap: 9px; font-family: var(--font-head); font-weight: 600; font-size: 15px; }
+.consensus__title .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--mint, #2ED3A8); animation: pulse 2s infinite; }
+.consensus__hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 16px; line-height: 1.5; }
+
+.gauge { --pct: 0; --thresh: 50; position: relative; height: 12px; border-radius: 999px;
+  background: var(--bg, #0a0e17); border: 1px solid var(--border, #1d2942); overflow: hidden; }
+.gauge__fill {
+  position: absolute; inset: 0 auto 0 0; width: calc(var(--pct) * 1%);
+  background: linear-gradient(90deg, #F5A623, #2ED3A8);
+  transition: width .4s var(--ease, cubic-bezier(.2,.7,.2,1));
+}
+.gauge__thresh {
+  position: absolute; top: -4px; bottom: -4px; left: calc(var(--thresh) * 1%);
+  width: 2px; background: var(--text); opacity: .5;
+}
+.consensus__count { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 4px; }
+.consensus__count b { font-family: var(--font-mono); font-size: 30px; font-weight: 500; line-height: 1; }
+.consensus__count span { color: var(--muted); font-size: 12.5px; }
+
+.verdict {
+  margin-top: 14px; padding: 12px 13px; border-radius: var(--radius-sm, 12px);
+  font-family: var(--font-mono); font-size: 12.5px; line-height: 1.5;
+  border: 1px solid var(--border, #1d2942); background: var(--surface, #0e1626); color: var(--muted);
+  transition: border-color .3s, color .3s, background .3s;
+}
+.verdict.is-go { border-color: var(--mint, #2ED3A8); color: #d8fff2;
+  background: color-mix(in srgb, var(--mint) 10%, var(--surface, #0e1626)); }
+.verdict.is-no { border-color: #6FB7FF44; }
+.verdict b { color: var(--text); }
+
+.consensus__actions { display: flex; gap: 9px; margin-top: 14px; flex-wrap: wrap; }
+.consensus__reset {
+  font-family: var(--font-head); font-weight: 600; font-size: 13px; cursor: pointer;
+  background: var(--surface, #0e1626); color: var(--muted); border: 1px solid var(--border-2, #243352);
+  border-radius: 999px; padding: 8px 15px; transition: color .2s, border-color .2s;
+}
+.consensus__reset:hover { color: var(--text); border-color: var(--honey, #F5A623); }
+.consensus__foot { color: var(--muted); font-size: 12px; margin-top: 16px; line-height: 1.55; }
+.consensus__foot a { color: var(--honey-lt, #FFD45E); text-decoration: none; border-bottom: 1px solid transparent; }
+.consensus__foot a:hover { border-bottom-color: currentColor; }
+
+/* ---- hero ambient FX canvas (drawn by hero-fx.js; decorative only) ---- */
+.hero__fx {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  pointer-events: none; opacity: .55;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+@media (prefers-reduced-motion: reduce) { .hero__fx { display: none; } }
+
+/* ---- entrance animation (respects reduced motion via .reveal in main.js) ---- */
+.fcard { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .engine .reveal .fcard { opacity: 0; transform: translateY(10px); }
+  .engine .reveal.is-visible .fcard { opacity: 1; transform: none;
+    transition: opacity .5s ease, transform .5s var(--ease, cubic-bezier(.2,.7,.2,1)); }
+  .engine .reveal.is-visible .fcards .fcard:nth-child(2) { transition-delay: .05s; }
+  .engine .reveal.is-visible .fcards .fcard:nth-child(3) { transition-delay: .1s; }
+}
