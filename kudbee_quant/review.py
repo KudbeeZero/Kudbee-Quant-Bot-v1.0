@@ -37,6 +37,14 @@ def _hours_since(start: str | None, end: datetime | None = None) -> float | None
     return ((end or datetime.now(timezone.utc)) - d0).total_seconds() / 3600.0
 
 
+def _hours_to_deadline(p: Prediction) -> float | None:
+    """Hours from now until the prediction's deadline (negative = already overdue)."""
+    try:
+        return (p.deadline() - datetime.now(timezone.utc)).total_seconds() / 3600.0
+    except (TypeError, ValueError):
+        return None
+
+
 def _pct_distance(current: float | None, level: float | None) -> float | None:
     """Signed % distance from current price to a level (positive = level is above)."""
     if current is None or level is None or current == 0:
@@ -119,6 +127,7 @@ def open_trades_report(journal: TradeJournal | None = None,
             "dist_to_tp2_pct": _pct_distance(exc.current_price, p.target),
             "dist_to_stop_pct": _pct_distance(exc.current_price, p.stop),
             "time_in_trade_hours": _hours_since(p.filled_at or p.created_at),
+            "hours_to_deadline": _hours_to_deadline(p),
             "health": _health(p, exc), "summary": _summary(p, exc),
         })
     # portfolio block
