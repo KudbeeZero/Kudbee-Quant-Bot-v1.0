@@ -50,3 +50,12 @@ services:
         sync: false
       - key: TELEGRAM_WEBHOOK_SECRET
         sync: false
+      # TR Level Intelligence — Cloudflare D1 (kudbee_quant/intelligence/).
+      # All three set in the Render dashboard. Unset => the layer is a silent
+      # no-op (wrapped in try/except; never blocks a scan or a Telegram reply).
+      - key: CF_ACCOUNT_ID
+        sync: false
+      - key: CF_API_TOKEN
+        sync: false
+      - key: D1_DATABASE_ID
+        sync: false

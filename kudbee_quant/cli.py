@@ -588,6 +588,39 @@ def _tf_survey(args) -> None:
           "positive TFs only. Not advice.")
 
 
+def _record_intelligence(symbols: list[str], timeframe: str = "1h") -> None:
+    """TR Level Intelligence — persist build_levels() output + unrecovered PVSRA
+    vectors to Cloudflare D1, one fresh 1h frame per symbol, AFTER the scan.
+
+    NON-CRITICAL: a silent no-op when D1 isn't configured (D1_DATABASE_ID unset),
+    and EVERY write is wrapped in try/except. A D1 failure must never crash the
+    scan or block the Telegram alerts — the trading path has already completed by
+    the time this runs. Reads only; never mutates trading state.
+    """
+    import os
+    if not os.environ.get("D1_DATABASE_ID"):
+        return  # intelligence layer not configured -> skip silently
+    try:
+        from .ingest import RouterClient
+        from .intelligence.level_recorder import record_levels
+        from .intelligence.vector_tracker import update_vectors
+        client = RouterClient()
+        for sym in symbols:
+            sym = sym.upper()
+            try:
+                f = build_levels(client.klines(sym, interval=timeframe, limit=600))
+                record_levels(f, symbol=sym, timeframe=timeframe)
+                stats = update_vectors(f, symbol=sym, timeframe=timeframe)
+                if stats["new"] > 0 or stats["recovered"] > 0:
+                    print(f"[intelligence] {sym}: +{stats['new']} new vectors, "
+                          f"{stats['recovered']} recovered, "
+                          f"{stats['still_active']} still active")
+            except Exception as e:  # noqa: BLE001 — per-symbol, never block the others
+                print(f"[intelligence] {sym} D1 write failed: {type(e).__name__}: {e}")
+    except Exception as e:  # noqa: BLE001 — the whole layer is non-critical
+        print(f"[intelligence] disabled this run: {type(e).__name__}: {e}")
+
+
 def _paper_scan(args) -> None:
     from .notifications import notify_trades_opened
     from .paper import paper_scan
@@ -600,6 +633,7 @@ def _paper_scan(args) -> None:
                         trailing_atr=args.trailing_atr,
                         clean_trend_stack=args.clean_trend_stack)
     notify_trades_opened(logged)   # no-op unless Telegram is configured
+    _record_intelligence(args.symbols)  # persist TR levels + vectors to D1 (non-blocking)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:

@@ -19,3 +19,14 @@ GH_OWNER = "KudbeeZero"
 GH_REPO = "Kudbee-Quant-Bot-v1.0"
 WORKFLOW_FILE = "paper-trade.yml"
 GH_REF = "main"
+
+# TR Level Intelligence database (see cloudflare/trade-bot-cron/migrations/).
+# The Render app reads/writes this over the D1 REST API (CF_API_TOKEN +
+# CF_ACCOUNT_ID + D1_DATABASE_ID); this binding lets the Worker reach it
+# natively via env.DB if it ever needs to. Create the DB once with:
+#   wrangler d1 create kudbee-tr-levels
+# then paste the printed database_id below AND into Render's D1_DATABASE_ID.
+[[d1_databases]]
+binding = "DB"
+database_name = "kudbee-tr-levels"
+database_id = "REPLACE_WITH_DATABASE_ID"   # from `wrangler d1 create`
