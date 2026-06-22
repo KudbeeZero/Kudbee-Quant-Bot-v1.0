@@ -727,10 +727,168 @@ def c_three_push_2r(df, scored, base_sig):
     return _gate(s, keep), None, {"target_r": 2.0}
 
 
+# --- owner's confluence experiments (Bollinger / RSI+KDJ divergence / Fibonacci /
+#     spider lines / M-zone). Tested as GATES on the baseline (never new votes —
+#     the stack is saturated, §2). Indicators computed causally in scripts/lab_indicators.py.
+def c_bb_fade(df, scored, base_sig):
+    """ENTRY LOCATION: take baseline entries only when price is stretched OUTSIDE
+    the Bollinger band (pct_b<0 for longs, >1 for shorts) — 'BB verifies the tear'."""
+    from lab_indicators import bollinger
+    _, _, _, pct_b, _ = bollinger(df)
+    return _dir_gate(base_sig, pct_b < 0.0, pct_b > 1.0), None, {}
+
+
+def c_bb_squeeze(df, scored, base_sig):
+    """REGIME: enter only after a Bollinger squeeze — band width in the bottom
+    third of its trailing-100 distribution (compression precedes expansion)."""
+    from lab_indicators import bollinger
+    _, _, _, _, width = bollinger(df)
+    thr = width.rolling(100, min_periods=20).quantile(0.33)
+    return _gate(base_sig, width <= thr), None, {}
+
+
+def c_rsi_div_confirm(df, scored, base_sig):
+    """ENTRY TIMING: require the EXISTING RSI divergence (div_vote) to agree with
+    the trade direction (long needs bullish div, short needs bearish)."""
+    dv = df.get("div_vote")
+    if dv is None:
+        return base_sig * 0.0, None, {}
+    return _dir_gate(base_sig, dv > 0, dv < 0), None, {}
+
+
+def c_kdj_div_confirm(df, scored, base_sig):
+    """ENTRY TIMING: require a KDJ %K divergence agreeing with the trade direction."""
+    from lab_indicators import kdj_divergence
+    kv = kdj_divergence(df)
+    return _dir_gate(base_sig, kv > 0, kv < 0), None, {}
+
+
+def c_osc_div_combo(df, scored, base_sig):
+    """ENTRY TIMING: require EITHER RSI or KDJ divergence to agree (the owner's
+    'pair RSI with KDJ and look for divergence')."""
+    from lab_indicators import kdj_divergence
+    dv = df.get("div_vote")
+    dv = (df["close"] * 0.0) if dv is None else dv
+    kv = kdj_divergence(df)
+    long_ok = (dv > 0) | (kv > 0)
+    short_ok = (dv < 0) | (kv < 0)
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_bb_div_combo(df, scored, base_sig):
+    """The owner's headline: a Bollinger stretch CONFIRMED by oscillator divergence
+    (RSI or KDJ). Long only when below the band AND bullish div; mirror for shorts."""
+    from lab_indicators import bollinger, kdj_divergence
+    _, _, _, pct_b, _ = bollinger(df)
+    dv = df.get("div_vote")
+    dv = (df["close"] * 0.0) if dv is None else dv
+    kv = kdj_divergence(df)
+    long_ok = (pct_b < 0.0) & ((dv > 0) | (kv > 0))
+    short_ok = (pct_b > 1.0) & ((dv < 0) | (kv < 0))
+    return _dir_gate(base_sig, long_ok, short_ok), None, {}
+
+
+def c_fib_confluence(df, scored, base_sig):
+    """ENTRY LOCATION: take baseline entries only when a Fibonacci retracement of
+    the last confirmed swing CLUSTERS with >=2 existing levels (EMA/pivot/open/VWAP/
+    M-level) within 0.25 ATR — the owner's 'fibs line up with the averages' idea."""
+    from lab_indicators import fib_confluence
+    count, _ = fib_confluence(df, tol_atr=0.25)
+    return _gate(base_sig, count >= 2), None, {}
+
+
+def c_fib_at_price(df, scored, base_sig):
+    """ENTRY LOCATION: enter only when price itself is sitting AT a fib level
+    (within 0.25 ATR) that is corroborated by >=1 other level."""
+    from lab_indicators import fib_confluence
+    count, near = fib_confluence(df, tol_atr=0.25)
+    return _gate(base_sig, (near <= 0.25) & (count >= 1)), None, {}
+
+
+def c_spider_touch(df, scored, base_sig):
+    """ENTRY LOCATION: enter only when price is testing an angled 'spider' line
+    (Gann-style) off the last confirmed swing — support line for longs, resistance
+    for shorts."""
+    from lab_indicators import spider_touch
+    sup, res = spider_touch(df, slope_atr=1.0, tol_atr=0.2)
+    return _dir_gate(base_sig, sup, res), None, {}
+
+
+def c_mzone_band(df, scored, base_sig):
+    """ENTRY LOCATION: only take entries while price is inside the M2–M4 band
+    (the owner's 'are we in M2 to M4' working zone)."""
+    lo = df[["mlevel_m2", "mlevel_m4"]].min(axis=1)
+    hi = df[["mlevel_m2", "mlevel_m4"]].max(axis=1)
+    return _gate(base_sig, (df["close"] >= lo) & (df["close"] <= hi)), None, {}
+
+
+def c_mzone_daycolor(df, scored, base_sig):
+    """REGIME+LOCATION: the owner's day-color zone rule — on a GREEN prior day favor
+    longs in the M2–M4 band; on a RED prior day favor shorts in the M2–M4 band."""
+    lo = df[["mlevel_m2", "mlevel_m4"]].min(axis=1)
+    hi = df[["mlevel_m2", "mlevel_m4"]].max(axis=1)
+    in_band = (df["close"] >= lo) & (df["close"] <= hi)
+    green = df["prev_day_color"] > 0
+    red = df["prev_day_color"] < 0
+    return _dir_gate(base_sig, in_band & green, in_band & red), None, {}
+
+
+def c_level_cluster(df, scored, base_sig):
+    """ENTRY LOCATION: take baseline entries only when price sits in a CLUSTER where
+    >=3 independent levels stack within 0.2 ATR (M-level + pivots + prior day/week
+    levels + last-6-days' daily opens + VWAP/round). The owner's 'they always come
+    back to these areas where the levels line up' hypothesis."""
+    from lab_indicators import level_cluster
+    return _gate(base_sig, level_cluster(df) >= 3), None, {}
+
+
+def c_level_cluster_strong(df, scored, base_sig):
+    """ENTRY LOCATION: stricter — require >=4 stacked levels (a heavy magnet zone)."""
+    from lab_indicators import level_cluster
+    return _gate(base_sig, level_cluster(df) >= 4), None, {}
+
+
+def c_level_cluster_vector(df, scored, base_sig):
+    """ENTRY LOCATION: the owner's full idea — a level cluster (>=3 stacked) AND a
+    PVSRA vector/climax candle on the trigger bar ('especially when there's vector
+    candles'). Where outsized players act ON a confluence of levels."""
+    from lab_indicators import level_cluster
+    cluster = level_cluster(df) >= 3
+    vec = df["is_climax"] if "is_climax" in df.columns else (df.get("vector").notna() if "vector" in df.columns else cluster)
+    return _gate(base_sig, cluster & pd.Series(vec, index=df.index).fillna(False).astype(bool)), None, {}
+
+
+def c_level_cluster_magnet(df, scored, base_sig):
+    """EXECUTION: target the NEAREST heavy level-cluster (>=3 stacked) ahead of price
+    instead of a fixed 3R ('price returns to these areas'). All-or-nothing at the
+    cluster; kept only when such a zone exists in the trade direction."""
+    from lab_indicators import level_cluster
+    cnt = level_cluster(df)
+    # nearest M-level ahead (the densest cluster anchors), gated to bars in a cluster.
+    tgt = _dir_extreme(df, base_sig, list(_MLEVELS))
+    keep = tgt.notna() & (cnt >= 2)
+    return _gate(base_sig, keep), None, {"target_price": tgt, "tp1_r": None}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
 REGISTRY: dict[str, tuple] = {
+    "level_cluster": (c_level_cluster, "Owner: enter only where >=3 levels stack (0.2 ATR)"),
+    "level_cluster_strong": (c_level_cluster_strong, "Owner: enter only where >=4 levels stack"),
+    "level_cluster_vector": (c_level_cluster_vector, "Owner: level cluster (>=3) AND a vector/climax candle"),
+    "level_cluster_magnet": (c_level_cluster_magnet, "Owner: target the nearest heavy level-cluster (execution)"),
+    "bb_fade": (c_bb_fade, "Owner: enter only when stretched outside the Bollinger band"),
+    "bb_squeeze": (c_bb_squeeze, "Owner: enter only after a Bollinger squeeze (low band width)"),
+    "rsi_div_confirm": (c_rsi_div_confirm, "Owner: require RSI divergence to agree with direction"),
+    "kdj_div_confirm": (c_kdj_div_confirm, "Owner: require KDJ %K divergence to agree"),
+    "osc_div_combo": (c_osc_div_combo, "Owner: require RSI OR KDJ divergence to agree"),
+    "bb_div_combo": (c_bb_div_combo, "Owner: Bollinger stretch confirmed by RSI/KDJ divergence"),
+    "fib_confluence": (c_fib_confluence, "Owner: fib retracement clusters with >=2 levels"),
+    "fib_at_price": (c_fib_at_price, "Owner: price sitting at a corroborated fib level"),
+    "spider_touch": (c_spider_touch, "Owner: price testing an angled spider (Gann) line"),
+    "mzone_band": (c_mzone_band, "Owner: only trade inside the M2-M4 band"),
+    "mzone_daycolor": (c_mzone_daycolor, "Owner: day-color zone rule (green->longs / red->shorts in M2-M4)"),
     "vol_regime_mid": (c_vol_regime_mid, "Trade only the middle ATR%-percentile band (skip calm & shock)"),
     "skip_vol_shock": (c_skip_vol_shock, "Skip top-decile ATR% (news-shock) entries"),
     "vol_contraction": (c_vol_contraction, "NR7-style: enter only after a volatility squeeze"),
