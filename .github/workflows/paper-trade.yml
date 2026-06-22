@@ -17,7 +17,15 @@ name: Forward paper-trade (confluence-R)
 
 on:
   schedule:
-    - cron: "5 * * * *"        # hourly, 5 min after the hour (let the 1h bar close)
+    # TWO attempts/hour. GitHub's cron is best-effort and silently drops/delays many
+    # scheduled runs (observed: ~6 of 18 hourly runs fired, 15-40 min late), which is
+    # why Telegram alerts only arrived on manual triggers. A backup at :35 means a
+    # dropped :05 still gets a run that hour. The per-(symbol,timeframe,book) dedup
+    # makes a re-scan idempotent for OPENS (no duplicate trades); it just also resolves
+    # trades and re-sends the summary sooner. (For rock-solid timing, an external
+    # Cloudflare Worker cron also fires this workflow — see cloudflare/trade-bot-cron.)
+    - cron: "5 * * * *"        # primary, ~5 min after the hour
+    - cron: "35 * * * *"       # backup, in case GitHub drops the :05 run
   workflow_dispatch:           # manual run button
 
 permissions:
