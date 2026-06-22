@@ -72,11 +72,45 @@ def test_no_lookahead_modifying_last_bar_leaves_prior_days_unchanged():
     prior = (ny_date < ny_date.iloc[-1]).to_numpy()        # every bar before the last day
     assert prior.sum() > 100
     cols = ["mlevel_m0", "mlevel_m1", "mlevel_m2", "mlevel_m3", "mlevel_m4", "mlevel_m5",
-            "prev_day_color", "amr_high", "amr_low", "pivot_r3", "pivot_s3"]
+            "prev_day_color", "amr_high", "amr_low", "pivot_r3", "pivot_s3",
+            "week_ib_high", "week_ib_low", "consec_run_len", "consec_run_dir",
+            "day_of_week", "level_day"]
     for c in cols:
         a = f0[c].to_numpy()[prior]
         b = f1[c].to_numpy()[prior]
         assert np.allclose(a, b, equal_nan=True), f"lookahead leak in {c}"
+
+
+def test_level_day_mapping():
+    f = build_levels(_ohlcv())
+    m = f.groupby("day_of_week")["level_day"].first()
+    assert m.get(0) == 1 and m.get(1) == 2 and m.get(2) == 3 and m.get(3) == 4 and m.get(4) == 4
+    if 5 in m.index:
+        assert np.isnan(m.get(5))                          # weekend: no MM level day
+
+
+def test_week_ib_nan_mon_tue_populated_wed_plus():
+    f = build_levels(_ohlcv())
+    montue = f["day_of_week"].isin([0, 1])
+    wed = f["day_of_week"] >= 2
+    # forming on Mon/Tue -> must be NaN (can't be used before Tuesday closes)
+    assert f.loc[montue, "week_ib_high"].isna().all()
+    assert f.loc[montue, "week_ib_low"].isna().all()
+    # finalized Wed+ -> some values, and high >= low where present
+    wk = f.loc[wed, ["week_ib_high", "week_ib_low"]].dropna()
+    assert len(wk) > 0 and (wk["week_ib_high"] >= wk["week_ib_low"]).all()
+
+
+def test_consec_run_uses_only_completed_bars():
+    f = build_levels(_ohlcv())
+    # run length/dir at bar t describe the run ENDING at t-1: the value at t must
+    # equal a recomputation that never sees close[t].
+    step = np.sign(f["close"].diff())
+    run_id = (step != step.shift(1)).cumsum()
+    expect_len = (step.groupby(run_id).cumcount() + 1).shift(1)
+    assert np.allclose(f["consec_run_len"].to_numpy(), expect_len.to_numpy(), equal_nan=True)
+    assert np.allclose(f["consec_run_dir"].to_numpy(), step.shift(1).to_numpy(), equal_nan=True)
+    assert set(f["consec_run_dir"].dropna().unique()) <= {-1.0, 0.0, 1.0}
 
 
 def test_bracket_target_price_parity_and_level_targeting():

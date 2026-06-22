@@ -38,6 +38,8 @@ MLEVEL_COLUMNS = [
     "pivot_r3", "pivot_s3",
     "mlevel_m0", "mlevel_m1", "mlevel_m2", "mlevel_m3", "mlevel_m4", "mlevel_m5",
     "prev_day_color", "amr", "amr_high", "amr_low",
+    "day_of_week", "level_day", "week_ib_high", "week_ib_low",
+    "consec_run_len", "consec_run_dir",
 ]
 
 
@@ -206,6 +208,30 @@ def build_levels(df: pd.DataFrame, adr_n: int = 14, awr_n: int = 8, amr_n: int =
     out["amr"] = out["_month_id"].map(mo["_mr"]).astype(float)
     out["amr_high"] = out["monthly_open"] + out["amr"]
     out["amr_low"] = out["monthly_open"] - out["amr"]
+
+    # --- Weekly-cycle / BTMM features (all on the existing NY-day anchor) --------
+    # day_of_week from the NY SESSION date (reuses ny_date — no new timezone).
+    out["day_of_week"] = pd.to_datetime(out["ny_date"]).dt.weekday        # 0=Mon..6=Sun
+    # BTMM "level day": Mon=1, Tue=2, Wed=3, Thu/Fri=4 (continuation); NaN on weekends.
+    out["level_day"] = out["day_of_week"].map({0: 1, 1: 2, 2: 3, 3: 4, 4: 4}).astype(float)
+
+    # Weekly initial-balance box = Mon+Tue range of the current NY week. It is only
+    # FINALIZED once Tuesday's NY day has closed, so it is left NaN on Mon/Tue (still
+    # forming) and populated from Wed onward — a Wed bar reads completed Mon+Tue data.
+    mon_tue = out["day_of_week"].isin([0, 1])
+    ib = out[mon_tue].groupby("_week_id").agg(_ibh=("high", "max"), _ibl=("low", "min"))
+    wedplus = (out["day_of_week"] >= 2).to_numpy()
+    out["week_ib_high"] = np.where(wedplus, out["_week_id"].map(ib["_ibh"]), np.nan)
+    out["week_ib_low"] = np.where(wedplus, out["_week_id"].map(ib["_ibl"]), np.nan)
+
+    # Consecutive same-direction (close-to-close) run over COMPLETED bars only: the
+    # values at bar t describe the run ENDING at t-1 (shift(1)), so the current bar
+    # never leaks into its own run length/direction.
+    step = np.sign(out["close"].diff())
+    run_id = (step != step.shift(1)).cumsum()
+    run_len_incl = step.groupby(run_id).cumcount() + 1
+    out["consec_run_len"] = run_len_incl.shift(1)
+    out["consec_run_dir"] = step.shift(1)
 
     # ICT/Hybrid microstructure (VWAP, premium/discount, FVGs, macro windows).
     from .microstructure import add_microstructure
