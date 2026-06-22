@@ -105,3 +105,18 @@ def test_bracket_target_price_parity_and_level_targeting():
     d = bracket_backtest(df, sig, stop_atr=1.0, target_r=3.0, limit_retrace_atr=None,
                          target_price=behind)
     assert list(d.trades) == []
+
+
+def test_slice_overrides_is_positional_and_passes_scalars():
+    """The harness slices a per-bar target_price POSITIONALLY (so it lines up with
+    df.iloc[lo:hi]) and leaves scalar overrides untouched."""
+    import os
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
+    from overnight_research import _slice_overrides
+
+    s = pd.Series([10.0, 11.0, 12.0, 13.0, 14.0], index=[100, 101, 102, 103, 104])
+    out = _slice_overrides({"target_price": s, "tp1_r": None, "stop_atr": 1.5}, 1, 4)
+    assert isinstance(out["target_price"], np.ndarray)
+    assert list(out["target_price"]) == [11.0, 12.0, 13.0]   # positional [1:4], index ignored
+    assert out["tp1_r"] is None and out["stop_atr"] == 1.5    # scalars pass through
