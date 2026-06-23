@@ -453,15 +453,19 @@ def _journal_add(args) -> None:
 def _ingest_alerts(args) -> None:
     """Drain data/alert_inbox/ (hosted TV alerts) into the repo journal."""
     from .alert_inbox import ingest_inbox
-    from .notifications import notify_trades_opened
+    from .notifications import notify_trade_open_events, notify_trades_opened
     j = TradeJournal()
     added = ingest_inbox(j)
     print(f"{len(added)} alert(s) ingested from the inbox.")
-    notify_trades_opened(added)   # no-op unless Telegram is configured
+    notify_trades_opened(added)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_open_events(added)   # individual per-trade open pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break ingest
+        print(f"[notify] trade-open alerts failed: {e}")
 
 
 def _journal_check(args) -> None:
-    from .notifications import notify_trades_resolved
+    from .notifications import notify_trade_close_events, notify_trades_resolved
     j = TradeJournal()
     changed = j.check_open()
     if changed:
@@ -469,10 +473,25 @@ def _journal_check(args) -> None:
             print(f"  {p.id} {p.symbol} {p.setup}: {p.status.upper()}")
     else:
         print("No predictions resolved this check.")
-    notify_trades_resolved(changed)   # no-op unless Telegram is configured
+    notify_trades_resolved(changed)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_close_events(changed)   # individual per-trade close pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break the resolve
+        print(f"[notify] trade-close alerts failed: {e}")
     opens = [p for p in j.predictions if p.status in ("open", "pending")]
-    resolved = [p for p in j.predictions if p.status in ("hit", "miss", "cancelled")]
-    print(f"\n{len(opens)} open/pending, {len(resolved)} resolved.")
+    # A resolved *trade* is a bracket (entry/stop/target → R) that hit/missed.
+    resolved = [p for p in j.predictions
+                if p.status in ("hit", "miss") and p.kind == "bracket"]
+    # 'cancelled' = a pending limit that never filled (no position, no R). Count
+    # it on its own line so unfilled limits don't read as resolved trades.
+    cancelled = [p for p in j.predictions if p.status == "cancelled"]
+    # reach_*/touch/stay_* are directional/level CALLS, not bracket trades — no R.
+    # Keep them off the resolved-trade count (same reasoning as cancels).
+    calls = [p for p in j.predictions
+             if p.status in ("hit", "miss") and p.kind != "bracket"]
+    tail = f", {len(cancelled)} cancelled (unfilled limits)" if cancelled else ""
+    tail += f", {len(calls)} directional call(s)" if calls else ""
+    print(f"\n{len(opens)} open/pending, {len(resolved)} resolved{tail}.")
 
 
 def _journal_list(args) -> None:
@@ -622,7 +641,7 @@ def _record_intelligence(symbols: list[str], timeframe: str = "1h") -> None:
 
 
 def _paper_scan(args) -> None:
-    from .notifications import notify_trades_opened
+    from .notifications import notify_trade_open_events, notify_trades_opened
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
@@ -632,7 +651,11 @@ def _paper_scan(args) -> None:
                         long_only=args.long_only, killzone_gate=args.killzone_gate,
                         trailing_atr=args.trailing_atr,
                         clean_trend_stack=args.clean_trend_stack)
-    notify_trades_opened(logged)   # no-op unless Telegram is configured
+    notify_trades_opened(logged)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_open_events(logged)   # individual per-trade open pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break the scan
+        print(f"[notify] trade-open alerts failed: {e}")
     _record_intelligence(args.symbols)  # persist TR levels + vectors to D1 (non-blocking)
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
@@ -898,6 +921,36 @@ def _scorecard(args) -> None:
             st = reg["regimes"].get(rn)
             if st:
                 print(f"    {rn:8} n={st['n']:>4}  exp {st['expectancy_r']:+.3f}R/t  total {st['total_r']:+.1f}R")
+
+
+def _loop_agent(args) -> None:
+    """Run ONE self-improving loop-agent cycle: grade the previous cycle's calls,
+    detect fresh per-book drift, and persist the learning ledger. Read-only over the
+    journal — meant to run on its own cadence (the /loop skill or a cron), never in
+    the scan."""
+    from .memory import LoopAgent, format_cycle
+    mode = None if args.mode == "all" else args.mode
+    agent = LoopAgent(mode=mode, since=args.since)
+    cycle = agent.run_cycle(persist=not args.dry_run)
+    calibration = getattr(agent, "last_calibration", {})
+    if args.json:
+        import json as _json
+        print(_json.dumps({"cycle": cycle, "calibration": calibration}, indent=2))
+        return
+    print(format_cycle(cycle, calibration))
+    if args.dry_run:
+        print("\n(dry run — ledger not written)")
+    if args.notify:
+        from .notifications import telegram_enabled
+        if not telegram_enabled():
+            print("Telegram is not configured — not sent.")
+        else:
+            try:
+                from .notifications import send_telegram
+                ok = send_telegram(format_cycle(cycle, calibration))
+                print("Cycle sent to Telegram." if ok else "Telegram muted/failed — not sent.")
+            except Exception:  # noqa: BLE001 — a notify failure must never break the loop
+                print("Telegram send failed — not sent.")
 
 
 def _polymarkets(args) -> None:
@@ -1257,6 +1310,18 @@ def main() -> None:
     nsc.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
     nsc.add_argument("--since", default=None, help="only score trades resolved on/after this date")
     nsc.set_defaults(func=_notify_scorecard)
+
+    la = sub.add_parser("loop-agent",
+                        help="run one self-improving loop-agent cycle: grade prior calls, "
+                             "flag per-book drift, persist the learning ledger (L7)")
+    la.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
+    la.add_argument("--since", default=None,
+                    help="only score trades resolved on/after this date (the forward window)")
+    la.add_argument("--dry-run", action="store_true", dest="dry_run",
+                    help="run the cycle but do NOT write the ledger")
+    la.add_argument("--notify", action="store_true", help="also send the cycle digest to Telegram")
+    la.add_argument("--json", action="store_true", help="emit the full cycle + calibration as JSON")
+    la.set_defaults(func=_loop_agent)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")

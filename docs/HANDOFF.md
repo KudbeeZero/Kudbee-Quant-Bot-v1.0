@@ -8,47 +8,68 @@
 
 - **Protocol status:** `ACTIVE`.
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
-  only then start the next. (Honor "owner merges" — never self-merge unless the owner
-  explicitly authorizes a batch, as in a prior `/loop`.)
-- **This chat = the TR LEVEL INTELLIGENCE chat.** ONE PR open: **#78**
-  (`claude/tr-level-intelligence-qc4i2p` → `main`), **DRAFT, AWAITING_AUDIT**, CI/tests green
-  locally (474 passed after merging current `main`).
-- **Owner closeout answers (one-tap):** shipped = *TR Level Intelligence (D1) — persist
-  `build_levels()` + unrecovered PVSRA vectors, `/levels` `/history` `/vectors`*; next priority =
-  *provision the D1 DB (`wrangler d1 create` + migration) + forward-verify the commands on live
-  data*; off-limits = *standard set + the trading/levels core (`build_levels`,
-  `pvsra_vector_candles`, `paper_scan`, backtest harness)*.
-- **NOTHING new is live in trading.** The intelligence layer is a NON-CRITICAL side-channel: OFF
-  until `CF_ACCOUNT_ID`/`CF_API_TOKEN`/`D1_DATABASE_ID` are set; default path is a silent no-op,
-  every D1 write is try/except-wrapped and runs AFTER `paper_scan()`. No signal added, no trading
-  logic touched.
-- **🚩 D1 is UNVERIFIED end-to-end** (see §64): no CF creds/network in the sandbox, so the
-  `wrangler` create+migrate was NOT run, `wrangler.toml database_id` is a placeholder, and
-  `/levels` `/vectors` `/history` were rendered against an in-memory sqlite proxy, not real D1.
-- **Audit status:** `AWAITING_AUDIT`. Next chat runs `/handoff-audit` on **PR #78** — merge gate.
-  Use the PR-body "Audit checklist". `data/journal.json` was NOT edited this session (bot-owned;
-  the only data delta is the routine `main` merge of `data/heartbeat.json`/`journal.json`).
+  only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
+  authorizes it.
+- **This chat = the CANCEL-TO-CLOSE chat.** **PR #82 MERGED to `main`** (owner merged): a
+  display-only fix so unfilled limit orders no longer read as closed/resolved trades. The task
+  arrived asking for a close-at-price fix + backfill on "cancels booked at 0.00R"; **the audit
+  overturned that premise** — `cancelled` = a pending LIMIT that never filled (no position, no R),
+  already excluded from all expectancy math, so the proposed backfill would have FABRICATED P&L.
+  This branch (`claude/cancel-to-close-bug-tkngpm`) carries the **`/closeout`** docs PR.
+- **Owner closeout answers:** shipped = *display fix — cancelled no longer counts as a closed trade
+  (PR #82)*; next priority = ***provision Cloudflare D1 + reopen PR #78*** (UNCHANGED — see NEXT);
+  open risk = *the 1 hit/miss row with `outcome_r=None` (589-vs-588 gap)*; off-limits = *standard set*.
+- **NOTHING new is live in trading.** PR #82 touched only the reporting layer
+  (`review.py` `_CLOSED`, the `journal-check` summary line). No R math, no journal data, no
+  trading-path code. `data/journal.json` NOT edited (bot-owned).
+- **Audit status:** `MERGED (post-hoc PASS ×2)` —
+  - **PR #82** (cancel-to-close §65 fix): merged by owner, independently audited (`bf7586f..6e986c9`),
+    all claims SUPPORTED, **475 passed**, no scope creep, R/expectancy math untouched. Report:
+    `docs/audits/claude-cancel-to-close-bug-tkngpm.md`.
+  - **PR #83** (`/closeout` docs/baton): **MERGED by owner** (the prior baton thought it was still open).
+  - **🆕 PR #84** (`feat/trade-event-alerts` — per-trade Telegram alerts): **MERGED by the owner OUTSIDE
+    the relay gate** at 17:37, *after* #83's baton was written, on a non-`claude/` branch — so it was
+    NOT in the baton. Audited POST-HOC this session (`/handoff-audit`, branch
+    `claude/handoff-audit-8latbu`): independent subagent, first-parent delta `d9daaf2^1..d9daaf2`
+    (4 files, +402/−6) — **PASS**. All claims SUPPORTED; new code is never-raise, off the deduped
+    lists, freshness-guarded, secrets-safe (token redaction + kill-switch + 4096-split via the audited
+    `send_telegram` transport), order-free; batched digest UNMODIFIED. `test_trade_notifications.py`
+    **11/11**. CI green (`test` ✓ / `Cloudflare Pages` ✓). Confirmed the merge did NOT regress §65
+    (the stale-branch `base..head` diff that *looked* like a revert is an artifact — `main` retains
+    `_CLOSED=("hit","miss")`, §65, the test, and the #82 audit report). Report:
+    `docs/audits/feat-trade-event-alerts.md`.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **§64 / PR #78 — TR Level Intelligence (D1).** New `kudbee_quant/intelligence/` package:
-  `d1_client.py` (D1 REST), `level_recorder.py` (last-bar 54-field TR grid → `daily_levels`,
-  `INSERT OR REPLACE`, idempotent per date+symbol+tf), `vector_tracker.py` (climax upsert +0.3%
-  recovery → `unrecovered_vectors`). `cli._record_intelligence()` runs **after** `paper_scan()`,
-  gated on `D1_DATABASE_ID`, try/except per-symbol + overall. Telegram `/levels` `/history`
-  `/vectors` + help. Migration `0001_tr_levels.sql` (3 tables; `session_analytics` defined, not
-  populated) + `wrangler.toml` D1 binding; `CF_*`/`D1_DATABASE_ID` in `.env.example`/`render.yaml`
-  (`sync:false`). 9 new tests over an in-memory sqlite D1 proxy. **`474 passed`**, ruff clean.
-  **VERIFY:** no change to `levels/builder.py` / `signals/pvsra.py` / `paper/paper.py` / backtest.
+- **§65 / PR #82 — cancel-to-close DISPLAY fix (MERGED).** **VERIFY the audit claim first:** every
+  `cancelled` row is an unfilled limit (`filled_at` None, `outcome_r` None) — the 3 cancel paths in
+  `journal.py` (`:161/:200/:218`) are all unfilled-limit cases; no path cancels a FILLED position.
+  98 cancels / 732 rows: 96 never filled, 2 are §29 fictitious-fill artifacts (2026-06-09, do NOT
+  hand-clean). Diff: `review.py` drops `"cancelled"` from `_CLOSED` (so default closed-history =
+  hit/miss only; `--status cancelled` still surfaces them via the separate check at `_passes`);
+  `cli.py` `_journal_check` prints cancelled on its own line. 1 new test in `tests/test_review.py`;
+  **475 passed**; ruff: the 2 pre-existing cli.py findings (305/522) on untouched lines, no new ones.
+  MEMORY §65 added. **CONFIRM:** no change to `paper.py`/`builder.py`/`pvsra.py`/backtest/resolver;
+  no R/expectancy math touched; `data/journal.json` untouched.
+- **PR #78 — Cloudflare D1 persistence: STILL CLOSED + PARKED** (carried forward, untouched this
+  chat). Code on `claude/tr-level-intelligence-qc4i2p`; reopening still requires real CF
+  provisioning + a MEMORY renumber (its branch-local "§64" now collides with both the loop agent
+  AND §65 — renumber to next free).
+- **This PR — docs only.** Adds MEMORY §65 + sets this baton. No code change.
 
 ## NEXT chat
 
-- **🟡 OWNER PRIORITY — PROVISION D1 + VERIFY LIVE (PR #78 first).** After the audit PASS-merges #78:
-  (a) `wrangler d1 create kudbee-tr-levels`, apply `migrations/0001_tr_levels.sql`, paste the
-  `database_id` into `wrangler.toml` AND Render (`D1_DATABASE_ID`); set `CF_ACCOUNT_ID` +
-  `CF_API_TOKEN` in Render. (b) Run a paper-scan, then forward-verify `/levels` `/vectors`
-  `/history` on real D1. Advisory slug hint: `claude/provision-tr-d1`.
-- **WATCH the live changes (carried from prior batons — still live on `main`):**
+- **🟡 OWNER PRIORITY — PROVISION CLOUDFLARE D1 + REOPEN PR #78.** The TR Level Intelligence code is
+  parked on `claude/tr-level-intelligence-qc4i2p`. Steps: (a) `wrangler d1 create kudbee-tr-levels`;
+  (b) apply `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql`; (c) paste the `database_id`
+  into `wrangler.toml` + Render `D1_DATABASE_ID`, set `CF_ACCOUNT_ID` + `CF_API_TOKEN` in Render;
+  (d) reopen #78, RENUMBER its MEMORY §64→next-free (loop agent now owns §64 on main), run a
+  paper-scan, forward-verify `/levels` `/vectors` `/history` on real D1. Advisory slug hint:
+  `claude/provision-tr-d1`.
+- **OPTIONAL follow-up (loop agent, §64):** wire `kudbee loop-agent` into a half-hourly Action (like
+  the `:35` status ping) so the L7 loop runs on a cadence — its reliability calibration is empty
+  until many cycles accrue forward. Read-only; safe to schedule.
+- **WATCH the live changes:**
   - **§C 1h `_cts` book (§53):** after ≥30 forward `_cts` trades, `journal-score` filtered to those
     setups. Net expectancy > 0R net of fees → keep; else → **revert the §C workflow step.** The
     +0.1152R claim is UNVERIFIED here.
@@ -74,10 +95,20 @@
     reconcile before any thought of wiring it in.
   - **§42 maker fee is an ASSUMPTION** (0.0002/side) — Tier-2 must settle before leverage graduates.
   - **Dashboard (PR #21) UNVERIFIED in production.**
+  - **Loop agent (§64, PR #79) calibration is EMPTY** — it has run 0 forward cycles, so its
+    per-signal reliability means nothing yet; do not trust/act on its proposals until it accrues
+    graded cycles (it only persists state when `loop-agent` is actually invoked).
+  - **PR #78 (D1) is PARKED, not abandoned** — D1 is UNVERIFIED end-to-end; reopening requires
+    real CF provisioning + a MEMORY-section renumber (now collides with BOTH §64 loop agent and §65).
+  - **✅ NULL-R RESOLVED ROW — FIXED THIS CHAT (§66, PR #85).** Located: `7e0d2e94`, a `reach_below`
+    directional CALL (no bracket, no R) — the only non-bracket row in the journal; `outcome_r=None`
+    is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
+    view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
+    No journal edit (a backfill would have fabricated P&L on a position that never opened).
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
-  `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (this chat
-  deliberately left them byte-identical; the intelligence layer reads, never mutates).
+  `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
+  byte-identical this session; the memory/intelligence layers READ, never mutate).
   `data/journal.json` is bot-owned — the ONLY sanctioned session
   edit was the idempotent flatten script (#48); no manual journal refreshes. `data/shadow/`
   (gitignored), `data/alert_inbox/` (host-owned). Keep PR #20 flags OFF on the validated book;
@@ -114,6 +145,15 @@
 - 2026-06-22: PR (closeout) — docs/baton for the Telegram-suite + §B batch. Owner
   authorized self-merge of the whole batch; no pending merge gate → next chat audits POST-HOC.
   Live books to watch: §C `_cts`, §A `_lo`, breakeven arm, `:35` status ping. Reconcile §B spec.
-- 2026-06-23: PR #78 — TR Level Intelligence (D1) persistence: `daily_levels` +
-  `unrecovered_vectors`, `/levels` `/history` `/vectors` (§64). Non-critical, OFF the trading path,
-  D1 UNVERIFIED end-to-end. DRAFT, AWAITING_AUDIT. Next chat: `/handoff-audit` #78, then provision D1.
+- 2026-06-23: PR #78 — Cloudflare D1 persistence (TR Level Intelligence). **CLOSED + PARKED** by
+  owner (D1 unverified, needs provisioning); code stays on `claude/tr-level-intelligence-qc4i2p`.
+- 2026-06-23: PR #79 — L7 self-improving loop agent (§64): grades its own per-book drift calls.
+  **MERGED by owner.** Read-only, off the trading path, not yet on a cadence.
+- 2026-06-23: PR (`/closeout`) — docs/baton for the loop-agent chat. Work (#79) already
+  MERGED → next chat audits #79 POST-HOC. NEXT priority: provision D1 + reopen #78.
+- 2026-06-23: PR #82 — cancel-to-close DISPLAY fix (§65): audited the "cancels at 0.00R" claim,
+  found it was a display bug not a P&L bug (cancelled = unfilled limit, no R, already excluded);
+  stopped counting cancels as closed trades. **MERGED by owner.** Refused the fabricating backfill.
+- 2026-06-23: PR (this, `/closeout`) — docs/baton for the cancel-to-close chat. Work (#82) already
+  MERGED → next chat audits #82 POST-HOC. NEXT priority UNCHANGED: provision D1 + reopen #78.
+  New open risk: 1 hit/miss row with `outcome_r=None`.

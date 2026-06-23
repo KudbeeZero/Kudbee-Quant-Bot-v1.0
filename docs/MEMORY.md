@@ -1855,7 +1855,94 @@ book (like §C) to accrue forward trades and settle significance over time — o
 re-bolt the vector-candle pairing (HURT) or cluster-as-target (HURT); the edge is ENTRY-LOCATION only.
 `level_cluster()` gained an `exclude_groups` ablation param. Nothing wired live; tests still green.
 
-## 64. TR Level Intelligence — D1 persistence layer (BUILT, off the trading path; D1 UNVERIFIED) — 2026-06-22 (PR claude/tr-level-intelligence-qc4i2p)
+## 64. L7 — the self-improving loop agent (decision loop that grades its own calls) — 2026-06-23 (PR feat/loop-engineering-intelligence)
+
+The 6-layer memory OBSERVES and JUDGES a snapshot but is STATELESS: `scorecard.py`
+says a book is REVERT *today*, `reflection.py` names the regime *today* — neither remembers
+what it said last cycle, so neither can learn which of its signals actually predict anything.
+`memory/loop_agent.py` adds **L7 — the decision loop**. Each cycle it:
+1. **OBSERVE** — snapshot per-book KEEP/REVERT/WAIT verdicts (`book_scorecard`) + optional
+   injected regime/overfit (`reflection`).
+2. **GRADE** — re-judge the PREVIOUS cycle's predictive proposals against what happened since
+   (did the flagged book keep bleeding → *vindicated*, recover → *false_alarm*, or see no new
+   trades → *pending*), folding terminal verdicts into a per-signal-type CALIBRATION.
+3. **DETECT** — emit concrete proposals (`book_negative`/act, `book_decay`/watch,
+   `book_proven`, `regime_shift`, `overfit`), each annotated with that signal type's learned
+   reliability (vindicated/decided).
+4. **PERSIST** — append the cycle + calibration to `data/loop_agent.json` (survives the
+   ephemeral container — the whole point of git-versioned memory).
+
+Only `book_negative`/`book_decay` are CALIBRATED (they make falsifiable predictions); the rest
+are observations. **Strictly read-only over the journal**; writes only its own ledger. NOT wired
+into the scan — runs on its own cadence (`/loop` skill or cron) via `kudbee loop-agent`
+(`--mode/--since/--dry-run/--notify/--json`). 9 tests; full suite 474 green. On the live journal
+it already flags `core` (-0.49R/t, 525) and `tradfi` (-0.29R/t, 46) as REVERT.
+
+> _Numbering note: a parked, unmerged PR (Cloudflare D1 persistence) also drafted a "§64" on its
+> own branch; when that reopens it renumbers to the next free section so main stays contiguous._
+
+## 65. "Cancelled" = an unfilled limit, NOT a trade — a DISPLAY bug, not a P&L bug — 2026-06-23 (PR #82)
+
+A scoped task arrived claiming trades were being "cancelled at 0.00R instead of closed at
+current price," corrupting the record, and asked for a close-at-price fix + a backfill. **The
+audit overturned the premise.** A `cancelled` journal row is a **pending LIMIT order that never
+filled** — no position opened, so there is no entry fill, no exit, and no R (`outcome_r` is
+`None`, never `0.0`). All three cancel paths in `journal.py` (`:161`, `:200`, `:218`) are
+unfilled-limit cases; once a limit fills, the resolver can only return hit/miss/open — **there is
+no code path that cancels a FILLED position.** Of 98 cancels in 732 rows: 96 never filled
+(correct); **2** carry `filled_at` stamps from the already-fixed **§29 fictitious-fill** bug
+(both 2026-06-09, ~7-20s after creation, `pending_limit` still true) — pre-2026-06-10 artifacts
+that §29 says NOT to hand-clean.
+
+**The record was never corrupted.** Cancels contribute zero to every R/expectancy surface because
+`outcome_r is None`: `journal.scorecard` filters to `("hit","miss")`; `review.py` only tallies R
+when `outcome_r is not None`. So the proposed "close at current price + backfill R" would have
+**FABRICATED P&L on positions that never opened** — the opposite of a fix. It was NOT done; no
+`scripts/backfill_cancelled.py` exists and there is no `exit_price` to backfill from.
+
+**The real bug was display-only.** `review.py:_CLOSED` and the `journal-check` summary grouped
+`cancelled` under "closed"/"resolved", padding `total_trades` with non-trades. FIX (PR #82,
+merged): dropped `cancelled` from `_CLOSED` (default closed-history counts only opened trades;
+cancels still reachable via `--status cancelled`) and gave cancelled its own line in the
+`journal-check` summary. **No R math changed.** Live-journal header went **687 → "589 trades,
+588 resolved"**; win rate & expectancy unchanged. 475 tests (474 + 1 new).
+
+**STILL OPEN (data quirk surfaced, NOT fixed):** the 589-vs-588 gap means **1 `hit`/`miss` row
+has `outcome_r=None`** — a resolved trade with no R booked. Out of scope for #82; next chat should
+locate that row and decide resolver-fix vs. single-row backfill. → **RESOLVED in §66** (it was a
+non-bracket directional CALL, not a trade with a missing R — same display-classification family as
+this section, not a resolver bug).
+LESSON: audit before you "fix." When a task hands you both the diagnosis AND the remedy, the
+honest move is to verify the diagnosis against the data/code first — here the remedy would have
+manufactured the very corruption it claimed to cure.
+
+## 66. The 589-vs-588 null-R row = a reach CALL, not a missing-R trade — DISPLAY fix (§65 sequel) — 2026-06-23
+
+Located the single `hit`/`miss` row with `outcome_r=None` flagged by §65. It is **`7e0d2e94`**:
+a **`reach_below` directional CALL** (KudbeeX SOL 1h, level 64.5, 2026-06-09) — `kind != "bracket"`,
+`entry`/`stop`/`target` all `None`, `direction 0.0`. It resolved `hit` because price reached 64.5;
+there is **no bracket, so there is legitimately no R** (`outcome_r=None` is CORRECT, not a defect).
+It is the **only** non-bracket row in the journal (731 `bracket` + 1 `reach_below`). So this was
+**not a resolver bug and not a missing-R trade** — and a single-row "backfill" would again have
+FABRICATED P&L on a position that never existed (no entry, no exit). **No backfill done;
+`data/journal.json` untouched.**
+
+Same family as §65: `review.py` and the `journal-check` summary counted a resolved non-trade under
+"closed"/"resolved", padding `total_trades` (the 589). FIX (display-only): the closed-*trades* view
+and the CLI summary now require `p.kind == "bracket"` in addition to `hit`/`miss`
+(`review.py:_passes` `:172`, `cli.py:_journal_check`). reach/touch/stay CALLS stay reachable via an
+explicit `--status hit`/`miss` filter (the SOL call still shows there with `realized_r=None`), and
+get their own "directional call(s)" line in the summary. **No R math changed**; win rate &
+expectancy were always computed on `outcome_r is not None` rows only. Live header is now a
+consistent **588 / 588**. 1 new test (`test_reach_call_is_not_a_closed_trade`); review suite 12/12,
+full suite green except pre-existing missing-optional-dep collection errors (fastapi / sklearn /
+pyarrow — not introduced here). The two pre-existing `cli.py` ruff findings remain on untouched
+lines; no new ones.
+
+## 67. TR Level Intelligence — D1 persistence layer (REOPENED as PR #78; D1 still UNVERIFIED end-to-end) — 2026-06-23
+
+> _Renumber note: this was drafted as "§64" on the parked branch; §64 is now the L7 loop agent and
+> §65/§66 are the cancel/reach display fixes, so the D1 layer takes the next free section, §67._
 
 A NON-CRITICAL side-channel that records what the bot already computes — it adds NO signal and
 touches NO trading logic. New `kudbee_quant/intelligence/` package:
@@ -1873,7 +1960,8 @@ left byte-identical), fetches a fresh 1h frame per symbol, and is gated on `D1_D
 wrapped in try/except per-symbol AND overall → a D1 outage can never block a scan or an alert.
 Telegram: `/levels` `/history` `/vectors` (read-only; D1 errors degrade to friendly text).
 Schema in `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql` (3 tables; `session_analytics`
-defined but not yet populated). 9 new tests over an in-memory sqlite D1 proxy; full suite 474 green.
+defined but not yet populated). 9 new tests over an in-memory sqlite D1 proxy; full suite green after
+merging current `main` (§64 loop agent + §65/§66 display fixes folded in cleanly).
 
 **HONESTY CAVEAT — D1 is UNVERIFIED end-to-end.** No Cloudflare creds/network in the build sandbox,
 so: (a) `wrangler d1 create` + migration were NOT run (owner must, with their CF account);
@@ -1881,4 +1969,6 @@ so: (a) `wrangler d1 create` + migration were NOT run (owner must, with their CF
 `/vectors` `/history` were rendered against an in-memory sqlite D1 (faithful proxy), NOT real D1.
 The recorder only sees the scan's loaded window — a vector older than ~600 bars can't be re-checked
 for price recovery (its `days_open` still ticks via SQL). Layer is OFF until the three CF_*/D1 env
-vars are set; default path is a silent no-op.
+vars are set; default path is a silent no-op. **Reopened on PR #78 (2026-06-23): code synced to
+`main`, "§64"→§67 renumber applied — the remaining work is owner-side provisioning + forward
+verification on real D1.**
