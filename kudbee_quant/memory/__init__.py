@@ -17,8 +17,10 @@ two that make the whole thing trustworthy (reflective + multiple-testing):
 The thesis (docs/MEMORY.md): the rules are commodity — the edge is in the
 reasoning and the execution. L6 exists so we never mistake luck for edge.
 """
+from .loop_agent import LoopAgent, format_cycle
 from .registry import Strategy, StrategyRegistry
 from .testing_ledger import family_ledger
 from .working import WorkingMemory
 
-__all__ = ["Strategy", "StrategyRegistry", "WorkingMemory", "family_ledger"]
+__all__ = ["LoopAgent", "Strategy", "StrategyRegistry", "WorkingMemory",
+           "family_ledger", "format_cycle"]

@@ -1854,3 +1854,29 @@ contract: **NOT wired live, NOT claimed validated.** Defensible next step = a se
 book (like §C) to accrue forward trades and settle significance over time — owner's call. Do not
 re-bolt the vector-candle pairing (HURT) or cluster-as-target (HURT); the edge is ENTRY-LOCATION only.
 `level_cluster()` gained an `exclude_groups` ablation param. Nothing wired live; tests still green.
+
+## 64. L7 — the self-improving loop agent (decision loop that grades its own calls) — 2026-06-23 (PR feat/loop-engineering-intelligence)
+
+The 6-layer memory OBSERVES and JUDGES a snapshot but is STATELESS: `scorecard.py`
+says a book is REVERT *today*, `reflection.py` names the regime *today* — neither remembers
+what it said last cycle, so neither can learn which of its signals actually predict anything.
+`memory/loop_agent.py` adds **L7 — the decision loop**. Each cycle it:
+1. **OBSERVE** — snapshot per-book KEEP/REVERT/WAIT verdicts (`book_scorecard`) + optional
+   injected regime/overfit (`reflection`).
+2. **GRADE** — re-judge the PREVIOUS cycle's predictive proposals against what happened since
+   (did the flagged book keep bleeding → *vindicated*, recover → *false_alarm*, or see no new
+   trades → *pending*), folding terminal verdicts into a per-signal-type CALIBRATION.
+3. **DETECT** — emit concrete proposals (`book_negative`/act, `book_decay`/watch,
+   `book_proven`, `regime_shift`, `overfit`), each annotated with that signal type's learned
+   reliability (vindicated/decided).
+4. **PERSIST** — append the cycle + calibration to `data/loop_agent.json` (survives the
+   ephemeral container — the whole point of git-versioned memory).
+
+Only `book_negative`/`book_decay` are CALIBRATED (they make falsifiable predictions); the rest
+are observations. **Strictly read-only over the journal**; writes only its own ledger. NOT wired
+into the scan — runs on its own cadence (`/loop` skill or cron) via `kudbee loop-agent`
+(`--mode/--since/--dry-run/--notify/--json`). 9 tests; full suite 474 green. On the live journal
+it already flags `core` (-0.49R/t, 525) and `tradfi` (-0.29R/t, 46) as REVERT.
+
+> _Numbering note: a parked, unmerged PR (Cloudflare D1 persistence) also drafted a "§64" on its
+> own branch; when that reopens it renumbers to the next free section so main stays contiguous._

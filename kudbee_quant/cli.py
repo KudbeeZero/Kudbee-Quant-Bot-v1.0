@@ -866,6 +866,36 @@ def _scorecard(args) -> None:
                 print(f"    {rn:8} n={st['n']:>4}  exp {st['expectancy_r']:+.3f}R/t  total {st['total_r']:+.1f}R")
 
 
+def _loop_agent(args) -> None:
+    """Run ONE self-improving loop-agent cycle: grade the previous cycle's calls,
+    detect fresh per-book drift, and persist the learning ledger. Read-only over the
+    journal — meant to run on its own cadence (the /loop skill or a cron), never in
+    the scan."""
+    from .memory import LoopAgent, format_cycle
+    mode = None if args.mode == "all" else args.mode
+    agent = LoopAgent(mode=mode, since=args.since)
+    cycle = agent.run_cycle(persist=not args.dry_run)
+    calibration = getattr(agent, "last_calibration", {})
+    if args.json:
+        import json as _json
+        print(_json.dumps({"cycle": cycle, "calibration": calibration}, indent=2))
+        return
+    print(format_cycle(cycle, calibration))
+    if args.dry_run:
+        print("\n(dry run — ledger not written)")
+    if args.notify:
+        from .notifications import telegram_enabled
+        if not telegram_enabled():
+            print("Telegram is not configured — not sent.")
+        else:
+            try:
+                from .notifications import send_telegram
+                ok = send_telegram(format_cycle(cycle, calibration))
+                print("Cycle sent to Telegram." if ok else "Telegram muted/failed — not sent.")
+            except Exception:  # noqa: BLE001 — a notify failure must never break the loop
+                print("Telegram send failed — not sent.")
+
+
 def _polymarkets(args) -> None:
     df = PolymarketClient().markets(limit=args.limit)
     cols = [c for c in ["question", "volume", "liquidity", "end_date"] if c in df.columns]
@@ -1223,6 +1253,18 @@ def main() -> None:
     nsc.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
     nsc.add_argument("--since", default=None, help="only score trades resolved on/after this date")
     nsc.set_defaults(func=_notify_scorecard)
+
+    la = sub.add_parser("loop-agent",
+                        help="run one self-improving loop-agent cycle: grade prior calls, "
+                             "flag per-book drift, persist the learning ledger (L7)")
+    la.add_argument("--mode", choices=["paper", "live", "all"], default="paper")
+    la.add_argument("--since", default=None,
+                    help="only score trades resolved on/after this date (the forward window)")
+    la.add_argument("--dry-run", action="store_true", dest="dry_run",
+                    help="run the cycle but do NOT write the ledger")
+    la.add_argument("--notify", action="store_true", help="also send the cycle digest to Telegram")
+    la.add_argument("--json", action="store_true", help="emit the full cycle + calibration as JSON")
+    la.set_defaults(func=_loop_agent)
 
     tt = sub.add_parser("trade-trace",
                         help="ASCII per-bar factor timeline for a journal trade (or live --symbol)")
