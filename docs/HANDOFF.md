@@ -22,12 +22,22 @@
 - **NOTHING new is live in trading.** PR #82 touched only the reporting layer
   (`review.py` `_CLOSED`, the `journal-check` summary line). No R math, no journal data, no
   trading-path code. `data/journal.json` NOT edited (bot-owned).
-- **Audit status:** `MERGED (post-hoc PASS)` — PR #82 was merged by the owner, then independently
-  audited (subagent, `bf7586f..6e986c9`): all 6 claims SUPPORTED with file:line evidence, **475
-  passed / 0 failed**, no scope creep (one harmless `data/heartbeat.json` churn line), premise holds
-  across all cancel paths, R/expectancy math provably untouched. Report:
-  `docs/audits/claude-cancel-to-close-bug-tkngpm.md`. The `/closeout` docs PR (#83) is open + clean
-  (docs-only), left for the OWNER to merge — not self-merged (honor "owner merges").
+- **Audit status:** `MERGED (post-hoc PASS ×2)` —
+  - **PR #82** (cancel-to-close §65 fix): merged by owner, independently audited (`bf7586f..6e986c9`),
+    all claims SUPPORTED, **475 passed**, no scope creep, R/expectancy math untouched. Report:
+    `docs/audits/claude-cancel-to-close-bug-tkngpm.md`.
+  - **PR #83** (`/closeout` docs/baton): **MERGED by owner** (the prior baton thought it was still open).
+  - **🆕 PR #84** (`feat/trade-event-alerts` — per-trade Telegram alerts): **MERGED by the owner OUTSIDE
+    the relay gate** at 17:37, *after* #83's baton was written, on a non-`claude/` branch — so it was
+    NOT in the baton. Audited POST-HOC this session (`/handoff-audit`, branch
+    `claude/handoff-audit-8latbu`): independent subagent, first-parent delta `d9daaf2^1..d9daaf2`
+    (4 files, +402/−6) — **PASS**. All claims SUPPORTED; new code is never-raise, off the deduped
+    lists, freshness-guarded, secrets-safe (token redaction + kill-switch + 4096-split via the audited
+    `send_telegram` transport), order-free; batched digest UNMODIFIED. `test_trade_notifications.py`
+    **11/11**. CI green (`test` ✓ / `Cloudflare Pages` ✓). Confirmed the merge did NOT regress §65
+    (the stale-branch `base..head` diff that *looked* like a revert is an artifact — `main` retains
+    `_CLOSED=("hit","miss")`, §65, the test, and the #82 audit report). Report:
+    `docs/audits/feat-trade-event-alerts.md`.
 
 ## What this chat did (for the auditor to verify against the diff)
 
