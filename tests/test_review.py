@@ -149,6 +149,33 @@ def test_cancelled_unfilled_limit_is_not_a_closed_trade(tmp_path):
     assert [t["symbol"] for t in canc["trades"]] == ["DOGEUSDT"]
     assert canc["trades"][0]["realized_r"] is None                 # no R booked
 
+def _reach(symbol="SOLUSDT", status="hit"):
+    # A directional/level CALL (reach_below): no bracket, no entry/stop/target,
+    # no R. It resolves hit/miss on whether price reached the level — not a trade.
+    p = Prediction(symbol=symbol, kind="reach_below", level=64.5, deadline_days=2,
+                   direction=0.0, status=status, outcome_r=None,
+                   timeframe="1h", mode="paper")
+    p.created_at = _start(4).isoformat()
+    p.resolved_at = datetime.now(timezone.utc).isoformat()
+    return p
+
+def test_reach_call_is_not_a_closed_trade(tmp_path):
+    # Two real bracket trades + one resolved reach_below CALL (no bracket, no R).
+    # The default "closed" history must count only the two bracket trades — a
+    # directional call has no R and must not pad total_trades (the 589-vs-588 gap).
+    preds = [_closed("BTCUSDT", 3.0, "hit"), _closed("ETHUSDT", -1.0, "miss"),
+             _reach("SOLUSDT", "hit")]
+    j = _journal(tmp_path, preds)
+    rep = trade_history_report(j, with_excursion=False)            # status="closed"
+    assert rep["portfolio"]["total_trades"] == 2                   # call NOT padded in
+    assert rep["portfolio"]["n_resolved"] == 2                     # no R from the call
+    assert {t["symbol"] for t in rep["trades"]} == {"BTCUSDT", "ETHUSDT"}
+    # ...but the call is still inspectable via an explicit status filter.
+    hits = trade_history_report(j, status="hit", with_excursion=False)
+    assert "SOLUSDT" in {t["symbol"] for t in hits["trades"]}
+    sol = next(t for t in hits["trades"] if t["symbol"] == "SOLUSDT")
+    assert sol["realized_r"] is None                               # no R booked
+
 def test_history_excursion_hit_rates(tmp_path):
     p = _closed("BTCUSDT", 3.0, "hit")
     # bars that touch the target (103) and the stop (99) over the trade's life

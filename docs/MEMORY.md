@@ -1909,7 +1909,32 @@ cancels still reachable via `--status cancelled`) and gave cancelled its own lin
 
 **STILL OPEN (data quirk surfaced, NOT fixed):** the 589-vs-588 gap means **1 `hit`/`miss` row
 has `outcome_r=None`** — a resolved trade with no R booked. Out of scope for #82; next chat should
-locate that row and decide resolver-fix vs. single-row backfill.
+locate that row and decide resolver-fix vs. single-row backfill. → **RESOLVED in §66** (it was a
+non-bracket directional CALL, not a trade with a missing R — same display-classification family as
+this section, not a resolver bug).
 LESSON: audit before you "fix." When a task hands you both the diagnosis AND the remedy, the
 honest move is to verify the diagnosis against the data/code first — here the remedy would have
 manufactured the very corruption it claimed to cure.
+
+## 66. The 589-vs-588 null-R row = a reach CALL, not a missing-R trade — DISPLAY fix (§65 sequel) — 2026-06-23
+
+Located the single `hit`/`miss` row with `outcome_r=None` flagged by §65. It is **`7e0d2e94`**:
+a **`reach_below` directional CALL** (KudbeeX SOL 1h, level 64.5, 2026-06-09) — `kind != "bracket"`,
+`entry`/`stop`/`target` all `None`, `direction 0.0`. It resolved `hit` because price reached 64.5;
+there is **no bracket, so there is legitimately no R** (`outcome_r=None` is CORRECT, not a defect).
+It is the **only** non-bracket row in the journal (731 `bracket` + 1 `reach_below`). So this was
+**not a resolver bug and not a missing-R trade** — and a single-row "backfill" would again have
+FABRICATED P&L on a position that never existed (no entry, no exit). **No backfill done;
+`data/journal.json` untouched.**
+
+Same family as §65: `review.py` and the `journal-check` summary counted a resolved non-trade under
+"closed"/"resolved", padding `total_trades` (the 589). FIX (display-only): the closed-*trades* view
+and the CLI summary now require `p.kind == "bracket"` in addition to `hit`/`miss`
+(`review.py:_passes` `:172`, `cli.py:_journal_check`). reach/touch/stay CALLS stay reachable via an
+explicit `--status hit`/`miss` filter (the SOL call still shows there with `realized_r=None`), and
+get their own "directional call(s)" line in the summary. **No R math changed**; win rate &
+expectancy were always computed on `outcome_r is not None` rows only. Live header is now a
+consistent **588 / 588**. 1 new test (`test_reach_call_is_not_a_closed_trade`); review suite 12/12,
+full suite green except pre-existing missing-optional-dep collection errors (fastapi / sklearn /
+pyarrow — not introduced here). The two pre-existing `cli.py` ruff findings remain on untouched
+lines; no new ones.
