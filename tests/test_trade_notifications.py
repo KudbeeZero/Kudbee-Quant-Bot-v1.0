@@ -59,7 +59,8 @@ def test_notify_trade_opened_long():
         ok = notify.notify_trade_opened("tok", "chat", _open_trade("LONG"))
     assert ok is True
     msg = send.call_args[0][2]
-    for sub in ("LONG", "Entry", "Stop", "Target", "🆕", "ETHUSDT"):
+    for sub in ("KUDBEE QUANT", "Trade Opened", "▸ LONG", "Entry", "Stop",
+                "Target", "ETHUSDT", "Why this fired", "Book", "Paper mode"):
         assert sub in msg, f"missing {sub!r} in:\n{msg}"
 
 
@@ -67,7 +68,7 @@ def test_notify_trade_opened_short():
     with mock.patch.object(notify, "send_telegram_message", return_value=True) as send:
         notify.notify_trade_opened("tok", "chat", _open_trade("SHORT"))
     msg = send.call_args[0][2]
-    assert "🔴 SHORT" in msg
+    assert "▸ SHORT" in msg
 
 
 # --- close alert content + classification ------------------------------------
@@ -76,7 +77,7 @@ def test_notify_trade_closed_win():
     with mock.patch.object(notify, "send_telegram_message", return_value=True) as send:
         notify.notify_trade_closed("tok", "chat", _closed_trade(3.0))
     msg = send.call_args[0][2]
-    for sub in ("✅", "+3.0R", "🎯"):
+    for sub in ("TARGET HIT", "+3.00R", "◈", "SOLUSDT"):
         assert sub in msg, f"missing {sub!r} in:\n{msg}"
 
 
@@ -84,22 +85,22 @@ def test_notify_trade_closed_stop():
     with mock.patch.object(notify, "send_telegram_message", return_value=True) as send:
         notify.notify_trade_closed("tok", "chat", _closed_trade(-1.0))
     msg = send.call_args[0][2]
-    assert "🛑" in msg and "-1.0R" in msg
+    assert "STOPPED" in msg and "-1.00R" in msg
 
 
 def test_notify_trade_closed_breakeven():
     with mock.patch.object(notify, "send_telegram_message", return_value=True) as send:
         notify.notify_trade_closed("tok", "chat", _closed_trade(0.05))
     msg = send.call_args[0][2]
-    assert "⚖️" in msg
+    assert "BREAKEVEN" in msg
 
 
 def test_notify_trade_closed_held_duration():
-    # 2h 15m apart -> "2h 15m"
+    # 2h 15m apart -> "held 2h 15m"
     with mock.patch.object(notify, "send_telegram_message", return_value=True) as send:
         notify.notify_trade_closed("tok", "chat", _closed_trade(3.0))
     msg = send.call_args[0][2]
-    assert "Held: 2h 15m" in msg
+    assert "held 2h 15m" in msg
 
 
 # --- never-raises -------------------------------------------------------------

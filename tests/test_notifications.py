@@ -169,7 +169,8 @@ def test_format_summary():
     }}
     record = {"crypto": {"n": 10, "hits": 4, "net_expectancy_r": 0.12}}
     msg = format_summary(report, record=record)
-    assert "Open: 3" in msg
+    assert "KUDBEE QUANT — Live Read" in msg
+    assert "3 open" in msg
     assert "+1.25R" in msg
     assert "near stop" in msg
     assert "crypto 4/10" in msg
