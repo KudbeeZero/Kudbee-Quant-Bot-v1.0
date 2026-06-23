@@ -22,10 +22,12 @@
 - **NOTHING new is live in trading.** PR #82 touched only the reporting layer
   (`review.py` `_CLOSED`, the `journal-check` summary line). No R math, no journal data, no
   trading-path code. `data/journal.json` NOT edited (bot-owned).
-- **Audit status:** `AWAITING_AUDIT` — but the WORK (PR #82) is **already MERGED**, so the next chat
-  runs `/handoff-audit` as a **POST-HOC** review of #82 (diff vs. claims, scope, honesty) AND a
-  normal merge gate for **this `/closeout` docs PR**. PR #82 shipped green CI (2× test + Cloudflare
-  Pages), scoped diff (3 files, +36/−3), no trading-logic change.
+- **Audit status:** `MERGED (post-hoc PASS)` — PR #82 was merged by the owner, then independently
+  audited (subagent, `bf7586f..6e986c9`): all 6 claims SUPPORTED with file:line evidence, **475
+  passed / 0 failed**, no scope creep (one harmless `data/heartbeat.json` churn line), premise holds
+  across all cancel paths, R/expectancy math provably untouched. Report:
+  `docs/audits/claude-cancel-to-close-bug-tkngpm.md`. The `/closeout` docs PR (#83) is open + clean
+  (docs-only), left for the OWNER to merge — not self-merged (honor "owner merges").
 
 ## What this chat did (for the auditor to verify against the diff)
 
