@@ -100,9 +100,11 @@
     graded cycles (it only persists state when `loop-agent` is actually invoked).
   - **PR #78 (D1) is PARKED, not abandoned** — D1 is UNVERIFIED end-to-end; reopening requires
     real CF provisioning + a MEMORY-section renumber (now collides with BOTH §64 loop agent and §65).
-  - **🆕 NULL-R RESOLVED ROW (§65, NOT fixed)** — exactly 1 `hit`/`miss` journal row has
-    `outcome_r=None` (the 589-vs-588 gap in the history header). A resolved trade with no R booked;
-    out of scope for #82. Next idle chat: locate it and decide resolver-fix vs. single-row backfill.
+  - **✅ NULL-R RESOLVED ROW — FIXED THIS CHAT (§66, PR #85).** Located: `7e0d2e94`, a `reach_below`
+    directional CALL (no bracket, no R) — the only non-bracket row in the journal; `outcome_r=None`
+    is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
+    view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
+    No journal edit (a backfill would have fabricated P&L on a position that never opened).
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
   `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
