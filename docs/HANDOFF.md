@@ -22,7 +22,7 @@
   (no cron yet). Default state = a manual command that writes only its own `data/loop_agent.json`.
 - **Audit status:** `AWAITING_AUDIT` — but the WORK (PR #79) is **already MERGED**, so the next chat
   runs `/handoff-audit` as a **POST-HOC** review of #79 (diff vs. claims, scope, honesty) AND a
-  normal merge gate for **this `/closeout` docs PR** (#NN). PR #79 shipped green CI, scoped diff, no
+  normal merge gate for **this `/closeout` docs PR** (#80). PR #79 shipped green CI, scoped diff, no
   trading-logic change. `data/journal.json` NOT edited this session (bot-owned).
 
 ## What this chat did (for the auditor to verify against the diff)
