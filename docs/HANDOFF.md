@@ -10,39 +10,42 @@
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
   only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
   authorizes it.
-- **This chat = the LOOP-AGENT (L7) chat.** **PR #79 MERGED to `main`** (owner merged it directly):
-  the self-improving decision loop. Also this session: **PR #78 (Cloudflare D1) was CLOSED + PARKED**
-  by owner decision — its code stays on `claude/tr-level-intelligence-qc4i2p`, to be reopened when
-  D1 is provisioned. This branch (`docs/closeout-loop-agent`) carries the **`/closeout`** PR.
-- **Owner closeout answers:** shipped = *L7 self-improving loop agent (PR #79); parked the D1 PR*;
-  next priority = ***provision Cloudflare D1 + reopen PR #78*** (see NEXT); off-limits = *standard set
-  + the trading/levels core (`build_levels`, `pvsra_vector_candles`, `paper_scan`, backtest harness)*.
-- **NOTHING new is live in trading.** The loop agent is read-only over the journal, OFF the trading
-  path, NOT wired into the scan or any workflow — it only runs when `kudbee loop-agent` is invoked
-  (no cron yet). Default state = a manual command that writes only its own `data/loop_agent.json`.
-- **Audit status:** `AWAITING_AUDIT` — but the WORK (PR #79) is **already MERGED**, so the next chat
-  runs `/handoff-audit` as a **POST-HOC** review of #79 (diff vs. claims, scope, honesty) AND a
-  normal merge gate for **this `/closeout` docs PR** (#80). PR #79 shipped green CI, scoped diff, no
-  trading-logic change. `data/journal.json` NOT edited this session (bot-owned).
+- **This chat = the CANCEL-TO-CLOSE chat.** **PR #82 MERGED to `main`** (owner merged): a
+  display-only fix so unfilled limit orders no longer read as closed/resolved trades. The task
+  arrived asking for a close-at-price fix + backfill on "cancels booked at 0.00R"; **the audit
+  overturned that premise** — `cancelled` = a pending LIMIT that never filled (no position, no R),
+  already excluded from all expectancy math, so the proposed backfill would have FABRICATED P&L.
+  This branch (`claude/cancel-to-close-bug-tkngpm`) carries the **`/closeout`** docs PR.
+- **Owner closeout answers:** shipped = *display fix — cancelled no longer counts as a closed trade
+  (PR #82)*; next priority = ***provision Cloudflare D1 + reopen PR #78*** (UNCHANGED — see NEXT);
+  open risk = *the 1 hit/miss row with `outcome_r=None` (589-vs-588 gap)*; off-limits = *standard set*.
+- **NOTHING new is live in trading.** PR #82 touched only the reporting layer
+  (`review.py` `_CLOSED`, the `journal-check` summary line). No R math, no journal data, no
+  trading-path code. `data/journal.json` NOT edited (bot-owned).
+- **Audit status:** `MERGED (post-hoc PASS)` — PR #82 was merged by the owner, then independently
+  audited (subagent, `bf7586f..6e986c9`): all 6 claims SUPPORTED with file:line evidence, **475
+  passed / 0 failed**, no scope creep (one harmless `data/heartbeat.json` churn line), premise holds
+  across all cancel paths, R/expectancy math provably untouched. Report:
+  `docs/audits/claude-cancel-to-close-bug-tkngpm.md`. The `/closeout` docs PR (#83) is open + clean
+  (docs-only), left for the OWNER to merge — not self-merged (honor "owner merges").
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **§64 / PR #79 — L7 self-improving loop agent (MERGED).** New `kudbee_quant/memory/loop_agent.py`
-  (`LoopAgent` + `format_cycle`): each cycle snapshots per-book KEEP/REVERT/WAIT verdicts
-  (`scorecard.book_scorecard`), GRADES the previous cycle's predictive proposals
-  (vindicated/false_alarm/pending), folds terminal verdicts into a per-signal-type reliability
-  CALIBRATION, and persists to `data/loop_agent.json`. Only `book_negative`/`book_decay` are
-  calibrated; `book_proven`/`regime_shift`/`overfit` are observations. New `loop-agent` CLI command
-  (`--mode/--since/--dry-run/--notify/--json`). Exported from `memory/__init__`. **VERIFY:** strictly
-  read-only over the journal; NO change to `paper.py`/`builder.py`/`pvsra.py`/backtest; 9 new tests
-  in `tests/test_loop_agent.py`; suite **474 passed**; ruff clean (2 pre-existing cli.py findings at
-  305/518 identical on main). MEMORY §64 added.
-- **PR #78 — Cloudflare D1 persistence: CLOSED + PARKED** (not merged). Code intact on
-  `claude/tr-level-intelligence-qc4i2p`; D1 was UNVERIFIED end-to-end (no CF creds in sandbox). Its
-  branch-local MEMORY drafted a "§64" too — it must RENUMBER to the next free section when reopened,
-  since §64 is now taken on `main` by the loop agent.
-- **This PR — docs only.** Sets this baton (HANDOFF.md). MEMORY §64 already landed via #79; no new
-  memory here. No code change.
+- **§65 / PR #82 — cancel-to-close DISPLAY fix (MERGED).** **VERIFY the audit claim first:** every
+  `cancelled` row is an unfilled limit (`filled_at` None, `outcome_r` None) — the 3 cancel paths in
+  `journal.py` (`:161/:200/:218`) are all unfilled-limit cases; no path cancels a FILLED position.
+  98 cancels / 732 rows: 96 never filled, 2 are §29 fictitious-fill artifacts (2026-06-09, do NOT
+  hand-clean). Diff: `review.py` drops `"cancelled"` from `_CLOSED` (so default closed-history =
+  hit/miss only; `--status cancelled` still surfaces them via the separate check at `_passes`);
+  `cli.py` `_journal_check` prints cancelled on its own line. 1 new test in `tests/test_review.py`;
+  **475 passed**; ruff: the 2 pre-existing cli.py findings (305/522) on untouched lines, no new ones.
+  MEMORY §65 added. **CONFIRM:** no change to `paper.py`/`builder.py`/`pvsra.py`/backtest/resolver;
+  no R/expectancy math touched; `data/journal.json` untouched.
+- **PR #78 — Cloudflare D1 persistence: STILL CLOSED + PARKED** (carried forward, untouched this
+  chat). Code on `claude/tr-level-intelligence-qc4i2p`; reopening still requires real CF
+  provisioning + a MEMORY renumber (its branch-local "§64" now collides with both the loop agent
+  AND §65 — renumber to next free).
+- **This PR — docs only.** Adds MEMORY §65 + sets this baton. No code change.
 
 ## NEXT chat
 
@@ -86,7 +89,10 @@
     per-signal reliability means nothing yet; do not trust/act on its proposals until it accrues
     graded cycles (it only persists state when `loop-agent` is actually invoked).
   - **PR #78 (D1) is PARKED, not abandoned** — D1 is UNVERIFIED end-to-end; reopening requires
-    real CF provisioning + a MEMORY-section renumber (§64 collision with the loop agent).
+    real CF provisioning + a MEMORY-section renumber (now collides with BOTH §64 loop agent and §65).
+  - **🆕 NULL-R RESOLVED ROW (§65, NOT fixed)** — exactly 1 `hit`/`miss` journal row has
+    `outcome_r=None` (the 589-vs-588 gap in the history header). A resolved trade with no R booked;
+    out of scope for #82. Next idle chat: locate it and decide resolver-fix vs. single-row backfill.
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
   `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
@@ -131,5 +137,11 @@
   owner (D1 unverified, needs provisioning); code stays on `claude/tr-level-intelligence-qc4i2p`.
 - 2026-06-23: PR #79 — L7 self-improving loop agent (§64): grades its own per-book drift calls.
   **MERGED by owner.** Read-only, off the trading path, not yet on a cadence.
-- 2026-06-23: PR (this, `/closeout`) — docs/baton for the loop-agent chat. Work (#79) already
+- 2026-06-23: PR (`/closeout`) — docs/baton for the loop-agent chat. Work (#79) already
   MERGED → next chat audits #79 POST-HOC. NEXT priority: provision D1 + reopen #78.
+- 2026-06-23: PR #82 — cancel-to-close DISPLAY fix (§65): audited the "cancels at 0.00R" claim,
+  found it was a display bug not a P&L bug (cancelled = unfilled limit, no R, already excluded);
+  stopped counting cancels as closed trades. **MERGED by owner.** Refused the fabricating backfill.
+- 2026-06-23: PR (this, `/closeout`) — docs/baton for the cancel-to-close chat. Work (#82) already
+  MERGED → next chat audits #82 POST-HOC. NEXT priority UNCHANGED: provision D1 + reopen #78.
+  New open risk: 1 hit/miss row with `outcome_r=None`.
