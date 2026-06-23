@@ -6,6 +6,11 @@ __pycache__/
 # Node toolchain for the Tailwind build — only the compiled assets/css/app.css
 # (and kudbee_quant/static/app.css) are committed; node_modules is regenerable.
 node_modules/
+# Wrangler local cache (account id/name, build artifacts) — regenerable, machine-local.
+.wrangler/
+# Wrangler dev secrets — never commit (worker secrets live in Cloudflare, not the repo).
+.dev.vars
+.dev.vars.*
 # Agent worktrees (transient, auto-cleaned; created by isolated subagents)
 .claude/worktrees/
 # Overnight research runtime cache + loop log (regenerable; not source)
