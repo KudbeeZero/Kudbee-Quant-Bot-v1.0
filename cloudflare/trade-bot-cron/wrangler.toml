@@ -17,5 +17,14 @@ crons = [
 [vars]
 GH_OWNER = "KudbeeZero"
 GH_REPO = "Kudbee-Quant-Bot-v1.0"
-WORKFLOW_FILE = "paper-trade.yml"
+# Comma-separated list dispatched every tick. paper-trade.yml is the validated scan;
+# paper-status.yml is the read-only open-position reminder (silent when flat) — listing
+# it here gives that reminder the same reliable Cloudflare backstop, not just GitHub's
+# best-effort */5 cron. (Back-compat: the Worker also accepts the old WORKFLOW_FILE.)
+WORKFLOW_FILES = "paper-trade.yml,paper-status.yml"
 GH_REF = "main"
+
+# Optional: set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID as Worker SECRETS (not vars) to get
+# a Telegram alert when a dispatch fails (e.g. the GH_TOKEN expired → 401). Unset = silent.
+#   wrangler secret put TELEGRAM_BOT_TOKEN
+#   wrangler secret put TELEGRAM_CHAT_ID

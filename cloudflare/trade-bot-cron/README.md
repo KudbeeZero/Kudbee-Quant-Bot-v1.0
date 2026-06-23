@@ -35,18 +35,46 @@ alerts only arrived reliably when you triggered the workflow manually.
    wrangler deploy
    ```
 
-That's it. The Worker now fires the bot hourly on Cloudflare's reliable cron.
+   > ⚠️ **Windows / PowerShell gotcha:** type the token at the interactive prompt above,
+   > or pipe it from **Git Bash** (`printf '%s' '<token>' | npx wrangler secret put GH_TOKEN`).
+   > Do **NOT** pipe it from PowerShell (`$t | wrangler secret put …`) — PowerShell's
+   > child-process stdin writer prepends a UTF-8 BOM to the value, so GitHub rejects it with
+   > `401 Bad credentials` even though the token is valid. (Cost us a whole debug session.)
+
+4. **(Optional) Failure alerts** — set two more secrets so a dispatch failure (e.g. the
+   token expires → 401) pings Telegram instead of failing silently. Reuse the repo's bot:
+   ```bash
+   wrangler secret put TELEGRAM_BOT_TOKEN   # same bot as the repo's TELEGRAM_* secrets
+   wrangler secret put TELEGRAM_CHAT_ID
+   wrangler deploy
+   ```
+   Leave them unset and the Worker just stays silent on failure (no behavior change).
+
+That's it. The Worker now fires the bot on Cloudflare's reliable cron, dispatching every
+workflow in `WORKFLOW_FILES` (currently `paper-trade.yml` + the read-only `paper-status.yml`).
 
 ## Verify it works
 - Hit the Worker's URL once (shown after `wrangler deploy`) — it triggers a run
-  immediately and returns `OK: dispatched paper-trade.yml@main`.
-- In the repo, **Actions** tab → you'll see a `paper-trade` run with event
-  **workflow_dispatch** kicked off by the token. Telegram pings follow as usual.
+  immediately and returns one `OK: dispatched <workflow>@main` line per workflow
+  (200 if all succeeded, 500 if any failed).
+- In the repo, **Actions** tab → you'll see `paper-trade` (and `paper-status`) runs with
+  event **workflow_dispatch** kicked off by the token. Telegram pings follow as usual.
 - `wrangler tail` streams the Worker's logs if you want to watch the cron fire.
+- **Smoke-test the failure alert** (after setting `TELEGRAM_*`): temporarily point it at a
+  non-existent workflow — `wrangler deploy --var WORKFLOW_FILES:nope.yml`, hit the URL,
+  confirm the Telegram alert fires, then `wrangler deploy` to restore.
+
+## What it does and does NOT catch
+- ✅ A **dispatch failure** (non-204 from GitHub: expired/invalid token → 401, missing
+  Actions permission → 403) triggers a Telegram alert.
+- ❌ The **Worker itself never firing** (Cloudflare outage, billing, a dead isolate) is
+  still invisible here — there's no "alert me if you DON'T hear from the cron." A
+  dead-man's-switch (e.g. healthchecks.io) is the stronger pattern, deliberately deferred.
+  The in-repo run-heartbeat partially covers this from the workflow side.
 
 ## Tuning
 - **More frequent:** add cron lines in `wrangler.toml`, e.g.
   `crons = ["5 * * * *", "35 * * * *"]`.
-- **Also fire the read-only status pings:** duplicate this Worker (or add logic) to
-  dispatch `paper-status.yml` too.
-- The token is the only secret; rotate it anytime with `wrangler secret put GH_TOKEN`.
+- **Which workflows fire:** edit `WORKFLOW_FILES` in `wrangler.toml` (comma-separated).
+- The token is the only *required* secret; rotate it anytime with `wrangler secret put
+  GH_TOKEN` (see the PowerShell BOM warning above). `TELEGRAM_*` are optional.
