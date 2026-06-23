@@ -8,65 +8,47 @@
 
 - **Protocol status:** `ACTIVE`.
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
-  only then start the next. **This chat ran a user-directed `/loop` BATCH** — the owner asked to
-  run three queued items end-to-end ("create a PR for each one, close it, do the same thing, let
-  me know at the end"). Each was its own PR, CI-green, merged before the next — serial, but the
-  owner explicitly authorized me to **merge them myself** (a deliberate, logged exception to the
-  "owner merges" rule, for this batch only).
-- **This chat = the TELEGRAM-SUITE + §B chat.** Four PRs **MERGED to `main` this session:**
-  **#55** (Experiment §C — clean_trend_stack 1h + per-book dedup, §53), **#56** (per-book Telegram
-  summary + best/worst + today PnL + `:35` read-only status workflow, §54), **#57** (deadline/stale
-  alert line + de-flaked a pre-existing flaky auth test, §55), **#58** (§B dynamic volume universe —
-  opt-in, OFF the validated path, §56). This branch (`docs/closeout-telegram-suite-sB`) carries the
-  **`/closeout`** PR.
-- **Owner closeout answers (inferred — I auto-filled them; owner was away, correct if wrong):**
-  shipped = *§C experiment + Telegram summary upgrades (per-book/best-worst/today/deadline) + :35
-  status heartbeat + §B opt-in universe*; next priority = *forward-watch the new live books, then
-  reconcile §B with the owner's real spec*; top risks = *§C + §A unvalidated, VWAP flip*;
-  off-limits = *standard (validated §1 / FEE_PCT / live path / bot-owned journal)*.
-- **Three LIVE changes shipped this session (watch them):**
-  1. **Experiment §C `_cts` 1h book is LIVE** (§53) — separately tagged, per-book dedup lets it
-     coexist with the baseline. The +0.1152R/n=804 claim is the owner's EXTERNAL harness, **not
-     verified here.** Revert the §C step if its forward `_cts` record is net-negative.
-  2. **`:35` read-only status ping is LIVE** (§54, `paper-status.yml`) — sends `notify-summary`
-     only; no scan/write/commit. Confirm it pings (needs `TELEGRAM_*` secrets).
-  3. **Enriched Telegram summary is LIVE** (§54/§55) — per-book / best-worst / today / deadline
-     lines; all gated/back-compat.
-- **Audit status:** the four work PRs (#55–#58) are **already MERGED** (owner-authorized batch) and
-  this `/closeout` PR is being **merged too** (owner said "close each") — so there is **no pending
-  merge gate**. Next chat should run `/handoff-audit` as a **POST-HOC** review: each shipped green
-  CI, scoped diffs, honest bodies; none touch §1 geometry / `FEE_PCT` / `bracket.py` / `resolver.py`.
-  `data/journal.json` was **NOT** edited this session (bot-owned; untouched by every PR).
-- **🟢 §B "dynamic volume universe" — now has a NET-NEW opt-in implementation** (§56, PR #58), built
-  from the descriptive name. The owner's external §B spec is **still not in this repo**; PR #58 does
-  NOT claim to be it and is OFF the validated path. **NEXT: owner confirms it matches the intent or
-  supplies the real spec to reconcile.**
+  only then start the next. (Honor "owner merges" — never self-merge unless the owner
+  explicitly authorizes a batch, as in a prior `/loop`.)
+- **This chat = the TR LEVEL INTELLIGENCE chat.** ONE PR open: **#78**
+  (`claude/tr-level-intelligence-qc4i2p` → `main`), **DRAFT, AWAITING_AUDIT**, CI/tests green
+  locally (474 passed after merging current `main`).
+- **Owner closeout answers (one-tap):** shipped = *TR Level Intelligence (D1) — persist
+  `build_levels()` + unrecovered PVSRA vectors, `/levels` `/history` `/vectors`*; next priority =
+  *provision the D1 DB (`wrangler d1 create` + migration) + forward-verify the commands on live
+  data*; off-limits = *standard set + the trading/levels core (`build_levels`,
+  `pvsra_vector_candles`, `paper_scan`, backtest harness)*.
+- **NOTHING new is live in trading.** The intelligence layer is a NON-CRITICAL side-channel: OFF
+  until `CF_ACCOUNT_ID`/`CF_API_TOKEN`/`D1_DATABASE_ID` are set; default path is a silent no-op,
+  every D1 write is try/except-wrapped and runs AFTER `paper_scan()`. No signal added, no trading
+  logic touched.
+- **🚩 D1 is UNVERIFIED end-to-end** (see §64): no CF creds/network in the sandbox, so the
+  `wrangler` create+migrate was NOT run, `wrangler.toml database_id` is a placeholder, and
+  `/levels` `/vectors` `/history` were rendered against an in-memory sqlite proxy, not real D1.
+- **Audit status:** `AWAITING_AUDIT`. Next chat runs `/handoff-audit` on **PR #78** — merge gate.
+  Use the PR-body "Audit checklist". `data/journal.json` was NOT edited this session (bot-owned;
+  the only data delta is the routine `main` merge of `data/heartbeat.json`/`journal.json`).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **§53 / PR #55 — Experiment §C + per-book dedup.** `paper.py`/`cli.py`: `--clean-trend-stack`
-  gate (13/50/800-EMA stacked 10 bars + widening 13/50 gap), setup tag `_cts`. **Structural:** dedup
-  key `(symbol, tf)` → `(symbol, tf, book)` via `_book_of()` so §C coexists with baseline (else it
-  logs nothing); net-exposure guard unchanged. UNVERIFIED external claim. `385 passed`.
-- **§54 / PR #56 — Telegram summary + :35 heartbeat.** `notify.format_summary` gains per-book /
-  best-worst / today-realized blocks (gated, back-compat tested); `review` trades carry `setup`;
-  `_realized_today` uses `net_outcome_r`. New `paper-status.yml` (`cron 35`, `contents: read`,
-  `notify-summary` only — no scan/write). `390 passed`.
-- **§55 / PR #57 — deadline alert + de-flake.** `_deadline_line()` (`hours_to_deadline` on report).
-  ALSO fixed flaky `test_tampered_cookie_is_rejected` (tampered base64 padding bits → no-op; now
-  flips the first sig char, 40/40). `391 passed`.
-- **§56 / PR #58 — §B dynamic volume universe.** `universe_rank.py` (`rank_by_volume` /
-  `volume_ranked_universe` by mean `quote_volume`), `universe.CRYPTO_CANDIDATES`, CLI `universe-rank`
-  (read-only). OFF by default, NOT wired into the workflow. Net-new; may differ from owner's spec.
-  `396 passed`.
-- **This PR — docs.** MEMORY §53–§56 + this baton. Read-only over the repo; no code change.
+- **§64 / PR #78 — TR Level Intelligence (D1).** New `kudbee_quant/intelligence/` package:
+  `d1_client.py` (D1 REST), `level_recorder.py` (last-bar 54-field TR grid → `daily_levels`,
+  `INSERT OR REPLACE`, idempotent per date+symbol+tf), `vector_tracker.py` (climax upsert +0.3%
+  recovery → `unrecovered_vectors`). `cli._record_intelligence()` runs **after** `paper_scan()`,
+  gated on `D1_DATABASE_ID`, try/except per-symbol + overall. Telegram `/levels` `/history`
+  `/vectors` + help. Migration `0001_tr_levels.sql` (3 tables; `session_analytics` defined, not
+  populated) + `wrangler.toml` D1 binding; `CF_*`/`D1_DATABASE_ID` in `.env.example`/`render.yaml`
+  (`sync:false`). 9 new tests over an in-memory sqlite D1 proxy. **`474 passed`**, ruff clean.
+  **VERIFY:** no change to `levels/builder.py` / `signals/pvsra.py` / `paper/paper.py` / backtest.
 
 ## NEXT chat
 
-- **🟡 OWNER PRIORITY — RECONCILE §B + WATCH the new live books.** (a) Confirm PR #58's volume-ranked
-  universe matches the intended §B, or get the real spec to reconcile (still not in this repo).
-  (b) Forward-watch the books below. Advisory slug hint: `claude/reconcile-dynamic-volume-univ`.
-- **WATCH the live changes:**
+- **🟡 OWNER PRIORITY — PROVISION D1 + VERIFY LIVE (PR #78 first).** After the audit PASS-merges #78:
+  (a) `wrangler d1 create kudbee-tr-levels`, apply `migrations/0001_tr_levels.sql`, paste the
+  `database_id` into `wrangler.toml` AND Render (`D1_DATABASE_ID`); set `CF_ACCOUNT_ID` +
+  `CF_API_TOKEN` in Render. (b) Run a paper-scan, then forward-verify `/levels` `/vectors`
+  `/history` on real D1. Advisory slug hint: `claude/provision-tr-d1`.
+- **WATCH the live changes (carried from prior batons — still live on `main`):**
   - **§C 1h `_cts` book (§53):** after ≥30 forward `_cts` trades, `journal-score` filtered to those
     setups. Net expectancy > 0R net of fees → keep; else → **revert the §C workflow step.** The
     +0.1152R claim is UNVERIFIED here.
@@ -93,7 +75,10 @@
   - **§42 maker fee is an ASSUMPTION** (0.0002/side) — Tier-2 must settle before leverage graduates.
   - **Dashboard (PR #21) UNVERIFIED in production.**
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
-  (`bracket.py`/`resolver.py`). `data/journal.json` is bot-owned — the ONLY sanctioned session
+  (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
+  `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (this chat
+  deliberately left them byte-identical; the intelligence layer reads, never mutates).
+  `data/journal.json` is bot-owned — the ONLY sanctioned session
   edit was the idempotent flatten script (#48); no manual journal refreshes. `data/shadow/`
   (gitignored), `data/alert_inbox/` (host-owned). Keep PR #20 flags OFF on the validated book;
   hold the parsimony line; paper-scan stays `dry_run=True` for the dashboard runner; killzone
@@ -126,6 +111,9 @@
   Merged (batch).
 - 2026-06-22: PR #58 — §B dynamic volume universe: opt-in, OFF the validated path, net-new (§56).
   Merged (batch).
-- 2026-06-22: PR (this, `/closeout`) — docs/baton for the Telegram-suite + §B batch. Owner
+- 2026-06-22: PR (closeout) — docs/baton for the Telegram-suite + §B batch. Owner
   authorized self-merge of the whole batch; no pending merge gate → next chat audits POST-HOC.
   Live books to watch: §C `_cts`, §A `_lo`, breakeven arm, `:35` status ping. Reconcile §B spec.
+- 2026-06-23: PR #78 — TR Level Intelligence (D1) persistence: `daily_levels` +
+  `unrecovered_vectors`, `/levels` `/history` `/vectors` (§64). Non-critical, OFF the trading path,
+  D1 UNVERIFIED end-to-end. DRAFT, AWAITING_AUDIT. Next chat: `/handoff-audit` #78, then provision D1.
