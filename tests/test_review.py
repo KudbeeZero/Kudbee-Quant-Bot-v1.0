@@ -125,6 +125,30 @@ def test_history_filters(tmp_path):
     assert trade_history_report(j, symbol="BTCUSDT", with_excursion=False)["portfolio"]["total_trades"] == 2
     assert trade_history_report(j, timeframe="4h", with_excursion=False)["portfolio"]["total_trades"] == 1
 
+def _cancelled(symbol="DOGEUSDT", entry=100.0, stop=99.0):
+    # A pending LIMIT that never filled: no fill, no R, status 'cancelled'.
+    p = Prediction(symbol=symbol, kind="bracket", level=entry, deadline_days=7,
+                   entry=entry, stop=stop, target=103.0, direction=1.0, target_r=3.0,
+                   status="cancelled", outcome_r=None, timeframe="1h", mode="paper")
+    p.created_at = _start(4).isoformat()
+    return p
+
+def test_cancelled_unfilled_limit_is_not_a_closed_trade(tmp_path):
+    # Two real closed trades + one unfilled limit (cancelled). The default
+    # "closed" history must count only the two trades that actually opened — an
+    # unfilled limit is not a trade and must not pad total_trades.
+    preds = [_closed("BTCUSDT", 3.0, "hit"), _closed("ETHUSDT", -1.0, "miss"),
+             _cancelled("DOGEUSDT")]
+    j = _journal(tmp_path, preds)
+    rep = trade_history_report(j, with_excursion=False)            # status="closed"
+    assert rep["portfolio"]["total_trades"] == 2                   # cancel NOT padded in
+    assert rep["portfolio"]["n_resolved"] == 2
+    assert {t["symbol"] for t in rep["trades"]} == {"BTCUSDT", "ETHUSDT"}
+    # ...but the cancel is still inspectable via an explicit status filter.
+    canc = trade_history_report(j, status="cancelled", with_excursion=False)
+    assert [t["symbol"] for t in canc["trades"]] == ["DOGEUSDT"]
+    assert canc["trades"][0]["realized_r"] is None                 # no R booked
+
 def test_history_excursion_hit_rates(tmp_path):
     p = _closed("BTCUSDT", 3.0, "hit")
     # bars that touch the target (103) and the stop (99) over the trade's life

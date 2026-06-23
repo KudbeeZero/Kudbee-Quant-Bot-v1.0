@@ -23,7 +23,12 @@ from .journal import Prediction, TradeJournal
 from .journal.excursion import Excursion, compute_excursion
 from .journal.journal import net_outcome_r
 
-_CLOSED = ("hit", "miss", "cancelled")
+# A "closed" trade is one that actually opened and resolved (hit/miss). A
+# 'cancelled' row is a pending LIMIT that never filled — no position, no R
+# (outcome_r is None), already excluded from every expectancy/equity stat. It is
+# NOT a closed trade; grouping it here padded `total_trades` with non-trades and
+# made the record read worse than reality. Inspect cancels via `--status cancelled`.
+_CLOSED = ("hit", "miss")
 
 
 def _dt(s: str | None) -> datetime | None:

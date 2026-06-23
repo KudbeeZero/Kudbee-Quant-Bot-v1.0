@@ -471,8 +471,12 @@ def _journal_check(args) -> None:
         print("No predictions resolved this check.")
     notify_trades_resolved(changed)   # no-op unless Telegram is configured
     opens = [p for p in j.predictions if p.status in ("open", "pending")]
-    resolved = [p for p in j.predictions if p.status in ("hit", "miss", "cancelled")]
-    print(f"\n{len(opens)} open/pending, {len(resolved)} resolved.")
+    resolved = [p for p in j.predictions if p.status in ("hit", "miss")]
+    # 'cancelled' = a pending limit that never filled (no position, no R). Count
+    # it on its own line so unfilled limits don't read as resolved trades.
+    cancelled = [p for p in j.predictions if p.status == "cancelled"]
+    tail = f", {len(cancelled)} cancelled (unfilled limits)" if cancelled else ""
+    print(f"\n{len(opens)} open/pending, {len(resolved)} resolved{tail}.")
 
 
 def _journal_list(args) -> None:
