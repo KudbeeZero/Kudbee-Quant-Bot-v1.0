@@ -24,6 +24,7 @@ import os
 import time
 
 from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
+from .intelligence.d1_client import d1_query
 from .journal import TradeJournal
 from .notifications import send_telegram
 from .notifications.notify import _g, format_summary
@@ -192,6 +193,136 @@ def cmd_cancel(chat_id: str) -> str:
     return "🚫 Trade cancelled."
 
 
+# ── TR Level Intelligence (read-only D1 lookups) ─────────────────────────────
+
+def _fmt(val) -> str:
+    """Format a price level for Telegram."""
+    if val is None:
+        return "—"
+    try:
+        return f"{float(val):.4f}"
+    except (TypeError, ValueError):
+        return str(val)
+
+
+def cmd_levels(text: str) -> str:
+    """/levels SYMBOL — today's full TR level grid (latest row for the symbol)."""
+    parts = text.strip().split()
+    if len(parts) < 2:
+        return "Usage: /levels SYMBOL (e.g. /levels SOLUSDT)"
+    symbol = parts[1].upper()
+
+    try:
+        rows = d1_query("""
+            SELECT * FROM daily_levels
+            WHERE symbol = ?
+            ORDER BY recorded_at DESC LIMIT 1
+        """, [symbol])
+    except Exception as e:  # noqa: BLE001 — D1 outage must not 500 the webhook
+        return f"⚠️ Level lookup unavailable: {type(e).__name__}"
+    if not rows:
+        return f"No level data for {symbol}. Runs after the next scan."
+
+    r = rows[0]
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    dow = r.get("day_of_week")
+    dow_txt = days[int(dow)] if dow is not None else "—"
+    cloud = r.get("ema_cloud_pos")
+    cloud_txt = ("↑ above" if cloud == 1 else "↓ below" if cloud == -1 else "→ inside")
+    prev = "🟢" if r.get("prev_day_color") == 1 else "🔴"
+    return (
+        f"📊 TR Levels — {symbol} ({r['date']})\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"M5: {_fmt(r['mlevel_m5'])}  R3: {_fmt(r['pivot_r3'])}\n"
+        f"M4: {_fmt(r['mlevel_m4'])}  R2: {_fmt(r['pivot_r2'])}\n"
+        f"M3: {_fmt(r['mlevel_m3'])}  R1: {_fmt(r['pivot_r1'])}\n"
+        f"PP: {_fmt(r['pivot_pp'])}\n"
+        f"M2: {_fmt(r['mlevel_m2'])}  S1: {_fmt(r['pivot_s1'])}\n"
+        f"M1: {_fmt(r['mlevel_m1'])}  S2: {_fmt(r['pivot_s2'])}\n"
+        f"M0: {_fmt(r['mlevel_m0'])}  S3: {_fmt(r['pivot_s3'])}\n"
+        f"━━━━━━━━━━━━━━━━━━━\n"
+        f"Daily Open:  {_fmt(r['daily_open'])}\n"
+        f"Asia H/L:    {_fmt(r['asian_high'])} / {_fmt(r['asian_low'])}\n"
+        f"Brinks(LDN): {_fmt(r['brinks_high'])} / {_fmt(r['brinks_low'])}\n"
+        f"Brinks(NY):  {_fmt(r['ny_brinks_high'])} / {_fmt(r['ny_brinks_low'])}\n"
+        f"ADR H/L:     {_fmt(r['adr_high'])} / {_fmt(r['adr_low'])}\n"
+        f"PDH/PDL:     {_fmt(r['pdh'])} / {_fmt(r['pdl'])}\n"
+        f"EMA 5/13/50: {_fmt(r['ema_5'])} / {_fmt(r['ema_13'])} / {_fmt(r['ema_50'])}\n"
+        f"Cloud: {cloud_txt}\n"
+        f"DOW: {dow_txt}  Prev day: {prev}"
+    )
+
+
+def cmd_history(text: str) -> str:
+    """/history SYMBOL — daily open + Asia H/L + PP for the last 7 days."""
+    parts = text.strip().split()
+    if len(parts) < 2:
+        return "Usage: /history SYMBOL"
+    symbol = parts[1].upper()
+
+    try:
+        rows = d1_query("""
+            SELECT date, daily_open, asian_high, asian_low,
+                   pdh, pdl, pivot_pp, prev_day_color, day_of_week
+            FROM daily_levels
+            WHERE symbol = ?
+            GROUP BY date
+            ORDER BY date DESC LIMIT 7
+        """, [symbol])
+    except Exception as e:  # noqa: BLE001
+        return f"⚠️ History lookup unavailable: {type(e).__name__}"
+    if not rows:
+        return f"No history for {symbol} yet."
+
+    days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    lines = [f"📅 Level History — {symbol}"]
+    for r in rows:
+        dow = r.get("day_of_week")
+        dow_txt = days[int(dow)] if dow is not None else "—"
+        color = "🟢" if r.get("prev_day_color") == 1 else "🔴"
+        lines.append(
+            f"{r['date']} {dow_txt} {color} | "
+            f"Open:{_fmt(r['daily_open'])} "
+            f"Asia:{_fmt(r['asian_high'])}/{_fmt(r['asian_low'])} "
+            f"PP:{_fmt(r['pivot_pp'])}"
+        )
+    return "\n".join(lines)
+
+
+def cmd_vectors(text: str) -> str:
+    """/vectors SYMBOL — unrecovered climax candles (price magnets still open)."""
+    parts = text.strip().split()
+    if len(parts) < 2:
+        return "Usage: /vectors SYMBOL"
+    symbol = parts[1].upper()
+
+    try:
+        rows = d1_query("""
+            SELECT candle_type, candle_high, candle_low,
+                   body_close, days_open, candle_time
+            FROM unrecovered_vectors
+            WHERE symbol = ? AND active = 1
+            ORDER BY days_open DESC LIMIT 10
+        """, [symbol])
+    except Exception as e:  # noqa: BLE001
+        return f"⚠️ Vector lookup unavailable: {type(e).__name__}"
+    if not rows:
+        return f"✅ No unrecovered vectors for {symbol}."
+
+    lines = [f"🧲 Unrecovered Vectors — {symbol}"]
+    for r in rows:
+        icon = "🟢" if r["candle_type"] == "bull_climax" else "🔴"
+        zone = f"{_fmt(r['candle_low'])}–{_fmt(r['candle_high'])}"
+        days_open = r.get("days_open")
+        days_txt = f"{days_open}d ago" if days_open is not None else "—"
+        lines.append(
+            f"{icon} {r['candle_type']} @ {zone} | "
+            f"{days_txt} | {str(r['candle_time'])[:10]}"
+        )
+    lines.append(f"\nTotal active: {len(rows)}")
+    return "\n".join(lines)
+
+
 def cmd_help() -> str:
     return ("Kudbee commands (paper-only):\n"
             "/status — open positions + unrealized R\n"
@@ -199,6 +330,9 @@ def cmd_help() -> str:
             "/positions — full open book\n"
             "/scan — trigger a fresh scan now\n"
             "/summary — force the hourly summary now\n"
+            "/levels SYMBOL — full TR level grid (M0-M5, PP, Asia, Brinks, EMA)\n"
+            "/history SYMBOL — daily open + Asia H/L for last 7 days\n"
+            "/vectors SYMBOL — unrecovered climax candles (price magnets)\n"
             "/trade SYMBOL LONG|SHORT PRICE — log a paper trade (confirmation required)\n"
             "/yes — confirm pending trade\n"
             "/cancel — cancel pending trade\n"
@@ -217,6 +351,9 @@ def dispatch(text: str, chat_id: str, journal: TradeJournal | None = None) -> st
         "/positions": lambda: cmd_positions(j),
         "/scan": lambda: cmd_scan(chat_id),
         "/summary": lambda: cmd_summary(),
+        "/levels": lambda: cmd_levels(text),
+        "/history": lambda: cmd_history(text),
+        "/vectors": lambda: cmd_vectors(text),
         "/trade": lambda: cmd_trade(text, chat_id),
         "/yes": lambda: cmd_yes(chat_id, j),
         "/cancel": lambda: cmd_cancel(chat_id),

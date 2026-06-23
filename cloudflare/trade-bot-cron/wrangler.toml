@@ -28,3 +28,14 @@ GH_REF = "main"
 # a Telegram alert when a dispatch fails (e.g. the GH_TOKEN expired → 401). Unset = silent.
 #   wrangler secret put TELEGRAM_BOT_TOKEN
 #   wrangler secret put TELEGRAM_CHAT_ID
+
+# TR Level Intelligence database (see cloudflare/trade-bot-cron/migrations/).
+# The Render app reads/writes this over the D1 REST API (CF_API_TOKEN +
+# CF_ACCOUNT_ID + D1_DATABASE_ID); this binding lets the Worker reach it
+# natively via env.DB if it ever needs to. Create the DB once with:
+#   wrangler d1 create kudbee-tr-levels
+# then paste the printed database_id below AND into Render's D1_DATABASE_ID.
+[[d1_databases]]
+binding = "DB"
+database_name = "kudbee-tr-levels"
+database_id = "REPLACE_WITH_DATABASE_ID"   # from `wrangler d1 create`
