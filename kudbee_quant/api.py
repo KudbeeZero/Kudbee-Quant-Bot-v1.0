@@ -16,6 +16,7 @@ import os
 import re
 from pathlib import Path
 
+import requests
 from fastapi import (Depends, FastAPI, File, Form, Header, HTTPException, Query,
                      Request, UploadFile)
 from fastapi.middleware.cors import CORSMiddleware
@@ -337,6 +338,63 @@ async def telegram_webhook(request: Request) -> dict:
         raise HTTPException(status_code=400, detail="invalid JSON")
     handle_update(body)                 # gate-1 whitelist + dispatch + reply
     return {"ok": True}
+
+
+@app.get("/api/telegram/register-webhook")
+def register_telegram_webhook(
+    request: Request,
+    token: str | None = Query(default=None),
+    url: str | None = Query(default=None),
+    _rl: None = Depends(_write_limit),
+) -> dict:
+    """Self-register the Telegram webhook from any browser — no local secrets.
+
+    The owner hits this ONE URL with ``?token=<KUDBEE_API_TOKEN>`` and the server
+    calls Telegram ``setWebhook`` using the ``TELEGRAM_BOT_TOKEN`` that is already
+    configured in the host env (outgoing alerts confirm it is correct). It points
+    Telegram back at this app's own ``/api/telegram`` with the ``secret_token`` set
+    to ``TELEGRAM_WEBHOOK_SECRET`` so the inbound gate (see telegram_webhook) passes.
+
+    Idempotent — ``setWebhook`` can be called repeatedly. Gated by KUDBEE_API_TOKEN
+    via a query param (so a browser GET works; the header-based require_token can't).
+    The bot token is NEVER echoed back. See docs/runbooks/telegram-setup.md.
+    """
+    check_token(token)  # fail-closed: 503 if no KUDBEE_API_TOKEN set, 401 on mismatch
+    bot = get_secret("TELEGRAM_BOT_TOKEN", required=False)
+    if not bot:
+        raise HTTPException(status_code=503, detail="TELEGRAM_BOT_TOKEN not configured")
+    bot_token = bot.reveal()
+    secret = get_secret("TELEGRAM_WEBHOOK_SECRET", required=False)
+    secret_val = secret.reveal() if secret else ""
+
+    # Resolve the public base URL: explicit ?url= wins, else RENDER_EXTERNAL_URL,
+    # else this request's own base. Telegram requires HTTPS for the webhook.
+    base = (url or os.environ.get("RENDER_EXTERNAL_URL") or str(request.base_url)).rstrip("/")
+    if not base.startswith("https://"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"refusing non-HTTPS webhook base {base!r}; pass ?url=https://<app>",
+        )
+    webhook_url = base if base.endswith("/api/telegram") else base + "/api/telegram"
+
+    payload = {"url": webhook_url, "allowed_updates": ["message"]}
+    if secret_val:
+        payload["secret_token"] = secret_val
+    try:
+        resp = requests.post(
+            f"https://api.telegram.org/bot{bot_token}/setWebhook", json=payload, timeout=10
+        )
+        data = resp.json()
+    except Exception as exc:  # never leak the token-bearing URL in the error
+        raise HTTPException(
+            status_code=502, detail=f"Telegram setWebhook failed: {type(exc).__name__}"
+        ) from None
+    return {
+        "registered": bool(data.get("ok")),
+        "webhook_url": webhook_url,
+        "secret_set": bool(secret_val),
+        "telegram_response": data,  # {ok, result, description} — no token in it
+    }
 
 
 class ScanRequest(BaseModel):
