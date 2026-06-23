@@ -479,11 +479,18 @@ def _journal_check(args) -> None:
     except Exception as e:  # noqa: BLE001 — a ping must never break the resolve
         print(f"[notify] trade-close alerts failed: {e}")
     opens = [p for p in j.predictions if p.status in ("open", "pending")]
-    resolved = [p for p in j.predictions if p.status in ("hit", "miss")]
+    # A resolved *trade* is a bracket (entry/stop/target → R) that hit/missed.
+    resolved = [p for p in j.predictions
+                if p.status in ("hit", "miss") and p.kind == "bracket"]
     # 'cancelled' = a pending limit that never filled (no position, no R). Count
     # it on its own line so unfilled limits don't read as resolved trades.
     cancelled = [p for p in j.predictions if p.status == "cancelled"]
+    # reach_*/touch/stay_* are directional/level CALLS, not bracket trades — no R.
+    # Keep them off the resolved-trade count (same reasoning as cancels).
+    calls = [p for p in j.predictions
+             if p.status in ("hit", "miss") and p.kind != "bracket"]
     tail = f", {len(cancelled)} cancelled (unfilled limits)" if cancelled else ""
+    tail += f", {len(calls)} directional call(s)" if calls else ""
     print(f"\n{len(opens)} open/pending, {len(resolved)} resolved{tail}.")
 
 

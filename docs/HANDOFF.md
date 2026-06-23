@@ -22,12 +22,22 @@
 - **NOTHING new is live in trading.** PR #82 touched only the reporting layer
   (`review.py` `_CLOSED`, the `journal-check` summary line). No R math, no journal data, no
   trading-path code. `data/journal.json` NOT edited (bot-owned).
-- **Audit status:** `MERGED (post-hoc PASS)` — PR #82 was merged by the owner, then independently
-  audited (subagent, `bf7586f..6e986c9`): all 6 claims SUPPORTED with file:line evidence, **475
-  passed / 0 failed**, no scope creep (one harmless `data/heartbeat.json` churn line), premise holds
-  across all cancel paths, R/expectancy math provably untouched. Report:
-  `docs/audits/claude-cancel-to-close-bug-tkngpm.md`. The `/closeout` docs PR (#83) is open + clean
-  (docs-only), left for the OWNER to merge — not self-merged (honor "owner merges").
+- **Audit status:** `MERGED (post-hoc PASS ×2)` —
+  - **PR #82** (cancel-to-close §65 fix): merged by owner, independently audited (`bf7586f..6e986c9`),
+    all claims SUPPORTED, **475 passed**, no scope creep, R/expectancy math untouched. Report:
+    `docs/audits/claude-cancel-to-close-bug-tkngpm.md`.
+  - **PR #83** (`/closeout` docs/baton): **MERGED by owner** (the prior baton thought it was still open).
+  - **🆕 PR #84** (`feat/trade-event-alerts` — per-trade Telegram alerts): **MERGED by the owner OUTSIDE
+    the relay gate** at 17:37, *after* #83's baton was written, on a non-`claude/` branch — so it was
+    NOT in the baton. Audited POST-HOC this session (`/handoff-audit`, branch
+    `claude/handoff-audit-8latbu`): independent subagent, first-parent delta `d9daaf2^1..d9daaf2`
+    (4 files, +402/−6) — **PASS**. All claims SUPPORTED; new code is never-raise, off the deduped
+    lists, freshness-guarded, secrets-safe (token redaction + kill-switch + 4096-split via the audited
+    `send_telegram` transport), order-free; batched digest UNMODIFIED. `test_trade_notifications.py`
+    **11/11**. CI green (`test` ✓ / `Cloudflare Pages` ✓). Confirmed the merge did NOT regress §65
+    (the stale-branch `base..head` diff that *looked* like a revert is an artifact — `main` retains
+    `_CLOSED=("hit","miss")`, §65, the test, and the #82 audit report). Report:
+    `docs/audits/feat-trade-event-alerts.md`.
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -90,9 +100,11 @@
     graded cycles (it only persists state when `loop-agent` is actually invoked).
   - **PR #78 (D1) is PARKED, not abandoned** — D1 is UNVERIFIED end-to-end; reopening requires
     real CF provisioning + a MEMORY-section renumber (now collides with BOTH §64 loop agent and §65).
-  - **🆕 NULL-R RESOLVED ROW (§65, NOT fixed)** — exactly 1 `hit`/`miss` journal row has
-    `outcome_r=None` (the 589-vs-588 gap in the history header). A resolved trade with no R booked;
-    out of scope for #82. Next idle chat: locate it and decide resolver-fix vs. single-row backfill.
+  - **✅ NULL-R RESOLVED ROW — FIXED THIS CHAT (§66, PR #85).** Located: `7e0d2e94`, a `reach_below`
+    directional CALL (no bracket, no R) — the only non-bracket row in the journal; `outcome_r=None`
+    is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
+    view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
+    No journal edit (a backfill would have fabricated P&L on a position that never opened).
 - **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
   `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left

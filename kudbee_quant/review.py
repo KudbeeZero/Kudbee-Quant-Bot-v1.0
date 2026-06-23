@@ -29,6 +29,12 @@ from .journal.journal import net_outcome_r
 # NOT a closed trade; grouping it here padded `total_trades` with non-trades and
 # made the record read worse than reality. Inspect cancels via `--status cancelled`.
 _CLOSED = ("hit", "miss")
+# A closed *trade* must also be a bracket (entry/stop/target → R). The other
+# Prediction kinds (reach_*/touch/stay_*) are directional/level CALLS — no
+# bracket, no entry/exit, no R (outcome_r is None) — so a resolved one (e.g. a
+# 'hit' reach_below) is already excluded from every expectancy stat. Counting it
+# under "closed" padded `total_trades` (the 589-vs-588 header gap) the same way
+# cancels did. Reach/touch/stay calls stay reachable via an explicit status filter.
 
 
 def _dt(s: str | None) -> datetime | None:
@@ -169,7 +175,7 @@ def _passes(p: Prediction, *, symbol, date_from, date_to, mode, status, timefram
         return False
     if mode and p.mode != mode:
         return False
-    if status == "closed" and p.status not in _CLOSED:
+    if status == "closed" and (p.status not in _CLOSED or p.kind != "bracket"):
         return False
     if status == "open" and p.status not in ("open", "pending"):
         return False
