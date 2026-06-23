@@ -7,6 +7,9 @@ they never raise.
 """
 from __future__ import annotations
 
+import datetime
+import os
+import time
 from typing import TYPE_CHECKING
 
 from .telegram import send_telegram, telegram_enabled
@@ -325,3 +328,220 @@ def notify_test() -> bool:
     if not telegram_enabled():
         return False
     return send_telegram("✅ Kudbee Telegram notifications are wired up.")
+
+
+# --- individual per-trade event alerts (open / close) -----------------------
+# These fire ONE Telegram message per trade EVENT, in ADDITION to the batched
+# notify_trades_opened / notify_trades_resolved digests (left exactly as-is). The
+# package default is batched (rate limits + sanity); these per-trade pings are an
+# opt-in upgrade, wired from the CLI off the already-deduped "just-logged" /
+# "just-resolved" lists. A short freshness window is a SECOND safety net so a
+# re-scan can never double-announce the same trade.
+
+# Only alert on an event newer than this many minutes — a backstop against
+# re-firing on the next scan (the source lists are already new-only).
+_EVENT_FRESH_MIN = 20.0
+
+
+def send_telegram_message(bot_token: str, chat_id: str, text: str) -> bool:
+    """Send ONE message for a per-trade alert.
+
+    A thin wrapper over the package transport (:func:`send_telegram`) so the
+    per-trade pings ride the SAME audited path (kill-switch, 4096-char splitting,
+    bot-token redaction in logs). ``bot_token`` / ``chat_id`` are taken for an
+    explicit, self-documenting signature; the transport reads the same
+    ``TELEGRAM_*`` env creds the caller sources them from. Returns True iff
+    delivered; never raises (a failed ping must never break a scan).
+    """
+    try:
+        return send_telegram(text)
+    except Exception:  # noqa: BLE001 — a ping must never break the run
+        return False
+
+
+def notify_trade_opened(bot_token: str, chat_id: str, trade: dict) -> bool:
+    """Fire a single '🆕 Trade Opened' alert.
+
+    ``trade`` keys: ``symbol``, ``direction`` ('LONG'/'SHORT'), ``timeframe``,
+    ``entry_price``, ``stop_price``, ``target_price``, ``book``. Returns True iff
+    sent; never raises.
+    """
+    try:
+        direction_icon = "🟢 LONG" if trade["direction"] == "LONG" else "🔴 SHORT"
+        msg = (
+            f"⚡ KUDBEE QUANT\n"
+            f"🆕 Trade Opened\n"
+            f"{'─' * 22}\n"
+            f"{trade['symbol']} {direction_icon} [{trade['timeframe']}]\n"
+            f"Entry:  ${trade['entry_price']:.5g}\n"
+            f"Stop:   ${trade['stop_price']:.5g}  (−1R if hit)\n"
+            f"Target: ${trade['target_price']:.5g}  (+3R if hit)\n"
+            f"Book: {trade.get('book', 'core')}"
+        )
+        return send_telegram_message(bot_token, chat_id, msg)
+    except Exception:  # noqa: BLE001 — never let an alert break the scan
+        return False
+
+
+def notify_trade_closed(bot_token: str, chat_id: str, trade: dict) -> bool:
+    """Fire a single trade-closed alert (WIN / BREAKEVEN / STOPPED + held time).
+
+    ``trade`` keys: ``symbol``, ``direction``, ``timeframe``, ``entry_price``,
+    ``exit_price``, ``r_result``, ``open_time``, ``close_time`` (epoch-ms ints or
+    ``datetime``). Returns True iff sent; never raises.
+    """
+    try:
+        r = trade.get("r_result", 0.0) or 0.0
+        if r >= 2.5:
+            header = "✅ Trade Closed — WIN"
+            result_line = f"Result: +{r:.1f}R 🎯"
+        elif r >= 0.0:
+            header = "⚖️ Trade Closed — BREAKEVEN"
+            result_line = f"Result: +{r:.1f}R"
+        else:
+            header = "🛑 Trade Closed — STOPPED"
+            result_line = f"Result: {r:.1f}R"
+
+        held = _format_held(trade.get("open_time"), trade.get("close_time"))
+        direction_icon = "🟢 LONG" if trade.get("direction") == "LONG" else "🔴 SHORT"
+        msg = (
+            f"⚡ KUDBEE QUANT\n"
+            f"{header}\n"
+            f"{'─' * 22}\n"
+            f"{trade['symbol']} {direction_icon} [{trade['timeframe']}]\n"
+            f"Entry: ${trade['entry_price']:.5g}\n"
+            f"Exit:  ${trade['exit_price']:.5g}\n"
+            f"{result_line}\n"
+            f"Held: {held}"
+        )
+        return send_telegram_message(bot_token, chat_id, msg)
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def _format_held(open_time, close_time) -> str:
+    """'2h 15m' / '45m' held duration from epoch-ms ints or datetimes. '—' if
+    either is missing or unparseable."""
+    try:
+        ot, ct = open_time, close_time
+        if isinstance(ot, (int, float)):
+            ot = datetime.datetime.fromtimestamp(ot / 1000)
+        if isinstance(ct, (int, float)):
+            ct = datetime.datetime.fromtimestamp(ct / 1000)
+        total_min = int((ct - ot).total_seconds() / 60)
+        if total_min >= 60:
+            return f"{total_min // 60}h {total_min % 60}m"
+        return f"{total_min}m"
+    except Exception:  # noqa: BLE001
+        return "—"
+
+
+def _event_ms(iso_ts: "str | None") -> "int | None":
+    """ISO-8601 timestamp -> epoch milliseconds (int). None if missing/unparseable.
+    Naive timestamps are treated as UTC (the journal writes UTC)."""
+    if not iso_ts:
+        return None
+    try:
+        dt = datetime.datetime.fromisoformat(iso_ts)
+    except (TypeError, ValueError):
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=datetime.timezone.utc)
+    return int(dt.timestamp() * 1000)
+
+
+def _is_fresh_event(event_ms: "int | None", *, now_ms: "float | None" = None) -> bool:
+    """True if ``event_ms`` is within :data:`_EVENT_FRESH_MIN` minutes of now — the
+    dedup backstop. A missing timestamp is treated as NOT fresh (never fire on an
+    event we cannot date)."""
+    if event_ms is None:
+        return False
+    now_ms = now_ms if now_ms is not None else time.time() * 1000
+    return (now_ms - event_ms) / 60000.0 <= _EVENT_FRESH_MIN
+
+
+def _open_alert_dict(p) -> dict:
+    """Translate a just-logged ``Prediction`` into the open-alert payload."""
+    return {
+        "symbol": p.symbol,
+        "direction": "LONG" if (p.direction or 0) > 0 else "SHORT",
+        "timeframe": p.timeframe,
+        "entry_price": p.entry,
+        "stop_price": p.stop,
+        "target_price": p.target,
+        "book": _book_label(getattr(p, "setup", None)),
+        "open_time": _event_ms(getattr(p, "created_at", None)),
+    }
+
+
+def _close_alert_dict(p) -> dict:
+    """Translate a just-resolved ``Prediction`` into the close-alert payload.
+
+    There is no stored exit FILL price on a Prediction, so the displayed exit is
+    derived from the outcome: a 'hit' exits at ``target``, a 'miss' at ``stop``.
+    """
+    exit_price = p.target if p.status == "hit" else p.stop
+    return {
+        "symbol": p.symbol,
+        "direction": "LONG" if (p.direction or 0) > 0 else "SHORT",
+        "timeframe": p.timeframe,
+        "entry_price": p.entry,
+        "exit_price": exit_price,
+        "r_result": p.outcome_r if p.outcome_r is not None else 0.0,
+        "open_time": _event_ms(getattr(p, "created_at", None)),
+        "close_time": _event_ms(getattr(p, "resolved_at", None)),
+    }
+
+
+def notify_trade_open_events(preds) -> int:
+    """Fire an INDIVIDUAL '🆕 Trade Opened' alert per genuinely-new bracket trade in
+    ``preds`` (the just-logged list from paper-scan / ingest-alerts).
+
+    No-op without Telegram creds. Deduped by event freshness (the source list is
+    already new-only; this is a backstop so a re-scan can't double-announce).
+    Returns the count actually sent. Never raises — a ping must not break a scan.
+    """
+    if not preds or not telegram_enabled():
+        return 0
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat = os.environ.get("TELEGRAM_CHAT_ID", "")
+    sent = 0
+    for p in preds:
+        try:
+            if getattr(p, "kind", "bracket") != "bracket":
+                continue   # only bracket paper trades have entry/stop/target
+            d = _open_alert_dict(p)
+            if not _is_fresh_event(d["open_time"]):
+                continue   # already announced on a prior scan -> skip
+            if notify_trade_opened(token, chat, d):
+                sent += 1
+        except Exception:  # noqa: BLE001 — one bad trade must not stop the rest
+            continue
+    return sent
+
+
+def notify_trade_close_events(preds) -> int:
+    """Fire an INDIVIDUAL close alert per trade that JUST resolved hit/miss in
+    ``preds`` (the just-resolved list from journal-check).
+
+    'cancelled' (a limit that never filled) is intentionally left to the batched
+    digest — there is no real entry/exit to report. No-op without creds; deduped
+    by close-event freshness. Returns the count sent. Never raises.
+    """
+    if not preds or not telegram_enabled():
+        return 0
+    token = os.environ.get("TELEGRAM_BOT_TOKEN", "")
+    chat = os.environ.get("TELEGRAM_CHAT_ID", "")
+    sent = 0
+    for p in preds:
+        try:
+            if getattr(p, "status", None) not in ("hit", "miss"):
+                continue   # skip 'cancelled' (never filled) + anything unresolved
+            d = _close_alert_dict(p)
+            if not _is_fresh_event(d["close_time"]):
+                continue
+            if notify_trade_closed(token, chat, d):
+                sent += 1
+        except Exception:  # noqa: BLE001
+            continue
+    return sent

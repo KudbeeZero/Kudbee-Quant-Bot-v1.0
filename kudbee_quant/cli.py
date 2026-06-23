@@ -453,15 +453,19 @@ def _journal_add(args) -> None:
 def _ingest_alerts(args) -> None:
     """Drain data/alert_inbox/ (hosted TV alerts) into the repo journal."""
     from .alert_inbox import ingest_inbox
-    from .notifications import notify_trades_opened
+    from .notifications import notify_trade_open_events, notify_trades_opened
     j = TradeJournal()
     added = ingest_inbox(j)
     print(f"{len(added)} alert(s) ingested from the inbox.")
-    notify_trades_opened(added)   # no-op unless Telegram is configured
+    notify_trades_opened(added)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_open_events(added)   # individual per-trade open pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break ingest
+        print(f"[notify] trade-open alerts failed: {e}")
 
 
 def _journal_check(args) -> None:
-    from .notifications import notify_trades_resolved
+    from .notifications import notify_trade_close_events, notify_trades_resolved
     j = TradeJournal()
     changed = j.check_open()
     if changed:
@@ -469,7 +473,11 @@ def _journal_check(args) -> None:
             print(f"  {p.id} {p.symbol} {p.setup}: {p.status.upper()}")
     else:
         print("No predictions resolved this check.")
-    notify_trades_resolved(changed)   # no-op unless Telegram is configured
+    notify_trades_resolved(changed)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_close_events(changed)   # individual per-trade close pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break the resolve
+        print(f"[notify] trade-close alerts failed: {e}")
     opens = [p for p in j.predictions if p.status in ("open", "pending")]
     resolved = [p for p in j.predictions if p.status in ("hit", "miss")]
     # 'cancelled' = a pending limit that never filled (no position, no R). Count
@@ -593,7 +601,7 @@ def _tf_survey(args) -> None:
 
 
 def _paper_scan(args) -> None:
-    from .notifications import notify_trades_opened
+    from .notifications import notify_trade_open_events, notify_trades_opened
     from .paper import paper_scan
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
@@ -603,7 +611,11 @@ def _paper_scan(args) -> None:
                         long_only=args.long_only, killzone_gate=args.killzone_gate,
                         trailing_atr=args.trailing_atr,
                         clean_trend_stack=args.clean_trend_stack)
-    notify_trades_opened(logged)   # no-op unless Telegram is configured
+    notify_trades_opened(logged)   # batched digest — no-op unless Telegram is configured
+    try:
+        notify_trade_open_events(logged)   # individual per-trade open pings (deduped, never raises)
+    except Exception as e:  # noqa: BLE001 — a ping must never break the scan
+        print(f"[notify] trade-open alerts failed: {e}")
     if not logged:
         print("No confluence-R signals right now (or already in a trade on those symbols).")
     else:

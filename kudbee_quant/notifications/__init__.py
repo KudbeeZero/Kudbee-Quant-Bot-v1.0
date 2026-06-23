@@ -26,16 +26,26 @@ from .notify import (
     notify_error,
     notify_summary,
     notify_test,
+    notify_trade_close_events,
+    notify_trade_closed,
+    notify_trade_open_events,
+    notify_trade_opened,
     notify_trades_opened,
     notify_trades_resolved,
+    send_telegram_message,
 )
 from .telegram import send_telegram, telegram_enabled
 
 __all__ = [
     "send_telegram",
+    "send_telegram_message",
     "telegram_enabled",
     "notify_trades_opened",
     "notify_trades_resolved",
+    "notify_trade_opened",
+    "notify_trade_closed",
+    "notify_trade_open_events",
+    "notify_trade_close_events",
     "notify_summary",
     "notify_error",
     "notify_test",
