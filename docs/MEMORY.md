@@ -1880,3 +1880,36 @@ it already flags `core` (-0.49R/t, 525) and `tradfi` (-0.29R/t, 46) as REVERT.
 
 > _Numbering note: a parked, unmerged PR (Cloudflare D1 persistence) also drafted a "§64" on its
 > own branch; when that reopens it renumbers to the next free section so main stays contiguous._
+
+## 65. "Cancelled" = an unfilled limit, NOT a trade — a DISPLAY bug, not a P&L bug — 2026-06-23 (PR #82)
+
+A scoped task arrived claiming trades were being "cancelled at 0.00R instead of closed at
+current price," corrupting the record, and asked for a close-at-price fix + a backfill. **The
+audit overturned the premise.** A `cancelled` journal row is a **pending LIMIT order that never
+filled** — no position opened, so there is no entry fill, no exit, and no R (`outcome_r` is
+`None`, never `0.0`). All three cancel paths in `journal.py` (`:161`, `:200`, `:218`) are
+unfilled-limit cases; once a limit fills, the resolver can only return hit/miss/open — **there is
+no code path that cancels a FILLED position.** Of 98 cancels in 732 rows: 96 never filled
+(correct); **2** carry `filled_at` stamps from the already-fixed **§29 fictitious-fill** bug
+(both 2026-06-09, ~7-20s after creation, `pending_limit` still true) — pre-2026-06-10 artifacts
+that §29 says NOT to hand-clean.
+
+**The record was never corrupted.** Cancels contribute zero to every R/expectancy surface because
+`outcome_r is None`: `journal.scorecard` filters to `("hit","miss")`; `review.py` only tallies R
+when `outcome_r is not None`. So the proposed "close at current price + backfill R" would have
+**FABRICATED P&L on positions that never opened** — the opposite of a fix. It was NOT done; no
+`scripts/backfill_cancelled.py` exists and there is no `exit_price` to backfill from.
+
+**The real bug was display-only.** `review.py:_CLOSED` and the `journal-check` summary grouped
+`cancelled` under "closed"/"resolved", padding `total_trades` with non-trades. FIX (PR #82,
+merged): dropped `cancelled` from `_CLOSED` (default closed-history counts only opened trades;
+cancels still reachable via `--status cancelled`) and gave cancelled its own line in the
+`journal-check` summary. **No R math changed.** Live-journal header went **687 → "589 trades,
+588 resolved"**; win rate & expectancy unchanged. 475 tests (474 + 1 new).
+
+**STILL OPEN (data quirk surfaced, NOT fixed):** the 589-vs-588 gap means **1 `hit`/`miss` row
+has `outcome_r=None`** — a resolved trade with no R booked. Out of scope for #82; next chat should
+locate that row and decide resolver-fix vs. single-row backfill.
+LESSON: audit before you "fix." When a task hands you both the diagnosis AND the remedy, the
+honest move is to verify the diagnosis against the data/code first — here the remedy would have
+manufactured the very corruption it claimed to cure.
