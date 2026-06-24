@@ -213,6 +213,34 @@ def test_format_summary_single_book_skips_breakdown():
     msg = format_summary(report)
     assert "By book" not in msg
     assert "Best: BTCUSDT" in msg and "Worst: ETHUSDT" in msg
+    # every open is a marked winner -> 'all in profit' is honest here
+    assert "all in profit" in msg
+
+
+def test_format_summary_pending_opens_reconcile_and_no_false_all_in_profit():
+    # Regression (live screenshot): 7 opens, 4 marked & positive, 3 still pending
+    # (unfilled limits, no live mark). 'all in profit' must NOT fire — 3 aren't
+    # even marked — and the Up/Down line must count the pending 3 so it reconciles
+    # with '7 open' instead of reading a bare '4 ▸ 0'.
+    report = {
+        "portfolio": {"total_open": 7, "total_unrealized_r": 4.48,
+                      "total_unrealized_usd": None, "winners_open": 4,
+                      "losers_open": 0, "total_open_risk_pct": 7.0},
+        "trades": [
+            _t("SOLUSDT", "confluence_r_50pct_tf", 2.25, 2.9),
+            _t("BTCUSDT", "confluence_r_50pct_tf_cts", 1.0, 0.8),
+            _t("BNBUSDT", "confluence_r_50pct_tf", 0.8, 0.6),
+            _t("SOLUSDT", "confluence_r_50pct_tf_cts", 0.20, 0.5),
+            _t("DOGEUSDT", "confluence_r_50pct_tf", None),
+            _t("BTCUSDT", "confluence_r_50pct_tf", None),
+            _t("BNBUSDT", "confluence_r_50pct_tf_cts", None),
+        ],
+    }
+    msg = format_summary(report)
+    assert "all in profit" not in msg     # 3 pending -> not all in profit
+    assert "7 open" in msg
+    assert "Up / Down   4 ▸ 0" in msg     # the up/down counts themselves unchanged
+    assert "3 pending" in msg             # ...but the pending 3 are now accounted for
 
 
 def test_format_summary_realized_today():
