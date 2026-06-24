@@ -10,64 +10,73 @@
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
   only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
   authorizes it.
-- **This chat = the AUDIT + §66 + D1-REOPEN + CI-FIX chat** (a multi-task session, owner-directed).
-  Four things shipped, all MERGED to `main`:
-  1. **`/handoff-audit` gate** — caught that **PR #84** (`feat/trade-event-alerts`) had been merged
-     to `main` OUTSIDE the relay gate; audited it POST-HOC → **PASS** (`docs/audits/feat-trade-event-alerts.md`).
-  2. **§66 / PR #85 (MERGED)** — the §65 open-risk null-R row resolved: it was `7e0d2e94`, a
-     `reach_below` directional CALL (no bracket → legitimately no R), the only non-bracket row in the
-     journal. Display-only fix (`review.py`/`cli.py` now require `kind=="bracket"` for closed trades);
-     history header now a consistent **588/588**. No journal edit (a backfill would have fabricated P&L).
-  3. **§67 / PR #78 (REOPENED + MERGED, owner-authorized)** — TR Level Intelligence (Cloudflare D1)
-     un-parked: synced 70 commits behind `main`, draft "§64"→**§67** renumber applied, conflicts
-     resolved (`cli.py`/`wrangler.toml`/`docs`). **D1 is still OFF/UNVERIFIED end-to-end** — a
-     guaranteed no-op until `CF_ACCOUNT_ID`/`CF_API_TOKEN`/`D1_DATABASE_ID` are set (owner provisioning).
-  4. **CI push-retry (commit `c43b8a7`, direct to `main`, owner-approved)** — `paper-trade.yml`
-     `git push` → `git push || (git pull --rebase origin main && git push)` so a race-window commit
-     never trips a dispatch-failure alert.
-- **Owner-directed deviations from the serial rule (all explicitly authorized this session):**
-  PR #78 was **self-merged on the owner's explicit "merge them"** (CI green, safe no-op); the CI fix
-  was a **direct commit to `main`** ("no branch needed — approved"). Noted so the next chat doesn't
-  mistake these for protocol drift.
-- **NOTHING new is live in trading.** §66 = reporting layer only; §67/D1 = a non-critical side-channel
-  OFF until its 3 env vars are set; the CI fix = workflow YAML. No R math, no journal data, no
-  trading-path code touched. `data/journal.json` NOT hand-edited (bot-owned).
-- **Audit status:** `ALL MERGED + CLEAN` — full suite **496 passed / 0 failed / 0 errors / 0 skipped**
-  on the merged `main` (8032436); see `docs/audits/session-2026-06-23-test-report.md`. PR #84 carries a
-  POST-HOC PASS audit; PR #85 (§66) and PR #78 (§67) each shipped green with new tests.
+- **This chat = the WEBHOOK + BRAND + max_bars-RESEARCH chat** (multi-task, owner-directed).
+  Shipped, all **MERGED to `main`**:
+  1. **Self-registering webhook — PR #89 (`f6502d2`).** New `GET /api/telegram/register-webhook`
+     (`api.py:343`): owner hits one URL `?token=<KUDBEE_API_TOKEN>` from a browser → server calls
+     Telegram `setWebhook` with the host `TELEGRAM_BOT_TOKEN`, pointing at `/api/telegram` with
+     `secret_token=TELEGRAM_WEBHOOK_SECRET`. Idempotent, HTTPS-enforced, token never echoed; query-param
+     token (browser GET can't send the `X-Api-Token` header). 4 tests. *(Reconstructed from spec — the
+     owner's local commit `1322efa` was never pushed/reachable from the container; functionally
+     equivalent.)*
+  2. **Brand message upgrade — PR #91 (`8876440`)**, superseding closed PR #90. `notifications/notify.py`
+     rebranded to "KUDBEE QUANT" terminal style. **`_why_fired(note, setup)` parses each trade's actual
+     journal note** (confluence %/strength, retrace ATR, maker, `_cts`) so the "Why this fired" bullets
+     reflect what THAT trade triggered on — data-derived, not templated. 4-way close
+     (◆ TARGET HIT / ◆ WIN / 〽 FLAT / ◇ STOPPED), `⬡ Live Read` summary, glyph set. Display-only.
+  3. **Telegram setup runbook — PR #87 (merged).** `docs/runbooks/telegram-setup.md`.
+- **OPEN (owner to merge): PR #88 — `max_bars` time-exit sweep (research-only, MEMORY §68).** Hypothesis
+  REFUTED: shorter exits HURT; 36–48h is suggestive (+0.04R) but p=0.34 → not luck-proof. **Keeps
+  `max_bars=24`; nothing deployed.** Owner said they'll merge it.
+- **Owner-directed this session:** PRs #78/#85/#86/#87/#89/#91 were **self-merged on explicit owner
+  "go"/"merge them"** (each CI-green); the §C CI fix was a direct-to-`main` commit (`c43b8a7`). Noted so
+  the next chat doesn't read these as protocol drift.
+- **NOTHING new is live in trading.** The webhook endpoint, brand strings, runbook, and §68 research are
+  all display/ops/research — no R math, no journal data, no trading-path or levels-core code touched.
+  `data/journal.json` NOT hand-edited (bot-owned).
+- **Audit status:** `AWAITING_AUDIT` — this is the `/closeout` docs PR on branch
+  `docs/closeout-brand-webhook-research`. The merged work (#87/#89/#91) shipped green; PR #88 is the only
+  open code PR (research, owner-merge).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **§65 / PR #82 — cancel-to-close DISPLAY fix (MERGED).** **VERIFY the audit claim first:** every
-  `cancelled` row is an unfilled limit (`filled_at` None, `outcome_r` None) — the 3 cancel paths in
-  `journal.py` (`:161/:200/:218`) are all unfilled-limit cases; no path cancels a FILLED position.
-  98 cancels / 732 rows: 96 never filled, 2 are §29 fictitious-fill artifacts (2026-06-09, do NOT
-  hand-clean). Diff: `review.py` drops `"cancelled"` from `_CLOSED` (so default closed-history =
-  hit/miss only; `--status cancelled` still surfaces them via the separate check at `_passes`);
-  `cli.py` `_journal_check` prints cancelled on its own line. 1 new test in `tests/test_review.py`;
-  **475 passed**; ruff: the 2 pre-existing cli.py findings (305/522) on untouched lines, no new ones.
-  MEMORY §65 added. **CONFIRM:** no change to `paper.py`/`builder.py`/`pvsra.py`/backtest/resolver;
-  no R/expectancy math touched; `data/journal.json` untouched.
-- **PR #78 — Cloudflare D1 persistence: STILL CLOSED + PARKED** (carried forward, untouched this
-  chat). Code on `claude/tr-level-intelligence-qc4i2p`; reopening still requires real CF
-  provisioning + a MEMORY renumber (its branch-local "§64" now collides with both the loop agent
-  AND §65 — renumber to next free).
-- **This PR — docs only.** Adds MEMORY §65 + sets this baton. No code change.
+- **PR #89 (`f6502d2`) — self-registering webhook (MERGED).** CONFIRM: `api.py:343`
+  `register-webhook` is GET, gated by `check_token` on a `?token=` query param (fail-closed 503/401),
+  reads `TELEGRAM_BOT_TOKEN`/`TELEGRAM_WEBHOOK_SECRET` via `get_secret().reveal()`, enforces HTTPS,
+  never echoes the bot token (error uses `type(exc).__name__`, `from None`). 4 tests in `test_api.py`.
+  No trading-path change.
+- **PR #91 (`8876440`) — brand upgrade (MERGED), superseding closed PR #90.** CONFIRM: only
+  `notifications/notify.py` + 3 test files changed; `_why_fired` is pure regex over the trade's own
+  note/setup (no invented per-trade claims); `_open_alert_dict` gained `note`/`setup`, `_close_alert_dict`
+  gained `book`. Display-only — `format_*`/`notify_*` are message strings; no R math, no journal write.
+- **PR #88 (OPEN, research) — `max_bars` sweep.** MEMORY **§68** added. CONFIRM: `validated_defaults`
+  untouched (max_bars stays 24); only `scripts/overnight_candidates.py` (+6 candidates),
+  `data/overnight_*` (harness state), `docs/research/overnight_findings.md`. Nothing deployed.
+- **This PR — docs only.** Adds MEMORY §68 + rewrites this baton. No code change.
 
 ## NEXT chat
 
-- **🟡 OWNER PRIORITY — PROVISION CLOUDFLARE D1 (code now MERGED as §67/PR #78).** The TR Level
-  Intelligence layer is on `main` but OFF (silent no-op until its env vars exist). Remaining steps are
-  all owner-side: (a) `wrangler d1 create kudbee-tr-levels`; (b) apply
-  `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql`; (c) paste the `database_id` into
-  `wrangler.toml` + Render `D1_DATABASE_ID`, set `CF_ACCOUNT_ID` + `CF_API_TOKEN` in Render;
-  (d) run a paper-scan, forward-verify `/levels` `/vectors` `/history` on real D1.
-- **🟡 OWNER — REGISTER THE TELEGRAM WEBHOOK (one-time curl, then verify).** `POST /api/telegram`
-  exists + authenticates on `X-Telegram-Bot-Api-Secret-Token` vs `TELEGRAM_WEBHOOK_SECRET`
-  (`api.py:330`). Run `setWebhook url=<RENDER>/api/telegram secret_token=$TELEGRAM_WEBHOOK_SECRET`,
-  then `getWebhookInfo`, then exercise `/help` `/status` `/score` `/positions` `/scan` (+ rate-limit)
-  `/trade`→`/yes`/`/cancel`. The secret must match Render's value (the #1 failure mode). Routing is
-  test-covered (`test_telegram_commands.py`); only the live transport is unverified.
+- **🟢 NEXT-CHAT SCOPE (owner-chosen) — LIVE BRING-UP (D1 + webhook), then VERIFY.** Two owner-side
+  actions are now unblocked; the next chat verifies the live transport once they're done. Advisory
+  slug hint: `claude/verify-live-bringup`.
+  - **Provision Cloudflare D1** (activates §67 `/levels` `/history` `/vectors`): (a)
+    `wrangler d1 create kudbee-tr-levels`; (b) apply `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql`;
+    (c) paste `database_id` into `wrangler.toml` + Render `D1_DATABASE_ID`, set `CF_ACCOUNT_ID` +
+    `CF_API_TOKEN` in Render; (d) paper-scan → forward-verify the 3 commands on real D1.
+  - **Register the Telegram webhook** — easiest path now: hit the NEW self-register endpoint in a browser,
+    `https://<RENDER>/api/telegram/register-webhook?token=<KUDBEE_API_TOKEN>` (PR #89). Or the manual
+    `setWebhook` curl in `docs/runbooks/telegram-setup.md` (+ `setMyCommands` for the menu). Then exercise
+    `/help /status /score /positions /scan` (+ rate-limit) and `/trade`→`/yes`/`/cancel`. The
+    `TELEGRAM_WEBHOOK_SECRET` must match Render's value (the #1 failure mode). Routing is test-covered
+    (`test_telegram_commands.py`); only the live transport is unverified.
+- **OWNER TO MERGE: PR #88** (`max_bars` research, §68). Research-only, hypothesis refuted, keeps
+  max_bars=24 — safe to merge whenever; nothing depends on it.
+- **🚩 STUCK GOAL (needs owner action): push commit `1322efa` / `/goal clear`.** A `/goal` set this
+  session asked to push the owner's local commit `1322efa` (branch `fix/webhook-self-register`). That
+  commit lives only on the owner's machine (`/home/claude/qbot`), was never pushed, and is unreachable
+  from the ephemeral container — so the literal condition can't be met here. Its INTENT is already
+  shipped (the self-register endpoint, PR #89, is on `main`). Resolve by `/goal clear` (recommended —
+  work is done) or by pushing `1322efa` from the owner's machine.
 - **OPTIONAL follow-up (loop agent, §64):** wire `kudbee loop-agent` into a half-hourly Action (like
   the `:35` status ping) so the L7 loop runs on a cadence — its reliability calibration is empty
   until many cycles accrue forward. Read-only; safe to schedule.
@@ -167,6 +176,10 @@
   MERGED on the owner's explicit "merge them"** (CI green, safe no-op until provisioned).
 - 2026-06-23: commit `c43b8a7` — CI push-retry in `paper-trade.yml`, **direct to `main` (owner-approved,
   no branch)**.
-- 2026-06-23: PR (this, closeout) — docs/baton + full-suite test report (`496 passed / 0 failed`,
+- 2026-06-23: PR (closeout) — docs/baton + full-suite test report (`496 passed / 0 failed`,
   `docs/audits/session-2026-06-23-test-report.md`). NEXT: owner provisions D1 + registers the Telegram
   webhook; both are test-covered in code, unverified only on the live transport.
+- 2026-06-24: PR #87 (runbook), **#89 self-register webhook** (`f6502d2`), **#91 brand upgrade**
+  (`8876440`, superseded #90) — all MERGED. PR #88 (`max_bars` research, §68) OPEN for owner-merge:
+  shorter exits HURT, 36–48h suggestive-not-significant, keep max_bars=24. This PR (closeout) on
+  `docs/closeout-brand-webhook-research`: MEMORY §68 + baton. NEXT: live bring-up (D1 + webhook) + verify.
