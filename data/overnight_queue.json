@@ -81,6 +81,12 @@
     "level_cluster",
     "level_cluster_strong",
     "level_cluster_vector",
-    "level_cluster_magnet"
+    "level_cluster_magnet",
+    "max_bars_12",
+    "max_bars_18",
+    "max_bars_24",
+    "max_bars_36",
+    "max_bars_48",
+    "max_bars_72"
   ]
 }

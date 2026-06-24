@@ -168,6 +168,37 @@ def c_slow_timestop(df, scored, base_sig):
     return base_sig, None, {"max_bars": 48}
 
 
+# --- max_bars time-exit sweep (does a SHORTER session-aligned exit beat 24h?) ---
+def c_max_bars_12(df, scored, base_sig):
+    """12h time exit — ~1.5 sessions."""
+    return base_sig, None, {"max_bars": 12}
+
+
+def c_max_bars_18(df, scored, base_sig):
+    """18h — end of NY session same day."""
+    return base_sig, None, {"max_bars": 18}
+
+
+def c_max_bars_24(df, scored, base_sig):
+    """24h — baseline (matches harness default); sanity check, Δ≈0."""
+    return base_sig, None, {"max_bars": 24}
+
+
+def c_max_bars_36(df, scored, base_sig):
+    """36h — 1.5 days."""
+    return base_sig, None, {"max_bars": 36}
+
+
+def c_max_bars_48(df, scored, base_sig):
+    """48h — 2 days."""
+    return base_sig, None, {"max_bars": 48}
+
+
+def c_max_bars_72(df, scored, base_sig):
+    """72h — current paper deadline_days=3 equivalent."""
+    return base_sig, None, {"max_bars": 72}
+
+
 def c_highvol_bigtarget(df, scored, base_sig):
     """REGIME x EXECUTION: in the high-volatility regime (top-40% ATR%), aim for
     a bigger 4R target — volatile regimes can run further. Gated to high-vol
@@ -902,6 +933,12 @@ REGISTRY: dict[str, tuple] = {
     "shallow_retrace": (c_shallow_retrace, "Execution: 0.12-ATR limit retrace (more fills, worse price)"),
     "fast_timestop": (c_fast_timestop, "Execution: 12-bar time stop (cut dead trades faster)"),
     "slow_timestop": (c_slow_timestop, "Execution: 48-bar time stop (more room for 3R)"),
+    "max_bars_12": (c_max_bars_12, "Time-exit sweep: 12h (~1.5 sessions)"),
+    "max_bars_18": (c_max_bars_18, "Time-exit sweep: 18h (end of NY session same day)"),
+    "max_bars_24": (c_max_bars_24, "Time-exit sweep: 24h (baseline default; sanity Δ≈0)"),
+    "max_bars_36": (c_max_bars_36, "Time-exit sweep: 36h (1.5 days)"),
+    "max_bars_48": (c_max_bars_48, "Time-exit sweep: 48h (2 days)"),
+    "max_bars_72": (c_max_bars_72, "Time-exit sweep: 72h (paper deadline_days=3)"),
     "highvol_bigtarget": (c_highvol_bigtarget, "Regime: high-vol bars -> 4R target"),
     "lowvol_smalltarget": (c_lowvol_smalltarget, "Regime: low-vol bars -> 2R target"),
     "voltarget_size": (c_voltarget_size, "Sizing: volatility-targeted (down in high vol)"),
