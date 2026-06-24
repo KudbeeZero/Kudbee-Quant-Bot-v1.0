@@ -1972,3 +1972,28 @@ for price recovery (its `days_open` still ticks via SQL). Layer is OFF until the
 vars are set; default path is a silent no-op. **Reopened on PR #78 (2026-06-23): code synced to
 `main`, "§64"→§67 renumber applied — the remaining work is owner-side provisioning + forward
 verification on real D1.**
+
+## 68. Time-exit (max_bars) sweep — SHORTER exits HURT; keep max_bars=24 — 2026-06-23 (PR #88, research-only)
+
+Tested `max_bars` ∈ {12,18,24,36,48,72} against the validated 1h baseline (top-10 crypto, ~4000 1h
+bars, pooled + split-half, 2000-resample bootstrap; `data-api.binance.vision` mirror since
+`api.binance.com` is 451 in CI). Baseline (max_bars=24) = **+0.072R / 653 trades / 34.3% win**;
+the `max_bars_24` candidate matched it exactly (ΔR=0 — harness sanity check). Result:
+
+| max_bars | expR | ΔR | bootstrap p | verdict |
+|---|---|---|---|---|
+| 12 | −0.032 | **−0.104** | 0.92 | HURTS |
+| 18 | +0.048 | −0.024 | 0.62 | HURTS |
+| 24 | +0.072 | 0.000 | — | baseline |
+| 36 | +0.112 | +0.040 (both halves +) | 0.34 | SUGGESTIVE |
+| 48 | +0.112 | +0.040 | 0.35 | SUGGESTIVE |
+| 72 | +0.092 | +0.020 | 0.42 | SUGGESTIVE |
+
+**Hypothesis REFUTED:** the "faster exit = better" (Tino session) prediction is wrong on this data —
+shorter exits (12/18h) *hurt*; expectancy *rises* with longer holds, peaking 36–48h, then tapers at
+72h. Win rate falls as the hold lengthens (fewer time-stop-outs, more 3R targets fill). **No candidate
+clears the WINNER gate** (best p=0.34, needs <0.05), so 36–48h is a SUGGESTIVE-not-luck-proof lead, not
+a deploy. **DECISION: keep `max_bars=24`** (validated default untouched). DON'T re-run this exact sweep;
+the only open follow-up is a separately-tagged forward `_late` (36–48h) paper book to settle
+significance over time. Added six `max_bars_*` candidates to the research harness; `data/journal.json`
+and the live config UNTOUCHED.
