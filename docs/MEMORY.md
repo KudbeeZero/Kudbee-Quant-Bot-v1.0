@@ -1997,3 +1997,25 @@ a deploy. **DECISION: keep `max_bars=24`** (validated default untouched). DON'T 
 the only open follow-up is a separately-tagged forward `_late` (36–48h) paper book to settle
 significance over time. Added six `max_bars_*` candidates to the research harness; `data/journal.json`
 and the live config UNTOUCHED.
+
+## 69. Psych-level + PVSRA-absorption REVERSAL — HARD NEGATIVE (the SOL $70 bounce was an anecdote) — 2026-06-23 (research-only)
+
+Live anecdote (2026-06-23): SOL short → price hit $70 (round level) → green PVSRA vector (bull
+absorption) → reversed up, quick scalp. Tested as a counter-trend candidate: enter at a round
+psychological level (`_near_round_level`, scales with price) on a PVSRA absorption climax, **no trend
+gate** (raw reversal). PVSRA has no "bull_surge" — the live green vector == `bull_climax`, so
+long=round+`bull_climax`, short=round+`bear_climax`. Result (top-10, 1h, ~4000 bars; trend baseline
+**+0.067R/663**):
+
+| candidate | n | expR | ΔR | p | verdict |
+|---|---|---|---|---|---|
+| round_level_vector_long (8h) | 862 | −0.034 | −0.101 | 0.92 | HURTS |
+| round_level_vector_long_4 | 911 | −0.032 | −0.099 | 0.93 | HURTS |
+| round_level_vector_long_24 | 728 | −0.039 | −0.106 | 0.90 | HURTS |
+| round_level_vector_short (8h) | 948 | +0.032 | −0.035 | 0.70 | HURTS |
+
+Per-symbol (long 8h): XRP/SOL/ETH/LINK mildly + (SOL +0.038/134), AVAX flat, BTC/BNB/DOT/DOGE/ADA
+negative (ADA −0.26). **Inconsistent, NOT SOL-specific, every variant below the trend baseline, none
+significant.** VERDICT: **hard_negative** (`psych_level_reversal_1h_8bar`) — the live SOL win was luck,
+not a repeatable edge. **Do NOT deploy; do NOT re-test this config.** `validated_defaults`/`paper.py`/
+`cli.py`/`data/journal.json` UNTOUCHED — research-harness candidates only.
