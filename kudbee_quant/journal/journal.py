@@ -155,7 +155,7 @@ class TradeJournal:
             # traded yet — returning "open" here used to make check_open stamp
             # a fictitious fill seconds after creation (§29). It stays pending
             # (or cancels if the fill window lapses with no bars at all).
-            if p.status == "pending":
+            if p.status == "pending" and p.filled_at is None:
                 fill_deadline = (datetime.fromisoformat(p.created_at)
                                  + timedelta(days=p.fill_deadline_days))
                 return ("cancelled", None) if now >= fill_deadline else ("pending", None)
@@ -202,7 +202,7 @@ class TradeJournal:
         ts = pd.to_datetime(rows["timestamp"], utc=True)
 
         # 1) FILL phase. Market orders fill at the first bar; limits wait.
-        if p.pending_limit:
+        if p.pending_limit and p.filled_at is None:
             fill_deadline = datetime.fromisoformat(p.created_at) + timedelta(days=p.fill_deadline_days)
             fill_i = None
             for i in range(len(rows)):
@@ -217,10 +217,17 @@ class TradeJournal:
                 if datetime.now(timezone.utc) >= fill_deadline:
                     return ("cancelled", None)   # limit never filled -> no trade
                 return ("pending", None)
-            if p.filled_at is None:              # record the BAR time of the fill
-                p.filled_at = str(rows["timestamp"].iloc[fill_i])
+            p.filled_at = str(rows["timestamp"].iloc[fill_i])   # record the BAR time of the fill
+        elif p.pending_limit:
+            # Already filled on an earlier pass — NEVER re-run the fill search. A
+            # stale/limited window could fail to re-detect the fill bar and would
+            # then spuriously return 'pending'/'cancelled', reverting a live trade
+            # (issue #100). Resolve from the recorded fill bar; if it has aged out
+            # of the window, every remaining bar is post-fill (resolve from start).
+            matches = rows.index[ts == pd.to_datetime(p.filled_at, utc=True)]
+            fill_i = int(matches[0]) if len(matches) else -1
         else:
-            fill_i = -1   # resolve from the start
+            fill_i = -1   # market order: resolve from the start
 
         # 2) RESOLVE phase from the bar after fill — via the SHARED resolver
         # (backtest/resolver.py) so a live trade and a backtest never disagree.
@@ -251,6 +258,8 @@ class TradeJournal:
             tp1_before = p.tp1_filled_at
             fill_before = p.filled_at
             status, outcome_r = self._evaluate(p)   # may bank TP1/fill as side-effects
+            if p.filled_at is not None and status == "pending":
+                status = "open"   # invariant: a filled limit is never 'pending'
             if status == p.status:
                 if p.tp1_filled_at != tp1_before or p.filled_at != fill_before:
                     changed.append(p)               # banked TP1 / recorded a fill

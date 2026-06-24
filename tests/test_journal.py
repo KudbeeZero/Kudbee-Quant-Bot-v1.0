@@ -85,6 +85,41 @@ def test_scorecard_counts_resolved(tmp_path):
     assert sc.loc[sc["setup"] == "s1", "n"].iloc[0] == 2
 
 
+def test_pending_limit_promotes_to_open_on_fill(tmp_path):
+    # A limit whose entry price is reached should FILL -> status 'open' with a
+    # filled_at, not linger as 'pending'. The fake client oscillates ~90..110;
+    # wide stop/target so it fills but doesn't immediately resolve.
+    j = _journal(tmp_path)
+    p = Prediction(symbol="ZECUSDT", kind="bracket", level=100.0, deadline_days=30,
+                   entry=100.0, stop=80.0, target=120.0, direction=1.0,
+                   pending_limit=True, fill_deadline_days=30, setup="cts")
+    assert p.status == "pending"            # limits start unfilled
+    j.add(p)
+    j.check_open()
+    assert p.status == "open" and p.filled_at is not None
+
+
+def test_filled_limit_never_reverts_to_pending_or_cancelled(tmp_path):
+    # Regression (#100): once filled (filled_at stamped), a limit must NEVER be
+    # persisted back to 'pending'/'cancelled' — even if a later evaluation sees an
+    # empty/stale window. Pre-fix, the empty-window branch returned pending/cancelled
+    # for any status=='pending' row regardless of filled_at, reverting live trades.
+    j = _journal(tmp_path)
+    now = datetime.now(timezone.utc)
+    p = Prediction(symbol="ZECUSDT", kind="bracket", level=100.0, deadline_days=30,
+                   entry=100.0, stop=80.0, target=120.0, direction=1.0,
+                   pending_limit=True, fill_deadline_days=0.5, setup="cts")
+    # Reproduce the inconsistent on-disk state: filled, but created_at in the
+    # FUTURE so the post-creation window is empty (the live stale-window case).
+    p.created_at = (now + timedelta(hours=30)).isoformat()
+    p.filled_at = now.isoformat()
+    p.status = "pending"
+    j.add(p)
+    j.check_open()
+    assert p.status == "open"               # never reverted to pending/cancelled
+    assert p.filled_at is not None          # fill timestamp preserved
+
+
 # --- net-of-fee / per-venue scoring (MEMORY §26) ---------------------------
 
 def _bracket(symbol, outcome_r, status="hit", entry=100.0, stop=99.0):
