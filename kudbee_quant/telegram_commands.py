@@ -146,20 +146,20 @@ def cmd_summary(journal: TradeJournal | None = None, client=None) -> str:
     wins = sum(v.get("hits", 0) for v in rec.values())
     total = sum(v.get("n", 0) for v in rec.values())
     tail = (f"The bot has run {coverage} check windows today. "
-            f"All-time record is {wins} wins from {total} trades.")
+            f"All-time record is {wins} wins from {total} trades on the crypto book.")
 
     if n == 0:
         return "The bot has no open positions right now. " + tail
 
     winners, losers = p.get("winners_open", 0), p.get("losers_open", 0)
-    if losers == 0 and winners > 0:
-        green = "Every single one of them is in profit"
-    elif winners == 0 and losers > 0:
-        green = "All positions are currently underwater but the stops are holding"
-    elif winners > 0 and losers > 0:
-        green = f"{winners} are in profit and {losers} are currently underwater"
-    else:
+    if losers == 0 and winners == 0:
         green = "The book is flat right now"
+    elif losers == 0:
+        green = "Every single one is in profit"
+    elif winners == 0:
+        green = "All positions underwater but stops are holding"
+    else:
+        green = f"{winners} in profit, {losers} underwater"
     unreal = p.get("total_unrealized_r", 0) or 0.0
 
     from .notifications.notify import _book_label
