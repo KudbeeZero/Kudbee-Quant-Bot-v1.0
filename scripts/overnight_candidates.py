@@ -870,10 +870,87 @@ def c_level_cluster_magnet(df, scored, base_sig):
     return _gate(base_sig, keep), None, {"target_price": tgt, "tp1_r": None}
 
 
+# --- psych_level_reversal group (round-level + PVSRA absorption REVERSAL) ------
+# Counter-trend setup, tested SEPARATELY from the trend-following baseline.
+# From the live SOL $70 bounce (2026-06-23): price hit the round level, a GREEN
+# PVSRA vector printed (bull absorption), price reversed up. EMA/trend alignment
+# is intentionally NOT required here — this is a reversal, tested raw.
+# ADAPTATION: PVSRA's taxonomy is bull_climax/bear_climax/bull_rising/bear_rising/
+# neutral — there is no "bull_surge". The live green vector == `bull_climax`, so a
+# bull-absorption long triggers on `bull_climax` at the level (mirror for short).
+def _near_round_level(price: float, atr: float, tolerance_atr: float = 0.5) -> bool:
+    """True if price is within tolerance*ATR of a psychological round level.
+    The level grid scales with price magnitude."""
+    if price >= 10000:
+        increments = [1000, 500]
+    elif price >= 1000:
+        increments = [100, 50]
+    elif price >= 100:
+        increments = [10, 5]
+    elif price >= 10:
+        increments = [1, 0.5]
+    else:
+        increments = [0.1, 0.05]
+    for inc in increments:
+        nearest = round(price / inc) * inc
+        if abs(price - nearest) <= tolerance_atr * atr:
+            return True
+    return False
+
+
+def _round_mask(df: pd.DataFrame, tolerance_atr: float = 0.5) -> pd.Series:
+    """Per-bar 'close is near a round level' mask (causal — uses this bar's
+    close + ATR only)."""
+    close = df["close"].to_numpy(dtype=float)
+    atr = df["atr"].to_numpy(dtype=float)
+    out = np.zeros(len(df), dtype=bool)
+    for i in range(len(df)):
+        a = atr[i]
+        if a > 0 and not np.isnan(a) and _near_round_level(close[i], a, tolerance_atr):
+            out[i] = True
+    return pd.Series(out, index=df.index)
+
+
+def _round_vector_signal(df: pd.DataFrame, direction: int) -> pd.Series:
+    """+1 long on bull-absorption (bull_climax) at a round level; -1 short on
+    bear-absorption (bear_climax). Raw — no trend/EMA gate."""
+    vector = df["vector"].astype("object")
+    want = "bull_climax" if direction > 0 else "bear_climax"
+    sig = pd.Series(0.0, index=df.index)
+    sig[_round_mask(df) & (vector == want)] = float(direction)
+    return sig
+
+
+def c_round_level_vector_long(df, scored, base_sig):
+    """psych_level_reversal: LONG at round support on a bull-absorption (green
+    bull_climax) PVSRA candle. Reversal, no trend gate. max_bars=8."""
+    return _round_vector_signal(df, +1), None, {"max_bars": 8}
+
+
+def c_round_level_vector_long_4(df, scored, base_sig):
+    """psych_level_reversal: long round+bull_climax, fast 4-bar exit."""
+    return _round_vector_signal(df, +1), None, {"max_bars": 4}
+
+
+def c_round_level_vector_long_24(df, scored, base_sig):
+    """psych_level_reversal: long round+bull_climax, 24-bar exit (baseline horizon)."""
+    return _round_vector_signal(df, +1), None, {"max_bars": 24}
+
+
+def c_round_level_vector_short(df, scored, base_sig):
+    """psych_level_reversal: SHORT at round resistance on a bear-absorption
+    (red bear_climax) PVSRA candle. Mirror of the long. max_bars=8."""
+    return _round_vector_signal(df, -1), None, {"max_bars": 8}
+
+
 # Registry: name -> (callable, one-line description). The harness pulls names
 # from data/overnight_queue.json; anything here that isn't queued/tested yet can
 # be enqueued by the hourly loop (research agents append NEW ones over the night).
 REGISTRY: dict[str, tuple] = {
+    "round_level_vector_long": (c_round_level_vector_long, "psych_level_reversal: long round+bull_climax (8h)"),
+    "round_level_vector_long_4": (c_round_level_vector_long_4, "psych_level_reversal: long round+bull_climax (4h)"),
+    "round_level_vector_long_24": (c_round_level_vector_long_24, "psych_level_reversal: long round+bull_climax (24h)"),
+    "round_level_vector_short": (c_round_level_vector_short, "psych_level_reversal: short round+bear_climax (8h)"),
     "level_cluster": (c_level_cluster, "Owner: enter only where >=3 levels stack (0.2 ATR)"),
     "level_cluster_strong": (c_level_cluster_strong, "Owner: enter only where >=4 levels stack"),
     "level_cluster_vector": (c_level_cluster_vector, "Owner: level cluster (>=3) AND a vector/climax candle"),

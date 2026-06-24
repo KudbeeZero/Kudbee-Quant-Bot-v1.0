@@ -81,6 +81,10 @@
     "level_cluster",
     "level_cluster_strong",
     "level_cluster_vector",
-    "level_cluster_magnet"
+    "level_cluster_magnet",
+    "round_level_vector_long",
+    "round_level_vector_long_4",
+    "round_level_vector_long_24",
+    "round_level_vector_short"
   ]
 }
