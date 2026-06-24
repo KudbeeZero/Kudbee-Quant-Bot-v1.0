@@ -2019,3 +2019,22 @@ negative (ADA −0.26). **Inconsistent, NOT SOL-specific, every variant below th
 significant.** VERDICT: **hard_negative** (`psych_level_reversal_1h_8bar`) — the live SOL win was luck,
 not a repeatable edge. **Do NOT deploy; do NOT re-test this config.** `validated_defaults`/`paper.py`/
 `cli.py`/`data/journal.json` UNTOUCHED — research-harness candidates only.
+
+## 70. Live 1h resolve deadline shortened 3.0d → 1.0d (_DEADLINE_BARS 72→24) — 2026-06-24 (PR #96, owner-directed)
+
+Owner-directed config change to the live paper book: `_DEADLINE_BARS` in `kudbee_quant/paper/paper.py`
+**72 → 24**. The deadline is timeframe-scaled (`_bars_to_days(interval, _DEADLINE_BARS)`), so 1h now
+force-resolves at market after **24 bars = 24h (1.0 day)** instead of 72h. Only 1h is scanned today.
+Rationale: align the live resolve window with the **validated `max_bars=24`** backtest horizon (the
+137K-trade study that validated the edge). Net diff was a single constant — the original ask was framed
+as workflow find-replaces, but no `--deadline-days` flag existed and the 3.0d came from this code default;
+a CLI-flag route was built then reverted in favor of the one-liner.
+
+**TENSION with §68 (do not conflate):** §68 found shorter time-exits HURT expectancy — but that was the
+in-bracket `max_bars` stop, a DISTINCT lever from this live resolution deadline. Live read on the day
+(2026-06-24): 6 trades held >24h closed +11.55R combined; owner shortened anyway to match the backtest
+condition. **WATCH:** if forward `_cts`/core expectancy drops below the pre-#96 baseline after 50+ trades,
+revisit. **HARD NEGATIVE:** do NOT re-open the deadline as a backtest candidate without ≥30 forward
+trades under the new 24h window. Full decision log: `docs/decisions/deadline_bars.md` (PR #97).
+Companion display-only change this session: `/summary` Telegram voice wording aligned to owner spec
+(PR #98) — no R math, no journal write.

@@ -10,55 +10,48 @@
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
   only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
   authorizes it.
-- **This chat = the WEBHOOK + BRAND + max_bars-RESEARCH chat** (multi-task, owner-directed).
-  Shipped, all **MERGED to `main`**:
-  1. **Self-registering webhook — PR #89 (`f6502d2`).** New `GET /api/telegram/register-webhook`
-     (`api.py:343`): owner hits one URL `?token=<KUDBEE_API_TOKEN>` from a browser → server calls
-     Telegram `setWebhook` with the host `TELEGRAM_BOT_TOKEN`, pointing at `/api/telegram` with
-     `secret_token=TELEGRAM_WEBHOOK_SECRET`. Idempotent, HTTPS-enforced, token never echoed; query-param
-     token (browser GET can't send the `X-Api-Token` header). 4 tests. *(Reconstructed from spec — the
-     owner's local commit `1322efa` was never pushed/reachable from the container; functionally
-     equivalent.)*
-  2. **Brand message upgrade — PR #91 (`8876440`)**, superseding closed PR #90. `notifications/notify.py`
-     rebranded to "KUDBEE QUANT" terminal style. **`_why_fired(note, setup)` parses each trade's actual
-     journal note** (confluence %/strength, retrace ATR, maker, `_cts`) so the "Why this fired" bullets
-     reflect what THAT trade triggered on — data-derived, not templated. 4-way close
-     (◆ TARGET HIT / ◆ WIN / 〽 FLAT / ◇ STOPPED), `⬡ Live Read` summary, glyph set. Display-only.
-  3. **Telegram setup runbook — PR #87 (merged).** `docs/runbooks/telegram-setup.md`.
-- **OPEN (owner to merge): PR #88 — `max_bars` time-exit sweep (research-only, MEMORY §68).** Hypothesis
-  REFUTED: shorter exits HURT; 36–48h is suggestive (+0.04R) but p=0.34 → not luck-proof. **Keeps
-  `max_bars=24`; nothing deployed.** Owner said they'll merge it.
-- **Owner-directed this session:** PRs #78/#85/#86/#87/#89/#91 were **self-merged on explicit owner
-  "go"/"merge them"** (each CI-green); the §C CI fix was a direct-to-`main` commit (`c43b8a7`). Noted so
-  the next chat doesn't read these as protocol drift.
-- **NOTHING new is live in trading.** The webhook endpoint, brand strings, runbook, and §68 research are
-  all display/ops/research — no R math, no journal data, no trading-path or levels-core code touched.
-  `data/journal.json` NOT hand-edited (bot-owned).
-- **Audit status:** `AWAITING_AUDIT` — this is the `/closeout` docs PR on branch
-  `docs/closeout-brand-webhook-research`. The merged work (#87/#89/#91) shipped green; PR #88 is the only
-  open code PR (research, owner-merge).
+- **This chat = the DEADLINE + DECISION-LOG + /summary chat** (multi-task, owner-directed). Shipped:
+  1. **1h resolve deadline 3.0d→1.0d — PR #96 (`06bf9af`), MERGED by owner.** `_DEADLINE_BARS` 72→24 in
+     `kudbee_quant/paper/paper.py` (one constant). 1h trades now force-resolve at market after 24h,
+     aligning the live window with the validated `max_bars=24`. CI green, 503 tests. MEMORY §70.
+  2. **`/summary` voice wording — PR #98 (`4adb1b8`), MERGED by owner.** Aligned `cmd_summary` phrasing to
+     the owner's spec (all-green branches + "on the crypto book" tail). It was ALREADY paragraph/voice
+     format from a prior chat — this was wording-only, display-only. 503 tests.
+  3. **Deadline decision log — PR #97 (`docs/deadline-decision-log`), OPEN/green, owner to merge.**
+     `docs/decisions/deadline_bars.md`: current setting, §68 tension, watch signal, hard negative. This
+     is the `/closeout` PR (now also carries MEMORY §70 + this baton).
+- **NOTHING new is live beyond the deadline constant.** #96 changed ONE live-path constant (the 1h resolve
+  window); #98 is display-only; #97 is docs. No levels/trading-core change; `data/journal.json` bot-owned,
+  not hand-edited.
+- **Audit status:** `AWAITING_AUDIT` — PR #97 is this chat's open PR (the merge gate is the next chat's
+  audit). #96 and #98 were owner-merged CI-green this session → next chat audits them POST-HOC.
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #89 (`f6502d2`) — self-registering webhook (MERGED).** CONFIRM: `api.py:343`
-  `register-webhook` is GET, gated by `check_token` on a `?token=` query param (fail-closed 503/401),
-  reads `TELEGRAM_BOT_TOKEN`/`TELEGRAM_WEBHOOK_SECRET` via `get_secret().reveal()`, enforces HTTPS,
-  never echoes the bot token (error uses `type(exc).__name__`, `from None`). 4 tests in `test_api.py`.
-  No trading-path change.
-- **PR #91 (`8876440`) — brand upgrade (MERGED), superseding closed PR #90.** CONFIRM: only
-  `notifications/notify.py` + 3 test files changed; `_why_fired` is pure regex over the trade's own
-  note/setup (no invented per-trade claims); `_open_alert_dict` gained `note`/`setup`, `_close_alert_dict`
-  gained `book`. Display-only — `format_*`/`notify_*` are message strings; no R math, no journal write.
-- **PR #88 (OPEN, research) — `max_bars` sweep.** MEMORY **§68** added. CONFIRM: `validated_defaults`
-  untouched (max_bars stays 24); only `scripts/overnight_candidates.py` (+6 candidates),
-  `data/overnight_*` (harness state), `docs/research/overnight_findings.md`. Nothing deployed.
-- **This PR — docs only.** Adds MEMORY §68 + rewrites this baton. No code change.
+- **PR #96 (`06bf9af`) — deadline (MERGED).** CONFIRM: net diff vs `main` = ONE line in
+  `kudbee_quant/paper/paper.py` (`_DEADLINE_BARS` 72→24) + its comment; `cli.py`/`.github/workflows/
+  paper-trade.yml` byte-identical to `main` (a `--deadline-days` CLI route was built then FULLY reverted).
+  `_bars_to_days("1h",24)`=1.0d. `validated_defaults`/`FEE_PCT`/`resolver.py`/`bracket.py` UNTOUCHED.
+  503 tests.
+- **PR #98 (`4adb1b8`) — /summary wording (MERGED).** CONFIRM: only `kudbee_quant/telegram_commands.py`
+  `cmd_summary` changed (~8 lines): all-green branch strings + tail "on the crypto book"; a flat fallback
+  kept for the breakeven edge so it never falsely claims "every one in profit". Three-paragraph structure
+  unchanged. Display-only — no R math, no journal write. No test asserted the old wording. 503 tests.
+- **PR #97 (this, OPEN) — docs + closeout.** Adds `docs/decisions/deadline_bars.md`, MEMORY §70, and this
+  baton. No code change; net diff vs `main` is docs-only.
 
 ## NEXT chat
 
-- **🟢 NEXT-CHAT SCOPE (owner-chosen) — LIVE BRING-UP (D1 + webhook), then VERIFY.** Two owner-side
-  actions are now unblocked; the next chat verifies the live transport once they're done. Advisory
-  slug hint: `claude/verify-live-bringup`.
+- **🟢 NEXT-CHAT SCOPE (owner-chosen) — WATCH THE 24h DEADLINE FORWARD.** The 1h resolve window is now
+  24h (PR #96, §70) and is **LIVE + UNVERIFIED**. After **50+ forward 1h trades** under the new window,
+  run `journal-score` on `_cts`/core and compare expectancy to the pre-#96 baseline: net > 0R (after fees)
+  → keep; below baseline → revisit per `docs/decisions/deadline_bars.md`. **Do NOT revert without data,
+  and do NOT re-open the deadline as a backtest candidate without ≥30 forward trades under 24h (hard
+  negative, §70).** Advisory slug hint: `claude/watch-deadline-forward`.
+- **FIRST: run `/handoff-audit` → merge PR #97** (this closeout PR) on a PASS, so the decision log + §70 land.
+- **STILL PENDING (standing priority, NOT done this chat) — LIVE BRING-UP (D1 + webhook), then VERIFY.**
+  Two owner-side actions remain unblocked; the next chat verifies the live transport once they're done.
+  Advisory slug hint: `claude/verify-live-bringup`.
   - **Provision Cloudflare D1** (activates §67 `/levels` `/history` `/vectors`): (a)
     `wrangler d1 create kudbee-tr-levels`; (b) apply `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql`;
     (c) paste `database_id` into `wrangler.toml` + Render `D1_DATABASE_ID`, set `CF_ACCOUNT_ID` +
@@ -69,8 +62,7 @@
     `/help /status /score /positions /scan` (+ rate-limit) and `/trade`→`/yes`/`/cancel`. The
     `TELEGRAM_WEBHOOK_SECRET` must match Render's value (the #1 failure mode). Routing is test-covered
     (`test_telegram_commands.py`); only the live transport is unverified.
-- **OWNER TO MERGE: PR #88** (`max_bars` research, §68). Research-only, hypothesis refuted, keeps
-  max_bars=24 — safe to merge whenever; nothing depends on it.
+- **PR #88** (`max_bars` research, §68) is no longer open — landed; keeps max_bars=24, nothing deployed.
 - **🚩 STUCK GOAL (needs owner action): push commit `1322efa` / `/goal clear`.** A `/goal` set this
   session asked to push the owner's local commit `1322efa` (branch `fix/webhook-self-register`). That
   commit lives only on the owner's machine (`/home/claude/qbot`), was never pushed, and is unreachable
@@ -97,6 +89,10 @@
   taker-exit** (asymmetric friction; the study's both-maker under-charges crypto); (b)
   `BINANCE_TESTNET` micro-stake. Only then can `lock+0.1R/≤10x/maker` graduate (micro-stake only).
 - **Open risks / watch-items (still live):**
+  - **🚩 24h DEADLINE IS LIVE + UNVERIFIED (§70, PR #96)** — `_DEADLINE_BARS=24` shortened the 1h resolve
+    window 3.0d→1.0d. Forward expectancy under the shorter window is unmeasured. Watch `_cts`/core after
+    50+ forward trades vs the pre-#96 baseline; revert ONLY on data (and never re-backtest the deadline
+    without ≥30 forward 24h trades). See `docs/decisions/deadline_bars.md`.
   - **🚩 §C 1h `_cts` book is LIVE on an UNVERIFIED claim (§53, PR #55)** — owner's external
     +0.1152R/n=804, not reproduced here; separately tagged, revert if forward net-negative.
   - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31)** — keep observing; be ready to revert.
@@ -116,7 +112,9 @@
     is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
     view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
     No journal edit (a backfill would have fabricated P&L on a position that never opened).
-- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; the live execution path
+- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; **the 24h deadline — do NOT revert
+  `_DEADLINE_BARS` or re-open it as a backtest candidate without ≥30 forward trades under the new window
+  (§70 hard negative)**; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
   `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
   byte-identical this session; the memory/intelligence layers READ, never mutate).
@@ -183,3 +181,8 @@
   (`8876440`, superseded #90) — all MERGED. PR #88 (`max_bars` research, §68) OPEN for owner-merge:
   shorter exits HURT, 36–48h suggestive-not-significant, keep max_bars=24. This PR (closeout) on
   `docs/closeout-brand-webhook-research`: MEMORY §68 + baton. NEXT: live bring-up (D1 + webhook) + verify.
+- 2026-06-24: **PR #96** (`06bf9af`, deadline `_DEADLINE_BARS` 72→24, 1h resolve 3.0d→1.0d) + **PR #98**
+  (`4adb1b8`, /summary voice wording) — both **MERGED by owner**, CI-green, 503 tests → next chat audits
+  POST-HOC. **PR #97** (`docs/deadline-decision-log`, decision log + MEMORY §70 + this baton) is the
+  OPEN closeout PR — AWAITING_AUDIT. NEXT: WATCH the 24h deadline forward (50+ trades), then resume the
+  still-pending live bring-up (D1 + webhook).
