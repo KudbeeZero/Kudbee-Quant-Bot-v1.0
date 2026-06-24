@@ -12,10 +12,11 @@ from ..levels import build_levels
 _INTERVAL_MIN = {"1m": 1, "3m": 3, "5m": 5, "15m": 15, "30m": 30,
                  "1h": 60, "2h": 120, "3h": 180, "4h": 240, "6h": 360,
                  "8h": 480, "12h": 720, "1d": 1440}
-# Horizon in BARS (calibrated to the validated 1h: 72 bars = 3 days deadline,
+# Horizon in BARS (calibrated to the validated 1h: 24 bars = 1 day deadline,
 # 12 bars = 0.5 day fill window). Applied uniformly so every timeframe gets a
-# proportional, bar-count-equivalent window.
-_DEADLINE_BARS = 72
+# proportional, bar-count-equivalent window. (Deadline shortened 72->24 bars on
+# 2026-06-24: align the live 1h resolve window with the validated max_bars=24.)
+_DEADLINE_BARS = 24
 _FILL_BARS = 12
 
 
