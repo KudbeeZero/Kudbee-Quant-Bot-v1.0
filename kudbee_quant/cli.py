@@ -646,6 +646,7 @@ def _paper_scan(args) -> None:
     logged = paper_scan(args.symbols, min_pct=args.min_pct, target_r=args.target_r,
                         stop_atr=args.stop_atr, intervals=args.intervals, tp1_r=args.tp1_r,
                         tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
+                        deadline_days=args.deadline_days,
                         risk_per_trade=args.risk_per_trade, max_symbol_risk=args.max_symbol_risk,
                         trend_filter=args.trend_filter,
                         long_only=args.long_only, killzone_gate=args.killzone_gate,
@@ -1188,6 +1189,9 @@ def main() -> None:
     ps.add_argument("--target-r", type=float, default=3.0)
     ps.add_argument("--stop-atr", type=float, default=1.5,
                     help="stop distance in ATR (1.5 = validated)")
+    ps.add_argument("--deadline-days", type=float, default=None,
+                    help="resolve-by deadline in days; default None = scale with the "
+                         "timeframe (1h -> 3.0d). e.g. 1.0 to force a 24h deadline")
     ps.add_argument("--tp1-r", type=float, default=None,
                     help="optional TARGET ONE (partial bank), e.g. 1.5; default off (full target)")
     ps.add_argument("--tp1-frac", type=float, default=0.5,
