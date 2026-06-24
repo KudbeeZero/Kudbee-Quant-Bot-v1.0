@@ -156,8 +156,8 @@ def test_format_trades_resolved_filters_and_totals():
     msg = format_trades_resolved(preds)
     assert "2 trades resolved" in msg
     assert "+2.00R total" in msg          # 3.0 + (-1.0)
-    assert "✅ BTCUSDT" in msg
-    assert "❌ ETHUSDT" in msg
+    assert "◆ BTCUSDT" in msg
+    assert "◇ ETHUSDT" in msg
     assert "SOLUSDT" not in msg
 
 
@@ -169,7 +169,7 @@ def test_format_summary():
     }}
     record = {"crypto": {"n": 10, "hits": 4, "net_expectancy_r": 0.12}}
     msg = format_summary(report, record=record)
-    assert "Open: 3" in msg
+    assert "3 open" in msg
     assert "+1.25R" in msg
     assert "near stop" in msg
     assert "crypto 4/10" in msg
@@ -334,7 +334,7 @@ def test_summary_today_breakdown_and_cut_watch():
     assert "Today by book:" in msg and "tradfi -4.0R" in msg
     assert msg.index("tradfi -4.0R") < msg.index("longs -2.0R")   # worst book first
     assert "Today best: ETH +2.40R" in msg and "worst: HG=F -1.00R" in msg
-    assert "🛑 Cut watch (today): core -3.0R, tradfi -4.0R" in msg   # both books at/under -3R
+    assert "△ Cut watch (today): core -3.0R, tradfi -4.0R" in msg   # both books at/under -3R
     # thin NY-day (one book, best==worst, not bleeding) -> just the headline line
     thin = {"r": -1.0, "n": 1, "by_book": {"core": {"n": 1, "r": -1.0}},
             "best": ("DOT", -1.0), "worst": ("DOT", -1.0)}

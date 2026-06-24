@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import datetime
 import os
+import re
 import time
 from typing import TYPE_CHECKING
 
@@ -19,6 +20,39 @@ if TYPE_CHECKING:  # type-only import; no runtime cost / cycle
 
 # Keep batch messages readable — list at most this many trades, then summarise.
 _MAX_LINES = 25
+
+
+def _session_name() -> str:
+    """Coarse trading-session label from the current UTC hour (cosmetic)."""
+    h = datetime.datetime.now(datetime.timezone.utc).hour
+    if 0 <= h < 8:
+        return "Asia session"
+    if 8 <= h < 13:
+        return "London session"
+    if 13 <= h < 21:
+        return "NY session"
+    return "London close"
+
+
+def _why_fired(note, setup) -> list:
+    """Honest 'why this fired' bullets DERIVED from the trade's own note/setup —
+    no per-trade claims invented; each line is only added when the note states it."""
+    lines = []
+    n = (note or "").lower()
+    s = setup or ""
+    m = re.search(r"(\d+)%\s*confluence.*?strength\s*(\d+)", n)
+    if m:
+        lines.append(f"▸ {m.group(2)} confluence factors checked — {m.group(1)}% gate cleared")
+    m2 = re.search(r"retrace\s*([\d.]+)\s*atr", n)
+    if m2:
+        lines.append(f"▸ Limit entry — {m2.group(1)} ATR pullback before fill  (maker-side)")
+    elif "retrace" in n:
+        lines.append("▸ Limit entry — waited for pullback before filling")
+    if "_cts" in s:
+        lines.append("▸ EMA 5 / 13 / 50 stack aligned  (clean trend stack confirmed)")
+    if "maker" in n:
+        lines.append("▸ Maker-favorable fill — no chasing")
+    return lines
 
 
 def _side(p: "Prediction") -> str:
@@ -83,10 +117,10 @@ def format_trades_opened(preds: list["Prediction"]) -> str:
 
 
 def _resolved_line(p: "Prediction") -> str:
-    icon = {"hit": "✅", "miss": "❌", "cancelled": "⚪"}.get(p.status, "•")
+    icon = {"hit": "◆", "miss": "◇", "cancelled": "—"}.get(p.status, "•")
     r = getattr(p, "outcome_r", None)
     rtxt = f" {r:+.2f}R" if r is not None else ""
-    label = {"hit": "TARGET", "miss": "STOP", "cancelled": "cancelled"}.get(p.status, p.status)
+    label = {"hit": "TARGET", "miss": "STOPPED", "cancelled": "cancelled"}.get(p.status, p.status)
     return f"{icon} {p.symbol} [{p.timeframe}] {_side(p)} {label}{rtxt}"
 
 
@@ -184,7 +218,7 @@ def _today_breakdown_lines(today: dict) -> list[str]:
     bleeding = sorted((f"{b} {v['r']:+.1f}R" for b, v in by_book.items()
                        if v["r"] <= _CUT_WATCH_R))
     if bleeding:
-        out.append("🛑 Cut watch (today): " + ", ".join(bleeding))
+        out.append("△ Cut watch (today): " + ", ".join(bleeding))
     return out
 
 
@@ -206,11 +240,13 @@ def format_summary(report: dict, *, record: dict | None = None,
     n = p.get("total_open", 0)
     usd = p.get("total_unrealized_usd")
     usd_txt = "" if usd is None else f" / {usd:+.2f} USD"
+    winners, losers = p.get("winners_open", 0), p.get("losers_open", 0)
+    green_tag = "  ·  all in profit ◆" if losers == 0 and n > 0 else ""
     lines = [
-        "📊 Kudbee paper-trade summary",
-        f"Open: {n}  •  Unrealized: {p.get('total_unrealized_r', 0):+.2f}R{usd_txt}",
-        f"Up/Down: {p.get('winners_open', 0)}/{p.get('losers_open', 0)}  •  "
-        f"Open risk: {p.get('total_open_risk_pct', 0):.1f}% of account",
+        "⬡ KUDBEE QUANT — Live Read",
+        f"◇ {n} open{green_tag}  ·  {p.get('total_unrealized_r', 0):+.2f}R unrealized{usd_txt}",
+        f"Up / Down   {winners} ▸ {losers}  ·  "
+        f"Risk {p.get('total_open_risk_pct', 0):.1f}% of account",
     ]
     book_line = _book_breakdown_line(trades)
     if book_line:
@@ -317,7 +353,7 @@ def notify_error(context: str, detail: str = "") -> bool:
     """Ping on a bot/health problem (e.g. an Action step failed)."""
     if not telegram_enabled():
         return False
-    msg = f"🚨 Kudbee bot: {context}"
+    msg = f"△ Kudbee bot: {context}"
     if detail:
         msg += f"\n{detail}"
     return send_telegram(msg)
@@ -327,7 +363,7 @@ def notify_test() -> bool:
     """Send a one-off 'wired up correctly' ping (for `cli notify-test`)."""
     if not telegram_enabled():
         return False
-    return send_telegram("✅ Kudbee Telegram notifications are wired up.")
+    return send_telegram("◆ Kudbee Telegram notifications are wired up.")
 
 
 # --- individual per-trade event alerts (open / close) -----------------------
@@ -367,18 +403,26 @@ def notify_trade_opened(bot_token: str, chat_id: str, trade: dict) -> bool:
     sent; never raises.
     """
     try:
-        direction_icon = "🟢 LONG" if trade["direction"] == "LONG" else "🔴 SHORT"
-        msg = (
-            f"⚡ KUDBEE QUANT\n"
-            f"🆕 Trade Opened\n"
-            f"{'─' * 22}\n"
-            f"{trade['symbol']} {direction_icon} [{trade['timeframe']}]\n"
-            f"Entry:  ${trade['entry_price']:.5g}\n"
-            f"Stop:   ${trade['stop_price']:.5g}  (−1R if hit)\n"
-            f"Target: ${trade['target_price']:.5g}  (+3R if hit)\n"
-            f"Book: {trade.get('book', 'core')}"
-        )
-        return send_telegram_message(bot_token, chat_id, msg)
+        side = "LONG" if trade["direction"] == "LONG" else "SHORT"
+        entry, stop, target = (trade["entry_price"], trade["stop_price"],
+                               trade["target_price"])
+        risk = abs(entry - stop)
+        rtxt = f"{abs(target - entry) / risk:.0f}R" if risk else "target"
+        parts = [
+            "⚡ KUDBEE QUANT",
+            "◇ Trade Opened",
+            "─" * 22,
+            f"{trade['symbol']}  ▸ {side}  [{trade['timeframe']}  ·  {_session_name()}]",
+            "",
+            f"Entry    ${_g(entry)}",
+            f"Stop     ${_g(stop)}   ← 1R if wrong",
+            f"Target   ${_g(target)}   ← {rtxt} if right",
+        ]
+        why = _why_fired(trade.get("note"), trade.get("setup"))
+        if why:
+            parts += ["", "Why this fired:", *why]
+        parts += ["", f"Book: {trade.get('book', 'core')}  ·  Paper mode"]
+        return send_telegram_message(bot_token, chat_id, "\n".join(parts))
     except Exception:  # noqa: BLE001 — never let an alert break the scan
         return False
 
@@ -392,29 +436,32 @@ def notify_trade_closed(bot_token: str, chat_id: str, trade: dict) -> bool:
     """
     try:
         r = trade.get("r_result", 0.0) or 0.0
+        sym = trade["symbol"]
         if r >= 2.5:
-            header = "✅ Trade Closed — WIN"
-            result_line = f"Result: +{r:.1f}R 🎯"
-        elif r >= 0.0:
-            header = "⚖️ Trade Closed — BREAKEVEN"
-            result_line = f"Result: +{r:.1f}R"
+            header, tag = f"◆ TARGET HIT — {sym}", "◈ full target reached"
+        elif r >= 0.5:
+            header, tag = f"◆ WIN — {sym}", ""
+        elif r >= -0.1:
+            header, tag = f"〽 FLAT — {sym}", "scratch"
         else:
-            header = "🛑 Trade Closed — STOPPED"
-            result_line = f"Result: {r:.1f}R"
+            header, tag = f"◇ STOPPED — {sym}", "← cost of being in the game"
+        result_line = f"Result   {r:+.2f}R" + (f"   {tag}" if tag else "")
 
         held = _format_held(trade.get("open_time"), trade.get("close_time"))
-        direction_icon = "🟢 LONG" if trade.get("direction") == "LONG" else "🔴 SHORT"
-        msg = (
-            f"⚡ KUDBEE QUANT\n"
-            f"{header}\n"
-            f"{'─' * 22}\n"
-            f"{trade['symbol']} {direction_icon} [{trade['timeframe']}]\n"
-            f"Entry: ${trade['entry_price']:.5g}\n"
-            f"Exit:  ${trade['exit_price']:.5g}\n"
-            f"{result_line}\n"
-            f"Held: {held}"
-        )
-        return send_telegram_message(bot_token, chat_id, msg)
+        side = "LONG" if trade.get("direction") == "LONG" else "SHORT"
+        parts = [
+            "⚡ KUDBEE QUANT",
+            header,
+            "─" * 22,
+            f"▸ {side}  [{trade['timeframe']}]  ·  held {held}",
+            "",
+            f"Entry    ${_g(trade['entry_price'])}",
+            f"Exit     ${_g(trade['exit_price'])}",
+            result_line,
+            "",
+            f"Book: {trade.get('book', 'core')}  ·  Paper",
+        ]
+        return send_telegram_message(bot_token, chat_id, "\n".join(parts))
     except Exception:  # noqa: BLE001
         return False
 
@@ -470,6 +517,8 @@ def _open_alert_dict(p) -> dict:
         "stop_price": p.stop,
         "target_price": p.target,
         "book": _book_label(getattr(p, "setup", None)),
+        "note": getattr(p, "note", None),
+        "setup": getattr(p, "setup", None),
         "open_time": _event_ms(getattr(p, "created_at", None)),
     }
 
@@ -488,6 +537,7 @@ def _close_alert_dict(p) -> dict:
         "entry_price": p.entry,
         "exit_price": exit_price,
         "r_result": p.outcome_r if p.outcome_r is not None else 0.0,
+        "book": _book_label(getattr(p, "setup", None)),
         "open_time": _event_ms(getattr(p, "created_at", None)),
         "close_time": _event_ms(getattr(p, "resolved_at", None)),
     }

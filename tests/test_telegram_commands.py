@@ -91,7 +91,7 @@ def test_cmd_status(tmp_path):
     j = _journal(tmp_path)
     out = tc.cmd_status(j, client=_StubClient())
     assert "SOLUSDT" in out and "ETHUSDT" in out
-    assert "Open: 2" in out
+    assert "2 open" in out
 
 
 # ── Tier 3 paper-trade gate ──────────────────────────────────────────────────
