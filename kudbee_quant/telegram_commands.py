@@ -124,10 +124,77 @@ def cmd_scan(chat_id: str) -> str:
     return f"❌ Dispatch failed: {r.status_code}"
 
 
-def cmd_summary() -> str:
-    """Force the hourly Telegram summary now (sends to the configured chat)."""
-    from .notifications import notify_summary
-    return "✅ Summary sent." if notify_summary() else "❌ Summary failed (Telegram not configured?)."
+def cmd_summary(journal: TradeJournal | None = None, client=None) -> str:
+    """Voice-friendly /summary: a plain-paragraph briefing of the open book,
+    today's coverage, and the all-time record — written to be read ALOUD (no
+    bullets, glyphs, symbols, or tables). Built from ``open_trades_report``; the
+    webhook sends the returned text as the reply."""
+    j = journal or TradeJournal()
+    report = open_trades_report(j, client)
+    p = report.get("portfolio", {})
+    trades = report.get("trades", []) or []
+    n = p.get("total_open", 0)
+
+    # Coverage = distinct hourly check-windows seen in the last 24h; record =
+    # all-time wins / resolved trades across venues.
+    try:
+        from .notifications.heartbeat import load_health
+        coverage = load_health().get("runs_24h", 0)
+    except Exception:  # noqa: BLE001 — coverage is best-effort, never fail /summary
+        coverage = 0
+    rec = j.venue_record()
+    wins = sum(v.get("hits", 0) for v in rec.values())
+    total = sum(v.get("n", 0) for v in rec.values())
+    tail = (f"The bot has run {coverage} check windows today. "
+            f"All-time record is {wins} wins from {total} trades.")
+
+    if n == 0:
+        return "The bot has no open positions right now. " + tail
+
+    winners, losers = p.get("winners_open", 0), p.get("losers_open", 0)
+    if losers == 0 and winners > 0:
+        green = "Every single one of them is in profit"
+    elif winners == 0 and losers > 0:
+        green = "All positions are currently underwater but the stops are holding"
+    elif winners > 0 and losers > 0:
+        green = f"{winners} are in profit and {losers} are currently underwater"
+    else:
+        green = "The book is flat right now"
+    unreal = p.get("total_unrealized_r", 0) or 0.0
+
+    from .notifications.notify import _book_label
+
+    def _book(label: str) -> tuple[int, float]:
+        ts = [t for t in trades if _book_label(t.get("setup")) == label]
+        r = sum(t["unrealized_r"] for t in ts if t.get("unrealized_r") is not None)
+        return len(ts), r
+
+    core_count, core_r = _book("core")
+    trend_count, trend_r = _book("trend")
+
+    marked = [t for t in trades if t.get("unrealized_r") is not None]
+    if marked:
+        best = max(marked, key=lambda t: t["unrealized_r"])
+        worst = min(marked, key=lambda t: t["unrealized_r"])
+        bw = (f"Best performer right now is {best['symbol']} at "
+              f"{best['unrealized_r']:+.2f}R. Weakest is {worst['symbol']} at "
+              f"{worst['unrealized_r']:+.2f}R.")
+    else:
+        bw = "No position has a live mark yet."
+
+    ctt, cts = p.get("closest_to_tp"), p.get("closest_to_stop")
+    tline_t = (f"{ctt} is closest to hitting the full target." if ctt
+               else "Nothing is close to the target yet.")
+    tline_s = (f"{cts} is the one to watch on the downside." if cts
+               else "Nothing is close to a stop right now.")
+
+    para1 = (f"The bot currently has {n} open position{'s' if n != 1 else ''}. "
+             f"{green}. Total unrealized is {unreal:+.2f}R across the portfolio.")
+    para2 = (f"The core book has {core_count} trade{'s' if core_count != 1 else ''} "
+             f"running at {core_r:+.2f}R. The trend book has {trend_count} "
+             f"trade{'s' if trend_count != 1 else ''} at {trend_r:+.2f}R. {bw}")
+    para3 = f"{tline_t} {tline_s}"
+    return "\n\n".join([para1, para2, para3, tail])
 
 
 # ── Tier 3: paper trade logging with a confirmation gate ─────────────────────
