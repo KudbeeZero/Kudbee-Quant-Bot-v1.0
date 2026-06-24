@@ -87,6 +87,10 @@
     "max_bars_24",
     "max_bars_36",
     "max_bars_48",
-    "max_bars_72"
+    "max_bars_72",
+    "round_level_vector_long",
+    "round_level_vector_long_4",
+    "round_level_vector_long_24",
+    "round_level_vector_short"
   ]
 }
