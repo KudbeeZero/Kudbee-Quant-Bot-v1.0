@@ -2038,3 +2038,22 @@ revisit. **HARD NEGATIVE:** do NOT re-open the deadline as a backtest candidate 
 trades under the new 24h window. Full decision log: `docs/decisions/deadline_bars.md` (PR #97).
 Companion display-only change this session: `/summary` Telegram voice wording aligned to owner spec
 (PR #98) — no R math, no journal write.
+
+## 71. Binary-event filter — no NEW entries near scheduled events (Tino's rule) — 2026-06-25 (PR #102)
+
+`kudbee_quant/intelligence/event_calendar.py` (new) is a **pure, read-only gate** consulted at the TOP of
+`paper_scan`, before any signal evaluation. Tino's rule: don't open NEW positions into a known high-impact
+scheduled event (earnings, PCE, NFP, FOMC) — a binary move invalidates the technical setup. On a block:
+log + Telegram ping (`notify.notify_scan_blocked`) + `return []`. **Blocks NEW entries ONLY** — existing
+open/pending trades are untouched, and `data/journal.json` is never written by the gate.
+- API: `get_blocking_event(hours_before=4.0, hours_after=1.0)` over an owner-maintained `UPCOMING_EVENTS`
+  list + `RECURRING_EVENTS`; `is_friday_close_window()` (≤2h before Fri 20:00 UTC),
+  `is_monday_open_window()` (≤2h after Mon 00:00 UTC), `hours_until_event()`. Every fn takes an injectable
+  `now` for deterministic tests.
+- **Two settled design decisions (don't re-litigate):** (1) the gate is **always-on, no on/off flag**
+  (per owner spec — unlike the repo's other gates which default `False`); to keep the existing wall-clock
+  `paper_scan` tests deterministic, `tests/conftest.py` has an autouse fixture that **pins the gate open**
+  for the general suite, while the gate's own logic is fully covered in `tests/test_event_calendar.py`.
+  (2) In `dry_run` the gate still BLOCKS (faithful dashboard preview) but **suppresses the Telegram ping**
+  — same side-effect-free invariant as never writing the journal. 511 tests green, ruff clean.
+- **MAINTENANCE:** `UPCOMING_EVENTS` is hand-curated — stale entries silently stop gating. Keep it current.
