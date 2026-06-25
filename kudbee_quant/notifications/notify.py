@@ -241,12 +241,22 @@ def format_summary(report: dict, *, record: dict | None = None,
     usd = p.get("total_unrealized_usd")
     usd_txt = "" if usd is None else f" / {usd:+.2f} USD"
     winners, losers = p.get("winners_open", 0), p.get("losers_open", 0)
-    green_tag = "  ·  all in profit ◆" if losers == 0 and n > 0 else ""
+    # Opens with no live mark are unfilled/unpriced (pending limits); a mark of
+    # exactly 0 is flat. Neither is "up" or "down", so count them explicitly —
+    # otherwise the Up/Down tally silently drops them and won't reconcile with n.
+    pending = sum(1 for t in trades if t.get("unrealized_r") is None)
+    flat = sum(1 for t in trades if t.get("unrealized_r") == 0)
+    # Only claim "all in profit" when EVERY open is a marked winner — not merely
+    # "no losers" (which is also true while trades sit pending/unfilled).
+    green_tag = "  ·  all in profit ◆" if winners == n and n > 0 else ""
+    ud = f"Up / Down   {winners} ▸ {losers}"
+    extra = [f"{c} {label}" for c, label in ((flat, "flat"), (pending, "pending")) if c]
+    if extra:
+        ud += "  ·  " + ", ".join(extra)
     lines = [
         "⬡ KUDBEE QUANT — Live Read",
         f"◇ {n} open{green_tag}  ·  {p.get('total_unrealized_r', 0):+.2f}R unrealized{usd_txt}",
-        f"Up / Down   {winners} ▸ {losers}  ·  "
-        f"Risk {p.get('total_open_risk_pct', 0):.1f}% of account",
+        f"{ud}  ·  Risk {p.get('total_open_risk_pct', 0):.1f}% of account",
     ]
     book_line = _book_breakdown_line(trades)
     if book_line:
