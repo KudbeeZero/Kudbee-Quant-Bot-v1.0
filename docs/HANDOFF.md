@@ -10,55 +10,51 @@
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
   only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
   authorizes it.
-- **This chat = the BINARY-EVENT-FILTER chat.** Shipped **PR #102** (`feat/binary-event-filter`,
-  green, 511 tests, ruff clean — synced to current `main`): a pure, read-only event gate
-  (`kudbee_quant/intelligence/event_calendar.py`) consulted at the TOP of `paper_scan`. Blocks **NEW
-  entries only** near high-impact scheduled events (Tino's rule); existing trades and `data/journal.json`
-  untouched. On a block: log + `notify_scan_blocked` Telegram ping + `return []`. MEMORY **§71**.
-- **Two settled design decisions on #102 (don't re-litigate — see §71):** gate is **always-on, no flag**
-  (per spec), with a `tests/conftest.py` autouse fixture pinning it OPEN for the general suite so the
-  wall-clock `paper_scan` tests stay deterministic; and `dry_run` BLOCKS (faithful preview) but
-  **suppresses the Telegram ping**.
-- **Also teed up this chat (owner-directed cleanup):** two GREEN prior-chat drafts were marked
-  **ready-for-review** — **PR #101** (`fix/journal-fill-atomic`, filled limits never revert to
-  pending/cancelled, fixes #100) and **PR #99** (`fix/summary-pending-reconcile`, no false "all in
-  profit" + reconcile Up/Down). Verified BOTH fixes are **absent from `main`** (still needed, not
-  superseded) → left OPEN for the owner to merge. I did NOT merge or close anything.
-- **NOTHING new is live from this chat.** #102 only adds an entries-gate (no journal write, trading core
-  byte-identical); #99/#101 are not yet merged. `data/journal.json` bot-owned, not hand-edited.
-- **Audit status:** `AWAITING_AUDIT` — **PR #102 is this chat's open PR** (the merge gate is the next
-  chat's audit). #99 and #101 are independent prior-chat fixes awaiting the owner's merge.
+- **This chat = the TRAILING-STOP-BACKTEST chat (RESEARCH ONLY).** Shipped **PR #103**
+  (`claude/trailing-stop-backtest-jz0aho`, green, 520 tests, ruff clean) — **already MERGED by the owner**:
+  a read-only backtest of the EXISTING chandelier trail vs the live bank-half/ride-to-3R rule. Files:
+  `research/trailing_sweep.py` + `research/trailing_sweep_results.md` + 2 CSVs + `tests/test_trailing_sweep.py`.
+  Imports `bracket_backtest` + the shared `resolve_bracket`; reimplements nothing. **No live flag, workflow,
+  paper.py, resolver, or bracket.py logic touched.** MEMORY **§72**.
+- **VERDICT (settled HARD NEGATIVE, §72): keep `--trailing-atr` OFF.** No trail multiple clears the
+  bootstrap significance gate (best `boot_p` 0.293 @ atr=1.0). The only net-positive variant (atr=1.0)
+  wins purely by collapsing drawdown while **cutting 82% of former +3R runners short** (−480R on that
+  cohort) — it abandons the asymmetric edge. Do NOT re-test trailing without a genuinely new rationale.
+- **NOTHING new is live from this chat.** Pure research; trading core byte-identical. `data/journal.json`
+  bot-owned, not hand-edited (the only journal change this session was the routine bot sync via `main`).
+- **Audit status:** `AWAITING_AUDIT` — the research **PR #103 is already MERGED** (post-hoc audit due,
+  like #84/#82). **This chat's OPEN closeout PR is docs-only** (MEMORY §72 + this baton).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #102 (this chat, OPEN) — binary-event filter.** Net diff vs `main` = 6 files:
-  `kudbee_quant/intelligence/event_calendar.py` (new), `kudbee_quant/paper/paper.py` (gate at top of
-  `paper_scan`), `kudbee_quant/notifications/notify.py` + `__init__.py` (`notify_scan_blocked`),
-  `tests/test_event_calendar.py` (new) + `tests/conftest.py` (new) — plus a `data/*.json` merge from
-  syncing `main`. **Full audit checklist is in the PR body.** Key things to diff-confirm:
-  (1) the block path `return []`s BEFORE signal eval and writes NOTHING to the journal; trading core
-  (`build_levels`/`pvsra_vector_candles`/resolver/bracket) byte-identical to `main`.
-  (2) `dry_run` still BLOCKS but sends no ping. (3) conftest fixture only pins the gate OPEN for the
-  general suite — the real gating logic is exercised in `test_event_calendar.py`. 511 tests green.
-- **PR #101 (`fix/journal-fill-atomic`, OPEN, marked ready this chat) — journal status lifecycle.**
-  Verified the fix is ABSENT from `main`: main's `_evaluate` empty-window branch (journal.py ~L158-161)
-  still reverts ANY `status=='pending'` row to cancelled/pending without checking `filled_at`, and
-  `check_open` does not coerce pending→open on a recorded fill. So this is a real, needed fix. Green.
-  Owner to merge (its own POST-HOC audit if merged outside the gate).
-- **PR #99 (`fix/summary-pending-reconcile`, OPEN, marked ready this chat) — display-only.** Verified
-  absent from `main`: `notify.py` ~L244 still gates "all in profit" on `losers == 0` (over-claims while
-  opens are pending). Needed. Green. Display-only (no R math, no journal write). Owner to merge.
+- **PR #103 (this chat, MERGED) — trailing-stop research.** Audit-confirmed (file:line) the trail is
+  already implemented + OFF in live: `paper.py:69/:210`, `journal.py:70-73/:231-236`,
+  `bracket.py:61/:170/:264`, `paper-trade.yml:75-77/:90`. **STEP-0 gate verified real**
+  (`resolver.py:137-165`): trails at `trailing_atr*atr_at_entry` behind the favorable extreme, ratchets
+  monotonically, never loosens, no same-bar look-ahead. To diff-confirm: (1) the new files are all under
+  `research/` + `tests/` — NO change to the trading/levels core, the resolver, bracket logic, paper.py,
+  or the workflow. (2) `tests/test_trailing_sweep.py` includes the regression lock that paired-baseline
+  reproduces `bracket_backtest` baseline EXACTLY, plus the monotonic-ratchet + `trailing_atr=None` no-op
+  guards. 520 tests green.
+- **Honest caveats (in §72 + the results MD):** (a) my §41 ride-3R reproduction (−0.015R/n=3540) did NOT
+  match §41's +0.096R/n=8124 — UNRECONCILED; only the relative head-to-head is verified. (b) Secondary,
+  OUT-OF-SCOPE: the live bank-half/BE rule was the WORST variant here (−0.055R) — a `be_after_tp1`
+  question for a future chat, NOT acted on.
+- **PR #101 (`fix/journal-fill-atomic`) MERGED this session** (arrived via `main` fast-forward:
+  journal.py + notify.py + tests). **PR #99 (`fix/summary-pending-reconcile`) still OPEN** on origin —
+  owner to merge; audit POST-HOC if merged outside the gate.
 
 ## NEXT chat
 
-- **🟢 NEXT-CHAT SCOPE (owner-chosen) — AUDIT & MERGE #102.** Run `/handoff-audit` on **PR #102**
-  (binary-event filter) against the audit checklist in its PR body; merge on a PASS (owner merges).
-  Advisory slug hint: `claude/audit-event-filter`.
-- **ALSO PENDING THE OWNER'S MERGE (independent prior-chat fixes, both GREEN, both verified absent from
-  `main` this chat):** **PR #101** (`fix/journal-fill-atomic`) and **PR #99**
-  (`fix/summary-pending-reconcile`). They were marked ready-for-review this chat but NOT merged/closed.
-  If merged outside the relay gate, audit them POST-HOC. NOTE: merging either changes `main`, after which
-  #102's branch needs a re-sync before its own merge.
+- **🟢 NEXT-CHAT SCOPE — POST-HOC AUDIT the merged work, then reconcile the open fix.** Run
+  `/handoff-audit`: (1) post-hoc audit **PR #103** (trailing research) against the checklist above and
+  **PR #102** (binary-event filter, merged before this chat) if not yet recorded; (2) confirm **PR #101**
+  is correctly in `main`; (3) **PR #99** (`fix/summary-pending-reconcile`) still needs the owner's merge —
+  verify it's still absent from `main`, then leave for the owner. Advisory slug hint: `claude/handoff-audit`.
+- **CANDIDATE next research (owner's call) — the `be_after_tp1` management question (§72 secondary).**
+  The live bank-half/BE rule was net-negative in this OOS population. Worth a read-only study of whether
+  BE-after-TP1 is capping the edge vs plain ride-3R — research only, no live change. Advisory slug:
+  `claude/be-management-study`.
 - **CARRY-FORWARD (was the prior scope) — WATCH THE 24h DEADLINE FORWARD.** The 1h resolve window is now
   24h (PR #96, §70), **LIVE + UNVERIFIED**. After **50+ forward 1h trades**, run `journal-score` on
   `_cts`/core vs the pre-#96 baseline: net > 0R → keep; below → revisit per
@@ -127,9 +123,10 @@
     is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
     view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
     No journal edit (a backfill would have fabricated P&L on a position that never opened).
-- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; **the 24h deadline — do NOT revert
-  `_DEADLINE_BARS` or re-open it as a backtest candidate without ≥30 forward trades under the new window
-  (§70 hard negative)**; the live execution path
+- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; **`--trailing-atr` is now a SETTLED
+  HARD NEGATIVE (§72) — keep it OFF; do NOT re-test trailing without a genuinely new rationale**; **the
+  24h deadline — do NOT revert `_DEADLINE_BARS` or re-open it as a backtest candidate without ≥30 forward
+  trades under the new window (§70 hard negative)**; the live execution path
   (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
   `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
   byte-identical this session; the memory/intelligence layers READ, never mutate).
@@ -206,3 +203,8 @@
   cleanup) two GREEN prior-chat drafts whose fixes are verified absent from `main`: **PR #101**
   (`fix/journal-fill-atomic`) + **PR #99** (`fix/summary-pending-reconcile`) — left OPEN for owner merge,
   not merged/closed. NEXT: audit & merge #102.
+- 2026-06-25: **PR #103** (`claude/trailing-stop-backtest-jz0aho`, trailing-stop head-to-head, RESEARCH
+  ONLY, MEMORY §72, 520 tests green) — **MERGED by owner**; verdict KEEP `--trailing-atr` OFF (settled
+  hard negative). **PR #101** (`fix/journal-fill-atomic`) also MERGED into `main` this session; **PR #99**
+  still OPEN for owner merge. This PR (closeout) is docs-only (MEMORY §72 + baton) → next chat audits
+  #103/#102 POST-HOC. NEXT: post-hoc audit + reconcile #99; optional `be_after_tp1` study.

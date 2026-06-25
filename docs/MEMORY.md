@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-06-16._
+_Last updated: 2026-06-25._
 
 ---
 
@@ -2057,3 +2057,40 @@ open/pending trades are untouched, and `data/journal.json` is never written by t
   (2) In `dry_run` the gate still BLOCKS (faithful dashboard preview) but **suppresses the Telegram ping**
   — same side-effect-free invariant as never writing the journal. 511 tests green, ruff clean.
 - **MAINTENANCE:** `UPCOMING_EVENTS` is hand-curated — stale entries silently stop gating. Keep it current.
+
+
+## 72. Chandelier trailing stop — HARD NEGATIVE vs the live rule; do NOT enable `--trailing-atr` — 2026-06-25 (PR #103, research-only)
+
+Backtested the EXISTING chandelier trail (already implemented + OFF in live) head-to-head against the
+live bank-half / ride-to-3R rule, over the SAME §41 universe + **1h** TF (10 majors, 2018/2022 analog +
+recent windows, `BinanceClient.klines_range`), all **net of maker fees** (0.0004). Harness:
+`research/trailing_sweep.py` (imports `bracket_backtest` + the shared `resolve_bracket`; reimplements
+nothing) + `tests/test_trailing_sweep.py`; results `research/trailing_sweep_results.md` + 2 CSVs.
+
+STEP-0 gate confirmed real: `resolver.py:137-165` trails at `trailing_atr*atr_at_entry` behind the
+favorable extreme and **never loosens** (`max`/`min` ratchet; extreme updated after the stop check → no
+look-ahead). The trail lives ONLY on the non-partial path, so "trail WITH the 1R partial" is unsupported
+without new resolver logic (NOT tested).
+
+FINDINGS (n≈3,730 baseline trades, net-maker):
+- **NO trail multiple clears the bootstrap significance gate** (§19/§23). Best `boot_p(net≤0)` = **0.293**
+  at atr=1.0 — i.e. NOT significant. Treat any positive trail number as noise.
+- Net R/trade: BASELINE (live bank-half) **−0.0549** (boot_p 1.000, maxDD −216R); atr=1.0 **+0.0064**
+  (maxDD −32R); 1.5 −0.008; 2.0 −0.023; 2.5 −0.021; 3.0 −0.019.
+- **Runner-capture is the killer (the key risk).** The only net-positive variant, atr=1.0, **cuts 393 of
+  479 former +3R runners short (82%), −479.8R on that cohort.** Its slim positivity is pure
+  drawdown-collapse, not a new edge — it converts the asymmetric-runner strategy into a flat scalp. Wider
+  trails (2.5/3.0) PRESERVE runners (+388/+452R on the cohort) but are net-negative overall.
+- **ACTION: keep `--trailing-atr` OFF.** This is now a SETTLED HARD NEGATIVE — do NOT re-test trailing
+  without a genuinely new rationale (e.g. a different entry/management pairing), same bar as the §69/§70
+  negatives.
+
+CAVEATS (honest):
+- **§41 not reproduced in absolute terms.** My ride-3R reproduction here was −0.0151R / n=3540 vs §41's
+  reported +0.096R / n=8124 on 1h. The trade-count and sign gap is **UNRECONCILED** (likely evolved
+  features/signal or a different cached span). The RELATIVE head-to-head over one identical population is
+  internally valid; the absolute R levels are NOT VERIFIED against §41.
+- **Secondary, OUT-OF-SCOPE observation (NOT acted on):** over this population the *current live*
+  bank-half/BE/ride-3R rule was the **worst** variant (−0.0549R, −216R DD, boot_p 1.000) — materially
+  worse than plain ride-3R. That points at the **`be_after_tp1` management**, not the trail, and warrants
+  its OWN research before any conclusion. No live change is implied; flagged for a future chat.
