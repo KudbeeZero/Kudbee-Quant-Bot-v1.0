@@ -224,7 +224,8 @@ def _today_breakdown_lines(today: dict) -> list[str]:
 
 def format_summary(report: dict, *, record: dict | None = None,
                    realized_today: dict | None = None,
-                   schedule_health: dict | None = None) -> str:
+                   schedule_health: dict | None = None,
+                   delta_line: str | None = None) -> str:
     """Portfolio snapshot from :func:`review.open_trades_report` (+ optional record).
 
     ``report`` is the dict that function returns; ``record`` is an optional
@@ -253,8 +254,12 @@ def format_summary(report: dict, *, record: dict | None = None,
     extra = [f"{c} {label}" for c, label in ((flat, "flat"), (pending, "pending")) if c]
     if extra:
         ud += "  ·  " + ", ".join(extra)
-    lines = [
-        "⬡ KUDBEE QUANT — Live Read",
+    lines = ["⬡ KUDBEE QUANT — Live Read"]
+    # One-line "since last read" delta header (read-only event layer) so an
+    # outside observer sees WHAT changed, not just bouncing snapshots.
+    if delta_line:
+        lines.append(delta_line)
+    lines += [
         f"◇ {n} open{green_tag}  ·  {p.get('total_unrealized_r', 0):+.2f}R unrealized{usd_txt}",
         f"{ud}  ·  Risk {p.get('total_open_risk_pct', 0):.1f}% of account",
     ]
@@ -347,6 +352,29 @@ def notify_summary(only_if_open: bool = False) -> bool:
         report = open_trades_report(journal=j)
         if only_if_open and report.get("portfolio", {}).get("total_open", 0) == 0:
             return False
+        # Read-only event + delta layer: ping intra-trade transitions (approaching
+        # stop, warning cleared, recovered, slipped) and build the "since last read"
+        # header by diffing the persisted snapshot. Wrapped so it can never break the
+        # summary, and it touches nothing on the trading path.
+        #
+        # Runs ONLY on the hourly committing read (``only_if_open`` False). The
+        # every-5-min reminder (paper-status.yml) passes ``only_if_open=True`` and
+        # commits nothing, so its snapshot-save would be ephemeral — it would
+        # re-detect (and re-ping) the same transition every 5 min until the next
+        # hourly commit advances the baseline. Gating on the committing path keeps
+        # "since last read" anchored to the last hourly read and fires each event once.
+        delta_line = None
+        if not only_if_open:
+            try:
+                from . import events as ev
+                prev = ev.load_state()
+                curr = ev.snapshot(report)
+                for e in ev.diff_events(prev, curr):
+                    send_telegram(ev.format_event(e))
+                delta_line = ev.delta_summary(prev, curr) or None
+                ev.save_state(curr)
+            except Exception:  # noqa: BLE001 — the event layer must never break the read
+                delta_line = None
         record = {v: r for v, r in j.venue_record().items() if r["n"]}
         from ..scorecard import today_autopsy           # richer "Today" (by book + best/worst)
         realized = today_autopsy(j)
@@ -354,7 +382,8 @@ def notify_summary(only_if_open: bool = False) -> bool:
         health = load_health()
         return send_telegram(format_summary(report, record=record or None,
                                             realized_today=realized,
-                                            schedule_health=health))
+                                            schedule_health=health,
+                                            delta_line=delta_line))
     except Exception:  # noqa: BLE001 — a summary failure must not break the run
         return False
 

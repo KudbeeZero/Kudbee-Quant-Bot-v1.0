@@ -144,7 +144,9 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           # -A so consumed inbox files (deletions/renames) are staged too.
           # data/heartbeat.json is bot-written each run (scheduler-gap visibility).
-          git add -A data/journal.json data/alert_inbox data/heartbeat.json
+          # data/notify_state.json is the last-read snapshot for the Telegram event
+          # layer (since-last-read deltas + intra-trade pings); must persist run-to-run.
+          git add -A data/journal.json data/alert_inbox data/heartbeat.json data/notify_state.json
           if ! git diff --cached --quiet; then
             git commit -m "paper-trade: update journal [skip ci]"
             # An alert can land in the inbox mid-run — rebase so the push
