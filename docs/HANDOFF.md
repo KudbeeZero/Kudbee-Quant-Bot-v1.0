@@ -26,8 +26,11 @@
   superseded) → left OPEN for the owner to merge. I did NOT merge or close anything.
 - **NOTHING new is live from this chat.** #102 only adds an entries-gate (no journal write, trading core
   byte-identical); #99/#101 are not yet merged. `data/journal.json` bot-owned, not hand-edited.
-- **Audit status:** `AWAITING_AUDIT` — **PR #102 is this chat's open PR** (the merge gate is the next
-  chat's audit). #99 and #101 are independent prior-chat fixes awaiting the owner's merge.
+- **Audit status:** `MERGED (post-hoc PASS)` — **PR #102** was merged by the owner outside the relay gate
+  and audited POST-HOC this chat → **PASS** (`docs/audits/feat-binary-event-filter.md`, 520 tests green).
+  **PR #101** and **PR #99** also merged (post-hoc **OK**). **PR #103** (`research/trailing-stop-backtest`,
+  NOT in the prior baton — parallel session) also merged: research-only **PASS** with a minor scope-hygiene
+  flag (a bot-owned `data/journal.json` race-revert rode along; cosmetic, self-heals on next bot pass).
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -206,3 +209,11 @@
   cleanup) two GREEN prior-chat drafts whose fixes are verified absent from `main`: **PR #101**
   (`fix/journal-fill-atomic`) + **PR #99** (`fix/summary-pending-reconcile`) — left OPEN for owner merge,
   not merged/closed. NEXT: audit & merge #102.
+- 2026-06-25: **`/handoff-audit` (this chat, `claude/handoff-audit-8aps4t`).** Owner had already merged
+  **#102, #101, #99, and #103** (all four outside the relay gate). Audited POST-HOC with an independent
+  subagent → **#102 PASS** (`docs/audits/feat-binary-event-filter.md`; 520 tests green; every claim
+  file:line-backed, gate is a pure read-only short-circuit, trading core byte-identical, tests
+  mutation-verified). **#101 / #99 OK** (journal-lifecycle fix / display-only summary fix, both
+  off-limits code untouched). **#103** (`research/trailing-stop-backtest`, parallel session — NOT in the
+  prior baton) research-only PASS, minor flag: a bot-owned `data/journal.json` race-revert rode along
+  (cosmetic, self-heals). Nothing to merge; baton reconciled.
