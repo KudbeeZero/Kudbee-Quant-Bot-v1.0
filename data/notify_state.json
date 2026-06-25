@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 9,
-    "unrealized_r": 9.8602,
+    "unrealized_r": 11.0562,
     "winners": 9
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9098765432098735
+      "ur": 1.1288065843621333
     },
     "51a0276a": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.578449066762932
+      "ur": 1.690748344337669
     },
     "6960883e": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.718181818181817
+      "ur": 0.8878787878787868
     },
     "73e04fe4": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.0509663754302405
+      "ur": 1.1600476568705342
     },
     "9e4d5145": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.6659807956104344
+      "ur": 0.7043895747599501
     },
     "ad21195f": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.718181818181817
+      "ur": 0.8878787878787868
     },
     "d56d83df": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.0509663754302405
+      "ur": 1.1600476568705342
     },
     "d6385807": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.5176855055747736
+      "ur": 1.673779315647829
     },
     "e944006a": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.6499562013595395
+      "ur": 1.7625864075884636
     }
   }
 }
