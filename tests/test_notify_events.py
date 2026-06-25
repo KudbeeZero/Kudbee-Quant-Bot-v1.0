@@ -28,10 +28,11 @@ def _report(trades):
 
 
 def _t(tid, symbol, ur, health="healthy", tp1_filled=False, stop_touched=False,
-       status="open"):
+       status="open", tp1_touched=False, hours_to_deadline=None):
     return {"id": tid, "symbol": symbol, "unrealized_r": ur, "health": health,
-            "tp1": 1.0, "tp1_filled": tp1_filled, "tp2_touched": False,
-            "stop_touched": stop_touched, "status": status}
+            "tp1": 1.0, "tp1_touched": tp1_touched, "tp1_filled": tp1_filled,
+            "tp2_touched": False, "stop_touched": stop_touched,
+            "hours_to_deadline": hours_to_deadline, "status": status}
 
 
 # --- snapshot ----------------------------------------------------------------
@@ -41,7 +42,8 @@ def test_snapshot_reduces_report():
     assert set(snap) == {"trades", "agg"}
     assert snap["trades"]["a"] == {
         "symbol": "BTCUSDT", "ur": 0.5, "health": "winning",
-        "tp1_filled": False, "stop_touched": False, "status": "open",
+        "tp1_touched": False, "tp1_filled": False, "stop_touched": False,
+        "dl_soon": False, "status": "open",
     }
     assert snap["agg"]["n"] == 1 and snap["agg"]["winners"] == 1
 
@@ -96,6 +98,42 @@ def test_tp1_banked_fires_once_on_latch():
     # Already banked → no re-fire.
     again = ev.snapshot(_report([_t("a", "BTCUSDT", 0.7, tp1_filled=True)]))
     assert "tp1_banked" not in {e["type"] for e in ev.diff_events(curr, again)}
+
+
+def test_tp1_touched_fires_when_reached_not_banked():
+    prev = ev.snapshot(_report([_t("a", "DOTUSDT", 0.8, tp1_touched=False)]))
+    curr = ev.snapshot(_report([_t("a", "DOTUSDT", 1.0, tp1_touched=True,
+                                   tp1_filled=False)]))
+    types = {e["type"] for e in ev.diff_events(prev, curr)}
+    assert "tp1_touched" in types and "tp1_banked" not in types
+
+
+def test_tp1_touched_suppressed_once_banked():
+    # Touched and banked in the same read → only the banked ping, not 'touched'.
+    prev = ev.snapshot(_report([_t("a", "DOTUSDT", 0.8)]))
+    curr = ev.snapshot(_report([_t("a", "DOTUSDT", 1.0, tp1_touched=True,
+                                   tp1_filled=True)]))
+    types = {e["type"] for e in ev.diff_events(prev, curr)}
+    assert "tp1_banked" in types and "tp1_touched" not in types
+
+
+def test_deadline_soon_fires_on_entering_window():
+    prev = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=9.0)]))
+    curr = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=5.0)]))
+    assert "deadline_soon" in {e["type"] for e in ev.diff_events(prev, curr)}
+
+
+def test_deadline_soon_does_not_refire_while_in_window():
+    prev = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=5.0)]))
+    curr = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=3.0)]))
+    assert "deadline_soon" not in {e["type"] for e in ev.diff_events(prev, curr)}
+
+
+def test_deadline_soon_not_fired_when_overdue():
+    # Already overdue (h<=0) is not "soon" — the summary's overdue line owns that.
+    prev = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=9.0)]))
+    curr = ev.snapshot(_report([_t("a", "XRPUSDT", 0.2, hours_to_deadline=-1.0)]))
+    assert "deadline_soon" not in {e["type"] for e in ev.diff_events(prev, curr)}
 
 
 def test_no_event_when_unchanged():

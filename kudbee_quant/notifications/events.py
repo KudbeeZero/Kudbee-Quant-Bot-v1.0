@@ -42,20 +42,28 @@ _DEFAULT_STATE_PATH = os.path.join("data", "notify_state.json")
 # Health labels from review._health that mean "this trade is in trouble".
 _TROUBLE = {"near stop", "warning"}
 
+# A trade this close to its deadline (hours) crosses into the "resolving soon"
+# window — matches notify._deadline_line's default so the two agree.
+_DEADLINE_SOON_HOURS = 6.0
+
 # Per-event presentation. Keys are the event ``type`` strings emitted below.
 _ICONS = {
     "approaching_stop": "⚠️",
     "warning_cleared": "✔️",
     "recovered": "📈",
     "flipped_red": "🔻",
+    "tp1_touched": "📍",
     "tp1_banked": "💰",
+    "deadline_soon": "⏳",
 }
 _LABELS = {
     "approaching_stop": "Stop Approaching",
     "warning_cleared": "Warning Cleared",
     "recovered": "Recovered to Profit",
     "flipped_red": "Slipped to Loss",
+    "tp1_touched": "First Target Reached",
     "tp1_banked": "TP1 Banked",
+    "deadline_soon": "Deadline Approaching",
 }
 
 
@@ -78,12 +86,18 @@ def snapshot(report: dict) -> dict:
         tid = t.get("id")
         if tid is None:
             continue
+        h = t.get("hours_to_deadline")
         trades[str(tid)] = {
             "symbol": t.get("symbol"),
             "ur": t.get("unrealized_r"),
             "health": t.get("health"),
+            "tp1_touched": bool(t.get("tp1_touched")),
             "tp1_filled": bool(t.get("tp1_filled")),
             "stop_touched": bool(t.get("stop_touched")),
+            # Boolean edge (not the raw float) so the diff is a clean False→True
+            # the hour a trade enters the "resolving soon" window, not noise from
+            # the countdown ticking down every read.
+            "dl_soon": (h is not None and 0 < h <= _DEADLINE_SOON_HOURS),
             "status": t.get("status"),
         }
     p = report.get("portfolio", {}) or {}
@@ -119,6 +133,17 @@ def diff_events(prev: dict | None, curr: dict) -> list[dict]:
         if c.get("tp1_filled") and not p.get("tp1_filled"):
             out.append({"type": "tp1_banked", "symbol": sym, "r": c_ur,
                         "detail": "Partial booked, stop to breakeven."})
+        # TP1 *touched* but not yet banked — price reached the first target.
+        # Suppressed once it actually banks (the tp1_banked ping covers that).
+        elif (c.get("tp1_touched") and not p.get("tp1_touched")
+              and not c.get("tp1_filled")):
+            out.append({"type": "tp1_touched", "symbol": sym, "r": c_ur,
+                        "detail": "Reached first target."})
+
+        # Entered the "resolving soon" deadline window (False→True edge only).
+        if c.get("dl_soon") and not p.get("dl_soon"):
+            out.append({"type": "deadline_soon", "symbol": sym, "r": c_ur,
+                        "detail": "Will auto-resolve at its deadline soon."})
 
         # Health crossing into / out of trouble.
         if c_health in _TROUBLE and p_health not in _TROUBLE:
