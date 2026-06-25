@@ -246,3 +246,26 @@ def test_five_min_reminder_does_not_fire_events_or_save(monkeypatch):
     assert saved == []                             # read-only path saves nothing
     assert not any("Recovered" in m for m in sent)  # no event spam every 5 min
     assert not any("Since last read" in m for m in sent)
+
+
+# --- demo script smoke test --------------------------------------------------
+
+def test_demo_script_renders_expected_events():
+    """scripts/demo_event_layer.py replays a bouncing book; lock that it actually
+    produces the event vocabulary + delta header (so the 'show me a result' demo
+    can't silently rot)."""
+    import importlib.util
+    import os
+
+    path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                        "scripts", "demo_event_layer.py")
+    spec = importlib.util.spec_from_file_location("demo_event_layer", path)
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    out = mod.render()
+    assert "Stop Approaching" in out
+    assert "Slipped to Loss" in out
+    assert "Recovered to Profit" in out
+    assert "Warning Cleared" in out
+    assert "📊 Since last read:" in out
+    assert "all in profit" in out          # the final read lands clean
