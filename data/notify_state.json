@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 4,
     "n": 8,
-    "unrealized_r": 3.7217,
-    "winners": 8
+    "unrealized_r": 2.2026,
+    "winners": 4
   },
   "trades": {
     "51a0276a": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.0369960945920944
+      "ur": 0.9728250788351019
     },
     "6960883e": {
       "dl_soon": false,
@@ -24,17 +24,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.718181818181817
+      "ur": 0.6333333333333321
     },
     "7338a3ff": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.015877437325900395
+      "ur": -0.4416898792943399
     },
     "903cc802": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.014270542944381641
+      "ur": -0.12511615558210135
     },
     "acc5f554": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.09538357094365467
+      "ur": -0.07094365241004696
     },
     "ad21195f": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.718181818181817
+      "ur": 0.6333333333333321
     },
     "e5772150": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.015877437325900395
+      "ur": -0.4416898792943399
     },
     "e944006a": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.1069076507730968
+      "ur": 1.0425475329279972
     }
   }
 }
