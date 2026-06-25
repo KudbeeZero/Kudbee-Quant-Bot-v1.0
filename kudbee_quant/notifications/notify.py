@@ -349,6 +349,31 @@ def notify_summary(only_if_open: bool = False) -> bool:
         return False
 
 
+def notify_scan_blocked(event_name: str, hours_until: float) -> bool:
+    """Ping that the scanner SKIPPED a scan because of binary-event risk.
+
+    Lets the Telegram channel know WHY no setups fired (a silent skip is
+    indistinguishable from 'nothing set up'). No-op when Telegram isn't
+    configured — :func:`send_telegram` self-guards on :func:`telegram_enabled` —
+    and never raises (a ping must never break a scan).
+    """
+    when = f"in {hours_until:.1f}h" if hours_until > 0 else "now"
+    msg = (
+        f"⚡ KUDBEE QUANT\n"
+        f"◇ Scan paused\n"
+        f"{'─' * 22}\n"
+        f"▸ {event_name} {when}\n"
+        f"▸ No new positions until event passes\n"
+        f"▸ Existing positions unaffected\n"
+        f"\n"
+        f"Tino rule: do not enter before binary events."
+    )
+    try:
+        return send_telegram(msg)
+    except Exception:  # noqa: BLE001 — a ping must never break a scan
+        return False
+
+
 def notify_error(context: str, detail: str = "") -> bool:
     """Ping on a bot/health problem (e.g. an Action step failed)."""
     if not telegram_enabled():

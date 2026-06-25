@@ -24,6 +24,7 @@ from __future__ import annotations
 
 from .notify import (
     notify_error,
+    notify_scan_blocked,
     notify_summary,
     notify_test,
     notify_trade_close_events,
@@ -47,6 +48,7 @@ __all__ = [
     "notify_trade_open_events",
     "notify_trade_close_events",
     "notify_summary",
+    "notify_scan_blocked",
     "notify_error",
     "notify_test",
 ]

@@ -1,11 +1,21 @@
 """Paper-trading scan (see package docstring)."""
 from __future__ import annotations
 
+import logging
+
 from ..confluence.stack import KILLZONE_GATE_FLAGS, confluence_score
 from ..ingest import RouterClient
 from ..ingest.router import parse_spec
+from ..intelligence.event_calendar import (
+    get_blocking_event,
+    hours_until_event,
+    is_friday_close_window,
+    is_monday_open_window,
+)
 from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
+
+logger = logging.getLogger(__name__)
 
 # Bar duration in minutes for each supported interval — lets the trade horizon
 # scale with the timeframe (a 5m scalp resolves in hours; a 4h swing in days).
@@ -78,6 +88,30 @@ def paper_scan(
     bot-owned ``data/journal.json`` (the data-poisoning vector api_security.py
     was written to close).
     """
+    # --- Binary-event gate (read-only, checked BEFORE any signal evaluation) ---
+    # Tino's rule: do not open NEW positions near a known high-impact scheduled
+    # event (earnings, PCE, NFP, FOMC) — binary moves invalidate technical setups.
+    # This blocks NEW entries only; existing open/pending trades are untouched.
+    # The gate mirrors live behaviour in dry_run so the read-only dashboard preview
+    # stays faithful, but the Telegram ping is suppressed on dry_run (a preview
+    # must have no side effects — same invariant as never writing to the journal).
+    block_event, block_hours, block_reason = None, 0.0, None
+    blocking = get_blocking_event(hours_before=4.0)
+    if blocking:
+        block_event = blocking["name"]
+        block_hours = hours_until_event(blocking)
+        block_reason = f"{block_event} in {block_hours:.1f}h"
+    elif is_friday_close_window():
+        block_event, block_reason = "Friday close", "Friday close window"
+    elif is_monday_open_window():
+        block_event, block_reason = "Monday open gap risk", "Monday open gap risk"
+    if block_reason:
+        logger.info("SCAN BLOCKED: %s — no new entries", block_reason)
+        if not dry_run:
+            from ..notifications import notify_scan_blocked
+            notify_scan_blocked(block_event, block_hours)
+        return []
+
     from ..exposure import symbol_exposure
     j = journal or TradeJournal()
     client = client or RouterClient()
