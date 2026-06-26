@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 11,
-    "unrealized_r": 6.1947,
+    "unrealized_r": 5.8923,
     "winners": 11
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1788830715532318
+      "ur": 0.15445026178010515
     },
     "36c63880": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.35219164118246643
+      "ur": 0.3735983690112143
     },
     "41aec776": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.35219164118246643
+      "ur": 0.3735983690112143
     },
     "6960883e": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.28074914460651695
+      "ur": 0.2410408788042481
     },
     "b8dddb3b": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.28074914460651695
+      "ur": 0.2410408788042481
     },
     "c106fc90": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.22994350282485745
+      "ur": 0.1666666666666608
     },
     "d25b7503": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1788830715532318
+      "ur": 0.15445026178010515
     },
     "e5617935": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.22994350282485745
+      "ur": 0.1666666666666608
     },
     "e944006a": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.4869340341115844
+      "ur": 1.3965181248076293
     }
   }
 }
