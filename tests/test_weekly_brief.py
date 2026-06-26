@@ -19,8 +19,8 @@ def test_crypto_observations_are_inert_and_labelled():
     assert TINO_CRYPTO_OBSERVATIONS["instrument"] == "SOLUSDT Perp 42x"
     assert TINO_CRYPTO_OBSERVATIONS["verified"] is False
     assert TINO_CRYPTO_OBSERVATIONS["applies_to_live_book"] is False
-    assert EMA_800_STUDY_CANDIDATE["status"] == "proposed_not_started"
-    assert "pre_registration" in EMA_800_STUDY_CANDIDATE["requires"]
+    assert EMA_800_STUDY_CANDIDATE["status"] == "tested_negative"
+    assert EMA_800_STUDY_CANDIDATE["wired"] is False
 
 
 def test_brief_renders_with_real_fields_and_honest_status():
