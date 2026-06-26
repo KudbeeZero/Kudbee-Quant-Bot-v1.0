@@ -388,17 +388,22 @@ TINO_CRYPTO_OBSERVATIONS = {
     ),
 }
 
-# Candidate study (NOT started, NOT wired). Pre-register before running, then
-# put it through the same bootstrap gate as the DXY (INCONCLUSIVE) and VAH
-# (REJECT) studies. Positive-and-significant-and-meaningful, or it stays inert.
+# Candidate study — TESTED, REJECTED (pre-registered, PR #112/#113). Kept for the
+# record so the candidate list reflects reality; do NOT wire.
 EMA_800_STUDY_CANDIDATE = {
-    "status": "proposed_not_started",
+    "status": "tested_negative",
     "hypothesis": (
         "On the validated top-10/1h population, signals taken on the side of the "
         "800 EMA (longs above / shorts below) show higher net-R per trade than "
         "signals taken against it."
     ),
-    "requires": "pre_registration_before_running",
-    "gate": "n>=30 AND boot_p<0.05 AND improvement>0.02R (same as DXY/VAH)",
-    "priority": "owner's call — next candidate after the two negatives",
+    "result": (
+        "REJECT (n=3730): ABOVE -0.056R (n=1820, boot_p 0.986), BELOW -0.054R "
+        "(n=1910); improvement -0.001R, ABOVE-BELOW spread -0.002R. The validated "
+        "confluence signal already applies an EMA-stack trend filter, so above/below "
+        "the 800 EMA is collinear with long/short and adds no incremental edge."
+    ),
+    "pre_registration": "studies/800_ema_study_preregistration.md",
+    "study": "research/ema_800_study.py + research/ema_800_study_results.md",
+    "wired": False,
 }
