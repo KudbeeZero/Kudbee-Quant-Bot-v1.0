@@ -139,25 +139,19 @@ jobs:
         run: python -m kudbee_quant.cli notify-session || true
 
       - name: Commit journal if changed
+        # Robust commit+push that survives the concurrent-writer race. Two runs
+        # landing close together used to collide: the second rebased onto the
+        # first and hit a CONTENT conflict on the per-run telemetry files
+        # (data/heartbeat.json, data/notify_state.json — rewritten wholesale each
+        # run), the standalone `git pull --rebase` died under `bash -e`, and the
+        # run fired a FALSE "run FAILED" Telegram ping. scripts/commit_journal.sh
+        # auto-resolves ONLY those regenerable telemetry files in favour of this
+        # run, retries on a moving target, and still fails loudly on a genuine
+        # journal.json conflict (never fabricating a merge). See the script header.
         run: |
           git config user.name "kudbee-paper-bot"
           git config user.email "actions@users.noreply.github.com"
-          # -A so consumed inbox files (deletions/renames) are staged too.
-          # data/heartbeat.json is bot-written each run (scheduler-gap visibility).
-          # data/notify_state.json is the last-read snapshot for the Telegram event
-          # layer (since-last-read deltas + intra-trade pings); must persist run-to-run.
-          git add -A data/journal.json data/alert_inbox data/heartbeat.json data/notify_state.json
-          if ! git diff --cached --quiet; then
-            git commit -m "paper-trade: update journal [skip ci]"
-            # An alert can land in the inbox mid-run — rebase so the push
-            # doesn't bounce (inbox files are create-only; never conflicts).
-            # If another commit still lands in the race window after the rebase,
-            # retry once (rebase again + push) so the run never fails on a stale ref.
-            git pull --rebase origin main
-            git push || (git pull --rebase origin main && git push)
-          else
-            echo "No journal changes this run."
-          fi
+          bash scripts/commit_journal.sh
 
       - name: Telegram failure alert
         # Fires only if an earlier step hard-failed (the scan steps use `|| true`,
