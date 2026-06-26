@@ -315,3 +315,90 @@ REMINDER: none of the above is verified or wired to the bot. The live edge is
 crypto top-10/1h confluence; any macro overlay must clear the significance gate
 (see research/traders_reality_research_vol11.md) before informing a live trade.
 """
+
+
+# ─────────────────────────────────────────
+# SECTION 8: TINO CRYPTO METHODOLOGY OBSERVATIONS
+# Source: BTCC SOLUSDT trade-log analysis, 2026-06-22..06-27.
+# READ-ONLY educational context. UNVERIFIED. NOT wired to any bot signal.
+# ─────────────────────────────────────────
+
+# DISCLAIMER: these are observations of Tino's discretionary SOLUSDT perp trades
+# on a copy-trade platform at 42x leverage. They are NOT the bot's universe, NOT
+# verified, and NOT a signal input. Cross-asset *methodology* notes only — they
+# describe HOW he trades (scale-in, hedge-then-flip, EMA/level gates), which is
+# context for candidate studies, not a basis for any live decision.
+
+TINO_CRYPTO_OBSERVATIONS = {
+    "instrument": "SOLUSDT Perp 42x",
+    "exchange": "BTCC (copy-trade platform)",
+    "observation_period": "2026-06-22 to 2026-06-27",
+    "verified": False,                 # discretionary log read, not confirmed
+    "applies_to_live_book": False,     # bot trades top-10 crypto confluence, not this
+
+    # ── methodology observed (the transferable part) ──
+    "entry_style": "scale_in",          # 3-7 fills around a level, not one shot
+    "hold_time": "swing_1_to_3_days",   # swing despite 42x, not an intraday scalp
+    "flip_style": "hedge_then_flip",    # opens the new side BEFORE closing the old
+    # e.g. 06/26: shorted ~70.24 at 09:03 UTC while longs stayed open until
+    # ~73.67 at 14:31 UTC — locks the next position, then banks the current.
+
+    # ── SOL-specific levels (USDT; unverified) ──
+    "sol_range_top": 74.5,
+    "sol_range_bottom": 65.0,
+    "sol_range_size_approx": 9.0,
+    "sol_800_ema_zone": "72.0-74.5",
+    # 800 EMA (Tino's TF, unverified) acts as the macro ceiling. Rejection =
+    # short bias; a clean close + hold above on retest = bull flip. This "EMA gate"
+    # is the transferable idea worth testing (see EMA_800_STUDY_CANDIDATE below).
+
+    # ── current state (as of 2026-06-27, unverified) ──
+    "current_sol_position": "short",
+    "sol_short_entry_range": "70.24 to 72.23",
+    "sol_short_avg_approx": 70.9,
+    "sol_current_price_approx": 72.7,
+    "sol_short_thesis": (
+        "Rejection of 800 EMA / Psy-Hi (~43B mcap, ~74.5). Closed longs at ~73.67 "
+        "after the NY push, shorting back toward the 65-66 support zone."
+    ),
+
+    # ── BTMM principles visible (methodology continuity, not signals) ──
+    "session_timing": True,             # entries cluster at London open (~09:00 UTC)
+    "level_framework": [
+        "Psy-Hi (~74.5 SOL / ~43B mcap)",
+        "Psy-Lo (~72.5 SOL)",
+        "YDay Hi (~70.8 SOL)",
+        "Daily Open (~67.8 SOL)",
+        "800 EMA (Tino's TF) — resistance",
+    ],
+    "pvsra_applicable": True,           # red climax at Psy-Hi = distribution (observed)
+
+    "bull_flip_conditions": [
+        "Hourly close above the 800 EMA zone (~74.5)",
+        "PVSRA: green/teal rising-volume candle on the reclaim",
+        "Holds above the 800 EMA on the retest (intrabar spikes do NOT count)",
+    ],
+
+    "fx_relevance": (
+        "Same BTMM framework across assets: session killzones, psychological "
+        "levels, EMA-rejection gates, scale-in entries. The 800-EMA gate is a "
+        "candidate confluence filter for the validated crypto book — but it must "
+        "clear the same bootstrap significance gate as the DXY/VAH studies, with a "
+        "PRE-REGISTERED hypothesis, before any wiring."
+    ),
+}
+
+# Candidate study (NOT started, NOT wired). Pre-register before running, then
+# put it through the same bootstrap gate as the DXY (INCONCLUSIVE) and VAH
+# (REJECT) studies. Positive-and-significant-and-meaningful, or it stays inert.
+EMA_800_STUDY_CANDIDATE = {
+    "status": "proposed_not_started",
+    "hypothesis": (
+        "On the validated top-10/1h population, signals taken on the side of the "
+        "800 EMA (longs above / shorts below) show higher net-R per trade than "
+        "signals taken against it."
+    ),
+    "requires": "pre_registration_before_running",
+    "gate": "n>=30 AND boot_p<0.05 AND improvement>0.02R (same as DXY/VAH)",
+    "priority": "owner's call — next candidate after the two negatives",
+}
