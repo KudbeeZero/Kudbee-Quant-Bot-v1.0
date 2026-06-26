@@ -75,6 +75,18 @@ and the absolute numbers are reported as-measured, not assumed.
 - If C isolates the BE slide as the drag: a targeted fix is *proposed* (same
   governance gate), not applied.
 
+## Decision matrix (locked — the surgical read C provides)
+
+- **B < A and C ≈ A** → the partial close is fine; the **BE slide** is the drag.
+  Targeted fix proposed: drop `be_after_tp1`, keep the partial.
+- **B < A and C < A** → the **partial itself** is the drag, not just the slide.
+  Proposed: revert toward ride-3R (A).
+- **B ≈ A** → current management **validated**; no change.
+
+("≈" = within the 0.015R margin; "<" = worse by more than 0.015R with boot_p<0.05.)
+Any proposed change goes through a SEPARATE governance PR requiring human approval
+— this study itself changes nothing live.
+
 ## What this tells us
 
 Whether the safety mechanism we added is protecting edge or destroying it.
