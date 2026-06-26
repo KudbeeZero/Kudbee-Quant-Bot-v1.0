@@ -41,3 +41,17 @@ conservative within-bar ordering (stop checked before target) so no lookahead.
 - **Hour-of-day expectancy** (with strict out-of-sample care; MEMORY §16 flagged
   NY hours 1–4 as suggestive but data-mining-risky — only with walk-forward).
 - **Monday/weekend-gap effect** in crypto (continuation vs fade of the weekend drift).
+
+## From Traders Reality (Tino) clips, 2026-06-26 — see research/traders_reality_research_vol11.md
+
+- **DXY-regime gate** (cheaper to test first; needs an external DXY series + 24/7
+  alignment). "Always watch the dollar": skip/penalize longs when DXY is rising
+  and shorts when DXY is falling. Add a DXY state per 1h bar; measure expectancy
+  WITH vs WITHOUT the gate on the SAME validated top-10/1h population, behind the
+  bootstrap significance gate. Net > 0R after fees AND `boot_p` through the gate,
+  or it stays OFF. Directional regime overlay — exactly the "more signal" the
+  thesis distrusts, so it must clear the gate, not just look good.
+- **Previous-session VAH trap-reversal entry** (larger lift — a NEW entry model,
+  not a tweak). Needs a 24/7 crypto session definition, a per-session
+  volume-profile Value Area High, and a sweep-then-reject trigger. Backtest-first,
+  same significance gate, before any thought of live wiring.
