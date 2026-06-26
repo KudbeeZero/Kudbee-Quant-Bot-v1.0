@@ -830,6 +830,21 @@ def _notify_test(args) -> None:
     print("Test ping sent." if notify_test() else "Telegram send failed (check token/chat id).")
 
 
+def _notify_weekly_brief(args) -> None:
+    """Send the read-only weekly macro brief to Telegram (opt-in; not on any cron).
+
+    With --print, render it to stdout without sending (useful with no creds)."""
+    from .notifications import format_weekly_brief, notify_weekly_brief, telegram_enabled
+    if getattr(args, "print", False):
+        print(format_weekly_brief())
+        return
+    if not telegram_enabled():
+        print("Telegram is not configured — no brief sent. (Use --print to preview.)")
+        return
+    print("Weekly brief sent." if notify_weekly_brief()
+          else "Telegram send failed (check token/chat id).")
+
+
 def _notify_summary(args) -> None:
     """Send the portfolio snapshot to Telegram (used by the hourly Action)."""
     from .notifications import notify_summary, telegram_enabled
@@ -1282,6 +1297,11 @@ def main() -> None:
 
     nt = sub.add_parser("notify-test", help="send a Telegram test ping (verify token/chat id)")
     nt.set_defaults(func=_notify_test)
+    nwb = sub.add_parser("notify-weekly-brief",
+                         help="send the read-only weekly macro brief (opt-in; not on any cron)")
+    nwb.add_argument("--print", action="store_true", dest="print",
+                     help="render the brief to stdout instead of sending")
+    nwb.set_defaults(func=_notify_weekly_brief)
     nsum = sub.add_parser("notify-summary", help="send the portfolio snapshot to Telegram")
     nsum.add_argument("--only-if-open", action="store_true", dest="only_if_open",
                       help="skip sending when there are no open positions (silent when flat)")

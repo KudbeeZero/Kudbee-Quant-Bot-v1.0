@@ -36,11 +36,14 @@ from .notify import (
     send_telegram_message,
 )
 from .telegram import send_telegram, telegram_enabled
+from .weekly_brief import format_weekly_brief, notify_weekly_brief
 
 __all__ = [
     "send_telegram",
     "send_telegram_message",
     "telegram_enabled",
+    "format_weekly_brief",
+    "notify_weekly_brief",
     "notify_trades_opened",
     "notify_trades_resolved",
     "notify_trade_opened",
