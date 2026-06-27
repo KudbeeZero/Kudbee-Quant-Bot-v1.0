@@ -326,9 +326,10 @@
     fill("chart-longshort", longShortChart);
     if (D.longshort) {
       var ls = D.longshort;
-      setText("ls-long", "+" + ls.long.exp + "R");
-      setText("ls-short", "+" + ls.short.exp + "R");
-      setText("ls-both", "+" + ls.both.exp + "R");
+      var sgn = function (v) { return (v >= 0 ? "+" : "") + v + "R"; };
+      setText("ls-long", sgn(ls.long.exp));
+      setText("ls-short", sgn(ls.short.exp));
+      setText("ls-both", sgn(ls.both.exp));
     }
     venueWidget();
     loadForward();
@@ -337,7 +338,7 @@
     setText("stat-win", sm.win + "%");
     setText("stat-stop", sm.stop + "%");
     setText("stat-n", sm.n);
-    setText("stat-pattern", "+" + D.pattern.mean + "R");
+    setText("stat-pattern", (D.pattern.mean >= 0 ? "+" : "") + D.pattern.mean + "R");
     setText("stat-pattern-pos", D.pattern.pos + "%");
     setText("stat-assets", D.assets.crypto + " crypto + " + D.assets.stocks + " stocks");
     setText("gen-date", D.generated);

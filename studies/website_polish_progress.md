@@ -39,7 +39,7 @@ Loop started: 2026-06-27 (~15:40 UTC). Stop by ~17:40 UTC or when all checked.
 - [ ] 2. `methodology.html`
 - [ ] 3. `start-here.html`
 - [ ] 4. `about.html`
-- [ ] 5. `lab.html`
+- [x] 5. `lab.html` — REFRESHED stale data: regenerated lab-data.js from the live engine (generated 2026-06-27, was 2026-06-09; 10 crypto + 6 stocks); made the generator's date dynamic; fixed '+-0.112R' sign-format bug in lab.js. All page claims re-verified against fresh numbers.
 - [ ] 6. `compare.html`
 - [ ] 7. `live-signals.html`
 - [ ] 8. `glossary.html`
