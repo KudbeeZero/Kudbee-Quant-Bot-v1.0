@@ -28,7 +28,7 @@ Each wake: pick next unchecked item → polish → screenshot-verify → commit+
 check it off here (with a one-line note) → re-arm ScheduleWakeup if items remain
 and < ~2h since loop start; else mark PR ready + post preview URL + stop.
 
-Loop started: 2026-06-27 (~15:40 UTC). Stop by ~17:40 UTC or when all checked.
+Loop started: 2026-06-27 (~15:40 UTC); EXTENDED by owner re-invocation ~19:26 UTC. Continue until all pages checked or owner stops.
 
 ## Checklist
 - [x] **0. Global design system** (`style.css` polish layer): refined depth/shadows,
@@ -36,7 +36,7 @@ Loop started: 2026-06-27 (~15:40 UTC). Stop by ~17:40 UTC or when all checked.
       section rhythm. (Lifts every page at once.)
 - [x] 1a. `index.html` trade-reads showcase — EXPANDED to 8 setups (4 long / 4 short): added Trend short, Breakdown·retest, Trend long; every scenario now narrates POSITION management (1% risk, bank half @1R → BE → ride 3R). Goal-driven.
 - [x] 1b. `index.html` — hero highlights get honey accent + hover; FAQ accordions get depth/hover; trust row firmed. Screenshot-verified.
-- [ ] 2. `methodology.html`
+- [x] 2. `methodology.html` — editorial drop-cap opener, honey numbered-badge ordered lists (Layer 3 + honesty contract), refined prose-link underlines. Page-local scoped style; all internal links verified. Screenshot-verified.
 - [ ] 3. `start-here.html`
 - [ ] 4. `about.html`
 - [x] 5. `lab.html` — REFRESHED stale data: regenerated lab-data.js from the live engine (generated 2026-06-27, was 2026-06-09; 10 crypto + 6 stocks); made the generator's date dynamic; fixed '+-0.112R' sign-format bug in lab.js. All page claims re-verified against fresh numbers.
