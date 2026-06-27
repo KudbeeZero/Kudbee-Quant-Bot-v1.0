@@ -687,7 +687,10 @@
           <h2>Be first into the hive.</h2>
           <p>Join the waitlist for early access, founding-member perks, and a front-row seat as we roll out new markets and strategies.</p>
 
-          <form class="waitlist" id="waitlistForm" novalidate>
+          <form class="waitlist" id="waitlistForm" action="https://formspree.io/f/mqevpwzd" method="POST" novalidate>
+            <input type="hidden" name="_subject" value="New Kudbee Quant waitlist signup" />
+            <input type="hidden" name="source" value="waitlist" />
+            <input type="text" name="_gotcha" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;" />
             <div class="waitlist__row">
               <input type="email" id="email" name="email" placeholder="you@email.com" autocomplete="email" required aria-label="Email address" />
               <button type="submit" class="btn btn--primary btn--lg">Request early access</button>

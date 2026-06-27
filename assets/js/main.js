@@ -202,55 +202,88 @@
     if (q) filter();
   }
 
-  /* ---- Contact form (front-end only; mailto fallback) ---- */
-  var contactForm = document.getElementById('contactForm');
-  if (contactForm) {
-    var cMsg = document.getElementById('contactMsg');
-    var emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    contactForm.addEventListener('submit', function (e) {
+  /* ---- Formspree-backed forms (progressive enhancement, no deps) ----
+     Forms POST to their own `action` (a Formspree endpoint) so they work even
+     if this script fails to load. When it does load, we intercept and submit
+     via fetch() for an inline, no-redirect success/error UX. The honeypot
+     `_gotcha` field + Formspree handle spam. */
+  var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  function setMsg(el, text, cls) {
+    if (!el) return;
+    el.textContent = text || '';
+    el.className = 'waitlist__msg' + (cls ? ' ' + cls : '');
+  }
+
+  function wireFormspree(form, opts) {
+    if (!form) return;
+    var msgEl = document.getElementById(opts.msgId);
+    var btn = form.querySelector('button[type="submit"]') || form.querySelector('button');
+    form.addEventListener('submit', function (e) {
       e.preventDefault();
-      var name = (document.getElementById('cname').value || '').trim();
-      var email = (document.getElementById('cemail').value || '').trim();
-      var message = (document.getElementById('cmsg').value || '').trim();
-      if (!name || !emailRe.test(email) || message.length < 5) {
-        cMsg.textContent = 'Please add your name, a valid email, and a short message.';
-        cMsg.className = 'waitlist__msg err';
+      var problem = opts.validate ? opts.validate(form) : null;
+      if (problem) { setMsg(msgEl, problem, 'err'); return; }
+
+      // Endpoint must be a configured Formspree action; degrade gracefully if not.
+      var endpoint = form.getAttribute('action') || '';
+      if (endpoint.indexOf('formspree.io') === -1) {
+        setMsg(msgEl, 'Form isn’t configured yet — email hello@kudbeequant.com.', 'err');
         return;
       }
-      // No backend yet — open the user's mail client as a graceful fallback.
-      var subject = encodeURIComponent('Kudbee Quant enquiry from ' + name);
-      var body = encodeURIComponent(message + '\n\n— ' + name + ' (' + email + ')');
-      cMsg.textContent = 'Thanks! Opening your email app to send…';
-      cMsg.className = 'waitlist__msg ok';
-      window.location.href = 'mailto:hello@kudbeequant.com?subject=' + subject + '&body=' + body;
-      contactForm.reset();
+
+      var origLabel = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = opts.sending || 'Sending…'; }
+      setMsg(msgEl, '', '');
+
+      fetch(endpoint, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: { 'Accept': 'application/json' }
+      }).then(function (res) {
+        if (res.ok) {
+          form.reset();
+          setMsg(msgEl, opts.success, 'ok');
+          return;
+        }
+        return res.json().then(function (d) {
+          var err = (d && d.errors && d.errors.length)
+            ? d.errors.map(function (x) { return x.message; }).join(' ')
+            : 'Something went wrong. Please try again, or email hello@kudbeequant.com.';
+          setMsg(msgEl, err, 'err');
+        });
+      }).catch(function () {
+        setMsg(msgEl, 'Network error — please try again, or email hello@kudbeequant.com.', 'err');
+      }).then(function () {
+        if (btn) { btn.disabled = false; btn.textContent = origLabel; }
+      });
     });
   }
 
-  /* ---- Waitlist form (front-end only, stores locally) ---- */
-  var form = document.getElementById('waitlistForm');
-  if (form) {
-    var input = document.getElementById('email');
-    var msg = document.getElementById('waitlistMsg');
-    var re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
-      var val = (input.value || '').trim();
-      if (!re.test(val)) {
-        msg.textContent = 'Please enter a valid email address.';
-        msg.className = 'waitlist__msg err';
-        input.focus();
-        return;
+  /* Contact form (name + email + message) */
+  wireFormspree(document.getElementById('contactForm'), {
+    msgId: 'contactMsg',
+    sending: 'Sending…',
+    success: 'Thanks — your message is in. We’ll reply by email soon.',
+    validate: function (f) {
+      var name = (f.querySelector('[name="name"]').value || '').trim();
+      var email = (f.querySelector('[name="email"]').value || '').trim();
+      var message = (f.querySelector('[name="message"]').value || '').trim();
+      if (!name || !EMAIL_RE.test(email) || message.length < 5) {
+        return 'Please add your name, a valid email, and a short message.';
       }
-      // No backend wired yet — persist locally so nothing is lost.
-      try {
-        var list = JSON.parse(localStorage.getItem('kudbee_waitlist') || '[]');
-        if (list.indexOf(val) === -1) list.push(val);
-        localStorage.setItem('kudbee_waitlist', JSON.stringify(list));
-      } catch (err) { /* storage may be unavailable; non-fatal */ }
-      msg.textContent = "You're on the list! 🐝 Watch your inbox for your invite.";
-      msg.className = 'waitlist__msg ok';
-      form.reset();
-    });
-  }
+      return null;
+    }
+  });
+
+  /* Waitlist form (email only) */
+  wireFormspree(document.getElementById('waitlistForm'), {
+    msgId: 'waitlistMsg',
+    sending: 'Requesting…',
+    success: 'You’re on the list! 🐝 Watch your inbox for your invite.',
+    validate: function (f) {
+      var email = (f.querySelector('[name="email"]').value || '').trim();
+      if (!EMAIL_RE.test(email)) return 'Please enter a valid email address.';
+      return null;
+    }
+  });
 })();
