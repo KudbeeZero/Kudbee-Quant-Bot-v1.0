@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 2,
-    "unrealized_r": 0.9158,
+    "unrealized_r": 0.9472,
     "winners": 2
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.8554908841722614
+      "ur": 0.886836272816513
     }
   }
 }
