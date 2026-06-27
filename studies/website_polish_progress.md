@@ -54,7 +54,7 @@ Loop started: 2026-06-27 (~15:40 UTC); EXTENDED by owner re-invocation ~19:26 UT
 Baseline audit (2026-06-27): most pages already have title/desc/canonical/OG/Twitter/JSON-LD.
 Gaps being closed one page per iteration:
 - [x] SEO: `lab.html` — added OG + Twitter + JSON-LD (WebPage + **Dataset** for AEO + BreadcrumbList) + new `assets/img/og/og-lab.svg`. JSON-LD validated.
-- [ ] SEO: `live-signals.html` — add canonical + OG/Twitter/JSON-LD (or noindex if app-only).
+- [x] SEO: `live-signals.html` — kept intentional `noindex,follow` (volatile live data, borderline advice) but added canonical + OG/Twitter cards (social-share preview) + new `og-live-signals.svg`. No JSON-LD (noindex → no rich-result need).
 - [ ] SEO: `trade-story.html` + `trade-flow.html` — canonical + OG/Twitter/JSON-LD (or mark noindex if embed/demo-only).
 - [ ] SEO: `be-report.html` — add description/canonical/OG/JSON-LD, or confirm intentional noindex.
 - [ ] SEO: `leverage-report.html` — add JSON-LD (Report/Article); already has OG+Twitter.
