@@ -1,5 +1,6 @@
 """Generate REAL chart data (assets/js/lab-data.js) from the live engine."""
 import json
+from datetime import date, timezone, datetime
 import numpy as np
 import pandas as pd
 from kudbee_quant.ingest import load_ohlcv
@@ -110,7 +111,7 @@ venues=[
 
 DATA={"equity":equity,"survival":surv,"expfee":expfee,"pattern":pattern,
       "longshort":longshort,"venues":venues,
-      "generated":"2026-06-09","assets":{"crypto":len(FC),"stocks":len(FS)}}
+      "generated":date.today().isoformat(),"assets":{"crypto":len(FC),"stocks":len(FS)}}
 out="window.KUDBEE_LAB = "+json.dumps(DATA,separators=(",",":"))+";\n"
 open("assets/js/lab-data.js","w").write(out)
 print("wrote assets/js/lab-data.js",len(out),"bytes")

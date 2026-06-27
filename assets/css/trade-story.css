@@ -496,6 +496,8 @@
 .ts-tag--backtest   { color:#c46bff; border-color:rgba(196,107,255,.45); background:rgba(196,107,255,.08); }
 .ts-tag--risk       { color:#FFD45E; border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10); }
 .ts-tag--result     { color:#5eead4; border-color:rgba(45,212,191,.5);  background:rgba(45,212,191,.10); }
+.ts-tag--trend      { color:#8b9dff; border-color:rgba(139,157,255,.45); background:rgba(139,157,255,.08); }
+.ts-tag--position   { color:#FFD45E; border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10); }
 
 /* rail stacks below the chart on narrow screens */
 @media (max-width: 720px) {

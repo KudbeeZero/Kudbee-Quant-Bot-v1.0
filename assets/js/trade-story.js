@@ -340,6 +340,187 @@
         { at: 13, time: "NY 11:30", concept: "result", text: "Target tagged at <strong>+3R</strong>. Illustrative — not a live fill." },
       ],
     },
+
+    /* ---------- 6) Trend-continuation short — sell the lower high (SHORT) ---------- */
+    {
+      id: "trend-short",
+      name: "Trend short · lower-high",
+      badge: "downtrend · sell the retrace (short)",
+      candles: [
+        { o: 64980, h: 65010, l: 64900, c: 64930, vol: "norm" },
+        { o: 64930, h: 64960, l: 64800, c: 64840, vol: "norm" },
+        { o: 64840, h: 64880, l: 64700, c: 64740, vol: "norm" },   // 2 trending down under the stack
+        { o: 64740, h: 64900, l: 64720, c: 64880, vol: "norm" },   // 3 retrace up toward the 50-EMA
+        { o: 64880, h: 65020, l: 64860, c: 64900, vol: "climax" }, // 4 SWEEP above the 50-EMA — trap
+        { o: 64900, h: 64940, l: 64620, c: 64670, vol: "vector" }, // 5 bear-vector rejection
+        { o: 64670, h: 64710, l: 64540, c: 64580, vol: "norm" },
+        { o: 64580, h: 64620, l: 64500, c: 64540, vol: "norm" },   // 7 daily-open support
+        { o: 64540, h: 64730, l: 64520, c: 64710, vol: "norm" },   // 8 pullback
+        { o: 64710, h: 64740, l: 64640, c: 64670, vol: "norm" },   // 9 LOWER HIGH (< the swept high)
+        { o: 64670, h: 64690, l: 64540, c: 64560, vol: "norm" },
+        { o: 64560, h: 64580, l: 64480, c: 64500, vol: "norm" },   // 11 retest of support
+        { o: 64500, h: 64520, l: 64220, c: 64260, vol: "vector" }, // 12 BREAKDOWN thru daily open
+        { o: 64260, h: 64300, l: 64060, c: 64100, vol: "norm" },
+        { o: 64100, h: 64140, l: 63880, c: 63920, vol: "norm" },
+        { o: 63920, h: 63960, l: 63660, c: 63700, vol: "norm" },   // 15 TARGET
+      ],
+      idx: { SWEEP: 4, RECLAIM: 5, LOWERHIGH: 9, BREAKOUT: 12, TARGET: 15 },
+      levels: [
+        { price: 64900, label: "50-EMA (resist)", color: "#F5A623", dash: [2, 3], faint: false },
+        { price: 64560, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
+        { price: 63700, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: false },
+      ],
+      bracket: { entry: 64500, stop: 64780, dir: -1, rMult: 3, startIdx: 12 },
+      result: { r: "+3R" },
+      agents: [
+        { key: "liquidity", cls: "ts-bubble--liquidity", emoji: "🔍", name: "Liquidity", tag: "sweep",
+          note: "Retrace <strong>swept the 50-EMA</strong> — late longs trapped at resistance, instant rejection.",
+          anchor: 4, side: "above" },
+        { key: "pvsra", cls: "ts-bubble--pvsra", emoji: "🕯️", name: "PVSRA", tag: "vector",
+          note: "<strong>Bear vector</strong> off the EMA — sellers reload in the direction of trend.",
+          anchor: 5, side: "above" },
+        { key: "structure", cls: "ts-bubble--structure", emoji: "📐", name: "Structure", tag: "trend",
+          note: "Price below the <strong>EMA stack</strong>; this is a <strong>lower high</strong> — trend continuation, not reversal.",
+          anchor: 9, side: "above" },
+        { key: "reviewer", cls: "ts-bubble--reviewer", emoji: "✅", name: "Reviewer", tag: "review",
+          note: "Reviewed <strong>3 reads</strong> · confluence 64% · trend + location aligned short.",
+          anchor: 9, side: "below", kind: "reviewer", scanTo: 9 },
+        { key: "risk", cls: "ts-bubble--risk", emoji: "🎯", name: "Risk", tag: "position",
+          note: "<strong>Short 1% risk</strong> · bank half at 1R → stop to break-even → ride to 3R.",
+          anchor: 12, side: "below", kind: "risk" },
+      ],
+      thinking: [
+        { at: 0, time: "NY 09:30", concept: "trend", text: "Price is <strong>below the 13/50/200 EMA stack</strong> — the trend filter only clears <strong>shorts</strong> here. Longs are vetoed." },
+        { at: 3, time: "NY 10:10", concept: "level", text: "Counter-trend bounce lifting into the <strong>50-EMA</strong> (~64,900) — where pullbacks in a downtrend get sold." },
+        { at: 4, time: "NY 10:30", concept: "sweep", text: "Climax pokes <strong>above the 50-EMA</strong>, then closes back under. Breakout-longs' stops harvested at resistance." },
+        { at: 5, time: "NY 10:35", concept: "vector", text: "<strong>Bear vector</strong>: volume ≥2× average rejecting the retrace — supply in the trend direction." },
+        { at: 9, time: "NY 11:30", concept: "trend", text: "Bounce caps at a <strong>lower high</strong> (64,740) under the EMA. Down-trend structure intact — continuation, not a turn." },
+        { at: 9, time: "NY 11:35", concept: "confluence", text: "Reviewer scans 0–9: trend-aligned + swept-EMA + bear vector + lower-high = <strong>64% confluence</strong>, past the gate." },
+        { at: 12, time: "NY 12:30", concept: "backtest", text: "Break of support. Backtest lens: trend-aligned pullback shorts are the <strong>bread-and-butter</strong> book — measured, not promised." },
+        { at: 12, time: "NY 12:34", concept: "risk", text: "<strong>Position:</strong> short 64,500, stop 64,780 (above the lower high). Size = 1% of account. Bank <strong>half at 1R</strong>, slide the stop to break-even, ride the rest to <strong>3R</strong>." },
+        { at: 15, time: "NY 14:00", concept: "result", text: "Runner tagged <strong>3R</strong> into the prior-day low. Illustrative — not a live fill." },
+      ],
+    },
+
+    /* ---------- 7) Range breakdown → retest rejection (SHORT) ---------- */
+    {
+      id: "breakdown-retest",
+      name: "Breakdown · retest",
+      badge: "range breakdown → retest (short)",
+      candles: [
+        { o: 64520, h: 64600, l: 64480, c: 64560, vol: "norm" },
+        { o: 64560, h: 64640, l: 64500, c: 64540, vol: "norm" },   // range top ~64,650
+        { o: 64540, h: 64620, l: 64470, c: 64500, vol: "norm" },
+        { o: 64500, h: 64580, l: 64450, c: 64480, vol: "norm" },   // 3 range low ~64,450
+        { o: 64480, h: 64560, l: 64440, c: 64520, vol: "norm" },
+        { o: 64520, h: 64560, l: 64200, c: 64250, vol: "vector" }, // 5 BREAKDOWN out of range
+        { o: 64250, h: 64300, l: 64120, c: 64160, vol: "norm" },
+        { o: 64160, h: 64220, l: 64060, c: 64100, vol: "norm" },   // 7 first leg down
+        { o: 64100, h: 64360, l: 64080, c: 64340, vol: "norm" },   // 8 pullback toward broken low
+        { o: 64340, h: 64470, l: 64320, c: 64430, vol: "climax" }, // 9 RETEST — sweep back into broken low
+        { o: 64430, h: 64460, l: 64210, c: 64250, vol: "vector" }, // 10 bear-vector rejection (level flip)
+        { o: 64250, h: 64290, l: 64120, c: 64150, vol: "norm" },
+        { o: 64150, h: 64180, l: 63960, c: 64000, vol: "norm" },
+        { o: 64000, h: 64040, l: 63820, c: 63860, vol: "norm" },
+        { o: 63860, h: 63900, l: 63660, c: 63700, vol: "norm" },   // 14 TARGET
+      ],
+      idx: { SWEEP: 9, RECLAIM: 10, LOWERHIGH: 9, BREAKOUT: 10, TARGET: 14 },
+      levels: [
+        { price: 64450, label: "Range Low → resist", color: "#F5A623", dash: [2, 3], faint: false },
+        { price: 64650, label: "Range High", color: "#6A7488", dash: [], faint: true },
+        { price: 63700, label: "Measured Move", color: "#2DD4BF", dash: [6, 5], faint: false },
+      ],
+      bracket: { entry: 64360, stop: 64560, dir: -1, rMult: 3, startIdx: 10 },
+      result: { r: "+3R" },
+      agents: [
+        { key: "liquidity", cls: "ts-bubble--liquidity", emoji: "🔍", name: "Liquidity", tag: "sweep",
+          note: "Pullback <strong>swept back into the broken range low</strong> — trapped shorts shaken, late longs baited.",
+          anchor: 9, side: "above" },
+        { key: "pvsra", cls: "ts-bubble--pvsra", emoji: "🕯️", name: "PVSRA", tag: "vector",
+          note: "<strong>Bear vector</strong> at the retest — old support is now <strong>resistance</strong>, sellers defend it.",
+          anchor: 10, side: "above" },
+        { key: "structure", cls: "ts-bubble--structure", emoji: "📐", name: "Structure", tag: "pattern",
+          note: "Clean <strong>break-and-retest</strong>: range low flips to resistance and holds.",
+          anchor: 10, side: "above" },
+        { key: "reviewer", cls: "ts-bubble--reviewer", emoji: "✅", name: "Reviewer", tag: "review",
+          note: "Reviewed <strong>3 reads</strong> · confluence 59% · retest rejection confirmed.",
+          anchor: 10, side: "below", kind: "reviewer", scanTo: 10 },
+        { key: "risk", cls: "ts-bubble--risk", emoji: "🎯", name: "Risk", tag: "position",
+          note: "<strong>Short 1% risk</strong> · bank half at 1R → break-even → ride to the measured move (3R).",
+          anchor: 10, side: "below", kind: "risk" },
+      ],
+      thinking: [
+        { at: 1, time: "London 03:00", concept: "level", text: "A tight <strong>range</strong> between 64,450 and 64,650 — coiled liquidity on both edges." },
+        { at: 5, time: "London 07:05", concept: "vector", text: "<strong>Bear vector</strong> breaks the range low on ≥2× volume — the expansion leg out of the box." },
+        { at: 8, time: "London 08:00", concept: "structure", text: "Bounce lifts back toward the <strong>broken low</strong> (64,450). The question: support flips to resistance, or reclaims?" },
+        { at: 9, time: "London 08:20", concept: "sweep", text: "Climax <strong>sweeps back inside</strong> the old range, tags 64,470, then fails. Late longs trapped above the level." },
+        { at: 10, time: "London 08:35", concept: "vector", text: "<strong>Bear vector</strong> rejection: old support acts as <strong>resistance</strong>. Break-and-retest confirmed." },
+        { at: 10, time: "London 08:40", concept: "confluence", text: "Reviewer scans 0–10: breakdown + retest + bear vector + level-flip = <strong>59% confluence</strong>, above the gate." },
+        { at: 10, time: "London 08:45", concept: "backtest", text: "Backtest lens: break-and-retest continuation is a measured edge — it fails often enough that <strong>risk is capped</strong>, not faith." },
+        { at: 10, time: "London 08:48", concept: "risk", text: "<strong>Position:</strong> short 64,360, stop 64,560 (above the retest). 1% risk. Bank <strong>half at 1R</strong>, stop to break-even, ride to the <strong>3R</strong> measured move." },
+        { at: 14, time: "London 11:30", concept: "result", text: "Measured move tagged at <strong>3R</strong>. Illustrative — not a live fill." },
+      ],
+    },
+
+    /* ---------- 8) Trend-continuation long — buy the pullback (LONG) ---------- */
+    {
+      id: "trend-long",
+      name: "Trend long · pullback",
+      badge: "uptrend · buy the pullback (long)",
+      candles: [
+        { o: 64200, h: 64320, l: 64180, c: 64300, vol: "norm" },
+        { o: 64300, h: 64420, l: 64280, c: 64400, vol: "norm" },   // 1 trending up over the stack
+        { o: 64400, h: 64520, l: 64380, c: 64500, vol: "norm" },
+        { o: 64500, h: 64540, l: 64360, c: 64390, vol: "norm" },   // 3 pullback toward the 50-EMA
+        { o: 64390, h: 64420, l: 64120, c: 64300, vol: "climax" }, // 4 SWEEP below the 50-EMA — trap
+        { o: 64300, h: 64560, l: 64280, c: 64520, vol: "vector" }, // 5 bull-vector reclaim
+        { o: 64520, h: 64600, l: 64480, c: 64560, vol: "norm" },
+        { o: 64560, h: 64640, l: 64520, c: 64600, vol: "norm" },   // 7 base above the EMA
+        { o: 64600, h: 64660, l: 64500, c: 64540, vol: "norm" },
+        { o: 64540, h: 64580, l: 64440, c: 64470, vol: "norm" },   // 9 HIGHER LOW (> the swept low)
+        { o: 64470, h: 64560, l: 64450, c: 64540, vol: "norm" },
+        { o: 64540, h: 64820, l: 64520, c: 64790, vol: "vector" }, // 11 BREAKOUT to new highs
+        { o: 64790, h: 64980, l: 64760, c: 64940, vol: "norm" },
+        { o: 64940, h: 65140, l: 64900, c: 65100, vol: "norm" },   // 13 TARGET
+        { o: 65100, h: 65300, l: 65060, c: 65260, vol: "norm" },
+      ],
+      idx: { SWEEP: 4, RECLAIM: 5, NECKLINE: 7, RIGHTFOOT: 9, BREAKOUT: 11, TARGET: 13 },
+      levels: [
+        { price: 64360, label: "50-EMA (support)", color: "#2DD4BF", dash: [6, 5], faint: false },
+        { price: 64200, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
+        { price: 64600, label: "Prior-day High", color: "#6A7488", dash: [], faint: true },
+      ],
+      bracket: { entry: 64470, stop: 64190, dir: 1, rMult: 3, startIdx: 11 },
+      result: { r: "+3R" },
+      agents: [
+        { key: "liquidity", cls: "ts-bubble--liquidity", emoji: "🔍", name: "Liquidity", tag: "sweep",
+          note: "Pullback <strong>swept under the 50-EMA</strong> — weak-hand longs flushed, then reclaimed fast.",
+          anchor: 4, side: "below" },
+        { key: "pvsra", cls: "ts-bubble--pvsra", emoji: "🕯️", name: "PVSRA", tag: "vector",
+          note: "<strong>Bull vector</strong> reclaim — demand defends the trend at the EMA.",
+          anchor: 5, side: "above" },
+        { key: "structure", cls: "ts-bubble--structure", emoji: "📐", name: "Structure", tag: "trend",
+          note: "Price above the <strong>EMA stack</strong>; <strong>higher low</strong> holds — trend continuation long.",
+          anchor: 9, side: "below" },
+        { key: "reviewer", cls: "ts-bubble--reviewer", emoji: "✅", name: "Reviewer", tag: "review",
+          note: "Reviewed <strong>3 reads</strong> · confluence 66% · trend + reclaim aligned long.",
+          anchor: 9, side: "above", kind: "reviewer", scanTo: 9 },
+        { key: "risk", cls: "ts-bubble--risk", emoji: "🎯", name: "Risk", tag: "position",
+          note: "<strong>Long 1% risk</strong> · bank half at 1R → stop to break-even → ride to 3R.",
+          anchor: 11, side: "above", kind: "risk" },
+      ],
+      thinking: [
+        { at: 0, time: "London 07:00", concept: "trend", text: "Price is <strong>above the 13/50/200 EMA stack</strong> — the trend filter only clears <strong>longs</strong>. Shorts are vetoed." },
+        { at: 3, time: "London 07:40", concept: "level", text: "Healthy pullback into the <strong>50-EMA</strong> (~64,360) — where dips in an uptrend get bought." },
+        { at: 4, time: "London 08:05", concept: "sweep", text: "Climax dips <strong>below the EMA</strong> to 64,120, then closes back above. Late-short and weak-long stops swept." },
+        { at: 5, time: "London 08:20", concept: "vector", text: "<strong>Bull vector</strong>: ≥2× volume reclaim — demand defends the trend exactly where it should." },
+        { at: 9, time: "London 09:10", concept: "trend", text: "Dip holds a <strong>higher low</strong> (64,440) above the EMA. Uptrend structure intact — continuation." },
+        { at: 9, time: "London 09:15", concept: "confluence", text: "Reviewer scans 0–9: trend-aligned + swept-EMA + bull vector + higher-low = <strong>66% confluence</strong>, past the gate." },
+        { at: 11, time: "London 09:40", concept: "backtest", text: "Breakout to new highs. Backtest lens: trend-aligned pullback longs are the core book — a measured edge, not a promise." },
+        { at: 11, time: "London 09:44", concept: "risk", text: "<strong>Position:</strong> long 64,470, stop 64,190 (below the swept low). 1% risk. Bank <strong>half at 1R</strong>, slide stop to break-even, ride the rest to <strong>3R</strong>." },
+        { at: 13, time: "London 11:30", concept: "result", text: "Runner tagged <strong>3R</strong>. Illustrative — not a live fill." },
+      ],
+    },
   ];
 
   /* ---------- color helpers (PVSRA-ish) ---------- */

@@ -626,3 +626,79 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
   .brand { font-size: 17px; }
   .cta { padding: 44px 20px; }
 }
+
+/* =========================================================
+   PREMIUM POLISH LAYER (additive — appended 2026-06-27)
+   Scoped, low-risk refinements that lift craft site-wide
+   without disturbing the existing cascade above. See
+   studies/website_polish_progress.md.
+   ========================================================= */
+:root {
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.30), 0 2px 8px -2px rgba(0,0,0,.30);
+  --shadow-md: 0 6px 24px -6px rgba(0,0,0,.45), 0 2px 8px -2px rgba(0,0,0,.35);
+  --shadow-lg: 0 30px 70px -24px rgba(0,0,0,.65), 0 8px 24px -12px rgba(0,0,0,.45);
+  --ring: 0 0 0 1px rgba(255,255,255,.06);
+}
+
+/* Premium depth: a quiet vertical wash + top honey/mint aura behind --bg. */
+body {
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(1100px 520px at 18% -8%, rgba(245,166,35,.06), transparent 60%),
+    radial-gradient(1000px 560px at 100% -4%, rgba(45,212,191,.05), transparent 62%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+  background-attachment: fixed;
+}
+
+/* Selection + accessible focus + smoother text. */
+::selection { background: rgba(245,166,35,.28); color: #fff; }
+body { text-rendering: optimizeLegibility; }
+a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+  outline: 2px solid var(--honey-lt); outline-offset: 3px; border-radius: 6px;
+}
+
+/* Fluid, more confident headline scale (base only — class sizes still win). */
+h1 { font-size: clamp(2.4rem, 1.4rem + 3.6vw, 4.6rem); }
+h2 { font-size: clamp(1.7rem, 1.2rem + 1.8vw, 2.6rem); }
+h3 { font-size: clamp(1.15rem, 1rem + .7vw, 1.5rem); }
+
+/* Tasteful custom scrollbar (a small "expensive" tell). */
+* { scrollbar-width: thin; scrollbar-color: rgba(245,166,35,.35) transparent; }
+*::-webkit-scrollbar { width: 11px; height: 11px; }
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--honey), #c77f12);
+  border-radius: 999px; border: 3px solid var(--bg);
+}
+*::-webkit-scrollbar-thumb:hover { background: linear-gradient(var(--honey-lt), var(--honey)); }
+
+/* Crisper primary CTA: add depth + a subtle moving sheen on hover. */
+.btn--primary { box-shadow: 0 10px 34px -10px var(--honey-glow), var(--ring); }
+.btn--primary:hover { box-shadow: 0 18px 48px -12px var(--honey-glow), var(--ring); }
+
+/* Cards (where present): consistent elevation + a refined hover lift. */
+.card, .feature, .fcard {
+  box-shadow: var(--shadow-md);
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease), border-color .28s var(--ease);
+}
+.card:hover, .feature:hover, .fcard:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--border-2);
+}
+
+/* Hairline section dividers read as deliberate, not flat. */
+.section + .section { border-top: 1px solid rgba(255,255,255,.04); }
+
+/* ----- index polish (iteration 1b): hero highlights, FAQ, trust row ----- */
+/* Hero highlight stats read as deliberate, anchored items (accent rule + hover). */
+.hero__trust li { padding-left: 14px; border-left: 2px solid rgba(245,166,35,.5);
+  transition: border-color .25s var(--ease), transform .25s var(--ease); }
+.hero__trust li:hover { border-left-color: var(--honey-lt); transform: translateY(-2px); }
+.hero__trust strong { letter-spacing: -0.01em; }
+/* FAQ accordions: depth + hover affordance + smoother open marker. */
+.faq__item { box-shadow: var(--shadow-sm); }
+.faq__item:hover { border-color: var(--border-2); }
+.faq__item[open] { box-shadow: var(--shadow-md); }
+.faq__item summary::after { transition: transform .3s var(--ease); }
+/* Trust row: slightly stronger presence. */
+.trust__row { opacity: .92; }

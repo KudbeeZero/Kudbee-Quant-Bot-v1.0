@@ -60,6 +60,34 @@
     ]
   }
   </script>
+  <!-- Page-local premium polish (scoped to methodology only) -->
+  <style>
+    /* Editorial drop-cap on the opening paragraph */
+    .prose > p:first-of-type::first-letter {
+      float: left; font-family: var(--font-head); font-weight: 700;
+      font-size: 3.5rem; line-height: .82; margin: 6px 14px 0 0; color: var(--honey);
+    }
+    /* Ordered lists as honey numbered badges (Layer 3 + honesty contract) */
+    .prose ol { counter-reset: step; padding-left: 0; }
+    .prose ol > li {
+      list-style: none; position: relative; padding-left: 50px; min-height: 32px;
+    }
+    .prose ol > li::before {
+      counter-increment: step; content: counter(step);
+      position: absolute; left: 0; top: 1px;
+      width: 32px; height: 32px; display: grid; place-items: center;
+      border-radius: 50%; background: rgba(245,166,35,.12);
+      border: 1px solid rgba(245,166,35,.42); color: var(--honey-lt);
+      font-family: var(--font-mono); font-size: .85rem; font-weight: 600;
+    }
+    /* Prose links: refined underline that warms on hover */
+    .prose p a, .prose li a {
+      color: var(--honey-lt);
+      text-decoration: underline; text-decoration-color: rgba(245,166,35,.35);
+      text-underline-offset: 3px; transition: text-decoration-color .2s;
+    }
+    .prose p a:hover, .prose li a:hover { text-decoration-color: var(--honey-lt); }
+  </style>
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to content</a>
