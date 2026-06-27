@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 2,
     "n": 4,
-    "unrealized_r": 1.6786,
-    "winners": 4
+    "unrealized_r": 1.0018,
+    "winners": 2
   },
   "trades": {
     "0b3b57a6": {
@@ -12,9 +12,9 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.7310838445807768
+      "tp1_filled": true,
+      "tp1_touched": true,
+      "ur": 0.992842535787316
     },
     "468ee22b": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.16666666666666882
+      "ur": -0.18333333333333182
     },
     "6d2e1507": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.16666666666666882
+      "ur": -0.18333333333333182
     },
     "e944006a": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.6141404422531381
+      "ur": 0.37560575548974084
     }
   }
 }
