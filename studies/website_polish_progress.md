@@ -49,3 +49,15 @@ Loop started: 2026-06-27 (~15:40 UTC); EXTENDED by owner re-invocation ~19:26 UT
 
 ## Screenshots
 - index_before.png captured (scratchpad) before polish layer.
+
+## SEO + AEO/AI-search track (owner: ranking on Google + AI engines once domain connects)
+Baseline audit (2026-06-27): most pages already have title/desc/canonical/OG/Twitter/JSON-LD.
+Gaps being closed one page per iteration:
+- [x] SEO: `lab.html` — added OG + Twitter + JSON-LD (WebPage + **Dataset** for AEO + BreadcrumbList) + new `assets/img/og/og-lab.svg`. JSON-LD validated.
+- [ ] SEO: `live-signals.html` — add canonical + OG/Twitter/JSON-LD (or noindex if app-only).
+- [ ] SEO: `trade-story.html` + `trade-flow.html` — canonical + OG/Twitter/JSON-LD (or mark noindex if embed/demo-only).
+- [ ] SEO: `be-report.html` — add description/canonical/OG/JSON-LD, or confirm intentional noindex.
+- [ ] SEO: `leverage-report.html` — add JSON-LD (Report/Article); already has OG+Twitter.
+- [ ] SEO: `sitemap.xml` — add live-signals (+ decide trade-story/flow, reports); refresh lastmod.
+- [ ] SEO: `llms.txt` — verify it's current + covers key pages/positioning for AI answer engines.
+- [ ] SEO: global pass — confirm lang/viewport/theme-color, image alt text, and a sitewide WebSite+SearchAction JSON-LD; note the single base-domain to find-replace when the real domain is chosen (currently kudbeequant.com).
