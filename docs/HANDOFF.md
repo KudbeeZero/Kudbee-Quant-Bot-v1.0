@@ -10,47 +10,48 @@
 - **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
   only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
   authorizes it.
-- **This chat = the TRAILING-STOP-BACKTEST chat (RESEARCH ONLY).** Shipped **PR #103**
-  (`claude/trailing-stop-backtest-jz0aho`, green, 520 tests, ruff clean) — **already MERGED by the owner**:
-  a read-only backtest of the EXISTING chandelier trail vs the live bank-half/ride-to-3R rule. Files:
-  `research/trailing_sweep.py` + `research/trailing_sweep_results.md` + 2 CSVs + `tests/test_trailing_sweep.py`.
-  Imports `bracket_backtest` + the shared `resolve_bracket`; reimplements nothing. **No live flag, workflow,
-  paper.py, resolver, or bracket.py logic touched.** MEMORY **§72**.
-- **VERDICT (settled HARD NEGATIVE, §72): keep `--trailing-atr` OFF.** No trail multiple clears the
-  bootstrap significance gate (best `boot_p` 0.293 @ atr=1.0). The only net-positive variant (atr=1.0)
-  wins purely by collapsing drawdown while **cutting 82% of former +3R runners short** (−480R on that
-  cohort) — it abandons the asymmetric edge. Do NOT re-test trailing without a genuinely new rationale.
-- **NOTHING new is live from this chat.** Pure research; trading core byte-identical. `data/journal.json`
-  bot-owned, not hand-edited (the only journal change this session was the routine bot sync via `main`).
-- **Audit status:** `AWAITING_AUDIT` — the research **PR #103 is already MERGED** (post-hoc audit due,
-  like #84/#82). **This chat's OPEN closeout PR is docs-only** (MEMORY §72 + this baton).
+- **This chat = the WEBSITE POLISH + SEO chat (marketing only).** Shipped **PR #118**
+  (`feat/website-premium-polish`) — a premium craft + SEO/AEO pass on the existing **Kudbee Quant**
+  marketing site. Kudbee branding kept (Ascendancy rebrand stays PARKED); honest anti-hype voice
+  preserved; **no fabricated stats / performance claims**. Marketing CSS/HTML + static assets only —
+  NO backend/API, trading/execution, resolver/bracket/journal, or workflow changes. 582 tests green
+  (unchanged trading core).
+- **Owner-authorized BOTH open PRs merged on closeout (2026-06-27):** **#118** (this chat, website) and
+  **#117** (prior-chat §41-gap pre-registration, docs-only) — both green, both squash-merged into `main`
+  at the owner's explicit "Close and merge all PRs."
+- **NOTHING new is live from this chat** beyond marketing pages + Formspree wiring on the static site.
+  Trading core byte-identical; `data/journal.json` bot-owned (only routine bot syncs via `main`).
+- **Audit status:** `AWAITING_AUDIT` — **#118 + #117 already MERGED** (post-hoc audit due, like #103/#84).
 
 ## What this chat did (for the auditor to verify against the diff)
 
-- **PR #103 (this chat, MERGED) — trailing-stop research.** Audit-confirmed (file:line) the trail is
-  already implemented + OFF in live: `paper.py:69/:210`, `journal.py:70-73/:231-236`,
-  `bracket.py:61/:170/:264`, `paper-trade.yml:75-77/:90`. **STEP-0 gate verified real**
-  (`resolver.py:137-165`): trails at `trailing_atr*atr_at_entry` behind the favorable extreme, ratchets
-  monotonically, never loosens, no same-bar look-ahead. To diff-confirm: (1) the new files are all under
-  `research/` + `tests/` — NO change to the trading/levels core, the resolver, bracket logic, paper.py,
-  or the workflow. (2) `tests/test_trailing_sweep.py` includes the regression lock that paired-baseline
-  reproduces `bracket_backtest` baseline EXACTLY, plus the monotonic-ratchet + `trailing_atr=None` no-op
-  guards. 520 tests green.
-- **Honest caveats (in §72 + the results MD):** (a) my §41 ride-3R reproduction (−0.015R/n=3540) did NOT
-  match §41's +0.096R/n=8124 — UNRECONCILED; only the relative head-to-head is verified. (b) Secondary,
-  OUT-OF-SCOPE: the live bank-half/BE rule was the WORST variant here (−0.055R) — a `be_after_tp1`
-  question for a future chat, NOT acted on.
-- **PR #101 (`fix/journal-fill-atomic`) MERGED this session** (arrived via `main` fast-forward:
-  journal.py + notify.py + tests). **PR #99 (`fix/summary-pending-reconcile`) still OPEN** on origin —
-  owner to merge; audit POST-HOC if merged outside the gate.
+- **PR #118 (this chat, MERGED) — website premium polish + SEO/AEO.** Diff is marketing-surface only:
+  - **Design system:** additive "PREMIUM POLISH LAYER" appended to `assets/css/style.css` (depth/shadows,
+    fluid `clamp()` type scale, focus-visible, selection, scrollbar, card/CTA hover, section rhythm).
+  - **Content:** `index.html` trade-reads showcase expanded to 8 setups (4 long / 4 short, each narrating
+    position management); `methodology.html` editorial pass; `lab.html` data refreshed from the live engine
+    via `scripts/generate_lab_data.py` (dynamic `generated` date; fixed `+-0.112R` sign-format bug in `lab.js`).
+  - **Forms:** `assets/js/main.js` shared dependency-free `wireFormspree()` AJAX; `index.html` waitlist +
+    `contact.html` contact POST to `https://formspree.io/f/mqevpwzd` (+ honeypot).
+  - **SEO/AEO:** per-page title/desc/canonical/OG/Twitter + JSON-LD (`lab.html` adds a Dataset node for AI
+    answer engines; `live-signals.html` kept intentional `noindex,follow` but got OG/Twitter for sharing).
+    New OG SVGs under `assets/img/og/`.
+  - To diff-confirm: every changed path is `*.html`, `assets/**`, `scripts/generate_lab_data.py`, or
+    `studies/website_polish_progress.md`. NO change under `kudbee_quant/`, `cloudflare/`, or `.github/workflows/`.
+- **PR #117 (prior chat, MERGED this session) — `studies/section41_gap_preregistration.md` only.** Locks the
+  question for the §41 backtest-vs-OOS gap before any analysis. Read-only docs; no code, no live change.
 
 ## NEXT chat
 
-- **🟢 NEXT-CHAT SCOPE — POST-HOC AUDIT the merged work, then reconcile the open fix.** Run
-  `/handoff-audit`: (1) post-hoc audit **PR #103** (trailing research) against the checklist above and
-  **PR #102** (binary-event filter, merged before this chat) if not yet recorded; (2) confirm **PR #101**
-  is correctly in `main`; (3) **PR #99** (`fix/summary-pending-reconcile`) still needs the owner's merge —
-  verify it's still absent from `main`, then leave for the owner. Advisory slug hint: `claude/handoff-audit`.
+- **🟢 NEXT-CHAT SCOPE — FINISH THE WEBSITE SEO SWEEP (owner-chosen).** The SEO/AEO loop was mid-run when
+  this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
+  (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
+  noindex), `leverage-report.html` (add Report/Article JSON-LD), `sitemap.xml` completeness + refreshed
+  lastmod, `llms.txt` verification, and a global pass (lang/viewport/theme-color, image alt text, sitewide
+  WebSite+SearchAction JSON-LD). ALSO finish the visual-polish pages: start-here, about, compare, glossary,
+  trade-story/flow, blog, 404 + responsive. **Note the base domain is still placeholder `kudbeequant.com`**
+  — find-replace sitewide once the real domain is chosen. Advisory slug hint: `claude/website-seo-finish`.
+- Marketing-only, same guardrails as this chat. Start with `/handoff-audit` (post-hoc audits #118 + #117).
 - **CANDIDATE next research (owner's call) — the `be_after_tp1` management question (§72 secondary).**
   The live bank-half/BE rule was net-negative in this OOS population. Worth a read-only study of whether
   BE-after-TP1 is capping the edge vs plain ride-3R — research only, no live change. Advisory slug:
@@ -208,3 +209,8 @@
   hard negative). **PR #101** (`fix/journal-fill-atomic`) also MERGED into `main` this session; **PR #99**
   still OPEN for owner merge. This PR (closeout) is docs-only (MEMORY §72 + baton) → next chat audits
   #103/#102 POST-HOC. NEXT: post-hoc audit + reconcile #99; optional `be_after_tp1` study.
+- 2026-06-27: **PR #118** (`feat/website-premium-polish`, website premium polish + SEO/AEO + Formspree +
+  lab data refresh, marketing-only, 582 tests green) and **PR #117** (`feat/section41-gap-prereg`, §41-gap
+  pre-registration, docs-only) — **BOTH MERGED on the owner's explicit "Close and merge all PRs"** at
+  closeout. Next chat audits #118/#117 POST-HOC. NEXT: finish the website SEO sweep + remaining
+  visual-polish pages (marketing-only).
