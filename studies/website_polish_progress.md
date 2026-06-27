@@ -34,7 +34,8 @@ Loop started: 2026-06-27 (~15:40 UTC). Stop by ~17:40 UTC or when all checked.
 - [x] **0. Global design system** (`style.css` polish layer): refined depth/shadows,
       fluid type scale, button/card/nav polish, focus-visible, selection, scrollbar,
       section rhythm. (Lifts every page at once.)
-- [ ] 1. `index.html` — hero, feature cards, ticker, sections, footer
+- [x] 1a. `index.html` trade-reads showcase — EXPANDED to 8 setups (4 long / 4 short): added Trend short, Breakdown·retest, Trend long; every scenario now narrates POSITION management (1% risk, bank half @1R → BE → ride 3R). Goal-driven.
+- [ ] 1b. `index.html` — hero, feature cards, ticker, sections, footer
 - [ ] 2. `methodology.html`
 - [ ] 3. `start-here.html`
 - [ ] 4. `about.html`
