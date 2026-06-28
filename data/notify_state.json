@@ -2,7 +2,7 @@
   "agg": {
     "losers": 3,
     "n": 17,
-    "unrealized_r": 6.7237,
+    "unrealized_r": 6.9547,
     "winners": 12
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4405658709573515
+      "ur": 0.45233747855049283
     },
     "37c92910": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5673067871599292
+      "ur": 0.5857573190247637
     },
     "4aa6dacc": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5673067871599292
+      "ur": 0.5857573190247637
     },
     "5866e4d7": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.9500399680255809
+      "ur": 0.938848920863307
     },
     "906444ba": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.7156862745098025
+      "ur": 0.807189542483659
     },
     "91260541": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4383968449006472
+      "ur": 0.4502879943280762
     },
     "9e5d97b9": {
       "dl_soon": false,
@@ -134,7 +134,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.7156862745098025
+      "ur": 0.807189542483659
     },
     "f19a6538": {
       "dl_soon": false,
@@ -164,7 +164,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4016969528829675
+      "ur": -0.40234429185739695
     },
     "ff3145ff": {
       "dl_soon": false,
@@ -174,7 +174,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1101055806938188
+      "ur": 0.10935143288084816
     }
   }
 }
