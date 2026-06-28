@@ -2,7 +2,7 @@
   "agg": {
     "losers": 1,
     "n": 11,
-    "unrealized_r": 12.5588,
+    "unrealized_r": 12.3448,
     "winners": 10
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.426548827456746
+      "ur": 1.44240848287513
     },
     "37c92910": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.2425149700598768
+      "ur": 1.284431137724549
     },
     "3a945fb3": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 2.04862091687844
+      "ur": 1.974818789419162
     },
     "4aa6dacc": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 2.04862091687844
+      "ur": 1.974818789419162
     },
     "5866e4d7": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.6126760563380478
+      "ur": 1.5469483568075382
     },
     "8267bb69": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9989384288747324
+      "ur": 0.9394904458598768
     },
     "91260541": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.5288557213930338
+      "ur": 0.5706467661691548
     },
     "9b8dcacd": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.4343925554154722
+      "ur": 1.4504132671963694
     },
     "9e5d97b9": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.4639742131209773
+      "ur": 0.42150170648465285
     },
     "ff3145ff": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.8325791855203598
+      "ur": 0.8182503770739001
     }
   }
 }
