@@ -17,10 +17,24 @@
     Cross-Origin-Opener-Policy = "same-origin"
     Cross-Origin-Resource-Policy = "same-origin"
 
+# Images/fonts rarely change — cache hard.
 [[headers]]
-  for = "/assets/*"
+  for = "/assets/img/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# CSS/JS are NOT content-hashed (style.css, main.js), so they must revalidate —
+# otherwise an edit stays invisible behind a year-long immutable cache until a
+# manual purge (the 2026-06-28 white-screen incident).
+[[headers]]
+  for = "/assets/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+[[headers]]
+  for = "/assets/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 # Pretty 404
 [[redirects]]
