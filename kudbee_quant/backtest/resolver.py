@@ -37,6 +37,9 @@ class ResolveOutcome:
     outcome_r: float | None
     exit_offset: int | None
     tp1_offset: int | None = None
+    tp2_offset: int | None = None       # index where TP2 banked (tiered exits)
+    runner_r: float | None = None        # R contributed by the runner remainder
+                                         # (set once the trade is in the runner phase)
 
 
 def resolve_bracket(
@@ -62,6 +65,9 @@ def resolve_bracket(
     atr_at_entry: float | None = None,
     mae_giveup: tuple | None = None,
     time_decay: tuple | None = None,
+    runner_trail_atr: float | None = None,
+    runner_floor_r: float = 1.0,
+    runner_max_bars: int | None = None,
 ) -> ResolveOutcome:
     """Walk the forward bars (``high``/``low``/``close`` are the bars AFTER the
     entry bar, in order) and resolve the trade.
@@ -168,7 +174,8 @@ def resolve_bracket(
             return ResolveOutcome(True, float(r), n - 1, None)
         return ResolveOutcome(False, None, None, None)
 
-    # Scale-out path: TARGET ONE (tp1) -> optional TARGET TWO (tp2) -> final target.
+    # Scale-out path: TARGET ONE (tp1) -> optional TARGET TWO (tp2) -> final target,
+    # with an optional TRAILING RUNNER on the remainder after the last scale-out.
     # At most ONE level resolves per bar (conservative: bank, then `continue`).
     has_tp2 = tp2 is not None
     realized = 0.0
@@ -177,11 +184,32 @@ def resolve_bracket(
     tp2_done = not has_tp2     # if no second leg, treat it as already satisfied
     cur_stop = stop
     tp1_off = None
+    tp2_off = None
+    extreme = entry           # best price seen so far (prior bars only) — for the trail
+    runner_trailing = runner_trail_atr is not None and atr_at_entry is not None
+    floor_price = entry + direction * runner_floor_r * sd   # 1R-profit floor for the runner
+    runner_start = None       # bar index at which the runner phase began
+
+    def _in_runner() -> bool:
+        return tp1_done and tp2_done
+
     for j in range(n):
+        # Runner phase: ratchet the stop up to the trail (off prior-bar extreme),
+        # never retreating below the 1R floor; honour the runner time cap.
+        if runner_trailing and _in_runner():
+            trail_level = extreme - direction * runner_trail_atr * atr_at_entry
+            desired = max(floor_price, trail_level) if long else min(floor_price, trail_level)
+            cur_stop = max(cur_stop, desired) if long else min(cur_stop, desired)
+            if runner_max_bars is not None and runner_start is not None and (j - runner_start) >= runner_max_bars:
+                mark_r = direction * (close[j] - entry) / sd
+                return ResolveOutcome(True, float(realized + remaining * mark_r), j,
+                                      tp1_off, tp2_off, remaining * mark_r)
+
         hit_stop = (low[j] <= cur_stop) if long else (high[j] >= cur_stop)
         if hit_stop:
-            stop_r = direction * (cur_stop - entry) / sd   # -1R pre-TP1, ~0 at BE
-            return ResolveOutcome(True, float(realized + remaining * stop_r), j, tp1_off)
+            stop_r = direction * (cur_stop - entry) / sd   # -1R pre-TP1, ~0 at BE, >=floor in runner
+            runner_r = remaining * stop_r if _in_runner() else None
+            return ResolveOutcome(True, float(realized + remaining * stop_r), j, tp1_off, tp2_off, runner_r)
         if not tp1_done:
             hit_tp1 = (high[j] >= tp1) if long else (low[j] <= tp1)
             if hit_tp1:
@@ -191,6 +219,11 @@ def resolve_bracket(
                 tp1_off = j
                 if be_after_tp1:
                     cur_stop = entry
+                if _in_runner():        # no TP2 leg -> runner begins right after TP1
+                    runner_start = j
+                    if runner_trailing:
+                        cur_stop = max(cur_stop, floor_price) if long else min(cur_stop, floor_price)
+                extreme = max(extreme, high[j]) if long else min(extreme, low[j])
                 continue   # don't also resolve a later leg on the TP1 bar (conservative)
         elif not tp2_done:
             hit_tp2 = (high[j] >= tp2) if long else (low[j] <= tp2)
@@ -198,12 +231,21 @@ def resolve_bracket(
                 realized += tp2_frac * tp2_r
                 remaining -= tp2_frac
                 tp2_done = True
-                continue   # ride the remainder to the final target on a later bar
+                tp2_off = j
+                runner_start = j        # runner begins now
+                if runner_trailing:     # move the stop to the 1R floor immediately
+                    cur_stop = max(cur_stop, floor_price) if long else min(cur_stop, floor_price)
+                extreme = max(extreme, high[j]) if long else min(extreme, low[j])
+                continue   # ride the remainder (runner) on later bars
         else:
+            # Runner phase: the final target still caps the upside on either path.
             hit_tgt = (high[j] >= target) if long else (low[j] <= target)
             if hit_tgt:
-                return ResolveOutcome(True, float(realized + remaining * win_r), j, tp1_off)
+                runner_r = remaining * win_r
+                return ResolveOutcome(True, float(realized + runner_r), j, tp1_off, tp2_off, runner_r)
+        extreme = max(extreme, high[j]) if long else min(extreme, low[j])
     if force_close_at_end:
         mark = direction * (close[n - 1] - entry) / sd
-        return ResolveOutcome(True, float(realized + remaining * mark), n - 1, tp1_off)
-    return ResolveOutcome(False, None, None, tp1_off)
+        runner_r = remaining * mark if _in_runner() else None
+        return ResolveOutcome(True, float(realized + remaining * mark), n - 1, tp1_off, tp2_off, runner_r)
+    return ResolveOutcome(False, None, None, tp1_off, tp2_off, None)

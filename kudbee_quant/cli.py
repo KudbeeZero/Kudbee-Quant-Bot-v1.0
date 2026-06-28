@@ -130,6 +130,45 @@ def _backtest(args) -> None:
     print("OOS column matter more than the headline number. Not financial advice.")
 
 
+def _tiered_compare(args) -> None:
+    """Compare flat-TP vs tiered scale-out exits (configs A-E) over a symbol set."""
+    import json
+    from datetime import datetime, timezone
+    from pathlib import Path
+    from .backtest.tiered_compare import run_all_configs, summarize_runs, format_table
+    from .execution.tiered_exit import TieredExitConfig
+
+    cfg = TieredExitConfig()
+    merged: dict | None = None
+    total_bars = 0
+    for sym in args.symbols:
+        df = BinanceClient().klines(sym, interval=args.interval, limit=args.limit)
+        df = build_levels(df)          # adds ATR + reference levels
+        sig = pvsra_mm_positions(df, allow_short=not args.long_only)
+        runs = run_all_configs(df, sig, stop_atr=args.stop_atr, fee_pct=args.fee_pct,
+                               max_bars=args.max_bars, config=cfg)
+        total_bars += len(df)
+        if merged is None:
+            merged = {k: list(v) for k, v in runs.items()}
+        else:
+            for k in merged:
+                merged[k].extend(runs[k])
+    if not merged:
+        print("no symbols / no data")
+        return
+    res = summarize_runs(merged, total_bars, stop_atr=args.stop_atr,
+                         fee_pct=args.fee_pct, max_bars=args.max_bars)
+    res["symbols"] = list(args.symbols)
+    res["interval"] = args.interval
+    print(format_table(res))
+    outdir = Path("kudbee_quant/backtest/results")
+    outdir.mkdir(parents=True, exist_ok=True)
+    ts = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    out = outdir / f"tiered_exit_comparison_{ts}.json"
+    out.write_text(json.dumps(res, indent=2))
+    print(f"\nSnapshot written to {out}")
+
+
 def _validate(args) -> None:
     config = BacktestConfig(
         periods_per_year=_PERIODS_PER_YEAR.get(args.interval, 8_760),
@@ -1018,6 +1057,17 @@ def main() -> None:
     b.add_argument("--long-only", action="store_true", help="disable short positions")
     b.add_argument("--walkforward", action="store_true", help="run walk-forward OOS check")
     b.set_defaults(func=_backtest)
+
+    tc = sub.add_parser("tiered-compare",
+                        help="compare flat vs tiered scale-out exits (A-E) for data")
+    tc.add_argument("symbols", nargs="+", help="e.g. BTCUSDT ETHUSDT")
+    tc.add_argument("--interval", default="1h")
+    tc.add_argument("--limit", type=int, default=1000)
+    tc.add_argument("--stop-atr", type=float, default=1.5)
+    tc.add_argument("--fee-pct", type=float, default=0.0009)
+    tc.add_argument("--max-bars", type=int, default=48)
+    tc.add_argument("--long-only", action="store_true")
+    tc.set_defaults(func=_tiered_compare)
 
     v2 = sub.add_parser("validate", help="validate a strategy across many assets (OOS)")
     v2.add_argument("symbols", nargs="+",
