@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
+    "losers": 0,
     "n": 15,
-    "unrealized_r": 12.0439,
-    "winners": 14
+    "unrealized_r": 12.4391,
+    "winners": 15
   },
   "trades": {
     "35189947": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4484464450782777
+      "ur": 0.568625200422519
     },
     "37c92910": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.2704590818363208
+      "ur": 1.326347305389209
     },
     "3a945fb3": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6859173491480781
+      "ur": 0.7597194766073562
     },
     "4aa6dacc": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6859173491480781
+      "ur": 0.7597194766073562
     },
     "5866e4d7": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.152582159624426
+      "ur": 1.0868544600939163
     },
     "8267bb69": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5828025477706941
+      "ur": 0.5233545647558384
     },
     "89b155da": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5567164179104437
+      "ur": 0.6124378109452634
     },
     "9480caef": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.44635744702779107
+      "ur": 0.5677566294668522
     },
     "9e5d97b9": {
       "dl_soon": false,
@@ -144,7 +144,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.0029361446340295983
+      "ur": 0.006126601007998406
     },
     "ff3145ff": {
       "dl_soon": false,
@@ -154,7 +154,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5746606334841551
+      "ur": 0.5852187028657614
     }
   }
 }
