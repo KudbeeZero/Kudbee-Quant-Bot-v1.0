@@ -45,26 +45,26 @@
 
 ## Pages
 
-- Home: https://kudbeequant.com/
-- Methodology (the Traders Reality × quant honesty system): https://kudbeequant.com/methodology.html
-- About (mission & story): https://kudbeequant.com/about.html
-- Start Here (beginner's guide to quant trading): https://kudbeequant.com/start-here.html
-- Quant glossary (plain-English term definitions): https://kudbeequant.com/glossary.html
-- Compare (vs. signal groups & spreadsheets): https://kudbeequant.com/compare.html
-- Blog (quant trading guides): https://kudbeequant.com/blog/
-- Contact: https://kudbeequant.com/contact.html
-- Early-access waitlist: https://kudbeequant.com/#waitlist
-- FAQ: https://kudbeequant.com/#faq
+- Home: https://kudbeex.xyz/
+- Methodology (the Traders Reality × quant honesty system): https://kudbeex.xyz/methodology.html
+- About (mission & story): https://kudbeex.xyz/about.html
+- Start Here (beginner's guide to quant trading): https://kudbeex.xyz/start-here.html
+- Quant glossary (plain-English term definitions): https://kudbeex.xyz/glossary.html
+- Compare (vs. signal groups & spreadsheets): https://kudbeex.xyz/compare.html
+- Blog (quant trading guides): https://kudbeex.xyz/blog/
+- Contact: https://kudbeex.xyz/contact.html
+- Early-access waitlist: https://kudbeex.xyz/#waitlist
+- FAQ: https://kudbeex.xyz/#faq
 
 ## Articles
 
-- What Is Backtesting? A Trader's Plain-English Guide: https://kudbeequant.com/blog/what-is-backtesting.html
-- How to Read a Sharpe Ratio (Without a Math Degree): https://kudbeequant.com/blog/how-to-read-a-sharpe-ratio.html
-- Trade Signals vs. Trading Strategies: https://kudbeequant.com/blog/signals-vs-strategies.html
-- Momentum vs. Mean Reversion: Two Ways to Trade an Edge: https://kudbeequant.com/blog/momentum-vs-mean-reversion.html
-- Position Sizing & Risk Management: https://kudbeequant.com/blog/position-sizing-and-risk-management.html
-- 5 Backtesting Mistakes That Wreck Real Returns: https://kudbeequant.com/blog/5-backtesting-mistakes.html
-- What Is Drawdown? Why It Matters More Than Returns: https://kudbeequant.com/blog/what-is-drawdown.html
+- What Is Backtesting? A Trader's Plain-English Guide: https://kudbeex.xyz/blog/what-is-backtesting.html
+- How to Read a Sharpe Ratio (Without a Math Degree): https://kudbeex.xyz/blog/how-to-read-a-sharpe-ratio.html
+- Trade Signals vs. Trading Strategies: https://kudbeex.xyz/blog/signals-vs-strategies.html
+- Momentum vs. Mean Reversion: Two Ways to Trade an Edge: https://kudbeex.xyz/blog/momentum-vs-mean-reversion.html
+- Position Sizing & Risk Management: https://kudbeex.xyz/blog/position-sizing-and-risk-management.html
+- 5 Backtesting Mistakes That Wreck Real Returns: https://kudbeex.xyz/blog/5-backtesting-mistakes.html
+- What Is Drawdown? Why It Matters More Than Returns: https://kudbeex.xyz/blog/what-is-drawdown.html
 
 ## Contact
 
