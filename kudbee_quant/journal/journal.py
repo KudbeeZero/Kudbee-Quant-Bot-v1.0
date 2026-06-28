@@ -353,3 +353,114 @@ class TradeJournal:
                 for p in self.predictions
                 if p.status in ("hit", "miss") and p.outcome_r is not None]
         return sorted(rows, key=lambda x: x["t"])
+
+    def symbol_record(self) -> pd.DataFrame:
+        """Per-SYMBOL record over RESOLVED predictions — the same shape as
+        :meth:`scorecard` but grouped by ``symbol`` instead of ``setup``, so we
+        can see which instruments are bleeding the book. GROSS and NET of the
+        per-venue round-trip fee (§26), plus ``avg_r_per_trade``,
+        ``total_net_r`` and ``pct_of_total_trades``. Sorted by ``net_total_r``
+        ASCENDING (worst symbols first)."""
+        resolved = [p for p in self.predictions if p.status in ("hit", "miss")]
+        cols = ["symbol", "n", "hits", "hit_rate", "expectancy_r", "total_r",
+                "net_expectancy_r", "net_total_r", "avg_r_per_trade",
+                "total_net_r", "pct_of_total_trades"]
+        if not resolved:
+            return pd.DataFrame(columns=cols)
+        total_n = len(resolved)
+        df = pd.DataFrame([{"symbol": p.symbol or "(unknown)", "hit": p.status == "hit",
+                            "r": p.outcome_r, "net_r": net_outcome_r(p)} for p in resolved])
+        rows = []
+        for symbol, g in df.groupby("symbol"):
+            rs, nrs = g["r"].dropna(), g["net_r"].dropna()
+            expectancy = float(rs.mean()) if len(rs) else float("nan")
+            net_total = float(nrs.sum()) if len(nrs) else float("nan")
+            rows.append({
+                "symbol": symbol, "n": len(g), "hits": int(g["hit"].sum()),
+                "hit_rate": g["hit"].mean(),
+                "expectancy_r": expectancy,
+                "total_r": float(rs.sum()) if len(rs) else float("nan"),
+                "net_expectancy_r": float(nrs.mean()) if len(nrs) else float("nan"),
+                "net_total_r": net_total,
+                # additive convenience columns (see docstring)
+                "avg_r_per_trade": expectancy,
+                "total_net_r": net_total,
+                "pct_of_total_trades": 100.0 * len(g) / total_n,
+            })
+        return (pd.DataFrame(rows, columns=cols)
+                .sort_values("net_total_r", ascending=True)
+                .reset_index(drop=True))
+
+    def session_record(self) -> pd.DataFrame:
+        """Per-trading-SESSION record over RESOLVED, R-bearing predictions,
+        classified by the UTC hour of ``filled_at`` (falling back to
+        ``created_at`` when a trade was never explicitly filled). Sessions (UTC):
+
+            London      07:00–12:00
+            NY Overlap  12:00–15:00
+            NY          15:00–20:00
+            Asia        20:00–07:00  (wraps midnight)
+
+        Reports ``n``, ``hits``, ``hit_rate``, ``expectancy_r`` (GROSS) and
+        ``net_expectancy_r`` (NET of the §26 venue fee) per session — the honest
+        read on whether a session filter would help or hurt the book. Sessions
+        with no trades are omitted; rows follow London→NY Overlap→NY→Asia."""
+        order = ["London", "NY Overlap", "NY", "Asia"]
+        cols = ["session", "n", "hits", "hit_rate", "expectancy_r", "net_expectancy_r"]
+        resolved = [p for p in self.predictions
+                    if p.status in ("hit", "miss") and p.outcome_r is not None]
+        if not resolved:
+            return pd.DataFrame(columns=cols)
+
+        def _session(p: Prediction) -> str:
+            # pd.to_datetime handles both the ISO 'T' form (created_at) and the
+            # pandas 'YYYY-MM-DD HH:MM:SS+00:00' form (filled_at bar timestamps).
+            h = pd.to_datetime(p.filled_at or p.created_at, utc=True).hour
+            if 7 <= h < 12:
+                return "London"
+            if 12 <= h < 15:
+                return "NY Overlap"
+            if 15 <= h < 20:
+                return "NY"
+            return "Asia"
+
+        df = pd.DataFrame([{"session": _session(p), "hit": p.status == "hit",
+                            "r": float(p.outcome_r), "net_r": net_outcome_r(p)}
+                           for p in resolved])
+        rows = []
+        for session in order:
+            g = df[df["session"] == session]
+            if g.empty:
+                continue
+            nrs = g["net_r"].dropna()
+            rows.append({
+                "session": session, "n": len(g), "hits": int(g["hit"].sum()),
+                "hit_rate": float(g["hit"].mean()),
+                "expectancy_r": float(g["r"].mean()),
+                "net_expectancy_r": float(nrs.mean()) if len(nrs) else float("nan"),
+            })
+        return pd.DataFrame(rows, columns=cols)
+
+    def equity_curve_by_book(self) -> dict:
+        """Cumulative-R equity curves split by BOOK, derived from the
+        time-ordered :meth:`resolved_series`. Setups prefixed ``core_`` form the
+        core book; ``trend_`` the trend book. Returns
+        ``{"core": [...], "trend": [...], "all": [...]}`` where each value is a
+        cumulative R series (list of floats), so the two books can be plotted
+        separately to see which one is actually generating the edge."""
+        series = self.resolved_series()
+
+        def _cumulative(rows: list[dict]) -> list[float]:
+            out, running = [], 0.0
+            for row in rows:
+                running += float(row["r"])
+                out.append(running)
+            return out
+
+        core = [r for r in series if (r["setup"] or "").startswith("core_")]
+        trend = [r for r in series if (r["setup"] or "").startswith("trend_")]
+        return {
+            "core": _cumulative(core),
+            "trend": _cumulative(trend),
+            "all": _cumulative(series),
+        }

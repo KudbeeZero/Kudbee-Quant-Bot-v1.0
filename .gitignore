@@ -35,5 +35,8 @@ data/shadow/
 # Daily trade graph — generated SVG (derived from the bot-owned journal; never committed)
 data/daily_graph.svg
 
+# Journal report snapshots (scripts/journal_report.py output; generated, races the bot)
+data/reports/
+
 # Graphify knowledge-graph output (if trialed) — never commit (incl. cost.json)
 graphify-out/
