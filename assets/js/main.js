@@ -36,6 +36,11 @@
   }
 
   /* ---- Scroll reveal ---- */
+  // White-screen guard: only NOW (JS is confirmed running and about to wire the
+  // observer) do we enable the reveal animation. CSS keeps .reveal visible by
+  // default, so if this file is disabled/blocked or anything above threw, the
+  // page still renders fully instead of blanking out.
+  document.documentElement.classList.add('js-anim');
   var reveals = document.querySelectorAll('.reveal');
   if ('IntersectionObserver' in window && !reduceMotion) {
     var io = new IntersectionObserver(function (entries) {

@@ -182,3 +182,89 @@ def test_venue_record_splits_gross_and_net(tmp_path):
     assert rec["crypto"]["net_expectancy_r"] == pytest.approx(rec["crypto"]["expectancy_r"] - fee)
     assert rec["crypto"]["avg_fee_r"] == pytest.approx(fee)
     assert rec["tradfi"]["avg_fee_r"] == 0.0
+
+
+# --- new record surfaces: symbol / session / equity-by-book -----------------
+
+def test_symbol_record_groups_and_sorts_worst_first(tmp_path):
+    j = _journal(tmp_path)
+    # BTC nets positive; ETH nets deeply negative -> ETH (worst) sorts first.
+    j.predictions = [
+        _bracket("BTCUSDT", outcome_r=3.0),
+        _bracket("BTCUSDT", outcome_r=3.0),
+        _bracket("ETHUSDT", outcome_r=-1.0, status="miss"),
+        _bracket("ETHUSDT", outcome_r=-1.0, status="miss"),
+        _bracket("ETHUSDT", outcome_r=-1.0, status="miss"),
+    ]
+    sr = j.symbol_record()
+    assert {"avg_r_per_trade", "total_net_r", "pct_of_total_trades"} <= set(sr.columns)
+    assert list(sr["symbol"])[0] == "ETHUSDT"              # worst net_total_r first
+    assert sr["net_total_r"].is_monotonic_increasing       # ascending
+    eth = sr[sr["symbol"] == "ETHUSDT"].iloc[0]
+    assert eth["n"] == 3 and eth["hits"] == 0
+    assert eth["pct_of_total_trades"] == pytest.approx(60.0)
+    # convenience columns mirror the canonical ones
+    assert eth["avg_r_per_trade"] == pytest.approx(eth["expectancy_r"])
+    assert eth["total_net_r"] == pytest.approx(eth["net_total_r"])
+
+
+def test_symbol_record_empty(tmp_path):
+    j = _journal(tmp_path)
+    j.predictions = []
+    sr = j.symbol_record()
+    assert sr.empty and "pct_of_total_trades" in sr.columns
+
+
+def test_session_record_classifies_by_utc_hour(tmp_path):
+    j = _journal(tmp_path)
+
+    def at(hour, r, status="hit"):
+        p = _bracket("BTCUSDT", outcome_r=r, status=status)
+        p.filled_at = f"2026-06-15T{hour:02d}:30:00+00:00"
+        return p
+
+    j.predictions = [
+        at(8, 3.0),             # London
+        at(13, 3.0),            # NY Overlap
+        at(16, -1.0, "miss"),   # NY
+        at(22, 3.0),            # Asia
+        at(3, 3.0),             # Asia (wraps past midnight)
+    ]
+    rec = j.session_record()
+    assert {"hit_rate", "expectancy_r", "net_expectancy_r"} <= set(rec.columns)
+    assert list(rec["session"]) == ["London", "NY Overlap", "NY", "Asia"]  # canonical order
+    by = {row["session"]: row for _, row in rec.iterrows()}
+    assert by["Asia"]["n"] == 2
+    assert by["London"]["n"] == 1 and by["NY"]["hits"] == 0
+
+
+def test_session_record_falls_back_to_created_at(tmp_path):
+    j = _journal(tmp_path)
+    p = _bracket("BTCUSDT", outcome_r=3.0)
+    p.filled_at = None
+    p.created_at = "2026-06-15T09:00:00+00:00"   # London
+    j.predictions = [p]
+    rec = j.session_record()
+    assert rec.iloc[0]["session"] == "London"
+
+
+def test_equity_curve_by_book_splits_by_prefix(tmp_path):
+    j = _journal(tmp_path)
+
+    def mk(setup, r, t):
+        p = _bracket("BTCUSDT", outcome_r=r)
+        p.setup = setup
+        p.resolved_at = t
+        return p
+
+    j.predictions = [
+        mk("core_a", 1.0, "2026-06-15T01:00:00+00:00"),
+        mk("core_a", 2.0, "2026-06-15T02:00:00+00:00"),
+        mk("trend_b", -1.0, "2026-06-15T03:00:00+00:00"),
+        mk("other", 5.0, "2026-06-15T04:00:00+00:00"),
+    ]
+    eq = j.equity_curve_by_book()
+    assert set(eq) == {"core", "trend", "all"}
+    assert eq["core"] == [1.0, 3.0]                 # cumulative within core book
+    assert eq["trend"] == [-1.0]
+    assert eq["all"] == [1.0, 3.0, 2.0, 7.0]        # time-ordered cumulative over ALL
