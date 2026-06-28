@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 12,
-    "unrealized_r": 15.0494,
+    "unrealized_r": 15.1517,
     "winners": 12
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.9214242554572452
+      "ur": 1.897634772329669
     },
     "37c92910": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.591816367265458
+      "ur": 1.4940119760478978
     },
     "3a945fb3": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.26842699802313
+      "ur": 1.592629200790709
     },
     "4aa6dacc": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.26842699802313
+      "ur": 1.592629200790709
     },
     "5866e4d7": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.8771144278606878
+      "ur": 0.7796019900497472
     },
     "9b8dcacd": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.9342934921189234
+      "ur": 1.9102624244475774
     },
     "9e5d97b9": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.8037542662115967
+      "ur": 0.7081911262798666
     },
     "fdbebcca": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5719008646599144
+      "ur": 0.4760946964442571
     },
     "ff3145ff": {
       "dl_soon": false,
@@ -124,7 +124,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.2443438914027158
+      "ur": 1.1327300150829556
     }
   }
 }
