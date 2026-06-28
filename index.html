@@ -51,7 +51,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="assets/css/style.css?v=3" />
+  <link rel="stylesheet" href="assets/css/style.css?v=4" />
+  <link rel="stylesheet" href="assets/css/cinematic.css?v=4" />
   <link rel="stylesheet" href="assets/css/trade-story.css" />
   <link rel="stylesheet" href="assets/css/confluence-engine.css" />
 
@@ -145,6 +146,9 @@
   </script>
 </head>
 <body>
+  <!-- Cinematic overlays (pointer-events:none; pure visual) -->
+  <div class="cin-grain" aria-hidden="true"></div>
+  <div class="cin-vignette" aria-hidden="true"></div>
   <!-- Skip link for a11y -->
   <a href="#main" class="skip-link">Skip to content</a>
 
@@ -189,11 +193,16 @@
 
   <main id="main">
     <!-- ===== HERO ===== -->
-    <section class="hero" id="hero">
+    <section class="hero scene scene--hero" id="hero" data-scene="honey">
       <div class="hero__bg" aria-hidden="true">
-        <div class="hero__glow hero__glow--1"></div>
-        <div class="hero__glow hero__glow--2"></div>
-        <div class="hero__grid"></div>
+        <!-- Higgsfield cinematic clip drops in here later:
+             <video class="hero-clip" autoplay muted loop playsinline
+                    poster="assets/img/og-cover.png" preload="none">
+               <source src="assets/video/hero.webm" type="video/webm" />
+             </video> -->
+        <div class="hero__glow hero__glow--1 hero__layer" data-depth="0.5"></div>
+        <div class="hero__glow hero__glow--2 hero__layer" data-depth="0.3"></div>
+        <div class="hero__grid hero__layer" data-depth="0.15"></div>
         <canvas class="hero__fx" id="hero-fx"></canvas>
       </div>
 
@@ -258,7 +267,7 @@
     </section>
 
     <!-- ===== WHAT IS (definitional / AEO) ===== -->
-    <section class="section define" id="what">
+    <section class="section define scene" id="what" data-scene="honey">
       <div class="container container--narrow">
         <div class="section__head reveal">
           <span class="eyebrow">The short version</span>
@@ -287,7 +296,7 @@
     </section>
 
     <!-- ===== FEATURES ===== -->
-    <section class="section" id="features">
+    <section class="section scene" id="features" data-scene="cool">
       <div class="container">
         <div class="section__head reveal">
           <span class="eyebrow">The toolkit</span>
@@ -321,7 +330,7 @@
     </section>
 
     <!-- ===== CONFLUENCE ENGINE (interactive) ===== -->
-    <section class="section engine" id="engine">
+    <section class="section engine scene" id="engine" data-scene="mint">
       <div class="engine__bg" aria-hidden="true"></div>
       <div class="container">
         <div class="section__head reveal">
@@ -340,7 +349,7 @@
     </section>
 
     <!-- ===== SETUPS (the full playbook) ===== -->
-    <section class="section setups" id="setups">
+    <section class="section setups scene" id="setups" data-scene="violet">
       <div class="container">
         <div class="section__head reveal">
           <span class="eyebrow">The playbook</span>
@@ -399,7 +408,7 @@
     </section>
 
     <!-- ===== HOW IT WORKS ===== -->
-    <section class="section section--alt" id="how">
+    <section class="section section--alt scene" id="how" data-scene="cool">
       <div class="container">
         <div class="section__head reveal">
           <span class="eyebrow">How it works</span>
@@ -520,7 +529,7 @@
     </section>
 
     <!-- ===== SIGNALS / ANALYTICS SHOWCASE ===== -->
-    <section class="section section--alt" id="signals">
+    <section class="section section--alt scene" id="signals" data-scene="mint">
       <div class="container split split--rev">
         <div class="split__visual reveal">
           <div class="glass signals">
@@ -613,7 +622,7 @@
     </section>
 
     <!-- ===== HONESTY CONTRACT ===== -->
-    <section class="section" id="honesty">
+    <section class="section scene" id="honesty" data-scene="honey">
       <div class="container">
         <div class="section__head reveal">
           <span class="eyebrow">The honesty contract</span>
@@ -744,7 +753,7 @@
     </section>
 
     <!-- ===== WAITLIST CTA ===== -->
-    <section class="section cta-section" id="waitlist">
+    <section class="section cta-section scene" id="waitlist" data-scene="violet">
       <div class="container">
         <div class="cta glass reveal">
           <div class="cta__glow" aria-hidden="true"></div>
@@ -860,9 +869,13 @@
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=3" defer></script>
+  <script src="assets/js/vendor/gsap.min.js" defer></script>
+  <script src="assets/js/vendor/ScrollTrigger.min.js" defer></script>
+  <script src="assets/js/vendor/lenis.min.js" defer></script>
+  <script src="assets/js/main.js?v=4" defer></script>
   <script src="assets/js/trade-story.js" defer></script>
   <script src="assets/js/confluence-engine.js" defer></script>
   <script src="assets/js/hero-fx.js" defer></script>
+  <script src="assets/js/cinematic.js?v=4" defer></script>
 </body>
 </html>

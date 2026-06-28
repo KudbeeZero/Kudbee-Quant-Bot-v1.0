@@ -1,0 +1,86 @@
+/* =========================================================
+   CINEMATIC LAYER — scroll-driven homepage (added 2026-06-28)
+   Six baked-in effects: film grain, vignette, glass cards,
+   per-scene color tints, particles (canvas), scroll pacing.
+
+   Design principle: this is an ENHANCEMENT layer. Content is
+   fully visible without JS; cinematic.js adds `.cin` to <html>
+   to opt into motion. Overlays never capture pointer events.
+   ========================================================= */
+
+/* ---- 1. Film grain (fixed, subtle, tiled) ---- */
+.cin-grain {
+  position: fixed; inset: 0; z-index: 60; pointer-events: none;
+  background-image: url("../img/noise.png");
+  background-size: 180px 180px;
+  opacity: .045; mix-blend-mode: overlay;
+}
+
+/* ---- 2. Vignette (fixed radial darkening at the edges) ---- */
+.cin-vignette {
+  position: fixed; inset: 0; z-index: 59; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.45) 100%);
+}
+
+/* Reduced motion / no-JS: freeze the texture, soften it further. */
+@media (prefers-reduced-motion: reduce) {
+  .cin-grain { opacity: .03; }
+}
+
+/* ---- 3. Glass cards (used on key panels) ---- */
+.glass {
+  background: rgba(255, 255, 255, .04);
+  border: 1px solid rgba(255, 255, 255, .08);
+  border-radius: var(--radius, 16px);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: var(--shadow-lg, 0 30px 70px -24px rgba(0,0,0,.65));
+}
+
+/* ---- 4. Per-scene color tints (a quiet aura behind each scene) ---- */
+.scene { position: relative; }
+.scene::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: radial-gradient(80% 60% at 50% 0%, var(--scene-tint, transparent), transparent 70%);
+  opacity: .5;
+}
+.scene[data-scene="honey"] { --scene-tint: rgba(245,166,35,.10); }
+.scene[data-scene="mint"]  { --scene-tint: rgba(45,212,191,.10); }
+.scene[data-scene="violet"]{ --scene-tint: rgba(139,121,255,.10); }
+.scene[data-scene="cool"]  { --scene-tint: rgba(96,140,255,.09); }
+
+/* ---- 5. Particles / ambient canvas (the Higgsfield placeholder) ---- */
+.cin-ambient {
+  position: absolute; inset: 0; z-index: -2; pointer-events: none;
+  width: 100%; height: 100%; opacity: .9;
+}
+/* Slot a real cinematic clip drops into later (poster shows until then). */
+.hero-clip {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2; opacity: .35; pointer-events: none;
+}
+
+/* ---- 6. Scroll pacing — scenes breathe; the hero fills the viewport ---- */
+.scene { padding-block: clamp(72px, 12vh, 160px); }
+.scene--hero {
+  min-height: 100svh; display: grid; align-items: center;
+  padding-block: 0; overflow: clip;
+}
+
+/* ---- Scroll-reveal primitives (opt-in via .cin on <html>) ----
+   Visible by default (white-screen-safe). Only when JS confirms it's
+   running (.cin) do elements start hidden and get animated in by GSAP. */
+.cin [data-reveal] {
+  opacity: 0; transform: translateY(34px); will-change: transform, opacity;
+  transition: opacity .8s var(--ease, cubic-bezier(.2,.7,.2,1)),
+              transform .8s var(--ease, cubic-bezier(.2,.7,.2,1));
+}
+.cin [data-reveal].is-in { opacity: 1; transform: none; }
+/* staggered children within a revealed group */
+.cin [data-reveal-group].is-in [data-reveal] { transition-delay: calc(var(--i, 0) * .08s); }
+@media (prefers-reduced-motion: reduce) {
+  .cin [data-reveal] { opacity: 1 !important; transform: none !important; }
+}
+
+/* Hero parallax layers (transform driven by GSAP; safe defaults) */
+.hero__layer { will-change: transform; }
