@@ -514,9 +514,15 @@ h1, h2, h3, h4 { font-family: var(--font-head); font-weight: 600; line-height: 1
 .footer__bottom p { color: var(--muted-2, #6a7488); font-size: 13px; }
 .footer__risk { max-width: 760px; line-height: 1.55; }
 
-/* ===== Reveal animation ===== */
-.reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
-.reveal.in { opacity: 1; transform: none; }
+/* ===== Reveal animation =====
+   White-screen guard: .reveal is VISIBLE by default, so content always renders
+   even if JavaScript is disabled, blocked, slow, or throws. The fade-in is
+   opt-in via .js-anim, which main.js adds to <html> only once JS is confirmed
+   running (right before it wires the IntersectionObserver). No inline script is
+   needed, so this stays within the site CSP (script-src 'self'). */
+.reveal { opacity: 1; transform: none; }
+.js-anim .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s var(--ease), transform .7s var(--ease); }
+.js-anim .reveal.in { opacity: 1; transform: none; }
 
 /* ===== Responsive ===== */
 @media (max-width: 980px) {
