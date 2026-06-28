@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 10,
-    "unrealized_r": 12.1737,
+    "unrealized_r": 15.9806,
     "winners": 10
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.33040935672514604
+      "ur": 0.6578947368421079
     },
     "35189947": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.3250864356497358
+      "ur": 1.892980308239494
     },
     "37c92910": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.6756487025948024
+      "ur": 2.024950099800396
     },
     "3a945fb3": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.7349618751764637
+      "ur": 2.027534594747205
     },
     "4aa6dacc": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.7349618751764637
+      "ur": 2.027534594747205
     },
     "8267bb69": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.3556263269639153
+      "ur": 1.6528662420382259
     },
     "91260541": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9606965174129297
+      "ur": 1.3089552238805962
     },
     "9b8dcacd": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.3318998030284093
+      "ur": 1.9055606938162302
     },
     "9e5d97b9": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.7718998862343533
+      "ur": 1.0479711793705095
     },
     "ff3145ff": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9524886877828143
+      "ur": 1.4343891402714928
     }
   }
 }
