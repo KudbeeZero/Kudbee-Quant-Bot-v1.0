@@ -46,7 +46,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
-  <link rel="stylesheet" href="assets/css/style.css?v=2" />
+  <link rel="stylesheet" href="assets/css/style.css?v=3" />
   <link rel="stylesheet" href="assets/css/trade-story.css" />
   <link rel="stylesheet" href="assets/css/confluence-engine.css" />
 
@@ -165,6 +165,7 @@
 
       <nav class="nav__links" aria-label="Primary">
         <a href="#features">Features</a>
+        <a href="#setups">Setups</a>
         <a href="#how">How it works</a>
         <a href="methodology.html">Methodology</a>
         <a href="lab.html">The Lab</a>
@@ -330,6 +331,65 @@
           <p class="engine__note">These are the real factors from the engine — not a mock-up. Nothing here predicts price; it measures agreement, then hands qualifying setups to the backtester.</p>
         </div>
         <div id="confluence-engine"></div>
+      </div>
+    </section>
+
+    <!-- ===== SETUPS (the full playbook) ===== -->
+    <section class="section setups" id="setups">
+      <div class="container">
+        <div class="section__head reveal">
+          <span class="eyebrow">The playbook</span>
+          <h2>The setups we read.</h2>
+          <p>Eight repeatable patterns the engine knows how to interpret — four long, four short.
+            Each one is a structured read, not a hunch: a liquidity event, a vector, a structure
+            check, then a defined risk plan. Watch any of them play out bar-by-bar in the
+            <a href="trade-story.html">animated trade story</a>.</p>
+        </div>
+
+        <div class="setups__grid">
+          <article class="setup-card setup-card--long reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--long">Long</span><span class="setup-card__num">01</span></div>
+            <h3>W · liquidity sweep</h3>
+            <p>Price sweeps the prior low to grab stops, then a bull vector reclaims it — a double-bottom (W) built off the swept liquidity.</p>
+          </article>
+          <article class="setup-card setup-card--short reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--short">Short</span><span class="setup-card__num">02</span></div>
+            <h3>Fade · psych-high</h3>
+            <p>A rally stalls into a round-number psych-high with no follow-through; fade the failed breakout back toward the daily open.</p>
+          </article>
+          <article class="setup-card setup-card--long reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--long">Long</span><span class="setup-card__num">03</span></div>
+            <h3>Asian sweep · London</h3>
+            <p>London runs the Asian-range low for liquidity, then reverses — the session stop-hunt that flips the bias up.</p>
+          </article>
+          <article class="setup-card setup-card--short reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--short">Short</span><span class="setup-card__num">04</span></div>
+            <h3>PDH sweep · reclaim</h3>
+            <p>Price runs the prior-day high to take buy-stops, fails to hold, and reclaims back inside the range — a rotation short.</p>
+          </article>
+          <article class="setup-card setup-card--long reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--long">Long</span><span class="setup-card__num">05</span></div>
+            <h3>Confluence stack</h3>
+            <p>The high-conviction gate: sweep, vector and structure all agree and at least half the engine votes before anything fires.</p>
+          </article>
+          <article class="setup-card setup-card--short reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--short">Short</span><span class="setup-card__num">06</span></div>
+            <h3>Trend short · lower-high</h3>
+            <p>In a downtrend, a pullback into a lower high gets rejected — sell the continuation, not the bottom.</p>
+          </article>
+          <article class="setup-card setup-card--short reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--short">Short</span><span class="setup-card__num">07</span></div>
+            <h3>Breakdown · retest</h3>
+            <p>Structure breaks down, price retests the broken level from below and rejects — continuation with confirmation, not a guess.</p>
+          </article>
+          <article class="setup-card setup-card--long reveal">
+            <div class="setup-card__top"><span class="setup-tag setup-tag--long">Long</span><span class="setup-card__num">08</span></div>
+            <h3>Trend long · pullback</h3>
+            <p>In an uptrend, a pullback into support or a fresh vector holds — buy the dip with structure behind it.</p>
+          </article>
+        </div>
+
+        <p class="setups__note reveal">Illustrative reads — how the system <em>interprets</em> each pattern, with a fixed risk plan. They are not live signals, not predictions, and not a track record.</p>
       </div>
     </section>
 
@@ -795,7 +855,7 @@
     </div>
   </footer>
 
-  <script src="assets/js/main.js?v=2" defer></script>
+  <script src="assets/js/main.js?v=3" defer></script>
   <script src="assets/js/trade-story.js" defer></script>
   <script src="assets/js/confluence-engine.js" defer></script>
   <script src="assets/js/hero-fx.js" defer></script>
