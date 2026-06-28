@@ -36,5 +36,5 @@ Allow: /
 User-agent: CCBot
 Allow: /
 
-Sitemap: https://kudbeequant.com/sitemap.xml
-# AI-readable site summary: https://kudbeequant.com/llms.txt
+Sitemap: https://kudbeex.xyz/sitemap.xml
+# AI-readable site summary: https://kudbeex.xyz/llms.txt
