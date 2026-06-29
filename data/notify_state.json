@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 6,
-    "unrealized_r": 3.3137,
+    "unrealized_r": 2.3484,
     "winners": 4
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9770459081836278
+      "ur": 0.6696606786427064
     },
     "497b78f7": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2782204515272233
+      "ur": 0.5831341301460784
     },
     "8267bb69": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.0583864118896045
+      "ur": 0.5828025477706941
     },
     "87090808": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.0
+      "ur": 0.5128205128205098
     }
   }
 }
