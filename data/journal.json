@@ -28094,7 +28094,7 @@
     "tp1": 0.07219767857142857,
     "tp1_frac": 0.5,
     "be_after_tp1": true,
-    "tp1_filled_at": null,
+    "tp1_filled_at": "2026-06-29 14:00:00+00:00",
     "source": "bot",
     "mode": "paper",
     "strategy_version": null,
