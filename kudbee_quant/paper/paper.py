@@ -14,6 +14,7 @@ from ..intelligence.event_calendar import (
 )
 from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
+from ..signals.dxy_regime import dxy_regime, RISK_ON, RISK_OFF, NEUTRAL
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +69,7 @@ def paper_scan(
     killzone_gate: bool = False,       # skip signals outside London/NY/Brinks windows (NOT validated for 5m)
     trailing_atr: float | None = None, # chandelier trail at trailing_atr*ATR behind the extreme (None = off)
     clean_trend_stack: bool = False,   # §C: only trade when 13/50/800-EMA cleanly stacked 10 bars + gap widening
+    dxy_gate: bool = False,            # block longs in DXY RISK_OFF / shorts in RISK_ON (macro inverse-correlation gate)
     dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
@@ -115,6 +117,8 @@ def paper_scan(
     from ..exposure import symbol_exposure
     j = journal or TradeJournal()
     client = client or RouterClient()
+    # DXY regime computed ONCE per scan (fail-open NEUTRAL when off or unavailable).
+    dxy_state = dxy_regime(client) if dxy_gate else NEUTRAL
     if biases is None:
         from ..bias import BiasBook
         biases = BiasBook()
@@ -141,7 +145,7 @@ def paper_scan(
         # This scan's book = its flag/venue suffix (must match the setup built below).
         book = (("_tf" if trend_filter else "") + ("_lo" if long_only else "")
                 + ("_kz" if killzone_gate else "") + ("_cts" if clean_trend_stack else "")
-                + venue_tag)
+                + ("_dxy" if dxy_gate else "") + venue_tag)
         if (sym, interval, book) in open_keys:
             continue  # already in a paper trade on this symbol+timeframe+book
         f = build_levels(client.klines(sym, interval=interval, limit=600))
@@ -178,6 +182,14 @@ def paper_scan(
             widening = gap > gap.shift(10)
             if not bool((stacked & widening).iloc[-1]):
                 continue   # not a clean, separating trend -> skip this signal
+        # DXY REGIME GATE (experiment '_dxy', default OFF): the dollar is structurally
+        # inverse to crypto — block LONGs in RISK_OFF (dollar up-trend) and SHORTs in
+        # RISK_ON. NEUTRAL or unavailable DXY data passes through (fail-open).
+        if dxy_gate:
+            if dxy_state == RISK_OFF and direction > 0:
+                continue
+            if dxy_state == RISK_ON and direction < 0:
+                continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
         if bias is not None:
@@ -214,7 +226,8 @@ def paper_scan(
                   + ("_tf" if trend_filter else "")
                   + ("_lo" if long_only else "")
                   + ("_kz" if killzone_gate else "")
-                  + ("_cts" if clean_trend_stack else "") + venue_tag,
+                  + ("_cts" if clean_trend_stack else "")
+                  + ("_dxy" if dxy_gate else "") + venue_tag,
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (" [TradFi 0-fee venue]" if is_tradfi else "") +

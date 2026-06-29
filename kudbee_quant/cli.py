@@ -130,6 +130,19 @@ def _backtest(args) -> None:
     print("OOS column matter more than the headline number. Not financial advice.")
 
 
+def _dxy_regime(args) -> None:
+    """Print the current DXY inverse-correlation regime (RISK_ON/RISK_OFF/NEUTRAL)."""
+    from .ingest import RouterClient
+    from .signals.dxy_regime import compute_dxy, state_name
+    d = compute_dxy(RouterClient())   # RouterClient routes the yahoo:DX-Y.NYB spec
+    print(f"DXY regime: {state_name(d['state'])} ({d['state']:+d})")
+    if d.get("ok"):
+        print(f"  close {d['last_close']:.3f}  EMA50 {d['last_ema']:.3f}  "
+              f"pct_diff {d['pct_diff'] * 100:+.3f}%  slope {d['slope']:+.5f}  bars {d['n_bars']}")
+    else:
+        print("  (DXY data unavailable — fail-open NEUTRAL)")
+
+
 def _tiered_compare(args) -> None:
     """Compare flat-TP vs tiered scale-out exits (configs A-E) over a symbol set."""
     import json
@@ -1068,6 +1081,10 @@ def main() -> None:
     tc.add_argument("--max-bars", type=int, default=48)
     tc.add_argument("--long-only", action="store_true")
     tc.set_defaults(func=_tiered_compare)
+
+    dx = sub.add_parser("dxy-regime",
+                        help="show the current DXY inverse-correlation regime")
+    dx.set_defaults(func=_dxy_regime)
 
     v2 = sub.add_parser("validate", help="validate a strategy across many assets (OOS)")
     v2.add_argument("symbols", nargs="+",
