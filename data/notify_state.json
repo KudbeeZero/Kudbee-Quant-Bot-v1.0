@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
+    "losers": 1,
     "n": 4,
-    "unrealized_r": 0.4791,
-    "winners": 2
+    "unrealized_r": 0.5413,
+    "winners": 3
   },
   "trades": {
     "0b014bbe": {
@@ -14,7 +14,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4382845014840207
+      "ur": -0.41182078960022533
     },
     "281d5dbb": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.03609831029186997
+      "ur": 0.025345622119797465
     },
     "625660c8": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.27808386899296794
+      "ur": 0.25237220691766765
     }
   }
 }
