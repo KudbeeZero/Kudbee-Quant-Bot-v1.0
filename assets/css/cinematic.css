@@ -84,3 +84,6 @@
 
 /* Hero parallax layers (transform driven by GSAP; safe defaults) */
 .hero__layer { will-change: transform; }
+
+/* Hero FX canvas (candles + particles) — fill the hero, above the glows. */
+.hero__fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
