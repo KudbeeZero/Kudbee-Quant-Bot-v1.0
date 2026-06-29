@@ -62,6 +62,10 @@ def bracket_backtest(
     mae_giveup: tuple | None = None,
     time_decay: tuple | None = None,
     target_price: "pd.Series | np.ndarray | None" = None,
+    runner_trail_atr: float | None = None,
+    runner_floor_r: float = 1.0,
+    runner_max_bars: int | None = None,
+    collect: list | None = None,
 ) -> BracketResult:
     """Run a stop/target bracket backtest from an entry-signal series.
 
@@ -171,16 +175,24 @@ def bracket_backtest(
                                             mae_giveup=mae_giveup, time_decay=time_decay)
             extra_exit = 0.0
         else:
-            outcome, exit_j = _resolve_partial(direction, entry, sd, tr_t, tp1_r,
+            outcome, exit_j, _detail = _resolve_partial(direction, entry, sd, tr_t, tp1_r,
                                                tp1_frac, be_after_tp1, high, low, close,
-                                               entry_bar, end, tp2_r=tp2_r, tp2_frac=tp2_frac)
+                                               entry_bar, end, tp2_r=tp2_r, tp2_frac=tp2_frac,
+                                               atr_at_entry=atr[t], runner_trail_atr=runner_trail_atr,
+                                               runner_floor_r=runner_floor_r, runner_max_bars=runner_max_bars)
             extra_exit = tp1_frac + (tp2_frac if tp2_r is not None else 0.0)
         # Realistic cost: convert a price-fraction cost to R via the stop size.
         # Each partial exit (TP1, TP2) incurs an extra half round-trip on its fraction.
         cost = fee_r if fee_pct is None else fee_pct * entry / sd * (1 + 0.5 * extra_exit)
         trade_size = sz[t] if size is not None else 1.0
         # Leverage is a linear P&L scaler on the net R (amplifies edge AND drawdown).
-        trades.append((outcome - cost) * trade_size * leverage)
+        _net = (outcome - cost) * trade_size * leverage
+        trades.append(_net)
+        if collect is not None:
+            _d = _detail if tp1_r is not None else None
+            collect.append({"r": _net, "gross_r": float(outcome), "dur": int(exit_j - entry_bar),
+                            "reached_tp2": bool(_d is not None and _d.tp2_offset is not None),
+                            "runner_r": (float(_d.runner_r) if (_d is not None and _d.runner_r is not None) else None)})
         busy_until = exit_j
 
     return _summarize(trades, target_r)
@@ -272,7 +284,9 @@ def _resolve_full(direction, entry, stop, target, sd, target_r,
 
 
 def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_tp1,
-                     high, low, close, entry_bar, end, *, tp2_r=None, tp2_frac=0.0):
+                     high, low, close, entry_bar, end, *, tp2_r=None, tp2_frac=0.0,
+                     atr_at_entry=None, runner_trail_atr=None, runner_floor_r=1.0,
+                     runner_max_bars=None):
     """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), optionally trim a
     further ``tp2_frac`` at TARGET TWO (tp2_r), then ride the remainder to the
     final target (target_r); optionally move the stop to breakeven after TP1.
@@ -288,10 +302,12 @@ def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_t
                           high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
                           close[entry_bar + 1:end + 1], force_close_at_end=True,
                           tp1=tp1, tp1_r=tp1_r, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1,
-                          tp2=tp2, tp2_r=tp2_r, tp2_frac=tp2_frac)
+                          tp2=tp2, tp2_r=tp2_r, tp2_frac=tp2_frac,
+                          atr_at_entry=atr_at_entry, runner_trail_atr=runner_trail_atr,
+                          runner_floor_r=runner_floor_r, runner_max_bars=runner_max_bars)
     if out.exit_offset is None:     # no bars after entry: mark to close at entry bar
-        return direction * (close[end] - entry) / sd, end
-    return out.outcome_r, entry_bar + 1 + out.exit_offset
+        return direction * (close[end] - entry) / sd, end, out
+    return out.outcome_r, entry_bar + 1 + out.exit_offset, out
 
 
 def _is_confirmation(o: float, h: float, l: float, c: float, direction: float) -> bool:

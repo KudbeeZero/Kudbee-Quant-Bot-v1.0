@@ -40,3 +40,6 @@ data/reports/
 
 # Graphify knowledge-graph output (if trialed) — never commit (incl. cost.json)
 graphify-out/
+
+# Tiered exit comparison snapshots (generated)
+kudbee_quant/backtest/results/
