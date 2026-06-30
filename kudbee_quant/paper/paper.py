@@ -20,6 +20,7 @@ from ..signals.adr_filter import adr_gate
 from ..risk.drawdown_guard import DrawdownGuard
 from ..risk.session_sizer import sized_risk
 from ..risk.correlation_guard import CorrelationGuard
+from ..control import is_paused as _manual_paused
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +109,12 @@ def paper_scan(
     bot-owned ``data/journal.json`` (the data-poisoning vector api_security.py
     was written to close).
     """
+    # --- Manual pause kill-switch (Telegram /pause) ---------------------------
+    # A phone-set flag in data/control.json halts ALL new entries. Default-off
+    # (no file / flag false -> byte-identical scan); read-only here.
+    if _manual_paused():
+        logger.info("SCAN HALTED: manual pause active (Telegram /pause).")
+        return []
     # --- Binary-event gate (read-only, checked BEFORE any signal evaluation) ---
     # Tino's rule: do not open NEW positions near a known high-impact scheduled
     # event (earnings, PCE, NFP, FOMC) — binary moves invalidate technical setups.
