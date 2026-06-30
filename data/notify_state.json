@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 6,
-    "unrealized_r": 4.7345,
-    "winners": 6
+    "losers": 2,
+    "n": 8,
+    "unrealized_r": 2.1579,
+    "winners": 4
   },
   "trades": {
     "02375c7e": {
@@ -14,7 +14,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.44666666666666793
+      "ur": 0.07333333333333292
     },
     "1431a6af": {
       "dl_soon": false,
@@ -24,17 +24,27 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.28556263269639975
+      "ur": -0.2494692144373662
+    },
+    "1f26b99a": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "5520c19f": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.16666666666667215
+      "ur": -0.36836518046709377
     },
     "8582bc29": {
       "dl_soon": false,
@@ -44,7 +54,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.40395480225988656
+      "ur": 0.0875706214689267
     },
     "87f345b3": {
       "dl_soon": false,
@@ -54,7 +64,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.9767932489451642
+      "ur": 0.7320675105485461
     },
     "a7800fcb": {
       "dl_soon": false,
@@ -64,7 +74,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 2.4548387096774054
+      "ur": 1.8827956989247303
+    },
+    "f88b2feb": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
