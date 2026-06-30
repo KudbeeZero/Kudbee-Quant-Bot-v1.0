@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 8,
-    "unrealized_r": 3.5715,
-    "winners": 6
+    "unrealized_r": 5.7197,
+    "winners": 8
   },
   "trades": {
     "02375c7e": {
@@ -14,7 +14,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.07333333333333292
+      "ur": 0.2600000000000004
     },
     "1431a6af": {
       "dl_soon": false,
@@ -24,17 +24,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.28556263269639975
+      "ur": 0.523354564755855
     },
     "1f26b99a": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.7013400335008445
     },
     "5520c19f": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.16666666666667215
+      "ur": 0.4044585987261274
     },
     "8582bc29": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.0875706214689267
+      "ur": 0.24576271186440662
     },
     "87f345b3": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.9852320675105641
+      "ur": 1.1455696202531824
     },
     "a7800fcb": {
       "dl_soon": false,
@@ -74,17 +74,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 1.9731182795698776
+      "ur": 2.1387096774193384
     },
     "f88b2feb": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.3005098789037545
     }
   }
 }
