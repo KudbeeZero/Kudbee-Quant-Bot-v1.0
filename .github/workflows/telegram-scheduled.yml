@@ -1,0 +1,81 @@
+name: Telegram scheduled notifications
+
+# Cron-driven Telegram features (live tracker, session briefs, weekly digest). Each
+# emitter SELF-GATES on its feature toggle (env TELEGRAM_*_ENABLED or the committed
+# data/feature_flags.json that the Telegram /enable command writes), so this workflow is
+# a no-op until the owner turns a feature on — no laptop needed. A missing TELEGRAM_*
+# secret also makes every send a silent no-op. This is a NEW workflow; no existing
+# workflow is modified.
+
+on:
+  schedule:
+    - cron: "0,30 * * * *"   # live tracker — twice an hour
+    - cron: "3 8 * * *"      # London open brief (~08:00 UTC)
+    - cron: "3 13 * * *"     # NY open brief (~13:00 UTC)
+    - cron: "5 13 * * *"     # daily recap (~13:05 UTC)
+    - cron: "7 20 * * 0"     # weekly recap — Sunday ~20:00 UTC
+  workflow_dispatch:
+    inputs:
+      job:
+        description: "Which job to run manually (tracker|london|ny|daily|weekly)"
+        default: "weekly"
+
+env:
+  TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+  TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+jobs:
+  live-tracker:
+    if: github.event.schedule == '0,30 * * * *' || github.event.inputs.job == 'tracker'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q -r requirements.txt
+      - run: python -m kudbee_quant.notifications.trade_tracker --emit || true
+
+  london-brief:
+    if: github.event.schedule == '3 8 * * *' || github.event.inputs.job == 'london'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q -r requirements.txt
+      - run: python -m kudbee_quant.notifications.session_brief --session london || true
+
+  ny-brief:
+    if: github.event.schedule == '3 13 * * *' || github.event.inputs.job == 'ny'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q -r requirements.txt
+      - run: python -m kudbee_quant.notifications.session_brief --session ny || true
+
+  daily-recap:
+    if: github.event.schedule == '5 13 * * *' || github.event.inputs.job == 'daily'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q -r requirements.txt
+      - run: python -m kudbee_quant.notifications.recap --daily || true
+
+  weekly-recap:
+    if: github.event.schedule == '7 20 * * 0' || github.event.inputs.job == 'weekly'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -q -r requirements.txt
+      - run: python -m kudbee_quant.notifications.recap --weekly || true

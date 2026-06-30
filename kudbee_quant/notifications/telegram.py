@@ -83,11 +83,16 @@ def _split(text: str, limit: int = _MAX_LEN) -> list[str]:
     return chunks
 
 
-def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 10.0) -> bool:
+def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 10.0,
+                  parse_mode: str | None = None, disable_notification: bool = False) -> bool:
     """Deliver ``text`` to the configured chat. Returns True iff fully delivered.
 
     No-ops (returns False) when not configured. Splits over-long messages and
     swallows any network/HTTP error so a failed ping can never crash the bot.
+
+    ``parse_mode`` (e.g. ``"HTML"``) is forwarded to Telegram only when set, so the
+    default call is byte-identical to before. ``disable_notification=True`` delivers
+    the message silently (no buzz) — used for low-priority "FYI" pings like skips.
     """
     if not telegram_enabled():
         return False
@@ -97,14 +102,19 @@ def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 1
     url = _API.format(token=token)
     ok = True
     for chunk in _split(text):
+        payload = {
+            "chat_id": chat_id,
+            "text": chunk,
+            "disable_web_page_preview": disable_preview,
+        }
+        if parse_mode:
+            payload["parse_mode"] = parse_mode
+        if disable_notification:
+            payload["disable_notification"] = True
         try:
             resp = requests.post(
                 url,
-                json={
-                    "chat_id": chat_id,
-                    "text": chunk,
-                    "disable_web_page_preview": disable_preview,
-                },
+                json=payload,
                 timeout=timeout,
             )
             if resp.status_code != 200:

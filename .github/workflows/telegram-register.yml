@@ -1,0 +1,123 @@
+name: Telegram register webhook (one-tap, no laptop)
+
+# Registers the Telegram two-way command webhook with ZERO typing and NO local machine.
+# The owner taps Actions -> this workflow -> "Run workflow" once from the GitHub mobile app;
+# a daily cron then keeps it fresh (self-heal). It does the work server-side via the Render
+# app's existing self-register endpoint, so no secret is ever typed or echoed:
+#
+#   1. GET  https://kudbee-quant-api.onrender.com/api/telegram/register-webhook?token=<KUDBEE_API_TOKEN>
+#      -> Render calls Telegram setWebhook with ITS OWN bot token + TELEGRAM_WEBHOOK_SECRET,
+#         pointing Telegram back at /api/telegram. The byte-exact secret match (the #1 failure
+#         mode of hand-registering) is handled inside Render. The bot token is never returned.
+#   2. POST .../setMyCommands so the live slash-commands autocomplete in the Telegram app.
+#   3. GET  .../getWebhookInfo to confirm the url is set and surface any last_error_message.
+#
+# This is a NEW workflow; no existing workflow is modified. It is idempotent (setWebhook /
+# setMyCommands can be called repeatedly) and fail-soft (|| true + explicit status echoes), so a
+# transient curl error never hard-fails the run. Needs two repo secrets that the bot already uses:
+#   - KUDBEE_API_TOKEN   (the write-API token; also set on Render)
+#   - TELEGRAM_BOT_TOKEN (the same token the alerts already send with)
+# If a secret is missing the step prints a plain, phone-doable fix and moves on.
+
+on:
+  workflow_dispatch:        # one-tap "Run workflow" button (GitHub mobile app)
+  schedule:
+    - cron: "30 6 * * *"    # daily self-heal ~06:30 UTC (re-points the webhook if it drifted)
+
+permissions:
+  contents: read            # this job only calls out over HTTPS; it never writes the repo
+
+concurrency:
+  group: telegram-register
+  cancel-in-progress: false
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    env:
+      RENDER_BASE: https://kudbee-quant-api.onrender.com
+      KUDBEE_API_TOKEN: ${{ secrets.KUDBEE_API_TOKEN }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+    steps:
+      - name: Register the webhook (server-side, no token typed)
+        run: |
+          if [ -z "$KUDBEE_API_TOKEN" ]; then
+            echo "::warning::KUDBEE_API_TOKEN is not set as a repo secret."
+            echo "Fix (phone-doable): repo Settings -> Secrets and variables -> Actions ->"
+            echo "  New repository secret -> name KUDBEE_API_TOKEN, value = the same write"
+            echo "  token set on Render. Then re-run this workflow. Skipping registration."
+            exit 0
+          fi
+          echo "Calling the Render self-register endpoint (token sent as a query param, not echoed)..."
+          # Build the URL from the env var so the secret never appears in the command text.
+          code=$(curl -sS -o resp.json -w "%{http_code}" \
+            "$RENDER_BASE/api/telegram/register-webhook?token=$KUDBEE_API_TOKEN" || echo "000")
+          echo "HTTP status: $code"
+          echo "Response (no token in it):"
+          cat resp.json 2>/dev/null || true
+          echo
+          if [ "$code" = "401" ] || [ "$code" = "403" ]; then
+            echo "::warning::Render rejected the token (401/403). The KUDBEE_API_TOKEN repo secret"
+            echo "  must match the value set on Render. Update it and re-run."
+          elif [ "$code" = "000" ]; then
+            echo "::warning::Could not reach Render (network/cold-start). Re-run in a minute."
+          fi
+
+      - name: Set the command menu (autocomplete in the Telegram app)
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "::warning::TELEGRAM_BOT_TOKEN not set; skipping the command menu (the webhook"
+            echo "  itself is unaffected). Add it under Settings -> Secrets -> Actions to enable."
+            exit 0
+          fi
+          echo "Publishing the slash-command menu via setMyCommands..."
+          curl -sS -X POST \
+            "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/setMyCommands" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "commands": [
+                {"command": "status",    "description": "Open positions + today at a glance"},
+                {"command": "score",     "description": "Scorecard: win rate, expectancy, R"},
+                {"command": "positions",  "description": "List every open/pending trade"},
+                {"command": "gates",     "description": "Experiment-gate readings (DXY, drawdown...)"},
+                {"command": "recap",     "description": "Weekly performance recap"},
+                {"command": "pnl",       "description": "Realized PnL over a window"},
+                {"command": "scan",      "description": "Run a fresh paper scan now"},
+                {"command": "summary",   "description": "Portfolio snapshot with live marks"},
+                {"command": "pause",     "description": "Pause new entries (admin)"},
+                {"command": "resume",    "description": "Resume new entries (admin)"},
+                {"command": "enable",    "description": "Turn a Telegram feature on (admin)"},
+                {"command": "disable",   "description": "Turn a Telegram feature off (admin)"},
+                {"command": "levels",    "description": "TR levels for a symbol"},
+                {"command": "history",   "description": "Closed-trade history (7d|30d)"},
+                {"command": "vectors",   "description": "Unrecovered PVSRA vectors"},
+                {"command": "help",      "description": "List all commands"}
+              ]
+            }' || echo "::warning::setMyCommands call failed (transient); the webhook is still registered."
+          echo
+
+      - name: Verify the webhook (getWebhookInfo)
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
+            echo "TELEGRAM_BOT_TOKEN not set; cannot verify. (Registration via Render may still have"
+            echo "  succeeded — check the first step's response above.)"
+            exit 0
+          fi
+          echo "Webhook status (url should be the Render /api/telegram endpoint):"
+          curl -sS "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo" \
+            -o info.json -w "HTTP %{http_code}\n" || echo "(getWebhookInfo unreachable)"
+          # Print only the safe, non-token fields.
+          python3 - <<'PY' || cat info.json 2>/dev/null || true
+          import json
+          try:
+              d = json.load(open("info.json")).get("result", {})
+          except Exception:
+              raise SystemExit(0)
+          print("  url:                 ", d.get("url") or "(empty — not set!)")
+          print("  pending_update_count:", d.get("pending_update_count"))
+          print("  last_error_message:  ", d.get("last_error_message") or "(none)")
+          if d.get("url"):
+              print("OK: the webhook is registered. Try /help in Telegram.")
+          else:
+              print("NOT SET: re-run after confirming KUDBEE_API_TOKEN matches Render.")
+          PY

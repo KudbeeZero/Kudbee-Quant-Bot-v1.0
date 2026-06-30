@@ -16,10 +16,11 @@ from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
 from ..signals.dxy_regime import dxy_regime, RISK_ON, RISK_OFF, NEUTRAL
 from ..signals.signal_fingerprint import SignalFingerprintDB, make_fingerprint
-from ..signals.adr_filter import adr_gate
+from ..signals.adr_filter import adr_gate, adr_consumed_pct
 from ..risk.drawdown_guard import DrawdownGuard
 from ..risk.session_sizer import sized_risk
 from ..risk.correlation_guard import CorrelationGuard
+from ..control import is_paused as _manual_paused
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,76 @@ def _book_of(setup: str) -> str:
     (symbol, timeframe). The net-exposure guard still caps COMBINED per-coin risk."""
     i = setup.find("pct")
     return setup[i + 3:] if i != -1 else setup
+
+
+def _session_label_for(ts) -> str | None:
+    """Coarse session name from a bar timestamp (UTC hour) for the signal card."""
+    try:
+        import pandas as pd
+        h = int(pd.to_datetime(ts, utc=True).hour)
+    except Exception:  # noqa: BLE001
+        return None
+    if 7 <= h < 13:
+        return "London"
+    if 13 <= h < 21:
+        return "NY"
+    return "Asia"
+
+
+def _maybe_send_card(p, last, f, pct, direction, sd, dxy_state, fp_db, adr_threshold) -> None:
+    """Build a :class:`SignalEvent` from the live scan context and send the rich card.
+    No-op unless ``TELEGRAM_SIGNAL_CARDS_ENABLED``; fail-open (never affects the scan)."""
+    try:
+        from ..notifications.card_builder import (
+            SignalEvent,
+            notify_signal_card,
+            signal_cards_enabled,
+        )
+        if not signal_cards_enabled():
+            return
+        wr = n = None
+        if fp_db is not None:
+            from ..signals.signal_fingerprint import make_fingerprint
+            fp = make_fingerprint(confluence_pct=pct, direction=direction,
+                                  timestamp=last.get("timestamp"))
+            wr, n = fp_db.win_rate(fp), fp_db.sample_size(fp)
+        try:
+            from ..signals.adr_filter import adr_consumed_pct
+            adr_pct = adr_consumed_pct(f)
+        except Exception:  # noqa: BLE001
+            adr_pct = None
+        regime = ({1: "RISK_ON", -1: "RISK_OFF", 0: "NEUTRAL"}.get(dxy_state)
+                  if dxy_state is not None else None)
+        ev = SignalEvent(
+            symbol=p.symbol, direction=direction, entry=p.entry, stop=p.stop, target=p.target,
+            tp1=p.tp1,
+            tp1_r=(abs(p.tp1 - p.entry) / sd if (p.tp1 is not None and sd) else 1.0),
+            tp2_r=(p.target_r if p.target_r is not None else 3.0),
+            session_name=_session_label_for(last.get("timestamp")),
+            dxy_regime=regime, adr_pct=adr_pct, adr_threshold=adr_threshold,
+            fp_winrate=wr, fp_trades=n,
+        )
+        notify_signal_card(ev)
+    except Exception:  # noqa: BLE001
+        pass
+
+
+def _report_skip_if_on(sym, direction, gate, ctx_fn, last, stop_atr) -> None:
+    """Record a gate skip (F5) — default-off (TELEGRAM_SKIP_REPORTER_ENABLED), fail-open.
+    ``ctx_fn`` is a thunk so the (possibly expensive) gate context is built ONLY when the
+    reporter is on. The bracket is provisional (close ± ATR), since the real one isn't
+    built until after all gates pass."""
+    try:
+        from ..notifications.skip_reporter import record_skip, skip_reporter_enabled
+        if not skip_reporter_enabled():
+            return
+        ctx = ctx_fn() if callable(ctx_fn) else ctx_fn
+        close = float(last.get("close"))
+        sd = float(last.get("atr")) * stop_atr
+        bracket = {"entry": round(close, 6), "stop": round(close - direction * sd, 6)}
+        record_skip(sym, direction, gate, ctx, bracket=bracket)
+    except Exception:  # noqa: BLE001
+        pass
 
 
 def paper_scan(
@@ -108,6 +179,12 @@ def paper_scan(
     bot-owned ``data/journal.json`` (the data-poisoning vector api_security.py
     was written to close).
     """
+    # --- Manual pause kill-switch (Telegram /pause) ---------------------------
+    # A phone-set flag in data/control.json halts ALL new entries. Default-off
+    # (no file / flag false -> byte-identical scan); read-only here.
+    if _manual_paused():
+        logger.info("SCAN HALTED: manual pause active (Telegram /pause).")
+        return []
     # --- Binary-event gate (read-only, checked BEFORE any signal evaluation) ---
     # Tino's rule: do not open NEW positions near a known high-impact scheduled
     # event (earnings, PCE, NFP, FOMC) — binary moves invalidate technical setups.
@@ -221,9 +298,11 @@ def paper_scan(
         # inverse to crypto — block LONGs in RISK_OFF (dollar up-trend) and SHORTs in
         # RISK_ON. NEUTRAL or unavailable DXY data passes through (fail-open).
         if dxy_gate:
-            if dxy_state == RISK_OFF and direction > 0:
-                continue
-            if dxy_state == RISK_ON and direction < 0:
+            if ((dxy_state == RISK_OFF and direction > 0)
+                    or (dxy_state == RISK_ON and direction < 0)):
+                _report_skip_if_on(sym, direction, "_dxy",
+                                   lambda direction=direction: {"direction": direction},
+                                   last, stop_atr)
                 continue
         # SIGNAL FINGERPRINT GATE (experiment '_fp', default OFF): skip a signal whose
         # 5-dim fingerprint bucket has a SAMPLED (>=MIN_SAMPLE) losing record. Buckets
@@ -232,11 +311,19 @@ def paper_scan(
             fp = make_fingerprint(confluence_pct=pct, direction=direction,
                                   timestamp=last.get("timestamp"))
             if fp_db.should_skip(fp, fingerprint_min_expectancy, fingerprint_min_win_rate):
+                _report_skip_if_on(
+                    sym, direction, "_fp",
+                    lambda fp=fp, fp_db=fp_db: {
+                        "bucket": str(fp.key()), "value": fp_db.win_rate(fp) or 0.0,
+                        "n": fp_db.sample_size(fp)}, last, stop_atr)
                 continue
         # ADR EXHAUSTION FILTER (experiment '_adr', default OFF): don't chase a move
         # that has already spent most of its average daily range. Reuses the frame's
         # pct_adr_used column when present; fail-open (allow) on missing ADR data.
         if adr_filter and not adr_gate(f, direction, adr_threshold):
+            _report_skip_if_on(sym, direction, "_adr",
+                               lambda f=f: {"value": adr_consumed_pct(f), "threshold": adr_threshold},
+                               last, stop_atr)
             continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
@@ -261,6 +348,9 @@ def paper_scan(
             corr_hit, _corr_peer = corr_guard.is_correlated(
                 sym, direction, j.predictions, client, interval=interval)
             if corr_hit:
+                _report_skip_if_on(sym, direction, "_cg",
+                                   lambda peer=_corr_peer: {"peer": peer, "value": corr_threshold},
+                                   last, stop_atr)
                 continue
         signal_price = float(last["close"])
         atr = float(last["atr"])
@@ -303,4 +393,10 @@ def paper_scan(
         # DRY RUN never touches the journal — preview-only (see docstring).
         p = pred if dry_run else j.add(pred)
         logged.append(p)
+        # Signal Intelligence Card (F1) — default-off, fail-open; no-op unless
+        # TELEGRAM_SIGNAL_CARDS_ENABLED. Built from the in-scope scan context.
+        if not dry_run:
+            _maybe_send_card(p, last, f, pct, direction, sd,
+                             dxy_state if dxy_gate else None,
+                             fp_db if fingerprint_gate else None, adr_threshold)
     return logged

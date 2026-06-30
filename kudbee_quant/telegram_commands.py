@@ -21,7 +21,9 @@ client). The webhook wires them up in api.py.
 from __future__ import annotations
 
 import os
+import re
 import time
+from pathlib import Path
 
 from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
 from .intelligence.d1_client import d1_query
@@ -395,8 +397,15 @@ def cmd_help() -> str:
             "/status — open positions + unrealized R\n"
             "/score — today's closed trades\n"
             "/positions — full open book\n"
+            "/gates — manual-pause, drawdown breaker + feature toggles\n"
+            "/recap — weekly performance recap (by-day + top trades)\n"
+            "/pnl 7d|30d — realized R over the last N days\n"
             "/scan — trigger a fresh scan now\n"
             "/summary — force the hourly summary now\n"
+            "/pause — halt new entries (admin)\n"
+            "/resume — re-enable trading (admin)\n"
+            "/enable FEATURE — turn a notification feature on (admin)\n"
+            "/disable FEATURE — turn it off (admin)\n"
             "/levels SYMBOL — full TR level grid (M0-M5, PP, Asia, Brinks, EMA)\n"
             "/history SYMBOL — daily open + Asia H/L for last 7 days\n"
             "/vectors SYMBOL — unrecovered climax candles (price magnets)\n"
@@ -406,16 +415,167 @@ def cmd_help() -> str:
             "/help — this menu")
 
 
+# ── Tier 1.5: gates, P&L, and admin controls (pause / feature toggles) ───────
+
+def _admin_ids() -> set[str]:
+    """Chat ids allowed to run the mutating commands. Defaults to the owner chat
+    when ``TELEGRAM_ADMIN_CHAT_IDS`` is unset."""
+    raw = os.environ.get("TELEGRAM_ADMIN_CHAT_IDS", "").strip()
+    if raw:
+        return {x.strip() for x in raw.split(",") if x.strip()}
+    owner = os.environ.get("TELEGRAM_CHAT_ID", "").strip()
+    return {owner} if owner else set()
+
+
+def _persist_to_repo(path: str) -> str:
+    """Best-effort: commit ``path`` to the repo via the GitHub contents API so the
+    hourly cron (a separate machine from this webhook) honors a phone-set flag.
+    Fail-open — returns a short note; never raises."""
+    token = os.environ.get("KUDBEE_GH_TOKEN", "")
+    if not token:
+        return "  (host-local — set KUDBEE_GH_TOKEN to sync it to the bot)"
+    repo = os.environ.get("KUDBEE_GH_REPO", "KudbeeZero/Kudbee-Quant-Bot-v1.0")
+    branch = os.environ.get("KUDBEE_GH_BRANCH", "main")
+    try:
+        import base64
+
+        import requests
+        content = Path(path).read_text()
+        url = f"{_GH_API}/repos/{repo}/contents/{path}"
+        headers = {"Authorization": f"Bearer {token}",
+                   "Accept": "application/vnd.github+json",
+                   "X-GitHub-Api-Version": "2022-11-28"}
+        cur = requests.get(url, headers=headers, params={"ref": branch}, timeout=8)
+        sha = cur.json().get("sha") if cur.status_code == 200 else None
+        body = {"message": f"control: update {path} [skip ci]",
+                "content": base64.b64encode(content.encode()).decode(),
+                "branch": branch}
+        if sha:
+            body["sha"] = sha
+        r = requests.put(url, headers=headers, json=body, timeout=8)
+        return "" if r.status_code in (200, 201) else f"  (sync failed: {r.status_code})"
+    except Exception as e:  # noqa: BLE001
+        return f"  (sync error: {type(e).__name__})"
+
+
+def cmd_gates(journal: TradeJournal) -> str:
+    """Show the manual-pause state, the drawdown breaker, and the notification toggles.
+    Read-only and network-free (kept well under the webhook's 3s budget)."""
+    from . import control
+    from .config.feature_toggles import all_flags
+    lines = ["⚙️ Gates & toggles"]
+    st = control.status()
+    lines.append(f"Manual pause: {'🔴 PAUSED' if st['manual_pause'] else '🟢 active'}")
+    try:
+        from .risk.drawdown_guard import DrawdownGuard
+        g = DrawdownGuard()
+        g.update(journal.predictions, persist=False)
+        lines.append(g.status_message())
+    except Exception:  # noqa: BLE001
+        lines.append("Drawdown breaker: n/a")
+    lines.append("Notification features:")
+    for k, v in all_flags().items():
+        lines.append(f"  {'✅' if v else '⬜'} {k}")
+    lines.append("(/enable FEATURE · /disable FEATURE · /pause · /resume)")
+    return "\n".join(lines)
+
+
+def _set_feature(text: str, value: bool) -> str:
+    from .config.feature_toggles import KNOWN_FLAGS, set_flag
+    parts = text.split()
+    opts = ", ".join(KNOWN_FLAGS)
+    if len(parts) < 2:
+        return f"Usage: {'/enable' if value else '/disable'} FEATURE  (one of: {opts})"
+    name = parts[1].lower()
+    if name not in KNOWN_FLAGS:
+        return f"Unknown feature {name!r}. Options: {opts}"
+    try:
+        set_flag(name, value)
+    except Exception as e:  # noqa: BLE001
+        return f"❌ Could not set {name}: {type(e).__name__}"
+    note = _persist_to_repo("data/feature_flags.json")
+    return f"{'✅ enabled' if value else '⬜ disabled'} {name}.{note}"
+
+
+def cmd_enable(text: str) -> str:
+    return _set_feature(text, True)
+
+
+def cmd_disable(text: str) -> str:
+    return _set_feature(text, False)
+
+
+def cmd_pause(since: str | None = None) -> str:
+    from . import control
+    control.set_paused(True, reason="Telegram /pause", since=since)
+    note = _persist_to_repo("data/control.json")
+    return "🔴 Trading PAUSED — new entries halted. Send /resume to re-enable." + note
+
+
+def cmd_resume() -> str:
+    from . import control
+    control.set_paused(False)
+    note = _persist_to_repo("data/control.json")
+    return "🟢 Trading RESUMED." + note
+
+
+def cmd_recap(text: str, journal: TradeJournal) -> str:
+    """/recap — the weekly performance recap (net R, win rate, by-day, top trades)."""
+    try:
+        from .notifications.recap import format_weekly_recap
+        return format_weekly_recap(journal)
+    except Exception as e:  # noqa: BLE001
+        return f"⚠️ Recap unavailable: {type(e).__name__}"
+
+
+def cmd_pnl(text: str, journal: TradeJournal) -> str:
+    """/pnl 7d|30d — realized R, win rate and trade count over the last N days."""
+    parts = text.split()
+    days = 7
+    if len(parts) >= 2:
+        m = re.match(r"(\d+)", parts[1])
+        if m:
+            days = max(1, int(m.group(1)))
+    import datetime
+    cutoff = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days)
+    rows = []
+    for row in journal.resolved_series():
+        try:
+            t = datetime.datetime.fromisoformat(str(row["t"]).replace("Z", "+00:00"))
+            if t.tzinfo is None:
+                t = t.replace(tzinfo=datetime.timezone.utc)
+        except Exception:  # noqa: BLE001
+            continue
+        if t >= cutoff and row.get("r") is not None:
+            rows.append(float(row["r"]))
+    if not rows:
+        return f"No closed trades in the last {days}d."
+    total = sum(rows)
+    wins = sum(1 for r in rows if r > 0)
+    return (f"📈 Last {days}d: {total:+.2f}R on {len(rows)} closed "
+            f"({wins}W / {len(rows) - wins}L, {wins / len(rows) * 100:.0f}% win)")
+
+
 # ── webhook glue (gate 1 + dispatch + reply) ─────────────────────────────────
+
+# Commands that change state — restricted to TELEGRAM_ADMIN_CHAT_IDS (a subset of the
+# chat-id whitelist; defaults to the owner chat).
+_ADMIN_CMDS = {"/pause", "/resume", "/enable", "/disable"}
+
 
 def dispatch(text: str, chat_id: str, journal: TradeJournal | None = None) -> str:
     """Route a '/command ...' line to its handler and return the reply text."""
     j = journal or TradeJournal()
     cmd = text.split()[0].lower().split("@")[0]      # tolerate /cmd@botname
+    if cmd in _ADMIN_CMDS and chat_id not in _admin_ids():
+        return "⛔ Admin only (set TELEGRAM_ADMIN_CHAT_IDS to allow this chat)."
     table = {
         "/status": lambda: cmd_status(j),
         "/score": lambda: cmd_score(j),
         "/positions": lambda: cmd_positions(j),
+        "/gates": lambda: cmd_gates(j),
+        "/recap": lambda: cmd_recap(text, j),
+        "/pnl": lambda: cmd_pnl(text, j),
         "/scan": lambda: cmd_scan(chat_id),
         "/summary": lambda: cmd_summary(),
         "/levels": lambda: cmd_levels(text),
@@ -424,6 +584,10 @@ def dispatch(text: str, chat_id: str, journal: TradeJournal | None = None) -> st
         "/trade": lambda: cmd_trade(text, chat_id),
         "/yes": lambda: cmd_yes(chat_id, j),
         "/cancel": lambda: cmd_cancel(chat_id),
+        "/pause": lambda: cmd_pause(),
+        "/resume": lambda: cmd_resume(),
+        "/enable": lambda: cmd_enable(text),
+        "/disable": lambda: cmd_disable(text),
         "/help": lambda: cmd_help(),
     }
     return table.get(cmd, lambda: "Unknown command. Try /help.")()

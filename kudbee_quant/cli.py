@@ -717,7 +717,11 @@ def _paper_scan(args) -> None:
                         dry_run=args.dry_run)
     notify_trades_opened(logged)   # batched digest — no-op unless Telegram is configured
     try:
-        notify_trade_open_events(logged)   # individual per-trade open pings (deduped, never raises)
+        # When the rich Signal Intelligence Card is enabled, paper_scan already sent a
+        # per-trade card — skip the plain per-trade ping to avoid a double notification.
+        from .notifications.card_builder import signal_cards_enabled
+        if not signal_cards_enabled():
+            notify_trade_open_events(logged)   # individual per-trade open pings (deduped)
     except Exception as e:  # noqa: BLE001 — a ping must never break the scan
         print(f"[notify] trade-open alerts failed: {e}")
     _record_intelligence(args.symbols)  # persist TR levels + vectors to D1 (non-blocking)

@@ -67,10 +67,15 @@ class DrawdownGuard:
         except Exception:
             pass
 
-    def update(self, predictions, persist: bool = True) -> bool:
+    def update(self, predictions, persist: bool = True, on_state_change=None) -> bool:
         """Recompute rolling R from the journal's closed trades, apply the pause/resume
         hysteresis, and return the (new) ``is_paused`` state. Persists the state file
-        unless ``persist`` is False (a read-only preview must have no side effects)."""
+        unless ``persist`` is False (a read-only preview must have no side effects).
+
+        ``on_state_change(old_state, new_state, guard)`` (states ``"active"``/``"paused"``)
+        is called once when the breaker FLIPS — the hook the circuit-breaker alert
+        registers. It is wrapped fail-open so a notification can never break the scan."""
+        was_paused = self.is_paused
         rs, _ = _last_closed_r(predictions, self.window)
         if len(rs) < self.window:
             # Thin history: stay active — don't trip on too few samples.
@@ -86,6 +91,12 @@ class DrawdownGuard:
             self.is_paused = True
         if persist:
             self._save()
+        if on_state_change is not None and self.is_paused != was_paused:
+            try:
+                on_state_change("paused" if was_paused else "active",
+                                "paused" if self.is_paused else "active", self)
+            except Exception:  # noqa: BLE001 — an alert must never break the scan
+                pass
         return self.is_paused
 
     def status_message(self) -> str:
