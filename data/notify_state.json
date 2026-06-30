@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 8,
-    "unrealized_r": 1.2919,
+    "losers": 3,
+    "n": 7,
+    "unrealized_r": 1.4647,
     "winners": 4
   },
   "trades": {
     "02375c7e": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3000000000000021
+      "ur": -0.11333333333333458
     },
     "1431a6af": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.10721868365181662
+      "ur": 0.28556263269639975
     },
     "1f26b99a": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.44807370184255085
+      "ur": 0.5793969849246305
     },
     "5520c19f": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": -0.011677282377910983
+      "ur": 0.16666666666667215
     },
     "8582bc29": {
       "dl_soon": false,
@@ -54,17 +54,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.22881355932203315
-    },
-    "87f345b3": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": true,
-      "ur": 0.7320675105485461
+      "ur": -0.07062146892655323
     },
     "a7800fcb": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.9494623655913831
+      "ur": 0.9946236559139672
     },
     "f88b2feb": {
       "dl_soon": false,
@@ -84,7 +74,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.40439770554494137
+      "ur": -0.37762906309752053
     }
   }
 }
