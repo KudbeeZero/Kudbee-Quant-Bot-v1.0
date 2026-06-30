@@ -191,10 +191,10 @@ def build_signal_card(ev: SignalEvent) -> str:
 
 
 def signal_cards_enabled() -> bool:
-    """Default-off feature flag for the rich card (env ``TELEGRAM_SIGNAL_CARDS_ENABLED``)."""
-    from ..config.secrets import get_secret
-    s = get_secret("TELEGRAM_SIGNAL_CARDS_ENABLED", required=False)
-    return bool(s) and s.reveal().strip().lower() in {"1", "true", "yes", "on"}
+    """Default-off flag for the rich card — env ``TELEGRAM_SIGNAL_CARDS_ENABLED`` or the
+    ``signal_cards`` toggle in ``data/feature_flags.json`` (set via Telegram ``/enable``)."""
+    from ..config.feature_toggles import is_enabled
+    return is_enabled("signal_cards")
 
 
 def notify_signal_card(ev: SignalEvent) -> bool:
