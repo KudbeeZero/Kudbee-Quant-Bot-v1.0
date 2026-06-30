@@ -35,6 +35,7 @@ from .notify import (
     notify_trades_resolved,
     send_telegram_message,
 )
+from .card_builder import SignalEvent, build_signal_card, notify_signal_card
 from .telegram import send_telegram, telegram_enabled
 from .weekly_brief import format_weekly_brief, notify_weekly_brief
 
@@ -42,6 +43,9 @@ __all__ = [
     "send_telegram",
     "send_telegram_message",
     "telegram_enabled",
+    "SignalEvent",
+    "build_signal_card",
+    "notify_signal_card",
     "format_weekly_brief",
     "notify_weekly_brief",
     "notify_trades_opened",
