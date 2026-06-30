@@ -130,6 +130,19 @@ def _backtest(args) -> None:
     print("OOS column matter more than the headline number. Not financial advice.")
 
 
+def _dxy_regime(args) -> None:
+    """Print the current DXY inverse-correlation regime (RISK_ON/RISK_OFF/NEUTRAL)."""
+    from .ingest import RouterClient
+    from .signals.dxy_regime import compute_dxy, state_name
+    d = compute_dxy(RouterClient())   # RouterClient routes the yahoo:DX-Y.NYB spec
+    print(f"DXY regime: {state_name(d['state'])} ({d['state']:+d})")
+    if d.get("ok"):
+        print(f"  close {d['last_close']:.3f}  EMA50 {d['last_ema']:.3f}  "
+              f"pct_diff {d['pct_diff'] * 100:+.3f}%  slope {d['slope']:+.5f}  bars {d['n_bars']}")
+    else:
+        print("  (DXY data unavailable — fail-open NEUTRAL)")
+
+
 def _tiered_compare(args) -> None:
     """Compare flat-TP vs tiered scale-out exits (configs A-E) over a symbol set."""
     import json
@@ -689,7 +702,19 @@ def _paper_scan(args) -> None:
                         trend_filter=args.trend_filter,
                         long_only=args.long_only, killzone_gate=args.killzone_gate,
                         trailing_atr=args.trailing_atr,
-                        clean_trend_stack=args.clean_trend_stack)
+                        clean_trend_stack=args.clean_trend_stack,
+                        dxy_gate=args.dxy_gate,
+                        fingerprint_gate=args.fingerprint_gate,
+                        fingerprint_min_expectancy=args.fingerprint_min_exp,
+                        fingerprint_min_win_rate=args.fingerprint_min_wr,
+                        drawdown_circuit_breaker=args.drawdown_circuit_breaker,
+                        dcb_window=args.dcb_window, dcb_pause_r=args.dcb_pause_r,
+                        dcb_resume_r=args.dcb_resume_r,
+                        session_sizing=args.session_sizing,
+                        correlation_guard=args.correlation_guard,
+                        corr_threshold=args.corr_threshold, corr_lookback=args.corr_lookback,
+                        adr_filter=args.adr_filter, adr_threshold=args.adr_threshold,
+                        dry_run=args.dry_run)
     notify_trades_opened(logged)   # batched digest — no-op unless Telegram is configured
     try:
         notify_trade_open_events(logged)   # individual per-trade open pings (deduped, never raises)
@@ -1069,6 +1094,10 @@ def main() -> None:
     tc.add_argument("--long-only", action="store_true")
     tc.set_defaults(func=_tiered_compare)
 
+    dx = sub.add_parser("dxy-regime",
+                        help="show the current DXY inverse-correlation regime")
+    dx.set_defaults(func=_dxy_regime)
+
     v2 = sub.add_parser("validate", help="validate a strategy across many assets (OOS)")
     v2.add_argument("symbols", nargs="+",
                     help="specs, e.g. BTCUSDT ETHUSDT yahoo:SPY yahoo:GLD (mix sources)")
@@ -1260,11 +1289,11 @@ def main() -> None:
     ps.add_argument("--no-be", action="store_true",
                     help="do NOT move stop to breakeven after TP1")
     ps.add_argument("--risk-per-trade", type=float, default=0.01,
-                    help="risk per trade as a fraction of account (0.01 = 1%)")
+                    help="risk per trade as a fraction of account (0.01 = 1%%)")
     ps.add_argument("--max-symbol-risk", type=float, default=0.02,
-                    help="cap on COMBINED long+short risk per coin (0.02 = 2%)")
+                    help="cap on COMBINED long+short risk per coin (0.02 = 2%%)")
     ps.add_argument("--trend-filter", action="store_true",
-                    help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%)")
+                    help="skip signals that fight the 800-EMA HTF trend (tested: +~0.05R, keeps ~83%%)")
     ps.add_argument("--long-only", action="store_true",
                     help="only take LONG signals, skip shorts "
                          "(5m excursion: longs 32%% vs shorts 14%%, n=48 — experimental)")
@@ -1277,6 +1306,42 @@ def main() -> None:
     ps.add_argument("--clean-trend-stack", action="store_true", default=False,
                     help="[§C experiment, UNVERIFIED] only trade when 13/50/800-EMA are "
                          "cleanly stacked for 10 bars AND the 13/50 gap is widening")
+    ps.add_argument("--dxy-gate", action="store_true",
+                    help="[experiment '_dxy'] block LONGs in DXY RISK_OFF / SHORTs in "
+                         "RISK_ON (dollar is inverse to crypto); fail-open NEUTRAL")
+    ps.add_argument("--fingerprint-gate", action="store_true",
+                    help="[experiment '_fp'] skip signals whose 5-dim fingerprint bucket "
+                         "has a sampled (>=5) losing record")
+    ps.add_argument("--fingerprint-min-exp", type=float, default=0.0,
+                    help="fingerprint gate: skip a sampled bucket below this mean-R expectancy")
+    ps.add_argument("--fingerprint-min-wr", type=float, default=0.0,
+                    help="fingerprint gate: skip a sampled bucket below this win rate")
+    ps.add_argument("--drawdown-circuit-breaker", action="store_true",
+                    help="[experiment '_dcb'] pause ALL new entries after a rolling "
+                         "losing streak (state in data/drawdown_state.json)")
+    ps.add_argument("--dcb-window", type=int, default=10,
+                    help="drawdown breaker: rolling window of closed trades (default 10)")
+    ps.add_argument("--dcb-pause-r", type=float, default=-3.0,
+                    help="drawdown breaker: trip when rolling R < this (default -3.0)")
+    ps.add_argument("--dcb-resume-r", type=float, default=-1.0,
+                    help="drawdown breaker: resume when paused and rolling R >= this (default -1.0)")
+    ps.add_argument("--session-sizing", action="store_true",
+                    help="[experiment '_ss'] scale per-trade risk by the active UTC "
+                         "session (London/NY up, Asia down)")
+    ps.add_argument("--correlation-guard", action="store_true",
+                    help="[experiment '_cg'] skip a new entry highly correlated with a "
+                         "same-direction open position")
+    ps.add_argument("--corr-threshold", type=float, default=0.80,
+                    help="correlation guard: Pearson threshold to block (default 0.80)")
+    ps.add_argument("--corr-lookback", type=int, default=20,
+                    help="correlation guard: bars used for the correlation (default 20)")
+    ps.add_argument("--adr-filter", action="store_true",
+                    help="[experiment '_adr'] skip entries once today has consumed most "
+                         "of its average daily range")
+    ps.add_argument("--adr-threshold", type=float, default=0.75,
+                    help="ADR filter: block when consumed ADR fraction >= this (default 0.75)")
+    ps.add_argument("--dry-run", action="store_true",
+                    help="compute brackets WITHOUT persisting (read-only preview)")
     ps.set_defaults(func=_paper_scan)
 
     vs = sub.add_parser("vector-scan",

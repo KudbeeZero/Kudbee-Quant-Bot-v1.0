@@ -14,6 +14,12 @@ from ..intelligence.event_calendar import (
 )
 from ..journal import Prediction, TradeJournal
 from ..levels import build_levels
+from ..signals.dxy_regime import dxy_regime, RISK_ON, RISK_OFF, NEUTRAL
+from ..signals.signal_fingerprint import SignalFingerprintDB, make_fingerprint
+from ..signals.adr_filter import adr_gate
+from ..risk.drawdown_guard import DrawdownGuard
+from ..risk.session_sizer import sized_risk
+from ..risk.correlation_guard import CorrelationGuard
 
 logger = logging.getLogger(__name__)
 
@@ -68,6 +74,20 @@ def paper_scan(
     killzone_gate: bool = False,       # skip signals outside London/NY/Brinks windows (NOT validated for 5m)
     trailing_atr: float | None = None, # chandelier trail at trailing_atr*ATR behind the extreme (None = off)
     clean_trend_stack: bool = False,   # §C: only trade when 13/50/800-EMA cleanly stacked 10 bars + gap widening
+    dxy_gate: bool = False,            # block longs in DXY RISK_OFF / shorts in RISK_ON (macro inverse-correlation gate)
+    fingerprint_gate: bool = False,    # skip signals whose 5-dim fingerprint bucket has a sampled losing record ('_fp')
+    fingerprint_min_expectancy: float = 0.0,   # skip a sampled bucket below this mean-R expectancy
+    fingerprint_min_win_rate: float = 0.0,     # skip a sampled bucket below this win rate
+    drawdown_circuit_breaker: bool = False,    # pause ALL new entries after a rolling losing streak ('_dcb')
+    dcb_window: int = 10,              # rolling window (closed trades) for the breaker
+    dcb_pause_r: float = -3.0,         # trip (pause) when rolling R < this
+    dcb_resume_r: float = -1.0,        # resume when paused and rolling R >= this (hysteresis)
+    session_sizing: bool = False,      # scale per-trade risk by the active UTC session ('_ss')
+    correlation_guard: bool = False,   # skip a new entry correlated with a same-direction open position ('_cg')
+    corr_threshold: float = 0.80,      # Pearson correlation above which to block
+    corr_lookback: int = 20,           # bars used for the correlation
+    adr_filter: bool = False,          # skip entries once today has consumed most of its ADR ('_adr')
+    adr_threshold: float = 0.75,       # block when consumed ADR fraction >= this
     dry_run: bool = False,             # compute brackets WITHOUT persisting (read-only preview)
 ) -> list[Prediction]:
     """Log a bracket paper trade for each symbol currently signalling.
@@ -115,6 +135,22 @@ def paper_scan(
     from ..exposure import symbol_exposure
     j = journal or TradeJournal()
     client = client or RouterClient()
+    # DXY regime computed ONCE per scan (fail-open NEUTRAL when off or unavailable).
+    dxy_state = dxy_regime(client) if dxy_gate else NEUTRAL
+    # DRAWDOWN CIRCUIT BREAKER (experiment '_dcb', default OFF): if the rolling R over
+    # the last dcb_window closed trades has tripped the breaker, pause ALL new entries
+    # for this scan. State persists to data/drawdown_state.json (NOT the journal).
+    if drawdown_circuit_breaker:
+        guard = DrawdownGuard(window=dcb_window, pause_threshold_r=dcb_pause_r,
+                              resume_threshold_r=dcb_resume_r)
+        guard.update(j.predictions, persist=not dry_run)
+        if guard.is_paused:
+            logger.info("SCAN PAUSED: %s", guard.status_message())
+            return []
+    # Signal-fingerprint expectancy DB + correlation guard, each built ONCE per scan.
+    fp_db = SignalFingerprintDB.from_predictions(j.predictions) if fingerprint_gate else None
+    corr_guard = (CorrelationGuard(threshold=corr_threshold, lookback=corr_lookback)
+                  if correlation_guard else None)
     if biases is None:
         from ..bias import BiasBook
         biases = BiasBook()
@@ -141,7 +177,10 @@ def paper_scan(
         # This scan's book = its flag/venue suffix (must match the setup built below).
         book = (("_tf" if trend_filter else "") + ("_lo" if long_only else "")
                 + ("_kz" if killzone_gate else "") + ("_cts" if clean_trend_stack else "")
-                + venue_tag)
+                + ("_dxy" if dxy_gate else "") + ("_fp" if fingerprint_gate else "")
+                + ("_dcb" if drawdown_circuit_breaker else "")
+                + ("_ss" if session_sizing else "") + ("_cg" if correlation_guard else "")
+                + ("_adr" if adr_filter else "") + venue_tag)
         if (sym, interval, book) in open_keys:
             continue  # already in a paper trade on this symbol+timeframe+book
         f = build_levels(client.klines(sym, interval=interval, limit=600))
@@ -178,6 +217,27 @@ def paper_scan(
             widening = gap > gap.shift(10)
             if not bool((stacked & widening).iloc[-1]):
                 continue   # not a clean, separating trend -> skip this signal
+        # DXY REGIME GATE (experiment '_dxy', default OFF): the dollar is structurally
+        # inverse to crypto — block LONGs in RISK_OFF (dollar up-trend) and SHORTs in
+        # RISK_ON. NEUTRAL or unavailable DXY data passes through (fail-open).
+        if dxy_gate:
+            if dxy_state == RISK_OFF and direction > 0:
+                continue
+            if dxy_state == RISK_ON and direction < 0:
+                continue
+        # SIGNAL FINGERPRINT GATE (experiment '_fp', default OFF): skip a signal whose
+        # 5-dim fingerprint bucket has a SAMPLED (>=MIN_SAMPLE) losing record. Buckets
+        # below the sample floor are never blocked (forward-looking, not overfit).
+        if fingerprint_gate and fp_db is not None:
+            fp = make_fingerprint(confluence_pct=pct, direction=direction,
+                                  timestamp=last.get("timestamp"))
+            if fp_db.should_skip(fp, fingerprint_min_expectancy, fingerprint_min_win_rate):
+                continue
+        # ADR EXHAUSTION FILTER (experiment '_adr', default OFF): don't chase a move
+        # that has already spent most of its average daily range. Reuses the frame's
+        # pct_adr_used column when present; fail-open (allow) on missing ADR data.
+        if adr_filter and not adr_gate(f, direction, adr_threshold):
+            continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
         if bias is not None:
@@ -185,11 +245,23 @@ def paper_scan(
                 continue            # signal opposes the read -> skip
         elif require_bias:
             continue                # human-directed mode: no read -> no trade
+        # SESSION RISK SIZER (experiment '_ss', default OFF): scale the per-trade risk
+        # by the active UTC session (London/NY get more, Asia less). Off => unchanged.
+        effective_risk = (sized_risk(risk_per_trade, last.get("timestamp"))
+                          if session_sizing else risk_per_trade)
         # NET-EXPOSURE GUARD: would this new trade push the coin's COMBINED
         # (long+short, all timeframes) gross risk over the ceiling? If so, skip.
-        ex = symbol_exposure(j.predictions, sym, risk_per_trade)
-        if ex.gross_risk + risk_per_trade > max_symbol_risk + 1e-9:
+        ex = symbol_exposure(j.predictions, sym, effective_risk)
+        if ex.gross_risk + effective_risk > max_symbol_risk + 1e-9:
             continue
+        # CORRELATION GUARD (experiment '_cg', default OFF): skip a new entry that is
+        # highly correlated with an already-open SAME-direction position (it would be
+        # one bet at double size). Opposite-direction overlap is allowed; fail-open.
+        if correlation_guard and corr_guard is not None:
+            corr_hit, _corr_peer = corr_guard.is_correlated(
+                sym, direction, j.predictions, client, interval=interval)
+            if corr_hit:
+                continue
         signal_price = float(last["close"])
         atr = float(last["atr"])
         sd = atr * stop_atr
@@ -214,10 +286,15 @@ def paper_scan(
                   + ("_tf" if trend_filter else "")
                   + ("_lo" if long_only else "")
                   + ("_kz" if killzone_gate else "")
-                  + ("_cts" if clean_trend_stack else "") + venue_tag,
+                  + ("_cts" if clean_trend_stack else "")
+                  + ("_dxy" if dxy_gate else "") + ("_fp" if fingerprint_gate else "")
+                  + ("_dcb" if drawdown_circuit_breaker else "")
+                  + ("_ss" if session_sizing else "") + ("_cg" if correlation_guard else "")
+                  + ("_adr" if adr_filter else "") + venue_tag,
             note=(f"{'BIAS-aligned' if bias is not None else 'Auto'} confluence-R {side} scalp: "
                   f"{pct:.0%} confluence (strength {int(strength)})." +
                   (" [TradFi 0-fee venue]" if is_tradfi else "") +
+                  (f" [session-sized risk {effective_risk:.3%}]" if session_sizing else "") +
                   (f" Read: {bias.note}" if bias is not None and bias.note else "") +
                   f" LIMIT {limit:.4g} (retrace {retrace_atr} ATR from {signal_price:.4g}), "
                   f"stop {stop:.4g}, target {target:.4g} ({target_r}R, maker)." +

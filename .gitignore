@@ -43,3 +43,6 @@ graphify-out/
 
 # Tiered exit comparison snapshots (generated)
 kudbee_quant/backtest/results/
+
+# Drawdown circuit-breaker state (experiment '_dcb'; generated, machine-local — NEVER the journal)
+data/drawdown_state.json

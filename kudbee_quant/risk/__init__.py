@@ -150,3 +150,11 @@ def summary(R, adverse_moves=None, n_trades: int = 500, alpha: float = 0.01,
         out["max_safe_leverage"] = max_safe_leverage(adverse_moves, n_trades, alpha, mmr)
         out["alpha_liq"] = alpha
     return out
+
+
+# --- additive default-off experiment gates/sizers (Improvements 3-5) ---------
+# These live as submodules of this package; the position-sizing math above is the
+# original module's content, preserved verbatim when risk.py became a package.
+from .correlation_guard import CorrelationGuard  # noqa: E402,F401
+from .drawdown_guard import DrawdownGuard  # noqa: E402,F401
+from .session_sizer import session_risk_multiplier, sized_risk  # noqa: E402,F401
