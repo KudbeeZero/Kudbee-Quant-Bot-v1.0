@@ -398,6 +398,7 @@ def cmd_help() -> str:
             "/score — today's closed trades\n"
             "/positions — full open book\n"
             "/gates — manual-pause, drawdown breaker + feature toggles\n"
+            "/recap — weekly performance recap (by-day + top trades)\n"
             "/pnl 7d|30d — realized R over the last N days\n"
             "/scan — trigger a fresh scan now\n"
             "/summary — force the hourly summary now\n"
@@ -518,6 +519,15 @@ def cmd_resume() -> str:
     return "🟢 Trading RESUMED." + note
 
 
+def cmd_recap(text: str, journal: TradeJournal) -> str:
+    """/recap — the weekly performance recap (net R, win rate, by-day, top trades)."""
+    try:
+        from .notifications.recap import format_weekly_recap
+        return format_weekly_recap(journal)
+    except Exception as e:  # noqa: BLE001
+        return f"⚠️ Recap unavailable: {type(e).__name__}"
+
+
 def cmd_pnl(text: str, journal: TradeJournal) -> str:
     """/pnl 7d|30d — realized R, win rate and trade count over the last N days."""
     parts = text.split()
@@ -564,6 +574,7 @@ def dispatch(text: str, chat_id: str, journal: TradeJournal | None = None) -> st
         "/score": lambda: cmd_score(j),
         "/positions": lambda: cmd_positions(j),
         "/gates": lambda: cmd_gates(j),
+        "/recap": lambda: cmd_recap(text, j),
         "/pnl": lambda: cmd_pnl(text, j),
         "/scan": lambda: cmd_scan(chat_id),
         "/summary": lambda: cmd_summary(),

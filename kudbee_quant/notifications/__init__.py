@@ -37,6 +37,7 @@ from .notify import (
 )
 from .card_builder import SignalEvent, build_signal_card, notify_signal_card
 from .circuit_alert import notify_state_change
+from .recap import format_daily_recap, format_weekly_recap
 from .skip_reporter import read_skips, record_skip
 from .telegram import send_telegram, telegram_enabled
 from .weekly_brief import format_weekly_brief, notify_weekly_brief
@@ -51,6 +52,8 @@ __all__ = [
     "notify_state_change",
     "record_skip",
     "read_skips",
+    "format_daily_recap",
+    "format_weekly_recap",
     "format_weekly_brief",
     "notify_weekly_brief",
     "notify_trades_opened",

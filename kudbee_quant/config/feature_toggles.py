@@ -26,6 +26,8 @@ KNOWN_FLAGS = {
     "session_brief": "TELEGRAM_SESSION_BRIEF_ENABLED",
     "skip_reporter": "TELEGRAM_SKIP_REPORTER_ENABLED",
     "weekly_digest": "TELEGRAM_WEEKLY_DIGEST_ENABLED",
+    "daily_recap": "TELEGRAM_DAILY_RECAP_ENABLED",
+    "weekly_recap": "TELEGRAM_WEEKLY_RECAP_ENABLED",
 }
 
 _TRUE = {"1", "true", "yes", "on"}
