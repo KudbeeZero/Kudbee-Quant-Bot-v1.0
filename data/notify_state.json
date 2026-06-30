@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 5,
-    "unrealized_r": 1.0215,
+    "unrealized_r": 0.9756,
     "winners": 4
   },
   "trades": {
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.30168776371309125
+      "ur": 0.2932489451476913
     },
     "a7800fcb": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4571619812583586
+      "ur": 0.4196787148594313
     }
   }
 }
