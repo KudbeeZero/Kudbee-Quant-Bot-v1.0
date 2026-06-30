@@ -2,7 +2,7 @@
   "agg": {
     "losers": 1,
     "n": 4,
-    "unrealized_r": 0.4452,
+    "unrealized_r": 0.3193,
     "winners": 2
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.24576271186440662
+      "ur": 0.16666666666666666
     },
     "87f345b3": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.382195448460504
+      "ur": 0.3353413654618482
     }
   }
 }
