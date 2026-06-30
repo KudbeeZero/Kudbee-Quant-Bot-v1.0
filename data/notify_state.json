@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 0,
-    "n": 1,
-    "unrealized_r": 0.309,
+    "n": 2,
+    "unrealized_r": 0.6233,
     "winners": 1
   },
   "trades": {
@@ -14,7 +14,17 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.3089792460821633
+      "ur": 0.6232528589580654
+    },
+    "cbf5d1c0": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
