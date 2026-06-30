@@ -2,19 +2,19 @@
   "agg": {
     "losers": 3,
     "n": 10,
-    "unrealized_r": 1.4774,
+    "unrealized_r": 2.9834,
     "winners": 5
   },
   "trades": {
     "02375c7e": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3933333333333358
+      "ur": -0.11333333333333458
     },
     "1431a6af": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.642250530785566
+      "ur": 0.8800424628450213
     },
     "1f26b99a": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.15728643216081056
+      "ur": 0.2510887772194354
     },
     "3ded529a": {
       "dl_soon": false,
@@ -54,17 +54,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 0.5233545647558384
+      "ur": 0.7611464968152937
     },
     "8582bc29": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3079096045197731
+      "ur": -0.07062146892655323
     },
     "93b69acb": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5265140281155408
+      "ur": 0.6101093382367413
     },
     "a7800fcb": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.813978494623652
+      "ur": 1.0247311827956969
     },
     "c7103361": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4847036328871916
+      "ur": -0.3597833014659025
     }
   }
 }
