@@ -1,4 +1,6 @@
 """Tests for the Signal Intelligence Card formatter + its default-off sender."""
+import pandas as pd
+
 import kudbee_quant.notifications.card_builder as cb
 from kudbee_quant.notifications.card_builder import (
     SignalEvent, build_signal_card, confidence, notify_signal_card,
@@ -117,3 +119,44 @@ def test_notify_sends_html_when_enabled(monkeypatch):
     assert notify_signal_card(_long()) is True
     assert captured["parse_mode"] == "HTML"
     assert "LONG SIGNAL — BTCUSDT" in captured["text"]
+
+
+# --- paper_scan take-site wiring ---------------------------------------------
+
+def test_paper_scan_sends_card_when_enabled(tmp_path, monkeypatch):
+    import kudbee_quant.paper.paper as pp
+    from kudbee_quant.journal import TradeJournal
+    fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                         "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
+    sent = {}
+    monkeypatch.setattr(cb, "signal_cards_enabled", lambda: True)
+    monkeypatch.setattr(cb, "notify_signal_card", lambda ev: sent.update(ev=ev) or True)
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2026-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0, journal=j, client=C())
+    assert len(logged) == 1
+    assert sent.get("ev") is not None and sent["ev"].symbol == "BTCUSDT"
+
+
+def test_paper_scan_no_card_when_disabled(tmp_path, monkeypatch):
+    import kudbee_quant.paper.paper as pp
+    from kudbee_quant.journal import TradeJournal
+    fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                         "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
+    called = {"n": 0}
+    monkeypatch.setattr(cb, "signal_cards_enabled", lambda: False)
+    monkeypatch.setattr(cb, "notify_signal_card", lambda ev: called.__setitem__("n", called["n"] + 1))
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2026-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0, journal=j, client=C())
+    assert called["n"] == 0

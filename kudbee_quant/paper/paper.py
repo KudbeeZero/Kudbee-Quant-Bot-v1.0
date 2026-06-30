@@ -51,6 +51,58 @@ def _book_of(setup: str) -> str:
     return setup[i + 3:] if i != -1 else setup
 
 
+def _session_label_for(ts) -> str | None:
+    """Coarse session name from a bar timestamp (UTC hour) for the signal card."""
+    try:
+        import pandas as pd
+        h = int(pd.to_datetime(ts, utc=True).hour)
+    except Exception:  # noqa: BLE001
+        return None
+    if 7 <= h < 13:
+        return "London"
+    if 13 <= h < 21:
+        return "NY"
+    return "Asia"
+
+
+def _maybe_send_card(p, last, f, pct, direction, sd, dxy_state, fp_db, adr_threshold) -> None:
+    """Build a :class:`SignalEvent` from the live scan context and send the rich card.
+    No-op unless ``TELEGRAM_SIGNAL_CARDS_ENABLED``; fail-open (never affects the scan)."""
+    try:
+        from ..notifications.card_builder import (
+            SignalEvent,
+            notify_signal_card,
+            signal_cards_enabled,
+        )
+        if not signal_cards_enabled():
+            return
+        wr = n = None
+        if fp_db is not None:
+            from ..signals.signal_fingerprint import make_fingerprint
+            fp = make_fingerprint(confluence_pct=pct, direction=direction,
+                                  timestamp=last.get("timestamp"))
+            wr, n = fp_db.win_rate(fp), fp_db.sample_size(fp)
+        try:
+            from ..signals.adr_filter import adr_consumed_pct
+            adr_pct = adr_consumed_pct(f)
+        except Exception:  # noqa: BLE001
+            adr_pct = None
+        regime = ({1: "RISK_ON", -1: "RISK_OFF", 0: "NEUTRAL"}.get(dxy_state)
+                  if dxy_state is not None else None)
+        ev = SignalEvent(
+            symbol=p.symbol, direction=direction, entry=p.entry, stop=p.stop, target=p.target,
+            tp1=p.tp1,
+            tp1_r=(abs(p.tp1 - p.entry) / sd if (p.tp1 is not None and sd) else 1.0),
+            tp2_r=(p.target_r if p.target_r is not None else 3.0),
+            session_name=_session_label_for(last.get("timestamp")),
+            dxy_regime=regime, adr_pct=adr_pct, adr_threshold=adr_threshold,
+            fp_winrate=wr, fp_trades=n,
+        )
+        notify_signal_card(ev)
+    except Exception:  # noqa: BLE001
+        pass
+
+
 def paper_scan(
     symbols: list[str],
     min_pct: float = 0.5,
@@ -310,4 +362,10 @@ def paper_scan(
         # DRY RUN never touches the journal — preview-only (see docstring).
         p = pred if dry_run else j.add(pred)
         logged.append(p)
+        # Signal Intelligence Card (F1) — default-off, fail-open; no-op unless
+        # TELEGRAM_SIGNAL_CARDS_ENABLED. Built from the in-scope scan context.
+        if not dry_run:
+            _maybe_send_card(p, last, f, pct, direction, sd,
+                             dxy_state if dxy_gate else None,
+                             fp_db if fingerprint_gate else None, adr_threshold)
     return logged
