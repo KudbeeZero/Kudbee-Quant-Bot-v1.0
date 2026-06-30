@@ -103,14 +103,16 @@ def _maybe_send_card(p, last, f, pct, direction, sd, dxy_state, fp_db, adr_thres
         pass
 
 
-def _report_skip_if_on(sym, direction, gate, ctx, last, stop_atr) -> None:
+def _report_skip_if_on(sym, direction, gate, ctx_fn, last, stop_atr) -> None:
     """Record a gate skip (F5) — default-off (TELEGRAM_SKIP_REPORTER_ENABLED), fail-open.
-    The bracket is provisional (close ± ATR), since the real one isn't built until after
-    all gates pass."""
+    ``ctx_fn`` is a thunk so the (possibly expensive) gate context is built ONLY when the
+    reporter is on. The bracket is provisional (close ± ATR), since the real one isn't
+    built until after all gates pass."""
     try:
         from ..notifications.skip_reporter import record_skip, skip_reporter_enabled
         if not skip_reporter_enabled():
             return
+        ctx = ctx_fn() if callable(ctx_fn) else ctx_fn
         close = float(last.get("close"))
         sd = float(last.get("atr")) * stop_atr
         bracket = {"entry": round(close, 6), "stop": round(close - direction * sd, 6)}
@@ -298,7 +300,9 @@ def paper_scan(
         if dxy_gate:
             if ((dxy_state == RISK_OFF and direction > 0)
                     or (dxy_state == RISK_ON and direction < 0)):
-                _report_skip_if_on(sym, direction, "_dxy", {"direction": direction}, last, stop_atr)
+                _report_skip_if_on(sym, direction, "_dxy",
+                                   lambda direction=direction: {"direction": direction},
+                                   last, stop_atr)
                 continue
         # SIGNAL FINGERPRINT GATE (experiment '_fp', default OFF): skip a signal whose
         # 5-dim fingerprint bucket has a SAMPLED (>=MIN_SAMPLE) losing record. Buckets
@@ -307,16 +311,19 @@ def paper_scan(
             fp = make_fingerprint(confluence_pct=pct, direction=direction,
                                   timestamp=last.get("timestamp"))
             if fp_db.should_skip(fp, fingerprint_min_expectancy, fingerprint_min_win_rate):
-                _report_skip_if_on(sym, direction, "_fp",
-                                   {"bucket": str(fp.key()), "value": fp_db.win_rate(fp) or 0.0,
-                                    "n": fp_db.sample_size(fp)}, last, stop_atr)
+                _report_skip_if_on(
+                    sym, direction, "_fp",
+                    lambda fp=fp, fp_db=fp_db: {
+                        "bucket": str(fp.key()), "value": fp_db.win_rate(fp) or 0.0,
+                        "n": fp_db.sample_size(fp)}, last, stop_atr)
                 continue
         # ADR EXHAUSTION FILTER (experiment '_adr', default OFF): don't chase a move
         # that has already spent most of its average daily range. Reuses the frame's
         # pct_adr_used column when present; fail-open (allow) on missing ADR data.
         if adr_filter and not adr_gate(f, direction, adr_threshold):
             _report_skip_if_on(sym, direction, "_adr",
-                               {"value": adr_consumed_pct(f), "threshold": adr_threshold}, last, stop_atr)
+                               lambda f=f: {"value": adr_consumed_pct(f), "threshold": adr_threshold},
+                               last, stop_atr)
             continue
         # Direction gate: scalp only WITH the human read (bias), never against.
         bias = biases.get(sym)
@@ -342,7 +349,8 @@ def paper_scan(
                 sym, direction, j.predictions, client, interval=interval)
             if corr_hit:
                 _report_skip_if_on(sym, direction, "_cg",
-                                   {"peer": _corr_peer, "value": corr_threshold}, last, stop_atr)
+                                   lambda peer=_corr_peer: {"peer": peer, "value": corr_threshold},
+                                   last, stop_atr)
                 continue
         signal_price = float(last["close"])
         atr = float(last["atr"])
