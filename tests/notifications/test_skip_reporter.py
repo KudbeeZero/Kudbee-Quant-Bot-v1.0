@@ -53,3 +53,30 @@ def test_format_skip_includes_value_threshold():
 
 def test_read_skips_missing_dir_is_empty(tmp_path):
     assert read_skips(skips_dir=str(tmp_path / "nope")) == []
+
+
+# --- paper_scan skip-hook wiring ---------------------------------------------
+
+def test_paper_scan_records_skip_on_dxy_block(tmp_path, monkeypatch):
+    import pandas as pd
+
+    import kudbee_quant.notifications.skip_reporter as srm
+    import kudbee_quant.paper.paper as pp
+    from kudbee_quant.journal import TradeJournal
+    fake = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                         "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake)
+    monkeypatch.setattr(pp, "dxy_regime", lambda client: pp.RISK_OFF)
+    captured = []
+    monkeypatch.setattr(srm, "skip_reporter_enabled", lambda: True)
+    monkeypatch.setattr(srm, "record_skip", lambda *a, **k: captured.append(a))
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2026-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, stop_atr=1.0,
+                           journal=j, client=C(), dxy_gate=True)
+    assert logged == []                       # RISK_OFF blocks the long
+    assert captured and captured[0][2] == "_dxy"
