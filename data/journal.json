@@ -28219,7 +28219,7 @@
     "note": "Auto confluence-R short scalp: 50% confluence (strength 5). LIMIT 0.07286 (retrace 0.25 ATR from 0.07268), stop 0.07393, target 0.06966 (3.0R, maker). TP1 0.07179 (1.0R, bank 50%).",
     "created_at": "2026-06-30T02:49:22.569679+00:00",
     "id": "cbf5d1c0",
-    "status": "pending",
+    "status": "cancelled",
     "resolved_at": null,
     "entry": 0.07285785714285714,
     "stop": 0.073925,
