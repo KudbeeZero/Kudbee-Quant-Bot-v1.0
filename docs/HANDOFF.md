@@ -71,6 +71,15 @@
   the first time since 06-16. **WATCH:** score the post-07-01 era on its own; revisit
   only after 50+ resolved era-3 trades. **🔒 NEW PERMANENT RULE (§76d + standing prefs):
   contamination-window check before shipping on any prior study.**
+- **🆕 BACKLOG (owner request, 2026-07-01) — TRADINGVIEW INDICATOR SUITE.** The owner wants to
+  get into creating TradingView indicators down the line. Starting point exists:
+  `pinescript/kudbee_confluence.pine` (10-factor confluence score + dashboard, PVSRA vector
+  colouring, key levels, limit-retrace bracket, bias filter, alert()→webhook→journal). Candidate
+  units when picked up: (a) sync the Pine indicator with current engine state + add ride-3R
+  bracket display; (b) split standalone indicators (PVSRA candles, session/killzone boxes,
+  M-levels/pivots, confluence meter); (c) publish-quality polish (inputs, tooltips, alerts).
+  Advisory slug: `claude/tv-indicator-suite`. NOTE: keep the Pine vwap sign = momentum (§75
+  parity is test-pinned on the Python side).
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
