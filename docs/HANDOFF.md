@@ -43,7 +43,20 @@
 
 ## NEXT chat
 
-- **🟢 NEXT-CHAT SCOPE — FINISH THE WEBSITE SEO SWEEP (owner-chosen).** The SEO/AEO loop was mid-run when
+- **🟢 NEXT-CHAT SCOPE (owner-approved 2026-07-01, supersedes the SEO sweep as first-up) —
+  POST-HOC AUDITS + MEMORY RECONCILE.** Branch `claude/post-hoc-audit-118-117`, docs-only:
+  (a) protocol post-hoc audits of **#118 + #117** (incl. #118's "marketing-only" scope claim
+  being inaccurate — it also carried the management shadow scorer + results + tests);
+  (b) **MEMORY §73**: study #116 (paired A/B/C geometry, A−B=+0.048R p=0.000), the forward
+  shadow corroboration (A−B=+0.102R, n=112), and the UNDOCUMENTED live-geometry change
+  `8f3b7f14` (2026-06-24, `--tp1-frac` 0.0→0.5 — live now runs measured-worst geometry B);
+  (c) ledger rows + baton refresh; (d) the §70 24h-deadline **50-trade checkpoint is MET**
+  (56 core 1h resolved since 2026-06-24, gross-positive) — run the formal `journal-score`
+  comparison vs the pre-#96 baseline. After that unit merges, the first RESEARCH unit is
+  **running the pre-registered §41 gap investigation** (`claude/section41-gap-run`) — it
+  gates any management/tp1 decision. Full findings: `docs/audits/claude-kudbee-quant-audit-v1-is91p2.md`
+  (PR #127, this chat).
+- **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
   noindex), `leverage-report.html` (add Report/Article JSON-LD), `sitemap.xml` completeness + refreshed
