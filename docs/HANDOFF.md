@@ -51,11 +51,17 @@
 
 ## NEXT chat
 
-- **🟢 CURRENT UNIT (2026-07-01, owner-authorized autonomous run, same chat) — RUN THE
-  PRE-REGISTERED §41 GAP INVESTIGATION** on `claude/section41-gap-run`
-  (`studies/section41_gap_preregistration.md` — hypotheses locked; read-only; proposes no
-  live change). This gates any management/tp1 decision. Owner's HARD STOP for this run:
-  **no change to `--tp1-frac` or any live execution parameter**, whatever the findings.
+- **✅ §41 GAP INVESTIGATION DONE (2026-07-01, PR #129) — GAP FULLY EXPLAINED (§74).**
+  The §44 VWAP rotation flip (PR #31, one day after §41) is 100% of the gap: momentum-sign
+  signal reproduces §41 EXACTLY (n=8,124, +0.0958R, +778.5R, p<0.001); the CURRENT live
+  rotation signal is n=3,540, −0.015R, p=0.738 on the same frames. **The live book has been
+  trading an UNVALIDATED signal since 2026-06-16.**
+- **🔴 OWNER DECISION QUEUED (the next fork, his alone):** revert v_vwap to the MOMENTUM
+  sign? OOS evidence now condemns the rotation sign (§74); §44 shipped it with "be ready
+  to revert". A revert is a LIVE SIGNAL change → its own PR + explicit owner sign-off
+  (hard stop honored this run — nothing live was touched). Related standing fact: live
+  management geometry is also measured-worst B (§73) — if the owner wants both reverted,
+  they should still be SEPARATE decisions/PRs so each is attributable.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm

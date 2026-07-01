@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-01._
+_Last updated: 2026-07-01 (§74)._
 
 ---
 
@@ -2137,3 +2137,39 @@ Honest caveats: 56 trades is still a small window, the split is not regime-contr
 and the post period was crypto-friendly — re-check at ~150 trades; the §70 hard negative
 (no deadline re-backtest without ≥30 forward 24h trades) is now satisfied on n alone,
 but there is no reason to re-open it.
+
+## 74. §41 GAP SOLVED: the §44 VWAP rotation flip erased the validated OOS edge — the live signal has been UNVALIDATED since 2026-06-16 — 2026-07-01 (PR #129, pre-registered, read-only)
+
+Ran `studies/section41_gap_preregistration.md` (PR #117) via `research/section41_gap.py`
+(+ 3 regression-lock tests). Results: `studies/section41_gap_results.md` + CSV.
+
+**The reconstruction is EXACT.** Flipping the v_vwap factor back to the §41-era MOMENTUM
+sign (the ONLY signal-affecting code change since the §41 run — commit `be69b36`, PR #31,
+§44, merged ONE DAY after §41) reproduces the §41 anchor perfectly on today's code + data:
+**n=8,124 (identical), +0.0958R (vs reported +0.096), total +778.5R (identical)**, per-window
+slices identical (2018 +0.121/n=450; 2022 +0.043/n=951; recent +0.102/n=6,723, p<0.001).
+The CURRENT (rotation) signal on the SAME frames: **n=3,540, −0.0151R, boot_p 0.738**.
+Residual vs the anchor: **+0.0002R / 0 trades** — inside the pre-registered bar. H2–H5
+(geometry/fees/gate/period) all settled NOT-the-gap by inspection/construction.
+
+**What this means (the big one):**
+- The "validated +0.096R" belongs to the MOMENTUM-sign signal. **The signal the live bot
+  has actually traded since 2026-06-16 has NO validated OOS edge** on this population
+  (−0.015R, not significant) and trades a 56%-smaller population. The §44 flip was
+  user-directed, shipped LIVE + UNVALIDATED with an explicit "be ready to revert" flag —
+  the OOS evidence is now in, and it condemns the rotation sign.
+- The long-standing "backtest→live gap" puzzle (§48 note: majors/1h ~breakeven live vs
+  ~+0.2R backtested) is largely dissolved: since 06-16 the live book was never trading
+  the validated signal in the first place.
+- The management studies (#116, shadow, §72 trailing) all ran on the CURRENT-signal
+  population — their RELATIVE verdicts (ride-3R > bank-half/BE; trailing dead) stand on
+  their own paired pools, but their absolute R levels describe the unvalidated signal.
+- Secondary wrinkle (flagged, not chased): #116's n=3,730 vs §72's/this run's n=3,540 is
+  an inter-study difference between two current-signal runs, out of prereg scope.
+
+**DECISION REQUIRED (owner's, explicitly NOT taken this run — hard stop honored):**
+whether to revert v_vwap to the momentum sign (restores the only signal configuration
+with a validated, significant, fee-survived OOS edge) — a live signal change needing its
+own PR + owner sign-off. Until then the standing fact is: live book = unvalidated signal
++ measured-worst management geometry (§73). NO change was made to stack.py, the workflow,
+tp1-frac, or any live parameter in this unit.

@@ -57,6 +57,7 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | — | 2026-06-16 → 2026-06-27 | *(ledger not maintained)* | #31–#118 | see `docs/HANDOFF.md` "Baton history" for the per-PR record of this span | mixed (several un-gated owner merges; post-hoc audits #84/#103 done, #118/#117 below) | ✅ |
 | REC-009 | 2026-07-01 | `claude/kudbee-quant-audit-v1-is91p2` | #127 | repo-state audit (six standing items + website): tp1 geometry provenance flagged, governance PASS, no hard-negative drift | self-contained audit report (docs-only) | ✅ owner-authorized merge |
 | REC-010 | 2026-07-01 | `claude/post-hoc-audit-118-117` | #128 | post-hoc audits of #118 (**PASS WITH NOTES** — undisclosed shadow-scorer files) + #117 (**PASS**); MEMORY §73; §70 deadline checkpoint → KEEP | docs-only reconciliation | ✅ owner-authorized merge-on-green |
+| REC-011 | 2026-07-01 | `claude/section41-gap-run` | #129 | ran the pre-registered §41 gap investigation: gap 100% = the §44 VWAP flip; momentum signal reproduces §41 EXACTLY; live signal unvalidated since 06-16 (MEMORY §74) | pre-registered, read-only, residual 0 | ✅ owner-authorized merge-on-green |
 
 ### Process deviations (honest log)
 
