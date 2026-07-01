@@ -40,16 +40,17 @@ def factor_votes(df: pd.DataFrame) -> pd.DataFrame:
         out["v_emafast"] = _sign(df["ema_13"] - df["ema_50"])
     if "ema_cloud_pos" in df:
         out["v_cloud"] = df["ema_cloud_pos"].astype(float)
-    # VWAP ROTATION (user-directed, 2026-06-16): the VWAP factor now votes
-    # MEAN-REVERSION, not momentum. Price stretched ABOVE the session VWAP votes
-    # short (fade back into it); BELOW votes long. This inverts the prior momentum
-    # reading (close > vwap was +1) on the thesis that a big intraday extension
-    # past VWAP rotates back to it — i.e. the move that pushed price away from
-    # VWAP is itself the setup for the trade back. Changes a previously-validated
-    # live default; FLAGGED for OOS re-validation (momentum sign vs rotation sign)
-    # before it's treated as settled.
+    # VWAP MOMENTUM (owner-approved revert, 2026-07-01, MEMORY §74/§75): close
+    # above the session VWAP votes long, below votes short — the §41-validated
+    # sign. The 2026-06-16 ROTATION flip (§44, PR #31, fade-back-to-VWAP thesis)
+    # was OOS-refuted by the pre-registered §41 gap investigation (PR #129): the
+    # rotation sign cut the tradeable 1h population 56% (8,124→3,540) and erased
+    # the validated edge (+0.096R p<0.001 → −0.015R p=0.74). The momentum sign
+    # reproduces the §41 anchor exactly and matches the Pine indicator + site
+    # explainer (which were never flipped). Do NOT re-flip to rotation without
+    # fresh OOS evidence that clears the significance gate — §74 hard negative.
     if {"close", "vwap"} <= set(df.columns):
-        out["v_vwap"] = -_sign(df["close"] - df["vwap"])
+        out["v_vwap"] = _sign(df["close"] - df["vwap"])
     if {"close", "daily_open"} <= set(df.columns):
         out["v_dopen"] = _sign(df["close"] - df["daily_open"])
     if {"close", "pivot_pp"} <= set(df.columns):

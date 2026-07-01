@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-01 (§74)._
+_Last updated: 2026-07-01 (§75)._
 
 ---
 
@@ -2173,3 +2173,29 @@ with a validated, significant, fee-survived OOS edge) — a live signal change n
 own PR + owner sign-off. Until then the standing fact is: live book = unvalidated signal
 + measured-worst management geometry (§73). NO change was made to stack.py, the workflow,
 tp1-frac, or any live parameter in this unit.
+
+## 75. v_vwap REVERTED to the §41-validated MOMENTUM sign (owner-approved live signal change) — 2026-07-01 (PR #130)
+
+Owner one-tap approval (2026-07-01, this session) acting on §74's evidence: `stack.py`
+`v_vwap` restored to `+sign(close − vwap)` — close above session VWAP votes long. This is
+the ONLY signal configuration with a validated, significant, fee-survived OOS edge
+(**+0.096R net-maker, n=8,124, p<0.001**, reproduced exactly in §74); the §44 rotation
+sign (live 2026-06-16 → 2026-07-01) measured **−0.015R / n=3,540 / p=0.74** on the same
+frames. Side alignment: the Pine indicator (`kudbee_confluence.pine`, `sign(close−vwap)`)
+and the site explainer were NEVER flipped — Python had disagreed with both for 15 days;
+the revert re-aligns all three surfaces.
+
+- **New test `tests/test_vwap_sign.py`** pins the momentum sign (and the Pine parity) so
+  any future re-flip is a deliberate test-breaking act, not silent drift. (§44 had
+  shipped with NO sign-pinning test — that's how it went unvalidated for 15 days.)
+- **§74 HARD NEGATIVE re-affirmed:** do NOT re-flip to rotation without fresh OOS
+  evidence clearing the significance gate.
+- **Forward-scoring note:** journal setups are not tagged by signal version, so score the
+  live 1h book in three eras — pre-2026-06-16 (momentum), 06-16→07-01 (rotation,
+  unvalidated), post-07-01 (momentum restored). Do not pool across 06-16→07-01 when
+  judging the validated config forward.
+- **`research/section41_gap.py` flag semantics inverted by this revert** — header note
+  added; the committed §74 results/CSV remain the historical record of the pre-registered
+  run against rotation-sign code.
+- Scope: ONE line in `stack.py` + tests + docs. `--tp1-frac`/management geometry
+  UNTOUCHED (still measured-worst B, §73 — a separate owner decision).

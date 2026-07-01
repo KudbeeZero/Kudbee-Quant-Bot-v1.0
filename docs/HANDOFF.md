@@ -56,12 +56,16 @@
   signal reproduces §41 EXACTLY (n=8,124, +0.0958R, +778.5R, p<0.001); the CURRENT live
   rotation signal is n=3,540, −0.015R, p=0.738 on the same frames. **The live book has been
   trading an UNVALIDATED signal since 2026-06-16.**
-- **🔴 OWNER DECISION QUEUED (the next fork, his alone):** revert v_vwap to the MOMENTUM
-  sign? OOS evidence now condemns the rotation sign (§74); §44 shipped it with "be ready
-  to revert". A revert is a LIVE SIGNAL change → its own PR + explicit owner sign-off
-  (hard stop honored this run — nothing live was touched). Related standing fact: live
-  management geometry is also measured-worst B (§73) — if the owner wants both reverted,
-  they should still be SEPARATE decisions/PRs so each is attributable.
+- **✅ v_vwap REVERTED to MOMENTUM (owner-approved 2026-07-01, PR #130, §75).** The live
+  signal is validated again (+0.096R OOS anchor); Python/Pine/site re-aligned; sign now
+  test-pinned (`tests/test_vwap_sign.py`). **WATCH:** score the live 1h book in three eras
+  (pre-06-16 momentum / 06-16→07-01 rotation-unvalidated / post-07-01 momentum) — never
+  pool across the rotation era when judging the validated config forward.
+- **🔴 REMAINING OWNER DECISION (separate, NOT taken):** management geometry — live book
+  still runs measured-worst bank-half/BE (B, §73); ride-3R (A) measured best backward
+  (#116 + shadow). If wanted, that's its own PR + sign-off. Note the §41-era +0.096R was
+  measured under geometry A WITH the momentum signal — the two reverts together restore
+  the exact validated configuration.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
