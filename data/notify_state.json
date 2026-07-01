@@ -1,21 +1,11 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 7,
-    "unrealized_r": -0.5512,
-    "winners": 2
+    "losers": 3,
+    "n": 6,
+    "unrealized_r": 0.2803,
+    "winners": 3
   },
   "trades": {
-    "30571fa6": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.5716739767258017
-    },
     "49258d1b": {
       "dl_soon": false,
       "health": "healthy",
@@ -24,17 +14,17 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9893395735829411
+      "ur": 1.1567862714508594
     },
     "607f809a": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": -0.6430745814307544
+      "ur": -0.781582952815837
     },
     "8812c01c": {
       "dl_soon": false,
@@ -44,27 +34,27 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 0.9893395735829411
+      "ur": 1.1567862714508594
     },
     "9118e202": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": -0.6430745814307544
+      "ur": -0.781582952815837
     },
     "c82a08e0": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.1752450980392198
     },
     "f88b2feb": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.6720841300191253
+      "ur": -0.6453154875717044
     }
   }
 }
