@@ -756,3 +756,66 @@ h3 { font-size: clamp(1.15rem, 1rem + .7vw, 1.5rem); }
 }
 @media (max-width: 980px) { .setups__grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 560px) { .setups__grid { grid-template-columns: 1fr; } }
+
+/* =========================================================
+   CONTENT-PAGES POLISH LAYER (additive — appended 2026-07-01)
+   Shared refinements for start-here, about, compare, glossary,
+   and the blog (index + articles). Scoped to page-specific
+   classes so the cascade above is untouched. See
+   studies/website_polish_progress.md items 3/4/6/8/10/11.
+   ========================================================= */
+
+/* ----- Blog articles: one shared editorial treatment ----- */
+/* Drop-cap opener (mirrors methodology.html's page-local treatment). */
+.article .prose > p:first-of-type::first-letter {
+  float: left; font-family: var(--font-head); font-weight: 700;
+  font-size: 3.5rem; line-height: .82; margin: 6px 14px 0 0; color: var(--honey);
+}
+/* Refined prose-link underlines that warm on hover. */
+.article .prose p a, .article .prose li a {
+  color: var(--honey-lt);
+  text-decoration: underline; text-decoration-color: rgba(245,166,35,.35);
+  text-underline-offset: 3px; transition: text-decoration-color .2s;
+  border-bottom: 0;
+}
+.article .prose p a:hover, .article .prose li a:hover { text-decoration-color: var(--honey-lt); }
+/* Byline/date reads as a deliberate badge under the title. */
+.article__meta {
+  display: inline-block; padding: 7px 16px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface);
+}
+/* Prev/next links read as buttons, not bare text. */
+.article-nav { border-top: 1px solid var(--border); padding-top: 24px; }
+.article-nav a {
+  display: inline-block; padding: 9px 16px; border: 1px solid var(--border);
+  border-radius: 999px; background: var(--surface); font-weight: 500; font-size: 14px;
+  transition: border-color .25s var(--ease), background .25s, transform .25s var(--ease);
+}
+.article-nav a:hover { border-color: rgba(245,166,35,.45); background: var(--surface-2); transform: translateY(-2px); }
+
+/* ----- Blog index: cards share the sitewide elevation language ----- */
+.post-card { box-shadow: var(--shadow-md); }
+.post-card:hover { box-shadow: var(--shadow-lg); }
+.post-card h2 { transition: color .25s var(--ease); }
+.post-card:hover h2 { color: var(--honey-lt); }
+.post-card__meta { border-top: 1px solid var(--border); padding-top: 14px; }
+
+/* ----- Glossary: honey accent rail + depth on term cards ----- */
+.term { position: relative; box-shadow: var(--shadow-sm); }
+.term::before {
+  content: ""; position: absolute; left: 0; top: 10px; bottom: 10px; width: 3px;
+  border-radius: 999px; background: linear-gradient(var(--honey-lt), var(--honey));
+  opacity: 0; transition: opacity .3s var(--ease);
+}
+.term:hover { box-shadow: var(--shadow-md); }
+.term:hover::before { opacity: .85; }
+
+/* ----- Start-here learning path: numbered steps get depth + glow ----- */
+.path__step { box-shadow: var(--shadow-sm); }
+.path__step:hover { box-shadow: var(--shadow-md); }
+.path__num { transition: box-shadow .3s var(--ease), transform .3s var(--ease); }
+.path__step:hover .path__num { box-shadow: 0 8px 22px -6px var(--honey-glow); transform: scale(1.06); }
+
+/* ----- Comparison tables: quiet row affordance ----- */
+.compare tbody tr { transition: background .2s; }
+.compare tbody tr:hover { background: rgba(255,255,255,.025); }
