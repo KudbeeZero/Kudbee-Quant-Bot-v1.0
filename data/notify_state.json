@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 5,
-    "unrealized_r": 4.3311,
-    "winners": 5
+    "unrealized_r": 4.1114,
+    "winners": 4
   },
   "trades": {
     "43b7bb35": {
@@ -14,7 +14,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.19767441860465487
+      "ur": -0.050387596899227775
     },
     "6b309fcc": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 1.4787007454738987
+      "ur": 1.4290024849130196
     },
     "789b71ec": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5463510848126218
+      "ur": 0.6084812623274172
     },
     "9bef407a": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": 1.562046204620453
+      "ur": 1.515841584158408
     },
     "df82effb": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5463510848126218
+      "ur": 0.6084812623274172
     }
   }
 }
