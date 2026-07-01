@@ -59,6 +59,7 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | REC-010 | 2026-07-01 | `claude/post-hoc-audit-118-117` | #128 | post-hoc audits of #118 (**PASS WITH NOTES** — undisclosed shadow-scorer files) + #117 (**PASS**); MEMORY §73; §70 deadline checkpoint → KEEP | docs-only reconciliation | ✅ owner-authorized merge-on-green |
 | REC-011 | 2026-07-01 | `claude/section41-gap-run` | #129 | ran the pre-registered §41 gap investigation: gap 100% = the §44 VWAP flip; momentum signal reproduces §41 EXACTLY; live signal unvalidated since 06-16 (MEMORY §74) | pre-registered, read-only, residual 0 | ✅ owner-authorized merge-on-green |
 | REC-012 | 2026-07-01 | `claude/revert-vwap-momentum` | #130 | LIVE SIGNAL change (owner one-tap sign-off on §74 evidence): v_vwap reverted to the §41-validated momentum sign; sign test-pinned; Pine/site re-aligned (MEMORY §75) | evidence-gated live change, owner-approved | ✅ owner-authorized merge-on-green |
+| REC-013 | 2026-07-01 | `claude/mgmt-geometry-clean-rerun` | #131 | contamination audit of #116 (population selected by refuted rotation signal; shadow 86% rotation-era) → CLEAN RERUN on momentum population (n=8,935: A−B=+0.041R p=0.000) → ride-3R shipped to the PAPER book; permanent contamination-check rule (MEMORY §76) | owner pre-authorized paper change, verify-then-act | ✅ owner-authorized merge-on-green |
 
 ### Process deviations (honest log)
 

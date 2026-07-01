@@ -28,8 +28,8 @@
   forward shadow (A>B both ways), the live book's `--tp1-frac 0.5` provenance (**PR #94,
   owner-merged 2026-06-24** — deliberate, was undocumented), and the **§70 deadline checkpoint:
   trigger met, verdict KEEP** (core net −0.245R pre-#96 → **+0.227R** post, n=56; `_cts` +0.379R,
-  n=36). ⚠️ Standing fact: the live 1h book runs measured-worst geometry B — any change is gated
-  on the §41 investigation + explicit owner sign-off (owner's hard stop, 2026-07-01).
+  n=36). (The "measured-worst geometry B" standing fact was RESOLVED 2026-07-01 by the §76
+  clean rerun + PR #131 — the paper book now runs ride-3R; see the NEXT-chat section.)
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -61,11 +61,16 @@
   test-pinned (`tests/test_vwap_sign.py`). **WATCH:** score the live 1h book in three eras
   (pre-06-16 momentum / 06-16→07-01 rotation-unvalidated / post-07-01 momentum) — never
   pool across the rotation era when judging the validated config forward.
-- **🔴 REMAINING OWNER DECISION (separate, NOT taken):** management geometry — live book
-  still runs measured-worst bank-half/BE (B, §73); ride-3R (A) measured best backward
-  (#116 + shadow). If wanted, that's its own PR + sign-off. Note the §41-era +0.096R was
-  measured under geometry A WITH the momentum signal — the two reverts together restore
-  the exact validated configuration.
+- **✅ MANAGEMENT GEOMETRY RESOLVED (2026-07-01, PR #131, §76 — owner pre-authorized
+  verify-then-act, paper-only).** Contamination audit first: #116's population was
+  selected by the refuted rotation signal (and the forward shadow was 86% rotation-era
+  trades). CLEAN RERUN on the momentum population (same pre-registered script, n=8,935):
+  A ride-3R +0.090R / B bank-half +0.048R, **A−B=+0.041R paired p=0.000** → gate passed →
+  **ride-3R SHIPPED to the paper book** (tp1 flags removed from both scan steps). The
+  paper book now runs the EXACT §41-validated configuration (momentum + geometry A) for
+  the first time since 06-16. **WATCH:** score the post-07-01 era on its own; revisit
+  only after 50+ resolved era-3 trades. **🔒 NEW PERMANENT RULE (§76d + standing prefs):
+  contamination-window check before shipping on any prior study.**
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
@@ -75,10 +80,8 @@
   trade-story/flow, blog, 404 + responsive. **Note the base domain is still placeholder `kudbeequant.com`**
   — find-replace sitewide once the real domain is chosen. Advisory slug hint: `claude/website-seo-finish`.
 - Marketing-only, same guardrails as this chat. Start with `/handoff-audit` (post-hoc audits #118 + #117).
-- **CANDIDATE next research (owner's call) — the `be_after_tp1` management question (§72 secondary).**
-  The live bank-half/BE rule was net-negative in this OOS population. Worth a read-only study of whether
-  BE-after-TP1 is capping the edge vs plain ride-3R — research only, no live change. Advisory slug:
-  `claude/be-management-study`.
+- ~~CANDIDATE next research — the `be_after_tp1` question~~ **ANSWERED (§76, PR #131):** the partial
+  close was the drag (A−C=+0.035R), the BE slide minor (C−B=+0.006R, ns); ride-3R shipped to paper.
 - **CARRY-FORWARD (was the prior scope) — WATCH THE 24h DEADLINE FORWARD.** The 1h resolve window is now
   24h (PR #96, §70), **LIVE + UNVERIFIED**. After **50+ forward 1h trades**, run `journal-score` on
   `_cts`/core vs the pre-#96 baseline: net > 0R → keep; below → revisit per
