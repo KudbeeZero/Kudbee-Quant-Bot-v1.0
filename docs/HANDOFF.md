@@ -21,7 +21,15 @@
   at the owner's explicit "Close and merge all PRs."
 - **NOTHING new is live from this chat** beyond marketing pages + Formspree wiring on the static site.
   Trading core byte-identical; `data/journal.json` bot-owned (only routine bot syncs via `main`).
-- **Audit status:** `AWAITING_AUDIT` — **#118 + #117 already MERGED** (post-hoc audit due, like #103/#84).
+- **Audit status:** `CLEAR` (2026-07-01) — post-hoc audits DONE: **#118 PASS WITH NOTES**
+  (`docs/audits/pr-118-posthoc.md` — undisclosed shadow-scorer files in a "marketing only" PR)
+  and **#117 PASS** (`docs/audits/pr-117-posthoc.md`). Repo-state audit merged as **PR #127**
+  (`docs/audits/claude-kudbee-quant-audit-v1-is91p2.md`). MEMORY **§73** records: study #116 +
+  forward shadow (A>B both ways), the live book's `--tp1-frac 0.5` provenance (**PR #94,
+  owner-merged 2026-06-24** — deliberate, was undocumented), and the **§70 deadline checkpoint:
+  trigger met, verdict KEEP** (core net −0.245R pre-#96 → **+0.227R** post, n=56; `_cts` +0.379R,
+  n=36). ⚠️ Standing fact: the live 1h book runs measured-worst geometry B — any change is gated
+  on the §41 investigation + explicit owner sign-off (owner's hard stop, 2026-07-01).
 
 ## What this chat did (for the auditor to verify against the diff)
 
@@ -43,19 +51,11 @@
 
 ## NEXT chat
 
-- **🟢 NEXT-CHAT SCOPE (owner-approved 2026-07-01, supersedes the SEO sweep as first-up) —
-  POST-HOC AUDITS + MEMORY RECONCILE.** Branch `claude/post-hoc-audit-118-117`, docs-only:
-  (a) protocol post-hoc audits of **#118 + #117** (incl. #118's "marketing-only" scope claim
-  being inaccurate — it also carried the management shadow scorer + results + tests);
-  (b) **MEMORY §73**: study #116 (paired A/B/C geometry, A−B=+0.048R p=0.000), the forward
-  shadow corroboration (A−B=+0.102R, n=112), and the UNDOCUMENTED live-geometry change
-  `8f3b7f14` (2026-06-24, `--tp1-frac` 0.0→0.5 — live now runs measured-worst geometry B);
-  (c) ledger rows + baton refresh; (d) the §70 24h-deadline **50-trade checkpoint is MET**
-  (56 core 1h resolved since 2026-06-24, gross-positive) — run the formal `journal-score`
-  comparison vs the pre-#96 baseline. After that unit merges, the first RESEARCH unit is
-  **running the pre-registered §41 gap investigation** (`claude/section41-gap-run`) — it
-  gates any management/tp1 decision. Full findings: `docs/audits/claude-kudbee-quant-audit-v1-is91p2.md`
-  (PR #127, this chat).
+- **🟢 CURRENT UNIT (2026-07-01, owner-authorized autonomous run, same chat) — RUN THE
+  PRE-REGISTERED §41 GAP INVESTIGATION** on `claude/section41-gap-run`
+  (`studies/section41_gap_preregistration.md` — hypotheses locked; read-only; proposes no
+  live change). This gates any management/tp1 decision. Owner's HARD STOP for this run:
+  **no change to `--tp1-frac` or any live execution parameter**, whatever the findings.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
