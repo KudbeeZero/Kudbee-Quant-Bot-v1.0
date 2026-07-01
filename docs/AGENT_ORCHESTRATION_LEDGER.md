@@ -54,8 +54,22 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | REC-006 | 2026-06-15 | `claude/execution-backtest-maker-market-d96f9x` | #24 | execution head-to-head (maker vs market vs hybrid, OOS, net of fees); MEMORY §42 | `/handoff-audit` **PASS** ×2 (gated by #27 **and** an independent re-audit this session) | ✅ |
 | REC-007 | 2026-06-15 | `claude/handoff-audit-3dgde4` | #27 | post-hoc audits of #21/#23 + baton reconciliation | docs-only audit artifacts | ✅ |
 | REC-008 | 2026-06-15 | `claude/agent-orchestration-ledger` | #28 | this ledger + serial working agreement (docs-only) | independent audit **PASS WITH NOTES** (`docs/audits/claude-agent-orchestration-ledger.md`) | ⏳ awaiting merge |
+| — | 2026-06-16 → 2026-06-27 | *(ledger not maintained)* | #31–#118 | see `docs/HANDOFF.md` "Baton history" for the per-PR record of this span | mixed (several un-gated owner merges; post-hoc audits #84/#103 done, #118/#117 below) | ✅ |
+| REC-009 | 2026-07-01 | `claude/kudbee-quant-audit-v1-is91p2` | #127 | repo-state audit (six standing items + website): tp1 geometry provenance flagged, governance PASS, no hard-negative drift | self-contained audit report (docs-only) | ✅ owner-authorized merge |
+| REC-010 | 2026-07-01 | `claude/post-hoc-audit-118-117` | #128 | post-hoc audits of #118 (**PASS WITH NOTES** — undisclosed shadow-scorer files) + #117 (**PASS**); MEMORY §73; §70 deadline checkpoint → KEEP | docs-only reconciliation | ✅ owner-authorized merge-on-green |
 
 ### Process deviations (honest log)
+
+- **PR #118 undisclosed scope (2026-06-27, recorded 2026-07-01):** the "marketing only"
+  website PR also carried the management shadow scorer + forward results + tests
+  (`research/management_shadow.py` et al.) — read-only and benign, but absent from the
+  baton's scope claim. Post-hoc audit: `docs/audits/pr-118-posthoc.md` (PASS WITH NOTES).
+- **PR #94 undocumented live-geometry change (2026-06-24, recorded 2026-07-01):**
+  `--tp1-frac 0.0→0.5` on the live paper book, owner-opened and owner-merged in ~3 minutes,
+  with no MEMORY/baton/decision-log entry. Deliberate, not drift; documentation gap closed
+  by MEMORY §73.
+- **Ledger gap (#31–#118):** this ledger went unmaintained 2026-06-16 → 2026-06-27; the
+  baton history in `docs/HANDOFF.md` is the authoritative record for that span.
 
 - **Un-gated merges (#21, #23, #25, #26):** merged from the UI at the user's direction
   *before* the independent `/handoff-audit` gate. #21/#23 were retroactively audited

@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-06-25._
+_Last updated: 2026-07-01._
 
 ---
 
@@ -2094,3 +2094,46 @@ CAVEATS (honest):
   bank-half/BE/ride-3R rule was the **worst** variant (−0.0549R, −216R DD, boot_p 1.000) — materially
   worse than plain ride-3R. That points at the **`be_after_tp1` management**, not the trail, and warrants
   its OWN research before any conclusion. No live change is implied; flagged for a future chat.
+
+## 73. Management geometry settled BACKWARD (A>B), live book runs measured-worst B via PR #94 — plus the 24h-deadline checkpoint verdict — 2026-07-01 (reconciliation, PRs #127/#128)
+
+Reconciles two undocumented sessions (this section was written by the audit chat; sources:
+`research/management_geometry_results.md`, `studies/management_shadow_results.md`,
+`docs/audits/claude-kudbee-quant-audit-v1-is91p2.md`, PR #94/#116/#118 on GitHub).
+
+**(a) Study #116 — management-geometry backtest (paired, pre-registered).** One common entry
+set (validated top-10/1h, net maker, n=3,730 paired) resolved under three geometries via the
+shared resolver: **A ride-3R −0.007R** / **B bank-half+BE (live) −0.055R** / **C partial
+no-BE −0.042R**. Paired deltas: **A−B = +0.048R (boot_p 0.000)**, A−C +0.035R, C−B +0.013R.
+Backward verdict: the partial close is the larger drag, the BE slide the smaller. Research
+only — no live change was made or proposed.
+
+**(b) Forward shadow corroboration (shipped inside PR #118 — see its post-hoc audit).**
+Re-scoring 112 REAL resolved validated 1h journal trades under A/B/C: A −0.053R / B (live)
+−0.155R / C −0.062R → **A−B forward = +0.102R**, corroborating #116's sign. Mechanism
+DIFFERS from backtest: forward, the **BE slide** dominates (C−B=+0.093R; the slide
+scratches would-be runners); backtest, the **partial close** dominates (A−C=+0.035R).
+Small retrospective sample — directional corroboration, not fresh significance.
+
+**(c) Provenance of the live geometry (the audit's finding #1, now traced).** The live
+book's `--tp1-frac 0.5` came from **PR #94** (2026-06-24, "bank 50% at TP1, 0.0→0.5",
+commit `8f3b7f14`, opened and merged by the OWNER account ~3 minutes apart, same session
+as the owner-directed #96/#98). **Deliberate owner-merged change, NOT drift or a merge
+artifact** — but it skipped MEMORY/baton/decision-log entirely (this section closes that
+gap), and its rationale ("every TP1 touch locks ≥+0.5R") predates the #116/shadow evidence
+that ranks bank-half/BE the WORST of the three variants measured. **Standing state: the
+live 1h book runs measured-worst geometry B.** Any change to it is a live-management
+decision gated on (1) the §41 gap investigation explaining the −0.10R backtest-vs-now
+discrepancy and (2) explicit owner sign-off. Do NOT flip `--tp1-frac` on the strength of
+this section alone.
+
+**(d) §70 24h-deadline checkpoint — trigger MET, verdict KEEP.** The decision log
+(`docs/decisions/deadline_bars.md`) said: revisit if forward core/_cts expectancy drops
+below the pre-#96 baseline after 50+ trades. Measured 2026-07-01 (net of venue fees,
+1h crypto brackets, resolved_at split at 2026-06-24): **core pre-#96 −0.245R (n=97) →
+post-#96 +0.227R (n=56)**; **_cts post-#96 +0.379R (n=36)** (pre-#96 n=1). Post-window
+expectancy is far ABOVE baseline → **keep `_DEADLINE_BARS=24`**, nothing to revisit.
+Honest caveats: 56 trades is still a small window, the split is not regime-controlled,
+and the post period was crypto-friendly — re-check at ~150 trades; the §70 hard negative
+(no deadline re-backtest without ≥30 forward 24h trades) is now satisfied on n alone,
+but there is no reason to re-open it.
