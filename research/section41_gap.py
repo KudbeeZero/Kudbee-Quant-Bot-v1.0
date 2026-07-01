@@ -30,6 +30,14 @@ Hypotheses (locked in the pre-registration; each addressed):
 
 Run (from the repo root):   python research/section41_gap.py
 Outputs: studies/section41_gap_results.md + studies/section41_gap_summary.csv
+
+HISTORICAL NOTE (2026-07-01, after the run): the committed results were produced
+against the ROTATION-sign code (pre-revert). The owner then approved reverting
+v_vwap to the momentum sign (MEMORY §75), so on current code ``vwap_momentum=True``
+flips momentum→rotation — i.e. it now reconstructs the REFUTED §44 signal, the
+inverse of what it meant at run time. The committed results/CSV remain the record
+of the pre-registered run; re-running this script is not meaningful without
+re-reading the flag semantics.
 """
 from __future__ import annotations
 
