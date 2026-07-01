@@ -41,7 +41,7 @@
         "url": "https://kudbeex.xyz/about.html",
         "name": "About Kudbee Quant",
         "description": "Kudbee Quant's mission, story, and values.",
-        "mainEntity": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeex.xyz/", "logo": "https://kudbeex.xyz/assets/img/favicon.svg", "slogan": "Turn market noise into precision signals.", "email": "hello@kudbeequant.com", "foundingDate": "2026" }
+        "mainEntity": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeex.xyz/", "logo": "https://kudbeex.xyz/assets/img/favicon.svg", "slogan": "Turn market noise into precision signals.", "email": "hello@kudbeex.xyz", "foundingDate": "2026" }
       },
       {
         "@type": "BreadcrumbList",
@@ -53,6 +53,21 @@
     ]
   }
   </script>
+  <!-- Page-local premium polish (scoped to about only; mirrors methodology.html) -->
+  <style>
+    /* Editorial drop-cap on the opening paragraph */
+    .prose > p:first-of-type::first-letter {
+      float: left; font-family: var(--font-head); font-weight: 700;
+      font-size: 3.5rem; line-height: .82; margin: 6px 14px 0 0; color: var(--honey);
+    }
+    /* Prose links: refined underline that warms on hover */
+    .prose p a, .prose li a {
+      color: var(--honey-lt); border-bottom: 0;
+      text-decoration: underline; text-decoration-color: rgba(245,166,35,.35);
+      text-underline-offset: 3px; transition: text-decoration-color .2s;
+    }
+    .prose p a:hover, .prose li a:hover { text-decoration-color: var(--honey-lt); }
+  </style>
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to content</a>
@@ -103,7 +118,7 @@
           <p>We think that's backwards. The math behind a sound trading strategy isn't a secret. What's missing for most traders is a tool that makes that rigor accessible without a quant team or a computer-science degree.</p>
 
           <h2>What we're building</h2>
-          <p>Kudbee Quant brings the whole workflow into one place: build a strategy visually, prove it against years of real market history, read the risk metrics that actually matter, and then receive live, confidence-scored signals from logic you've validated yourself. No code. No black boxes. No "trust me."</p>
+          <p>Kudbee Quant brings the whole workflow into one place: build a strategy visually, test it against years of real market history, read the risk metrics that actually matter, and then receive live, confidence-scored signals from logic you've validated yourself. No code. No black boxes. No "trust me." The full validation pipeline — walk-forward, Monte Carlo, and the honesty contract it's held to — is documented on the <a href="methodology.html">methodology page</a>.</p>
         </div>
 
         <div class="grid grid--features" style="margin-top:44px;">

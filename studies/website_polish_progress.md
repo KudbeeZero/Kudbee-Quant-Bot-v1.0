@@ -37,15 +37,15 @@ Loop started: 2026-06-27 (~15:40 UTC); EXTENDED by owner re-invocation ~19:26 UT
 - [x] 1a. `index.html` trade-reads showcase — EXPANDED to 8 setups (4 long / 4 short): added Trend short, Breakdown·retest, Trend long; every scenario now narrates POSITION management (1% risk, bank half @1R → BE → ride 3R). Goal-driven.
 - [x] 1b. `index.html` — hero highlights get honey accent + hover; FAQ accordions get depth/hover; trust row firmed. Screenshot-verified.
 - [x] 2. `methodology.html` — editorial drop-cap opener, honey numbered-badge ordered lists (Layer 3 + honesty contract), refined prose-link underlines. Page-local scoped style; all internal links verified. Screenshot-verified.
-- [ ] 3. `start-here.html`
-- [ ] 4. `about.html`
+- [x] 3. `start-here.html` — copy clean; methodology cross-link added; path-step depth + number-badge hover via shared CONTENT-PAGES layer. (2026-07-01)
+- [x] 4. `about.html` — drop-cap + prose-link treatment (methodology parity); honesty fix ('prove'→'test'); pipeline sentence links methodology. (2026-07-01)
 - [x] 5. `lab.html` — REFRESHED stale data: regenerated lab-data.js from the live engine (generated 2026-06-27, was 2026-06-09; 10 crypto + 6 stocks); made the generator's date dynamic; fixed '+-0.112R' sign-format bug in lab.js. All page claims re-verified against fresh numbers.
-- [ ] 6. `compare.html`
-- [ ] 7. `live-signals.html`
-- [ ] 8. `glossary.html`
-- [ ] 9. `trade-story.html` / `trade-flow.html`
-- [ ] 10. `blog/` index + posts (shared article styling)
-- [ ] 11. `404.html` + final cross-page consistency + responsive (mobile) pass
+- [x] 6. `compare.html` — over-claim fixed ('Tick-accurate'→'Event-driven', matches the real backtester); table row-hover polish. (2026-07-01)
+- [x] 7. `live-signals.html` — SEO done earlier (canonical+OG, intentional noindex); dynamic page, graceful offline fallback verified in the sweep. (2026-07-01)
+- [x] 8. `glossary.html` — nav normalized (was the only page missing Blog), footer enriched, Start-Here CTA link; term-card hover rail. (2026-07-01)
+- [x] 9. `trade-story.html` / `trade-flow.html` — canonical + OG/Twitter share cards added; both stay intentional noindex (demo/sandbox). (2026-07-01)
+- [x] 10. `blog/` — shared article layer (drop-cap, byline badge, button prev/next); all 7 posts proofread, zero typos, links verified. (2026-07-01)
+- [x] 11. `404.html` (theme-color, glow backdrop, blog link) + cross-page consistency (lang/viewport/theme-color everywhere, zero img-alt gaps) + full mobile(375)/desktop(1440) Playwright sweep over all 22 pages. (2026-07-01)
 
 ## Screenshots
 - index_before.png captured (scratchpad) before polish layer.
@@ -55,9 +55,9 @@ Baseline audit (2026-06-27): most pages already have title/desc/canonical/OG/Twi
 Gaps being closed one page per iteration:
 - [x] SEO: `lab.html` — added OG + Twitter + JSON-LD (WebPage + **Dataset** for AEO + BreadcrumbList) + new `assets/img/og/og-lab.svg`. JSON-LD validated.
 - [x] SEO: `live-signals.html` — kept intentional `noindex,follow` (volatile live data, borderline advice) but added canonical + OG/Twitter cards (social-share preview) + new `og-live-signals.svg`. No JSON-LD (noindex → no rich-result need).
-- [ ] SEO: `trade-story.html` + `trade-flow.html` — canonical + OG/Twitter/JSON-LD (or mark noindex if embed/demo-only).
-- [ ] SEO: `be-report.html` — add description/canonical/OG/JSON-LD, or confirm intentional noindex.
-- [ ] SEO: `leverage-report.html` — add JSON-LD (Report/Article); already has OG+Twitter.
-- [ ] SEO: `sitemap.xml` — add live-signals (+ decide trade-story/flow, reports); refresh lastmod.
-- [ ] SEO: `llms.txt` — verify it's current + covers key pages/positioning for AI answer engines.
-- [ ] SEO: global pass — confirm lang/viewport/theme-color, image alt text, and a sitewide WebSite+SearchAction JSON-LD; note the single base-domain to find-replace when the real domain is chosen (currently kudbeequant.com).
+- [x] SEO: `trade-story.html` + `trade-flow.html` — canonical + OG/Twitter added; kept noindex (demo-only), so no JSON-LD needed. (2026-07-01)
+- [x] SEO: `be-report.html` — full head (desc/canonical/robots/OG/Twitter/theme-color) + Article/Breadcrumb JSON-LD + dated 2026-07-01 update note; added to sitemap. (2026-07-01)
+- [x] SEO: `leverage-report.html` — Article + Breadcrumb JSON-LD added. (2026-07-01)
+- [x] SEO: `sitemap.xml` — + be-report; live-signals/trade-story/trade-flow correctly EXCLUDED (noindex); lastmod refreshed; XML validated. (2026-07-01)
+- [x] SEO: `llms.txt` — verified current; + Lab, leverage-report, be-report; email fixed to hello@kudbeex.xyz. (2026-07-01)
+- [x] SEO: global pass — lang/viewport/theme-color on every page; no img-alt gaps (all inline aria-hidden SVGs); WebSite+SearchAction JSON-LD already on index. DOMAIN RESOLVED: the site standard is kudbeex.xyz (123 refs incl. sitemap/robots/llms); the 11 stray kudbeequant.com EMAILS were standardized to @kudbeex.xyz — owner must create/forward hello@/partners@/press@kudbeex.xyz. (2026-07-01)

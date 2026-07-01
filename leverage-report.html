@@ -120,8 +120,33 @@
     .rp-list li::before { content: ""; position: absolute; left: 4px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--honey); }
     .rp-fineprint { font-size: 13px; color: var(--muted-2); max-width: 820px; line-height: 1.6; }
     .rp-repro { font-family: var(--font-mono); font-size: 13px; background: var(--bg-3); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--mint); display: inline-block; }
-    @media (max-width: 640px){ .rp-bar, .rp-pbar { grid-template-columns: 110px 1fr 70px; } .rp-bar__lab small { display:none; } }
+    @media (max-width: 640px){ .rp-bar, .rp-pbar { grid-template-columns: 110px 1fr 70px; } .rp-bar__lab small { display:none; }
+      .rp-table { display:block; overflow-x:auto; -webkit-overflow-scrolling:touch; white-space:nowrap; }
+      .rp-repro { max-width:100%; overflow-x:auto; } }
   </style>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Article",
+      "headline": "Leverage & Break-Even Viability — Research Brief",
+      "description": "A pre-registered research brief on 497 trades: does tiny-stake, high-leverage, move-to-break-even management survive real fees and liquidation? 50x is ruinous; a marginal edge survives only at near-zero maker fees and \u226410x — and only if maker fills are real.",
+      "datePublished": "2026-06-19",
+      "author": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeex.xyz/" },
+      "publisher": { "@type": "Organization", "name": "Kudbee Quant", "url": "https://kudbeex.xyz/" },
+      "mainEntityOfPage": "https://kudbeex.xyz/leverage-report.html"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://kudbeex.xyz/" },
+        { "@type": "ListItem", "position": 2, "name": "Leverage & Break-Even Viability", "item": "https://kudbeex.xyz/leverage-report.html" }
+      ]
+    }
+  ]
+}
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>

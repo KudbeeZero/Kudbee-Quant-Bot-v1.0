@@ -154,10 +154,11 @@
 
     <section class="panel">
       <h2>$100 over 300 trades — sizing is everything</h2>
-      <p class="sub">The exact same 300 trades, with the exact same positive edge.
-        The only thing that changes is how much you bet per trade. At 10× full
-        notional, a winning system still wipes the account out — variance ruins
-        you before the edge can pay. Note the log scale.</p>
+      <p class="sub">The exact same 300 most-recent trades — the only thing that
+        changes is how much you bet per trade. At 10× full notional the account is
+        wiped out regardless of edge: variance ruins you before any edge can pay.
+        Sizing decides whether you survive long enough to find out what your edge
+        even is. Note the log scale.</p>
       <div class="chart-wrap"><div id="chart-equity"></div></div>
       <div class="takeaway">10× leverage is a <strong>cap</strong>, not a bet size.
         To risk ~2% of the account with a ~1.4% stop you use roughly <strong>1.4×</strong>
@@ -215,7 +216,7 @@
         you (round‑trip maker cost, interpolated from the measured curve). These are
         approximate published fees — always confirm and forward‑test.</p>
       <label style="display:block;font-size:.85rem;color:#9AA6BC;margin-bottom:.6rem;">Exchange / venue
-        <select id="venue-sel" style="display:block;margin-top:.35rem;background:#0a0e17;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.55rem .7rem;color:#EAF0FA;font-family:'JetBrains Mono',monospace;min-width:240px;"></select>
+        <select id="venue-sel" style="display:block;margin-top:.35rem;background:#0a0e17;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.55rem .7rem;color:#EAF0FA;font-family:'JetBrains Mono',monospace;min-width:240px;max-width:100%;"></select>
       </label>
       <div id="venue-out" class="calc-out"></div>
       <div class="takeaway">Same strategy, same trades — only the venue changed. A
