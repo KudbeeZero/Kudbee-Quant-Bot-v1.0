@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 4,
-    "unrealized_r": 7.1491,
+    "unrealized_r": 7.6878,
     "winners": 4
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 2.408996359854399
+      "ur": 2.6783671346853963
     },
     "6b309fcc": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": true,
       "tp1_touched": true,
-      "ur": 2.408996359854399
+      "ur": 2.6783671346853963
     },
     "9bef407a": {
       "dl_soon": false,
