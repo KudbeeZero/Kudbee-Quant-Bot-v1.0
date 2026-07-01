@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 5,
+    "losers": 4,
     "n": 7,
-    "unrealized_r": -0.7373,
+    "unrealized_r": -0.5512,
     "winners": 2
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.42031767382441
+      "ur": -0.5716739767258017
     },
     "49258d1b": {
       "dl_soon": false,
@@ -22,19 +22,19 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.45787831513260874
+      "tp1_filled": true,
+      "tp1_touched": true,
+      "ur": 0.9893395735829411
     },
     "607f809a": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": -0.21689497716895798
+      "ur": -0.6430745814307544
     },
     "8812c01c": {
       "dl_soon": false,
@@ -42,29 +42,29 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.45787831513260874
+      "tp1_filled": true,
+      "tp1_touched": true,
+      "ur": 0.9893395735829411
     },
     "9118e202": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": true,
-      "ur": -0.21689497716895798
+      "ur": -0.6430745814307544
     },
-    "ae3f44ee": {
+    "c82a08e0": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "ETHUSDT",
+      "symbol": "AVAXUSDT",
       "tp1_filled": false,
-      "tp1_touched": true,
-      "ur": -0.46592772665007653
+      "tp1_touched": false,
+      "ur": null
     },
     "f88b2feb": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.333014659018494
+      "ur": -0.6720841300191253
     }
   }
 }
