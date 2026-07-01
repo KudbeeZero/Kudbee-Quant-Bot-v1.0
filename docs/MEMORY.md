@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-01 (§75)._
+_Last updated: 2026-07-01 (§76)._
 
 ---
 
@@ -22,6 +22,12 @@ _Last updated: 2026-07-01 (§75)._
   sandbox — not a public signals/advisory product. Skip "this is/ isn't financial
   advice" framing and compliance hand-wringing; execute the directed change and report
   results honestly. Iteration + honest measurement is the whole point.
+- **🔒 CONTAMINATION-WINDOW CHECK before shipping on a prior study (2026-07-01,
+  owner-set — detail in §76).** Before any change justified by a prior study: verify the
+  study's raw-data span AND the code-era that selected its population (signal version,
+  features, resolver) against every since-confirmed bad-data/bad-code period. Overlap →
+  quantify; thin/contaminated clean subset → RERUN on clean data and ship what the clean
+  data supports, never the prior conclusion by default.
 
 ---
 
@@ -2199,3 +2205,52 @@ the revert re-aligns all three surfaces.
   run against rotation-sign code.
 - Scope: ONE line in `stack.py` + tests + docs. `--tp1-frac`/management geometry
   UNTOUCHED (still measured-worst B, §73 — a separate owner decision).
+
+## 76. Contamination audit of study #116 → CLEAN RERUN on the momentum population → RIDE-3R SHIPPED to the paper book — 2026-07-01 (PR #131, owner-authorized paper change)
+
+Owner directive: before acting on #116's Ride-3R finding, check whether its data overlapped
+the 06-16→07-01 rotation-signal window (§74/§75), then act on the finding same-pass
+(paper-only; bounded, reversible).
+
+**(a) Contamination check — the literal answer and the real one.**
+- *Bar windows:* CLEAN. `cycle_backtest.WINDOWS` end 2026-06-14, two days before the flip
+  went live — no study bar comes from the bad window.
+- *Entry population:* CONTAMINATED. `load_cells()` computes entries with
+  `confluence_position` as of the RUN date; #116 ran 2026-06-26 on ROTATION-sign code, so
+  its n=3,730 population was selected by the signal §74 refuted. Internally-valid pairing,
+  wrong population.
+- *Forward shadow (§73b):* LITERALLY contaminated — **86% (131/153)** of the resolved
+  validated-1h journal trades it drew from were opened in the rotation era. Its
+  A−B=+0.102R corroboration is downgraded to anecdotal for the momentum book.
+
+**(b) Clean rerun (same pre-registered script, unchanged; momentum signal via PR #130;
+n=8,935 paired — the §41-scale population).** A ride-3R **+0.090R** (boot_p 0.000, and
+independently re-confirming the §41 +0.096R anchor) / B bank-half+BE **+0.048R** / C
+partial-no-BE **+0.054R**. **A−B = +0.041R, paired boot_p 0.000** — pre-registered gate
+passed. Mechanism confirmed: the PARTIAL CLOSE is the drag (A−C=+0.035R); the BE slide is
+minor and not significant alone (C−B=+0.006R, p=0.068). Key population insight: on the
+healthy momentum population B is *positive* (+0.048R) — the rotation population made B
+look like a money-loser (−0.055R) when it was mostly the signal, not the management,
+bleeding; but A still beats B by +0.041R/trade with certainty.
+
+**(c) SHIPPED (paper book only, PR #131):** both `paper-scan` steps in `paper-trade.yml`
+drop `--tp1-r 1.0 --tp1-frac 0.5` → tp1 unset = **ride-3R, full size to the 3R target**.
+Combined with §75, the live paper book now runs the EXACT §41-validated configuration
+(momentum signal + geometry A) for the first time since 2026-06-16. Open/pending trades
+keep their stamped tp1 and resolve under their entry-time rules; only NEW opens change.
+- **Era ledger for forward scoring (supersedes §75's three-era note):** (1) pre-06-16
+  momentum+bank-half…(mixed tp1 history, see §49/§94-era); (2) 06-16→07-01 rotation era —
+  NEVER pool; (3) post-07-01T21:10 momentum+ride-3R = the validated config. Judge the
+  validated config forward on era 3 only.
+- **REVERT TRIGGER:** if the era-3 book after 50+ resolved trades runs materially below
+  the pre-#96-era baseline, revisit geometry as its own question (same bar as §70's
+  deadline watch; don't churn before n=50).
+
+**(d) 🔒 PERMANENT FORWARD RULE — CONTAMINATION-WINDOW CHECK (owner-set, 2026-07-01):**
+before shipping ANY change justified by a prior study, verify the study's data window —
+BOTH its raw-data span AND the code-era that *selected/generated* its population (signal
+version, features, resolver) — does not overlap a since-confirmed bad-data/bad-code
+period. If it does: quantify the overlap; if the clean subset still supports the
+conclusion at reasonable confidence, proceed with the downgraded evidence noted; if not,
+RERUN on clean data before shipping, and ship what the clean data supports — never the
+prior conclusion by default. (Also recorded in STANDING USER PREFERENCES.)
