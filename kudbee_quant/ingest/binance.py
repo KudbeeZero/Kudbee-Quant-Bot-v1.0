@@ -108,6 +108,7 @@ class BinanceClient:
                 break  # ran out of history
             time.sleep(0.2)  # be polite to the public endpoint
 
+        rows = self._drop_forming_bar(rows)   # signals read CLOSED bars only
         df = validate_ohlcv(self._to_frame(rows), symbol=symbol)
         self.cache.put(key, df)
         return df
@@ -165,9 +166,30 @@ class BinanceClient:
                 break  # exhausted the window
             time.sleep(0.2)  # be polite to the public endpoint
 
-        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)
+        rows = self._drop_forming_bar(rows)   # no-op for a past window; drops a
+        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)  # forming bar for end=None
         self.cache.put(key, df)
         return df
+
+    @staticmethod
+    def _drop_forming_bar(rows: list[list], now_ms: int | None = None) -> list[list]:
+        """Drop a still-forming final candle so signals read only CLOSED bars.
+
+        Binance ``/klines`` returns the currently-forming candle as its last
+        element; its OHLCV is provisional and mutates until the bar closes. The
+        hourly scan fires minutes into a bar, so ``.iloc[-1]`` would otherwise be a
+        half-formed candle. A bar is closed only once ``now`` passes its
+        ``close_time`` (``_COLUMNS`` index 6 = last ms of the bar). Mirrors the
+        tick-row drop in ``yahoo.py`` so the two ingest paths agree. A no-op for
+        historical windows (their last bar is already closed) — backtest frames are
+        byte-identical. ``now_ms`` is injectable for deterministic tests.
+        """
+        if not rows:
+            return rows
+        now_ms = int(time.time() * 1000) if now_ms is None else now_ms
+        if int(rows[-1][6]) >= now_ms:   # close_time still in the future -> forming
+            return rows[:-1]
+        return rows
 
     @staticmethod
     def _to_frame(rows: list[list]) -> pd.DataFrame:

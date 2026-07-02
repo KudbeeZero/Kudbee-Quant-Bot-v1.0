@@ -100,6 +100,12 @@
   fallback can serve `binance.us` (a different exchange) mislabeled — tag source / don't blind-
   remove. Both need sign-off (validated-path data). **Deploy note:** set TRIGGER_SECRET on the
   Worker; rate-limiter proxy-IP handling needs an ASGI trusted-proxy config.
+- **✅ E3 HALF-FORMED-CANDLE FIX SHIPPED (2026-07-02, PR #136, §77 — owner-directed "fix the
+  candle").** `klines()`/`klines_range()` now drop the still-forming final bar so the live scan
+  reads CLOSED bars only. No-op for historical windows → backtests byte-identical. Measured live:
+  1/10 signals changed (SOL +1@60% forming vs 30% closed → no trade). Genuine live-path behavior
+  change; plausibly part of the live-vs-backtest gap. **WATCH** the post-fix forward record as a
+  sub-era on the §75/§76 config. **E2 (binance.us cross-venue) still FLAGGED, unfixed** — needs sign-off.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
