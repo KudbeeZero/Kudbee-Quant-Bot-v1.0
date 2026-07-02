@@ -159,7 +159,7 @@
     pts[N - 1][1] = 196; // finish near the lows
     var d = smoothPath(pts);
     line.setAttribute('d', d);
-    line.setAttribute('stroke', '#F45B69'); // red — this run lost money
+    line.setAttribute('stroke', '#D96459'); // red — this run lost money
     fill.setAttribute('d', d + ' L' + W + ',' + H + ' L0,' + H + ' Z');
     if (fill.parentNode) {
       var grad = document.getElementById('eqfill');

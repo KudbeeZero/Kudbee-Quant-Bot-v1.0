@@ -8,30 +8,30 @@
 .trade-story {
   /* Local tokens (mirror the site, but self-contained so the widget
      works even if embedded before style.css loads). */
-  --ts-bg:        #0a0e17;
-  --ts-bg-2:      #0d1320;
+  --ts-bg:        #141109;
+  --ts-bg-2:      #1A1610;
   --ts-surface:   rgba(255, 255, 255, 0.04);
   --ts-surface-2: rgba(255, 255, 255, 0.06);
   --ts-border:    rgba(255, 255, 255, 0.09);
   --ts-border-2:  rgba(255, 255, 255, 0.14);
-  --ts-honey:     #F5A623;
-  --ts-honey-lt:  #FFD45E;
-  --ts-mint:      #2DD4BF;
-  --ts-text:      #EAF0FA;
-  --ts-muted:     #9AA6BC;
-  --ts-muted-2:   #6A7488;
+  --ts-honey:     #E8842C;
+  --ts-honey-lt:  #F2A65A;
+  --ts-mint:      #9DB89C;
+  --ts-text:      #F4EFE6;
+  --ts-muted:     #B7AC99;
+  --ts-muted-2:   #847B6B;
   --ts-radius:    18px;
   --ts-radius-sm: 12px;
   --ts-ease:      cubic-bezier(.22, 1, .36, 1);
-  --ts-font-head: 'Space Grotesk', system-ui, sans-serif;
+  --ts-font-head: 'Fraunces', system-ui, sans-serif;
   --ts-font-body: 'Inter', system-ui, sans-serif;
   --ts-font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
   /* Agent accent colors */
   --ts-liquidity: #ff8a3c;
   --ts-pvsra:     #3ddc84;
-  --ts-structure: #2DD4BF;
-  --ts-reviewer:  #FFD45E;
+  --ts-structure: #9DB89C;
+  --ts-reviewer:  #F2A65A;
   --ts-risk:      #8b9dff;
 
   position: relative;
@@ -80,8 +80,8 @@
   font-size: 11px;
   font-weight: 500;
   color: var(--ts-honey-lt);
-  background: rgba(245,166,35,.10);
-  border: 1px solid rgba(245,166,35,.25);
+  background: rgba(232,132,44,.10);
+  border: 1px solid rgba(232,132,44,.25);
   border-radius: 999px;
   padding: 4px 11px;
   white-space: nowrap;
@@ -293,7 +293,7 @@
   color: #06281f;
   background: linear-gradient(135deg, var(--ts-mint), #5eead4);
   border-radius: 999px;
-  box-shadow: 0 10px 30px -8px rgba(45,212,191,.6);
+  box-shadow: 0 10px 30px -8px rgba(157,184,156,.6);
   opacity: 0;
   transform: translateY(8px) scale(.95);
   transition: opacity .55s var(--ts-ease), transform .55s var(--ts-ease);
@@ -388,8 +388,8 @@
 .ts-chip:focus-visible { outline: 2px solid var(--ts-mint); outline-offset: 2px; }
 .ts-chip.is-active {
   color: var(--ts-honey-lt);
-  background: rgba(245,166,35,.10);
-  border-color: rgba(245,166,35,.35);
+  background: rgba(232,132,44,.10);
+  border-color: rgba(232,132,44,.35);
 }
 
 /* ----- Main: chart stage + reasoning rail side by side ----- */
@@ -485,19 +485,19 @@
 .ts-think-row__text strong { color: var(--ts-text); font-weight: 600; }
 
 /* concept-tag accents */
-.ts-tag--open       { color:#9AA6BC; border-color:rgba(154,166,188,.4); }
+.ts-tag--open       { color:#B7AC99; border-color:rgba(154,166,188,.4); }
 .ts-tag--drift,
-.ts-tag--level      { color:#9AA6BC; border-color:rgba(154,166,188,.4); }
+.ts-tag--level      { color:#B7AC99; border-color:rgba(154,166,188,.4); }
 .ts-tag--session    { color:#8b9dff; border-color:rgba(139,157,255,.45); background:rgba(139,157,255,.08); }
 .ts-tag--sweep      { color:#ff8a3c; border-color:rgba(255,138,60,.45); background:rgba(255,138,60,.08); }
 .ts-tag--vector     { color:#3ddc84; border-color:rgba(61,220,132,.45); background:rgba(61,220,132,.08); }
-.ts-tag--structure  { color:#2DD4BF; border-color:rgba(45,212,191,.45); background:rgba(45,212,191,.08); }
-.ts-tag--confluence { color:#FFD45E; border-color:rgba(255,212,94,.45); background:rgba(255,212,94,.08); }
+.ts-tag--structure  { color:#9DB89C; border-color:rgba(157,184,156,.45); background:rgba(157,184,156,.08); }
+.ts-tag--confluence { color:#F2A65A; border-color:rgba(255,212,94,.45); background:rgba(255,212,94,.08); }
 .ts-tag--backtest   { color:#c46bff; border-color:rgba(196,107,255,.45); background:rgba(196,107,255,.08); }
-.ts-tag--risk       { color:#FFD45E; border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10); }
-.ts-tag--result     { color:#5eead4; border-color:rgba(45,212,191,.5);  background:rgba(45,212,191,.10); }
+.ts-tag--risk       { color:#F2A65A; border-color:rgba(232,132,44,.45); background:rgba(232,132,44,.10); }
+.ts-tag--result     { color:#5eead4; border-color:rgba(157,184,156,.5);  background:rgba(157,184,156,.10); }
 .ts-tag--trend      { color:#8b9dff; border-color:rgba(139,157,255,.45); background:rgba(139,157,255,.08); }
-.ts-tag--position   { color:#FFD45E; border-color:rgba(245,166,35,.45); background:rgba(245,166,35,.10); }
+.ts-tag--position   { color:#F2A65A; border-color:rgba(232,132,44,.45); background:rgba(232,132,44,.10); }
 
 /* rail stacks below the chart on narrow screens */
 @media (max-width: 720px) {

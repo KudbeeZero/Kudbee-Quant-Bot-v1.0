@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0e17" />
+  <meta name="theme-color" content="#141109" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large" />
@@ -35,7 +35,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css?v=3" />
 
   <style>
@@ -47,7 +47,7 @@
     .rp-lede { font-size: clamp(17px, 2.2vw, 21px); color: var(--muted); max-width: 760px; }
     .rp-meta { display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 22px; font-family: var(--font-mono); font-size: 13px; color: var(--muted-2); align-items: center; }
     .rp-pill { display: inline-flex; align-items: center; gap: 7px; padding: 5px 12px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; letter-spacing: .04em; border: 1px solid var(--border-2); }
-    .rp-pill--paper { background: rgba(245,166,35,.12); color: var(--honey-lt); border-color: var(--honey-glow); }
+    .rp-pill--paper { background: rgba(232,132,44,.12); color: var(--honey-lt); border-color: var(--honey-glow); }
     .rp-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
 
     .rp-sec { padding: 46px 0; border-bottom: 1px solid var(--border); }
@@ -73,7 +73,7 @@
     .rp-track { position: relative; height: 22px; background: var(--surface-2); border-radius: 6px; overflow: hidden; }
     .rp-track::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 1px; background: var(--border-2); z-index: 2; }
     .rp-fill { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
-    .rp-fill--pos { background: linear-gradient(90deg, rgba(45,212,191,.5), var(--mint)); }
+    .rp-fill--pos { background: linear-gradient(90deg, rgba(157,184,156,.5), var(--mint)); }
     .rp-fill--neg { background: linear-gradient(90deg, var(--red), rgba(244,91,105,.5)); }
     .rp-bar__val { font-family: var(--font-mono); font-size: 14px; font-weight: 600; text-align: right; }
 
@@ -88,28 +88,28 @@
     .rp-table th { font-family: var(--font-mono); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted-2); font-weight: 500; }
     .rp-table td { color: var(--muted); }
     .rp-table td.num, .rp-table th.num { font-family: var(--font-mono); text-align: right; color: var(--text); }
-    .rp-table tr.row-best td { background: rgba(45,212,191,.06); }
+    .rp-table tr.row-best td { background: rgba(157,184,156,.06); }
     .rp-table tr.row-ruin td { background: rgba(244,91,105,.06); }
 
     /* callouts */
     .rp-call { border-radius: var(--radius-sm); padding: 22px 24px; border: 1px solid var(--border-2); margin: 6px 0; }
     .rp-call h3 { font-family: var(--font-head); font-size: 18px; margin-bottom: 8px; display: flex; align-items: center; gap: 9px; }
     .rp-call p { margin-bottom: 8px; }
-    .rp-call--so { background: linear-gradient(180deg, rgba(245,166,35,.08), transparent); border-color: var(--honey-glow); }
+    .rp-call--so { background: linear-gradient(180deg, rgba(232,132,44,.08), transparent); border-color: var(--honey-glow); }
     .rp-call--risk { background: rgba(244,91,105,.05); border-color: rgba(244,91,105,.3); }
 
     /* verdict chips */
     .rp-vchip { display: inline-flex; align-items: center; gap: 7px; padding: 4px 11px; border-radius: 999px; font-family: var(--font-mono); font-size: 12px; font-weight: 600; }
-    .vc-pass { background: rgba(45,212,191,.15); color: var(--mint); }
-    .vc-incon { background: rgba(245,166,35,.15); color: var(--honey-lt); }
+    .vc-pass { background: rgba(157,184,156,.15); color: var(--mint); }
+    .vc-incon { background: rgba(232,132,44,.15); color: var(--honey-lt); }
     .vc-kill { background: rgba(244,91,105,.15); color: var(--red); }
 
     /* plan timeline */
     .rp-steps { display: grid; gap: 16px; margin-top: 8px; }
     .rp-step { display: grid; grid-template-columns: 40px 1fr; gap: 16px; align-items: start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 18px 20px; }
     .rp-step__n { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-head); font-weight: 700; border: 1px solid var(--border-2); }
-    .rp-step--done .rp-step__n { background: rgba(45,212,191,.15); color: var(--mint); border-color: var(--mint); }
-    .rp-step--next .rp-step__n { background: rgba(245,166,35,.12); color: var(--honey-lt); border-color: var(--honey); }
+    .rp-step--done .rp-step__n { background: rgba(157,184,156,.15); color: var(--mint); border-color: var(--mint); }
+    .rp-step--next .rp-step__n { background: rgba(232,132,44,.12); color: var(--honey-lt); border-color: var(--honey); }
     .rp-step--later .rp-step__n { color: var(--muted-2); }
     .rp-step h3 { font-size: 17px; margin-bottom: 5px; }
     .rp-step p { font-size: 14px; margin-bottom: 0; }
@@ -157,9 +157,9 @@
         <span class="brand__mark" aria-hidden="true">
           <svg viewBox="0 0 32 32" width="28" height="28">
             <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="url(#hexgrad)"/>
-            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#0a0e17"/>
+            <polygon points="16,8 23,12 23,20 16,24 9,20 9,12" fill="#141109"/>
             <polygon points="16,11 20,13.5 20,18.5 16,21 12,18.5 12,13.5" fill="url(#hexgrad)"/>
-            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFD45E"/><stop offset="1" stop-color="#F5A623"/></linearGradient></defs>
+            <defs><linearGradient id="hexgrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F2A65A"/><stop offset="1" stop-color="#E8842C"/></linearGradient></defs>
           </svg>
         </span>
         <span class="brand__name">Kudbee<span class="brand__accent">Quant</span></span>

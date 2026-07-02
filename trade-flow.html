@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0b0a1f" />
+  <meta name="theme-color" content="#141109" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'" />
   <title>Trade Flow — Kudbee Quant</title>
   <meta name="description" content="Interactive confluence flow: every signal as a node graph through the 10-factor stack — live view, unvalidated sandbox, and bar-by-bar trade replay." />
@@ -26,7 +26,7 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css?v=3" />
   <link rel="stylesheet" href="assets/css/trade-story.css" />
   <style>
@@ -34,25 +34,25 @@
        dashboard chat can lift this block wholesale. Dark purple/blue base,
        yellow (--honey) + a little green as accents. */
     .tf-page {
-      --tf-bg1: #0b0a1f; --tf-bg2: #141238; --tf-node: #191642;
+      --tf-bg1: #141109; --tf-bg2: #141238; --tf-node: #191642;
       --tf-node-border: #2c2766; --tf-edge: #6f5bd6;
       --tf-glow: rgba(124, 98, 255, .35);
       --tf-text: #c9cdf0; --tf-muted: #7d82b8;
-      --tf-yellow: #F5A623; --tf-green: #3ddc84; --tf-red: #ff5d5d;
+      --tf-yellow: #E8842C; --tf-green: #3ddc84; --tf-red: #ff5d5d;
       background: linear-gradient(160deg, var(--tf-bg1) 0%, var(--tf-bg2) 100%);
       color: var(--tf-text); min-height: 100vh;
     }
     #tf-stars { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
     .tf-wrap { position: relative; z-index: 1; max-width: 1240px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
-    .tf-head h1 { font-family: 'Space Grotesk', sans-serif; }
+    .tf-head h1 { font-family: 'Fraunces', sans-serif; }
     .tf-head p { color: var(--tf-muted); font-size: .92rem; }
     .tf-tabs { display: flex; gap: .5rem; margin: 1.2rem 0 .8rem; flex-wrap: wrap; }
     .tf-tab { background: var(--tf-node); color: var(--tf-text); border: 1px solid var(--tf-node-border);
-      border-radius: 10px; padding: .5rem 1rem; cursor: pointer; font: 600 .9rem 'Space Grotesk', sans-serif; }
+      border-radius: 10px; padding: .5rem 1rem; cursor: pointer; font: 600 .9rem 'Fraunces', sans-serif; }
     .tf-tab.is-active { border-color: var(--tf-yellow); color: var(--tf-yellow); box-shadow: 0 0 14px var(--tf-glow); }
     .tf-badge { font-size: .65rem; color: var(--tf-yellow); border: 1px solid var(--tf-yellow);
       border-radius: 6px; padding: .05rem .3rem; margin-left: .35rem; vertical-align: middle; }
-    .tf-banner { background: rgba(245, 166, 35, .12); border: 1px solid var(--tf-yellow);
+    .tf-banner { background: rgba(232, 132, 44, .12); border: 1px solid var(--tf-yellow);
       color: var(--tf-yellow); border-radius: 10px; padding: .6rem .9rem; margin: 0 0 .8rem;
       font-size: .88rem; font-weight: 600; }
     .tf-controls { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-bottom: .8rem; }
@@ -73,7 +73,7 @@
       -webkit-user-select: none; touch-action: none; box-shadow: 0 4px 18px rgba(0, 0, 0, .35); }
     .tf-node:active { cursor: grabbing; }
     .tf-node__head { display: flex; justify-content: space-between; align-items: baseline; gap: .4rem; }
-    .tf-node__label { font: 600 .8rem 'Space Grotesk', sans-serif; }
+    .tf-node__label { font: 600 .8rem 'Fraunces', sans-serif; }
     .tf-node__vote { font: 700 .9rem 'JetBrains Mono', monospace; }
     .tf-node__detail { font-size: .68rem; color: var(--tf-muted); margin-top: .25rem; line-height: 1.35; }
     .tf-node__spark { margin-top: .3rem; display: block; }
@@ -85,11 +85,11 @@
     .tf-node--oppose .tf-node__vote { color: var(--tf-red); }
     .tf-node--neutral { opacity: .75; }
     .tf-node--off { opacity: .45; border-style: dashed; }
-    .tf-node--gate-pass { border-color: var(--tf-yellow); box-shadow: 0 0 16px rgba(245, 166, 35, .3); }
+    .tf-node--gate-pass { border-color: var(--tf-yellow); box-shadow: 0 0 16px rgba(232, 132, 44, .3); }
     .tf-node__rows { font: 500 .72rem 'JetBrains Mono', monospace; margin-top: .35rem; }
     .tf-node__rows div { display: flex; justify-content: space-between; padding: .08rem 0; }
     .tf-event { display: inline-block; margin-top: .3rem; padding: .1rem .4rem; border-radius: 6px;
-      font: 700 .68rem 'JetBrains Mono', monospace; color: #0b0a1f; background: var(--tf-yellow); }
+      font: 700 .68rem 'JetBrains Mono', monospace; color: #141109; background: var(--tf-yellow); }
     .tf-shelf { position: absolute; left: 12px; right: 12px; bottom: 12px; height: 64px;
       border: 1px dashed var(--tf-edge); border-radius: 12px; display: flex; align-items: center;
       justify-content: center; color: var(--tf-muted); font-size: .78rem; background: rgba(111, 91, 214, .07); }

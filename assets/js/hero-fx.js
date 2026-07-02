@@ -19,7 +19,7 @@
   var W = 0, H = 0, raf = 0, running = true;
   var candles = [], particles = [], step = 18, cw = 10;
 
-  var MINT = '46,211,168', RED = '255,99,99', HONEY = '245,166,35', BLUE = '110,183,255';
+  var MINT = '157,184,156', RED = '255,99,99', HONEY = '232,132,44', BLUE = '110,183,255';
 
   function size() {
     var r = canvas.parentElement.getBoundingClientRect();
