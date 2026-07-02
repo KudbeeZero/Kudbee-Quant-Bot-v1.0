@@ -7,9 +7,11 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **⚙️ SERIAL RULE (2026-06-15, user-set):** finish the unit → open ONE PR → merge →
-  only then start the next. Honor "owner merges" — never self-merge unless the owner explicitly
-  authorizes it.
+- **⚙️ WORKFLOW (updated 2026-07-02, owner-set — supersedes the old SERIAL/one-PR rule):**
+  STREAMING & actionable — commit low-risk/docs/verified work directly to `main`; open a PR only
+  when it earns one (large/risky, the money path, a preview-worthy visual, or a requested review);
+  merge-on-green when the owner has authorized it. See `CLAUDE.md` + `docs/BRAIN.md`. Self-updating
+  memory: repeated instruction / new convention / twice-made mistake → save it as you go.
 - **This chat = the WEBSITE POLISH + SEO chat (marketing only).** Shipped **PR #118**
   (`feat/website-premium-polish`) — a premium craft + SEO/AEO pass on the existing **Kudbee Quant**
   marketing site. Kudbee branding kept (Ascendancy rebrand stays PARKED); honest anti-hype voice

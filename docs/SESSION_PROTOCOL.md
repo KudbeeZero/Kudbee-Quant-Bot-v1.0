@@ -1,10 +1,17 @@
-# Session Relay Protocol — one chat, one PR, audited handoff
+# Session Relay Protocol — audited handoff (streaming workflow)
 
-> The container is ephemeral; continuity lives in git. This protocol turns each
-> Claude Code chat into **one reviewed unit of work** and makes the handoff
-> between sessions a durable, *audited* artifact instead of trust. It sits on top
-> of the memory layer (`docs/MEMORY.md`) — memory is *what we learned*, this is
-> *how we hand the baton*.
+> **UPDATE 2026-07-02 (owner-set):** the strict "one chat = one PR, never push to
+> `main`" rule is RETIRED in favor of the **streaming, actionable workflow** in
+> `CLAUDE.md` — commit low-risk/docs/verified work directly to `main`; open a PR only
+> when it earns one (large/risky change, the money path, a preview-worthy visual, or
+> a requested review). The baton + audit discipline below still stands; only the
+> one-PR bottleneck is gone. The text further down predates this and is kept for
+> history — read it through that lens.
+>
+> The container is ephemeral; continuity lives in git. This protocol makes the
+> handoff between sessions a durable, *audited* artifact instead of trust. It sits on
+> top of the memory layer (`docs/MEMORY.md` + `docs/BRAIN.md`) — memory is *what we
+> learned*, this is *how we hand the baton*.
 
 ## The loop (human-triggered, auditor-gated)
 

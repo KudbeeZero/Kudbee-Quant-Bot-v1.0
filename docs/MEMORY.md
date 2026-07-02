@@ -22,6 +22,13 @@ _Last updated: 2026-07-02 (§77)._
   sandbox — not a public signals/advisory product. Skip "this is/ isn't financial
   advice" framing and compliance hand-wringing; execute the directed change and report
   results honestly. Iteration + honest measurement is the whole point.
+- **🧠 SELF-UPDATING MEMORY + STREAMING WORKFLOW (2026-07-02, owner-set).** Write memory
+  AS YOU GO, not just at closeout: a repeated instruction → save it; a new agreed convention
+  → save it immediately; the same mistake twice → save it as a hard-negative + a guard/test.
+  File each under the right region in `docs/BRAIN.md` (the full cognitive map). Workflow: the
+  strict one-PR rule is retired — commit low-risk/docs/verified work directly to `main`; open
+  a PR only when it earns one (large/risky, the money path, a preview-worthy visual, or a
+  requested review); merge-on-green when the owner has authorized it. See `CLAUDE.md`.
 - **🔒 CONTAMINATION-WINDOW CHECK before shipping on a prior study (2026-07-01,
   owner-set — detail in §76).** Before any change justified by a prior study: verify the
   study's raw-data span AND the code-era that selected its population (signal version,

@@ -1,21 +1,41 @@
 # CLAUDE.md — standing instructions for this repo
 
 > Read this first, every session. It is short on purpose. The deep context lives
-> in `docs/MEMORY.md` (what we've learned/tested) and `docs/SESSION_PROTOCOL.md`
-> (how we hand off between chats).
+> in `docs/MEMORY.md` (what we've learned/tested), `docs/SESSION_PROTOCOL.md`
+> (how we hand off between chats), and `docs/BRAIN.md` (the full cognitive map —
+> every route to every memory layer, organized by brain region).
 
 ## Required reading at session start
 1. `docs/HANDOFF.md` — the baton: what the last chat did, the audit status, and
    THIS chat's branch + scope. (The SessionStart hook prints it for you.)
 2. `docs/MEMORY.md` — never re-derive or re-break settled work; honor its caveats.
+3. `docs/BRAIN.md` — the memory/cognitive architecture; when you add a capability
+   or a lesson, file it under the region it belongs to so the map never drifts.
 
-## Session Relay Protocol (how we work — see docs/SESSION_PROTOCOL.md)
-- **One chat = one PR.** Don't push straight to `main`. Don't start the next
-  branch until the previous PR is merged and `main` is synced.
-- **Start a chat** with `/handoff-audit` — it independently audits the previous
-  PR (diff vs. claims, tests, scope, honesty) and merges it only on a PASS.
-- **End a chat** with `/closeout` — it asks the handoff questions, updates memory,
-  opens the single PR, and sets the baton for the next chat.
+## Workflow: streaming, actionable (updated 2026-07-02, owner-set)
+The old strict "one chat = one PR, never push to `main`" rule is RETIRED. Default to
+the fastest safe path that keeps momentum:
+- **Commit directly to `main`** for docs/memory updates, small verified fixes, and
+  anything low-risk — the streaming, actionable workflow. Keep commits focused and
+  the message honest; run the suite when code changed.
+- **Open a PR** when it genuinely helps: a large or risky change, anything touching
+  the **live-execution / money path** (still owner-sign-off only), a change worth a
+  Cloudflare **preview** (website/visual), or when the owner asks to review first.
+- **Owner may authorize merge-on-green**; when he does, merge it. Otherwise a PR is
+  handed off "ready for review." Closing/withdrawing a PR is fine with permission.
+- `/handoff-audit` (wake) and `/closeout` (sleep) still frame a session, but no
+  longer force a single-PR bottleneck.
+
+## Standing rule: SELF-UPDATING MEMORY (owner-set 2026-07-02)
+The memory file should, over time, stop looking like documentation and start looking
+like the team. So **write memory as you go, not just at closeout**:
+- **Repeat an instruction → save it.** If the owner says a thing twice, it's a
+  convention: put it in `CLAUDE.md` (how we work) or `docs/MEMORY.md` (what's true).
+- **Agree on a new convention → save it immediately**, so it's honored next session.
+- **Make the same mistake twice → save it** as a hard-negative + a guard/test so the
+  lesion can't recur (e.g. §75 VWAP sign-pin test, §77 forming-candle test).
+File each under the right region in `docs/BRAIN.md`. A capability added without being
+filed is a blind spot.
 
 ## Standing preference: how every working reply ENDS
 When you finish a task or a unit of work, ALWAYS close the reply with two clearly
@@ -43,9 +63,10 @@ The user is the **owner**. He reviews; you execute. Operating rules:
 - **Tell the owner when a PR is READY.** When a PR's CI is green and it's in good
   shape, say so explicitly and plainly: "PR #N is ready for your review." Don't
   bury readiness or make him hunt for it.
-- **Merging is the owner's — and ONLY the owner's.** Never merge a PR yourself.
-  Prep it fully (green CI, clean diff, honest body), hand it off, and let him
-  merge. The merge decision and notification are his alone.
+- **Merging (updated 2026-07-02):** the owner may pre-authorize **merge-on-green** —
+  when he has, merge it yourself once CI is green and report the result. Absent that
+  authorization, prep the PR fully and hand it off for his merge. Anything touching
+  the **live-execution / money path** is always his explicit call, never merge-on-green.
 
 ## Standing preference: surface decisions as one-tap choices
 When the **Next** step (or any fork) is genuinely the user's call, present it with
