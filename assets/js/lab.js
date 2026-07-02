@@ -5,8 +5,8 @@
   var D = window.KUDBEE_LAB;
   if (!D) return;
   var NS = "http://www.w3.org/2000/svg";
-  var C = { honey: "#F5A623", honeyLt: "#FFD45E", mint: "#2DD4BF", red: "#F45B69",
-            blue: "#5B8DEF", text: "#EAF0FA", muted: "#9AA6BC", grid: "rgba(255,255,255,.08)" };
+  var C = { honey: "#E8842C", honeyLt: "#F2A65A", mint: "#9DB89C", red: "#D96459",
+            blue: "#5B8DEF", text: "#F4EFE6", muted: "#B7AC99", grid: "rgba(255,255,255,.08)" };
 
   function el(tag, attrs) {
     var e = document.createElementNS(NS, tag);
@@ -307,7 +307,7 @@
         var dir = e.net_direction > 0 ? "net long" : (e.net_direction < 0 ? "net short" : "flat");
         return '<div class="exp-row"><span class="exp-sym">' + e.symbol + '</span>' +
           '<span class="exp-bar"><i style="width:' + pctW.toFixed(0) + '%;background:' + col + '"></i></span>' +
-          '<span class="exp-amt">' + e.gross_risk_pct.toFixed(0) + '% <span style="color:#6A7488">' + dir + '</span></span></div>';
+          '<span class="exp-amt">' + e.gross_risk_pct.toFixed(0) + '% <span style="color:#847B6B">' + dir + '</span></span></div>';
       }).join("");
       host.innerHTML = rows;
       status.textContent = "Live · " + (j.total_gross_risk_pct || 0) + "% whole-book gross risk · cap " +

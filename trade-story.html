@@ -6,7 +6,7 @@
   <title>How Kudbee reads a trade — an illustrated walkthrough</title>
   <meta name="description" content="An illustrative, animated walkthrough of how the Kudbee Quant system reads a setup — five real patterns, a candle-by-candle reasoning log, and a plain-English glossary of every concept. Not live data, not a track record." />
   <meta name="robots" content="noindex, follow" />
-  <meta name="theme-color" content="#0b0a1f" />
+  <meta name="theme-color" content="#141109" />
   <link rel="canonical" href="https://kudbeex.xyz/trade-story.html" />
   <!-- Social-share preview only (page stays noindex — illustrative demo, not a track record) -->
   <meta property="og:type" content="website" />
@@ -31,24 +31,24 @@
   <!-- Same Google Fonts as the site -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 
   <link rel="stylesheet" href="assets/css/trade-story.css" />
 
   <style>
     /* Page-only chrome for the standalone explainer (not part of the widget). */
     :root {
-      --pg-bg: #0a0e17;
-      --pg-bg-2: #0d1320;
+      --pg-bg: #141109;
+      --pg-bg-2: #1A1610;
       --pg-surface: rgba(255,255,255,.025);
       --pg-border: rgba(255,255,255,.08);
       --pg-border-2: rgba(255,255,255,.14);
-      --pg-text: #EAF0FA;
-      --pg-muted: #9AA6BC;
-      --pg-dim: #6A7488;
-      --pg-honey-lt: #FFD45E;
-      --pg-honey: #F5A623;
-      --pg-mint: #2DD4BF;
+      --pg-text: #F4EFE6;
+      --pg-muted: #B7AC99;
+      --pg-dim: #847B6B;
+      --pg-honey-lt: #F2A65A;
+      --pg-honey: #E8842C;
+      --pg-mint: #9DB89C;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
@@ -57,8 +57,8 @@
       font-family: 'Inter', system-ui, sans-serif;
       color: var(--pg-text);
       background:
-        radial-gradient(620px circle at 20% -10%, rgba(245,166,35,.16), transparent 60%),
-        radial-gradient(680px circle at 85% 0%, rgba(45,212,191,.12), transparent 60%),
+        radial-gradient(620px circle at 20% -10%, rgba(232,132,44,.16), transparent 60%),
+        radial-gradient(680px circle at 85% 0%, rgba(157,184,156,.12), transparent 60%),
         var(--pg-bg);
       -webkit-font-smoothing: antialiased;
       display: flex;
@@ -84,7 +84,7 @@
       color: var(--pg-honey); margin-bottom: 14px;
     }
     .pg-head h1 {
-      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-family: 'Fraunces', system-ui, sans-serif;
       font-weight: 700; letter-spacing: -0.02em; line-height: 1.1;
       font-size: clamp(1.9rem, 4.5vw, 2.9rem);
       margin-bottom: 14px;
@@ -103,7 +103,7 @@
       padding: 26px 26px 28px;
     }
     .pg-section h2 {
-      font-family: 'Space Grotesk', system-ui, sans-serif;
+      font-family: 'Fraunces', system-ui, sans-serif;
       font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em;
       margin-bottom: 6px;
     }
@@ -139,8 +139,8 @@
     .gloss .tag {
       font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 10px; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--pg-mint); border: 1px solid rgba(45,212,191,.3);
-      border-radius: 5px; padding: 1px 6px; background: rgba(45,212,191,.07);
+      color: var(--pg-mint); border: 1px solid rgba(157,184,156,.3);
+      border-radius: 5px; padding: 1px 6px; background: rgba(157,184,156,.07);
     }
     .gloss dd { color: var(--pg-muted); font-size: .9rem; line-height: 1.55; }
 
@@ -157,7 +157,7 @@
       text-transform: uppercase; letter-spacing: .05em;
       border-radius: 5px; padding: 2px 7px; align-self: center;
     }
-    .setup__dir.long  { color: var(--pg-mint);  border: 1px solid rgba(45,212,191,.3); background: rgba(45,212,191,.07); }
+    .setup__dir.long  { color: var(--pg-mint);  border: 1px solid rgba(157,184,156,.3); background: rgba(157,184,156,.07); }
     .setup__dir.short { color: #ff7a7a; border: 1px solid rgba(255,122,122,.3); background: rgba(255,122,122,.07); }
     .setup__desc { color: var(--pg-muted); font-size: .9rem; }
 

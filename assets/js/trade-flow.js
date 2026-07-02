@@ -140,7 +140,7 @@
     });
     var passed = gatePassed(bar);
     html += '<path d="' + edgePath(gate, trade) + '" fill="none" stroke="' +
-      (passed ? "#F5A623" : "#3a3566") + '" stroke-width="2"/>';
+      (passed ? "#E8842C" : "#3a3566") + '" stroke-width="2"/>';
     edgesSvg.innerHTML = html;
   }
 

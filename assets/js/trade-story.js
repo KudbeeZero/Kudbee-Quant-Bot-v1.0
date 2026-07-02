@@ -58,9 +58,9 @@
       ],
       idx: { SWEEP: 5, RECLAIM: 6, NECKLINE: 9, RIGHTFOOT: 12, BREAKOUT: 14, TARGET: 17 },
       levels: [
-        { price: 64760, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: false },
-        { price: 65000, label: "Psych High", color: "#6A7488", dash: [], faint: true },
-        { price: 64000, label: "Psych Low", color: "#F5A623", dash: [2, 3], faint: false },
+        { price: 64760, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: false },
+        { price: 65000, label: "Psych High", color: "#847B6B", dash: [], faint: true },
+        { price: 64000, label: "Psych Low", color: "#E8842C", dash: [2, 3], faint: false },
       ],
       bracket: { entry: 64540, stop: 63720, dir: 1, rMult: 3, startIdx: 14 },
       result: { r: "+3R" },
@@ -122,9 +122,9 @@
       ],
       idx: { SWEEP: 4, RECLAIM: 5, LOWERHIGH: 9, BREAKOUT: 12, TARGET: 16 },
       levels: [
-        { price: 65000, label: "Psych High", color: "#F5A623", dash: [2, 3], faint: false },
-        { price: 64600, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: false },
-        { price: 64000, label: "Psych Low", color: "#6A7488", dash: [], faint: true },
+        { price: 65000, label: "Psych High", color: "#E8842C", dash: [2, 3], faint: false },
+        { price: 64600, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: false },
+        { price: 64000, label: "Psych Low", color: "#847B6B", dash: [], faint: true },
       ],
       bracket: { entry: 64520, stop: 64860, dir: -1, rMult: 3, startIdx: 12 },
       result: { r: "+3R" },
@@ -182,9 +182,9 @@
       ],
       idx: { SWEEP: 6, RECLAIM: 7, NECKLINE: 9, RIGHTFOOT: 10, BREAKOUT: 11, TARGET: 13 },
       levels: [
-        { price: 64900, label: "Asian High", color: "#2DD4BF", dash: [6, 5], faint: false },
-        { price: 64650, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
-        { price: 64300, label: "Asian Low", color: "#F5A623", dash: [2, 3], faint: false },
+        { price: 64900, label: "Asian High", color: "#9DB89C", dash: [6, 5], faint: false },
+        { price: 64650, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: true },
+        { price: 64300, label: "Asian Low", color: "#E8842C", dash: [2, 3], faint: false },
       ],
       bracket: { entry: 64330, stop: 64040, dir: 1, rMult: 3, startIdx: 7 },
       result: { r: "+3R" },
@@ -244,9 +244,9 @@
       ],
       idx: { SWEEP: 4, RECLAIM: 5, LOWERHIGH: 9, BREAKOUT: 12, TARGET: 15 },
       levels: [
-        { price: 65200, label: "Prior-day High", color: "#F5A623", dash: [2, 3], faint: false },
-        { price: 64950, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
-        { price: 64200, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: false },
+        { price: 65200, label: "Prior-day High", color: "#E8842C", dash: [2, 3], faint: false },
+        { price: 64950, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: true },
+        { price: 64200, label: "Prior-day Low", color: "#9DB89C", dash: [6, 5], faint: false },
       ],
       bracket: { entry: 64760, stop: 65120, dir: -1, rMult: 3, startIdx: 12 },
       result: { r: "+3R" },
@@ -304,9 +304,9 @@
       ],
       idx: { SWEEP: 5, RECLAIM: 6, NECKLINE: 9, RIGHTFOOT: 10, BREAKOUT: 11, TARGET: 13 },
       levels: [
-        { price: 64500, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: false },
-        { price: 64450, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: true },
-        { price: 64000, label: "Psych Low", color: "#6A7488", dash: [], faint: true },
+        { price: 64500, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: false },
+        { price: 64450, label: "Prior-day Low", color: "#9DB89C", dash: [6, 5], faint: true },
+        { price: 64000, label: "Psych Low", color: "#847B6B", dash: [], faint: true },
       ],
       bracket: { entry: 64760, stop: 64300, dir: 1, rMult: 3, startIdx: 11 },
       result: { r: "+3R" },
@@ -366,9 +366,9 @@
       ],
       idx: { SWEEP: 4, RECLAIM: 5, LOWERHIGH: 9, BREAKOUT: 12, TARGET: 15 },
       levels: [
-        { price: 64900, label: "50-EMA (resist)", color: "#F5A623", dash: [2, 3], faint: false },
-        { price: 64560, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
-        { price: 63700, label: "Prior-day Low", color: "#2DD4BF", dash: [6, 5], faint: false },
+        { price: 64900, label: "50-EMA (resist)", color: "#E8842C", dash: [2, 3], faint: false },
+        { price: 64560, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: true },
+        { price: 63700, label: "Prior-day Low", color: "#9DB89C", dash: [6, 5], faint: false },
       ],
       bracket: { entry: 64500, stop: 64780, dir: -1, rMult: 3, startIdx: 12 },
       result: { r: "+3R" },
@@ -426,9 +426,9 @@
       ],
       idx: { SWEEP: 9, RECLAIM: 10, LOWERHIGH: 9, BREAKOUT: 10, TARGET: 14 },
       levels: [
-        { price: 64450, label: "Range Low → resist", color: "#F5A623", dash: [2, 3], faint: false },
-        { price: 64650, label: "Range High", color: "#6A7488", dash: [], faint: true },
-        { price: 63700, label: "Measured Move", color: "#2DD4BF", dash: [6, 5], faint: false },
+        { price: 64450, label: "Range Low → resist", color: "#E8842C", dash: [2, 3], faint: false },
+        { price: 64650, label: "Range High", color: "#847B6B", dash: [], faint: true },
+        { price: 63700, label: "Measured Move", color: "#9DB89C", dash: [6, 5], faint: false },
       ],
       bracket: { entry: 64360, stop: 64560, dir: -1, rMult: 3, startIdx: 10 },
       result: { r: "+3R" },
@@ -486,9 +486,9 @@
       ],
       idx: { SWEEP: 4, RECLAIM: 5, NECKLINE: 7, RIGHTFOOT: 9, BREAKOUT: 11, TARGET: 13 },
       levels: [
-        { price: 64360, label: "50-EMA (support)", color: "#2DD4BF", dash: [6, 5], faint: false },
-        { price: 64200, label: "Daily Open", color: "#9AA6BC", dash: [6, 5], faint: true },
-        { price: 64600, label: "Prior-day High", color: "#6A7488", dash: [], faint: true },
+        { price: 64360, label: "50-EMA (support)", color: "#9DB89C", dash: [6, 5], faint: false },
+        { price: 64200, label: "Daily Open", color: "#B7AC99", dash: [6, 5], faint: true },
+        { price: 64600, label: "Prior-day High", color: "#847B6B", dash: [], faint: true },
       ],
       bracket: { entry: 64470, stop: 64190, dir: 1, rMult: 3, startIdx: 11 },
       result: { r: "+3R" },
@@ -813,7 +813,7 @@
       lineSeg(x0, yS, x0 + w, yS, "rgba(255,93,93,.7)");
       lineSeg(x0, yT, x0 + w, yT, "rgba(61,220,132,.7)");
       ctx.setLineDash([]);
-      lineSeg(x0, yE, x0 + w, yE, "rgba(245,166,35,.85)");
+      lineSeg(x0, yE, x0 + w, yE, "rgba(232,132,44,.85)");
       ctx.restore();
 
       if (p > 0.55) {
@@ -821,7 +821,7 @@
         ctx.save();
         ctx.font = "500 " + fs + "px 'JetBrains Mono', ui-monospace, monospace";
         ctx.textBaseline = "middle";
-        bracketLabel("ENTRY", x0 + 6, yE, "#FFD45E");
+        bracketLabel("ENTRY", x0 + 6, yE, "#F2A65A");
         bracketLabel("STOP", x0 + 6, yS, "#ff8a8a");
         bracketLabel(br.rMult + "R TARGET", x0 + 6, yT, "#7af0ab");
         ctx.restore();

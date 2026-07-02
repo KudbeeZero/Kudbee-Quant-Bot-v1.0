@@ -44,8 +44,8 @@
   background: radial-gradient(80% 60% at 50% 0%, var(--scene-tint, transparent), transparent 70%);
   opacity: .5;
 }
-.scene[data-scene="honey"] { --scene-tint: rgba(245,166,35,.10); }
-.scene[data-scene="mint"]  { --scene-tint: rgba(45,212,191,.10); }
+.scene[data-scene="honey"] { --scene-tint: rgba(232,132,44,.10); }
+.scene[data-scene="mint"]  { --scene-tint: rgba(157,184,156,.10); }
 .scene[data-scene="violet"]{ --scene-tint: rgba(139,121,255,.10); }
 .scene[data-scene="cool"]  { --scene-tint: rgba(96,140,255,.09); }
 

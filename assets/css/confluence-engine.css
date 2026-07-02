@@ -9,8 +9,8 @@
 .engine__bg {
   position: absolute; inset: 0; pointer-events: none; z-index: 0;
   background:
-    radial-gradient(60% 50% at 18% 0%, rgba(245,166,35,.07), transparent 70%),
-    radial-gradient(50% 60% at 100% 30%, rgba(46,211,168,.06), transparent 70%);
+    radial-gradient(60% 50% at 18% 0%, rgba(232,132,44,.07), transparent 70%),
+    radial-gradient(50% 60% at 100% 30%, rgba(157,184,156,.06), transparent 70%);
 }
 .engine > .container { position: relative; z-index: 1; }
 
@@ -39,7 +39,7 @@
   content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--g-color, var(--honey));
   box-shadow: 0 0 10px 0 var(--g-color, var(--honey));
 }
-.fgroup[data-group="trend"]       { --g-color: #FFD45E; }
+.fgroup[data-group="trend"]       { --g-color: #F2A65A; }
 .fgroup[data-group="level"]       { --g-color: #6FB7FF; }
 .fgroup[data-group="smart_money"] { --g-color: #2ED3A8; }
 
@@ -99,10 +99,10 @@
 .consensus__hint { color: var(--muted); font-size: 12.5px; margin: 8px 0 16px; line-height: 1.5; }
 
 .gauge { --pct: 0; --thresh: 50; position: relative; height: 12px; border-radius: 999px;
-  background: var(--bg, #0a0e17); border: 1px solid var(--border, #1d2942); overflow: hidden; }
+  background: var(--bg, #141109); border: 1px solid var(--border, #1d2942); overflow: hidden; }
 .gauge__fill {
   position: absolute; inset: 0 auto 0 0; width: calc(var(--pct) * 1%);
-  background: linear-gradient(90deg, #F5A623, #2ED3A8);
+  background: linear-gradient(90deg, #E8842C, #2ED3A8);
   transition: width .4s var(--ease, cubic-bezier(.2,.7,.2,1));
 }
 .gauge__thresh {
@@ -130,9 +130,9 @@
   background: var(--surface, #0e1626); color: var(--muted); border: 1px solid var(--border-2, #243352);
   border-radius: 999px; padding: 8px 15px; transition: color .2s, border-color .2s;
 }
-.consensus__reset:hover { color: var(--text); border-color: var(--honey, #F5A623); }
+.consensus__reset:hover { color: var(--text); border-color: var(--honey, #E8842C); }
 .consensus__foot { color: var(--muted); font-size: 12px; margin-top: 16px; line-height: 1.55; }
-.consensus__foot a { color: var(--honey-lt, #FFD45E); text-decoration: none; border-bottom: 1px solid transparent; }
+.consensus__foot a { color: var(--honey-lt, #F2A65A); text-decoration: none; border-bottom: 1px solid transparent; }
 .consensus__foot a:hover { border-bottom-color: currentColor; }
 
 /* ---- hero ambient FX canvas (drawn by hero-fx.js; decorative only) ---- */

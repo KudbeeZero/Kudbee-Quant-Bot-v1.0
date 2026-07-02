@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#0a0e17" />
+  <meta name="theme-color" content="#141109" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; base-uri 'self'; frame-ancestors 'none'; object-src 'none'" />
   <title>The Lab — Kudbee Quant</title>
   <meta name="description" content="The Kudbee Quant research lab: real backtest charts — position-sizing on $100, TP1-vs-TP2 hit rates, fee sensitivity, and the double-top/bottom edge. Risk shown as loudly as return." />
@@ -27,42 +27,42 @@
   <link rel="icon" type="image/svg+xml" href="assets/img/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="assets/css/style.css?v=3" />
   <style>
     .lab { max-width: 1080px; margin: 0 auto; padding: 5rem 1.25rem 4rem; }
-    .lab__hero h1 { font-family:'Space Grotesk',sans-serif; font-size:2.4rem; margin:0 0 .4rem; }
-    .lab__hero p { color:#9AA6BC; max-width:60ch; line-height:1.6; }
+    .lab__hero h1 { font-family:'Fraunces',sans-serif; font-size:2.4rem; margin:0 0 .4rem; }
+    .lab__hero p { color:#B7AC99; max-width:60ch; line-height:1.6; }
     .lab__hero .tag { display:inline-block; font-family:'JetBrains Mono',monospace; font-size:.72rem;
-      color:#2DD4BF; border:1px solid rgba(45,212,191,.4); border-radius:999px; padding:.2rem .7rem; margin-bottom:1rem; }
+      color:#9DB89C; border:1px solid rgba(157,184,156,.4); border-radius:999px; padding:.2rem .7rem; margin-bottom:1rem; }
     .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.9rem; margin:2rem 0; }
     .stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:14px; padding:1rem 1.1rem; }
-    .stat__v { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700; color:#EAF0FA; }
-    .stat__l { font-size:.78rem; color:#9AA6BC; margin-top:.2rem; }
-    .panel { background:#0d1320; border:1px solid rgba(255,255,255,.09); border-radius:18px;
+    .stat__v { font-family:'Fraunces',sans-serif; font-size:1.6rem; font-weight:700; color:#F4EFE6; }
+    .stat__l { font-size:.78rem; color:#B7AC99; margin-top:.2rem; }
+    .panel { background:#1A1610; border:1px solid rgba(255,255,255,.09); border-radius:18px;
       padding:1.4rem 1.5rem; margin:1.6rem 0; }
-    .panel h2 { font-family:'Space Grotesk',sans-serif; font-size:1.25rem; margin:0 0 .2rem; }
-    .panel .sub { color:#9AA6BC; font-size:.9rem; margin:0 0 1rem; line-height:1.55; }
-    .panel .takeaway { margin-top:1rem; font-size:.88rem; color:#c4d0e6; border-left:3px solid #F5A623;
-      padding:.5rem .9rem; background:rgba(245,166,35,.05); border-radius:0 8px 8px 0; }
+    .panel h2 { font-family:'Fraunces',sans-serif; font-size:1.25rem; margin:0 0 .2rem; }
+    .panel .sub { color:#B7AC99; font-size:.9rem; margin:0 0 1rem; line-height:1.55; }
+    .panel .takeaway { margin-top:1rem; font-size:.88rem; color:#c4d0e6; border-left:3px solid #E8842C;
+      padding:.5rem .9rem; background:rgba(232,132,44,.05); border-radius:0 8px 8px 0; }
     .chart-wrap { width:100%; overflow-x:auto; }
     .calc { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1rem; margin:.5rem 0 1rem; }
-    .calc label { display:flex; flex-direction:column; gap:.35rem; font-size:.8rem; color:#9AA6BC; }
-    .calc input { background:#0a0e17; border:1px solid rgba(255,255,255,.14); border-radius:10px;
-      padding:.6rem .7rem; color:#EAF0FA; font-family:'JetBrains Mono',monospace; font-size:1rem; }
-    .calc input:focus { outline:none; border-color:#F5A623; }
+    .calc label { display:flex; flex-direction:column; gap:.35rem; font-size:.8rem; color:#B7AC99; }
+    .calc input { background:#141109; border:1px solid rgba(255,255,255,.14); border-radius:10px;
+      padding:.6rem .7rem; color:#F4EFE6; font-family:'JetBrains Mono',monospace; font-size:1rem; }
+    .calc input:focus { outline:none; border-color:#E8842C; }
     .calc-out { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:.9rem; }
     .calc-out .co { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.09); border-radius:12px; padding:.85rem 1rem; }
-    .calc-out .co__v { font-family:'Space Grotesk',sans-serif; font-size:1.35rem; font-weight:700; }
-    .calc-out .co__l { font-size:.74rem; color:#9AA6BC; margin-top:.15rem; }
-    .co--good .co__v { color:#2DD4BF; } .co--warn .co__v { color:#FFD45E; } .co--bad .co__v { color:#F45B69; }
+    .calc-out .co__v { font-family:'Fraunces',sans-serif; font-size:1.35rem; font-weight:700; }
+    .calc-out .co__l { font-size:.74rem; color:#B7AC99; margin-top:.15rem; }
+    .co--good .co__v { color:#9DB89C; } .co--warn .co__v { color:#F2A65A; } .co--bad .co__v { color:#D96459; }
     .exp-row { display:grid; grid-template-columns:90px 1fr 64px; align-items:center; gap:.8rem; padding:.4rem 0; font-size:.88rem; }
-    .exp-row .exp-sym { font-family:'JetBrains Mono',monospace; color:#EAF0FA; }
+    .exp-row .exp-sym { font-family:'JetBrains Mono',monospace; color:#F4EFE6; }
     .exp-bar { height:14px; background:rgba(255,255,255,.06); border-radius:7px; overflow:hidden; position:relative; }
     .exp-bar > i { display:block; height:100%; border-radius:7px; }
     .exp-amt { font-family:'JetBrains Mono',monospace; text-align:right; color:#c4d0e6; }
-    .lab__disc { margin-top:2rem; font-size:.82rem; color:#7a88aa; border-left:3px solid #F45B69; padding-left:.9rem; line-height:1.6; }
-    .lab__foot { margin-top:1.5rem; font-size:.75rem; color:#6A7488; font-family:'JetBrains Mono',monospace; }
+    .lab__disc { margin-top:2rem; font-size:.82rem; color:#7a88aa; border-left:3px solid #D96459; padding-left:.9rem; line-height:1.6; }
+    .lab__foot { margin-top:1.5rem; font-size:.75rem; color:#847B6B; font-family:'JetBrains Mono',monospace; }
     /* Mobile adjustments */
     @media (max-width:680px) {
       .lab { padding: 5.5rem 1rem 3rem; }
@@ -139,10 +139,10 @@
         because that is the only honest way to show an edge.</p>
     </section>
 
-    <a href="leverage-report.html" style="display:block;margin:0 0 26px;padding:24px 26px;border-radius:16px;background:linear-gradient(180deg,rgba(245,166,35,.10),rgba(255,255,255,.03));border:1px solid rgba(245,166,35,.35);transition:border-color .2s;">
-      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:#FFD45E;">NEW · INVESTOR RESEARCH BRIEF →</span>
-      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:1.45rem;margin:.4rem 0 .5rem;color:#EAF0FA;">Leverage &amp; break-even viability — the full write-up</h2>
-      <p style="color:#9AA6BC;max-width:70ch;line-height:1.6;margin:0;">Does tiny-stake, high-leverage, move-to-break-even management actually survive real fees and liquidation? 497 trades, pre-registered. 50× is a ruin machine; a marginal edge survives only at near-zero maker fees and ≤10× — and only if maker fills are real. Read the honest, gated brief.</p>
+    <a href="leverage-report.html" style="display:block;margin:0 0 26px;padding:24px 26px;border-radius:16px;background:linear-gradient(180deg,rgba(232,132,44,.10),rgba(255,255,255,.03));border:1px solid rgba(232,132,44,.35);transition:border-color .2s;">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:#F2A65A;">NEW · INVESTOR RESEARCH BRIEF →</span>
+      <h2 style="font-family:'Fraunces',sans-serif;font-size:1.45rem;margin:.4rem 0 .5rem;color:#F4EFE6;">Leverage &amp; break-even viability — the full write-up</h2>
+      <p style="color:#B7AC99;max-width:70ch;line-height:1.6;margin:0;">Does tiny-stake, high-leverage, move-to-break-even management actually survive real fees and liquidation? 497 trades, pre-registered. 50× is a ruin machine; a marginal edge survives only at near-zero maker fees and ≤10× — and only if maker fills are real. Read the honest, gated brief.</p>
     </a>
 
     <div class="stats">
@@ -215,8 +215,8 @@
         than any setting. Choose a venue and see the per‑trade expectancy it leaves
         you (round‑trip maker cost, interpolated from the measured curve). These are
         approximate published fees — always confirm and forward‑test.</p>
-      <label style="display:block;font-size:.85rem;color:#9AA6BC;margin-bottom:.6rem;">Exchange / venue
-        <select id="venue-sel" style="display:block;margin-top:.35rem;background:#0a0e17;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.55rem .7rem;color:#EAF0FA;font-family:'JetBrains Mono',monospace;min-width:240px;max-width:100%;"></select>
+      <label style="display:block;font-size:.85rem;color:#B7AC99;margin-bottom:.6rem;">Exchange / venue
+        <select id="venue-sel" style="display:block;margin-top:.35rem;background:#141109;border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:.55rem .7rem;color:#F4EFE6;font-family:'JetBrains Mono',monospace;min-width:240px;max-width:100%;"></select>
       </label>
       <div id="venue-out" class="calc-out"></div>
       <div class="takeaway">Same strategy, same trades — only the venue changed. A
