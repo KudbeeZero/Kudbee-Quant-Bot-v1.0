@@ -140,7 +140,13 @@ class BinanceClient:
         e_ms = int(end_ts.timestamp() * 1000)
         step = _INTERVAL_MS[interval]
 
-        key = f"binance-range:{symbol}:{interval}:{s_ms}:{e_ms}"
+        # Cache key: when end is open-ended (now), snap the key to the last CLOSED
+        # bar boundary. Otherwise the raw millisecond `now` changes the key every
+        # call, so the disk cache is never reused and the dir grows unbounded — the
+        # opposite of the "reused for free" docstring. The fetch window is unchanged;
+        # only the key is stabilized to the current bar.
+        key_e = e_ms if end is not None else (e_ms // step) * step
+        key = f"binance-range:{symbol}:{interval}:{s_ms}:{key_e}"
         cached = self.cache.get(key, ttl_seconds=cache_ttl)
         if cached is not None:
             return cached

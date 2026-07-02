@@ -79,7 +79,15 @@ def performance_metrics(
     equity = (1.0 + r).cumprod()
     total_return = float(equity.iloc[-1] - 1.0)
     years = n / periods_per_year
-    cagr = float(equity.iloc[-1] ** (1.0 / years) - 1.0) if years > 0 else 0.0
+    terminal = float(equity.iloc[-1])
+    # A wiped-out (or negative) terminal equity makes the fractional power NaN
+    # (complex root) and silently poisons cagr/calmar. Total loss => cagr -100%.
+    if years <= 0:
+        cagr = 0.0
+    elif terminal <= 0:
+        cagr = -1.0
+    else:
+        cagr = float(terminal ** (1.0 / years) - 1.0)
 
     ann_vol = float(r.std(ddof=1) * np.sqrt(periods_per_year)) if n > 1 else 0.0
     mean = float(r.mean())
@@ -87,7 +95,10 @@ def performance_metrics(
 
     downside = r[r < 0]
     dstd = float(downside.std(ddof=1)) if downside.size > 1 else 0.0
-    sortino = float(mean / dstd * np.sqrt(periods_per_year)) if dstd > 0 else 0.0
+    # No measurable downside: Sortino is undefined, not zero. Reporting 0.0 would
+    # rank a no-loss strategy as the WORST; float('inf') is the honest signal.
+    sortino = (float(mean / dstd * np.sqrt(periods_per_year)) if dstd > 0
+               else (float("inf") if mean > 0 else 0.0))
 
     mdd = max_drawdown(equity)
     calmar = float(cagr / abs(mdd)) if mdd < 0 else 0.0

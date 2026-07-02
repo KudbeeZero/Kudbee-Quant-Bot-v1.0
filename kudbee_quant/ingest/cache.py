@@ -42,13 +42,25 @@ class DataCache:
         data_path, meta_path = self._paths(key)
         if not (data_path.exists() and meta_path.exists()):
             return None
-        meta = json.loads(meta_path.read_text())
-        age = time.time() - meta.get("fetched_at", 0)
-        if age > ttl_seconds:
-            return None  # stale — force a refetch rather than lie about freshness
-        return pd.read_parquet(data_path)
+        # A crash mid-write (or a truncated meta file) must be treated as a cache
+        # MISS — force a clean refetch — never a hard error that kills the caller.
+        try:
+            meta = json.loads(meta_path.read_text())
+            age = time.time() - meta.get("fetched_at", 0)
+            if age > ttl_seconds:
+                return None  # stale — force a refetch rather than lie about freshness
+            return pd.read_parquet(data_path)
+        except Exception:
+            return None
 
     def put(self, key: str, df: pd.DataFrame) -> None:
         data_path, meta_path = self._paths(key)
-        df.to_parquet(data_path, index=False)
-        meta_path.write_text(json.dumps({"fetched_at": time.time(), "rows": len(df), "key": key}))
+        # Write to temp files then atomically rename, so a crash can never leave a
+        # half-written parquet or a data/meta pair that disagree (a reader would
+        # otherwise serve a truncated frame or raise on a partial meta.json).
+        tmp_data = data_path.with_suffix(data_path.suffix + ".tmp")
+        tmp_meta = meta_path.with_suffix(meta_path.suffix + ".tmp")
+        df.to_parquet(tmp_data, index=False)
+        tmp_data.replace(data_path)
+        tmp_meta.write_text(json.dumps({"fetched_at": time.time(), "rows": len(df), "key": key}))
+        tmp_meta.replace(meta_path)
