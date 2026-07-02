@@ -96,6 +96,56 @@ def test_klines_range_pages_forward_and_caches(tmp_path):
     assert sess.calls == before and len(df2) == 2500
 
 
+def test_drop_forming_bar_removes_only_the_open_candle():
+    """The live scan must read CLOSED bars only — a still-forming final candle
+    (close_time in the future) is dropped; a closed final candle is kept."""
+    from kudbee_quant.ingest.binance import BinanceClient, _INTERVAL_MS
+    step = _INTERVAL_MS["1h"]
+
+    def row(ot):
+        return [ot, 100.0, 101.0, 99.0, 100.5, 10.0, ot + step - 1,
+                1000.0, 5, 5.0, 500.0, "0"]
+
+    # now sits INSIDE the last bar -> that bar is still forming -> dropped.
+    now_ms = 10 * step + step // 2
+    rows = [row(i * step) for i in range(11)]  # bars 0..10; bar 10 is forming
+    kept = BinanceClient._drop_forming_bar(rows, now_ms=now_ms)
+    assert len(kept) == 10 and kept[-1][0] == 9 * step
+
+    # now is PAST the last bar's close -> nothing dropped (historical window).
+    now_after = 11 * step + 1
+    assert len(BinanceClient._drop_forming_bar(rows, now_ms=now_after)) == 11
+
+    # empty is safe.
+    assert BinanceClient._drop_forming_bar([], now_ms=now_ms) == []
+
+
+def test_klines_drops_forming_last_bar(tmp_path):
+    """End-to-end: klines() returns one fewer row than Binance sent when the last
+    candle is still open, and the surviving last bar is the most recent CLOSED one."""
+    from kudbee_quant.ingest.binance import BinanceClient, _INTERVAL_MS
+    from kudbee_quant.ingest.cache import DataCache
+    import time as _time
+
+    step = _INTERVAL_MS["1h"]
+    now_ms = int(_time.time() * 1000)
+    last_open = (now_ms // step) * step          # the currently-forming bar's open
+    opens = [last_open - i * step for i in range(4, -1, -1)]  # 5 bars, newest forming
+
+    def row(ot):
+        return [ot, 100.0, 101.0, 99.0, 100.5, 10.0, ot + step - 1,
+                1000.0, 5, 5.0, 500.0, "0"]
+
+    class Sess:
+        def get(self, url, params=None, timeout=None):
+            return _Resp([row(o) for o in opens])
+
+    client = BinanceClient(cache=DataCache(tmp_path), session=Sess(), bases=("https://x",))
+    df = client.klines("BTCUSDT", interval="1h", limit=5)
+    assert len(df) == 4                                    # forming bar dropped
+    assert df["timestamp"].iloc[-1] == pd.Timestamp(opens[-2], unit="ms", tz="UTC")
+
+
 class _Resp:
     def __init__(self, data):
         self._data = data

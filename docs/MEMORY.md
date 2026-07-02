@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-01 (§76)._
+_Last updated: 2026-07-02 (§77)._
 
 ---
 
@@ -2254,3 +2254,29 @@ period. If it does: quantify the overlap; if the clean subset still supports the
 conclusion at reasonable confidence, proceed with the downgraded evidence noted; if not,
 RERUN on clean data before shipping, and ship what the clean data supports — never the
 prior conclusion by default. (Also recorded in STANDING USER PREFERENCES.)
+
+## 77. Live bot was scanning a HALF-FORMED candle — fixed to read CLOSED bars only — 2026-07-02 (PR #136, owner-directed)
+
+Found by the 2026-07-02 engine review (`docs/audits/security-review-2026-07-02.md`, finding E3).
+Binance `/klines` returns the currently-forming candle as its last row; `paper_scan`
+evaluates the signal on `confluence_score(f).iloc[-1]` (`paper/paper.py:264`). The hourly
+cron fires ~5 min into a 1h bar, so the "current" bar's close/ATR/EMA/VWAP were all
+PROVISIONAL — the bot was reading a candle that was ~8% formed. A bar-close strategy must
+read the last CLOSED bar. (Yahoo ingest already dropped its partial tick-row, §29 — the two
+paths had silently disagreed since inception.)
+
+**Fix:** `BinanceClient._drop_forming_bar(rows, now_ms)` drops the final row when its
+`close_time` is still in the future; wired into both `klines()` and `klines_range()`. It is a
+**no-op for historical windows** (a past window's last bar is already closed), so backtest
+frames — including the §41 windows — are byte-identical and reproducibility holds. `now_ms`
+injectable for deterministic tests (`tests/test_ingest.py`: unit + e2e klines drop).
+
+**Impact (measured live at fix time):** 1/10 top-10 1h signals differed between the forming
+bar and the last closed bar — SOL showed +1 long at 60% confluence on the forming bar but
+only 30% on the closed bar (i.e. the bot would have opened a trade a completed candle does
+NOT support). Varies hourly; the point is the bot no longer acts on provisional data.
+**This is a genuine live-path behavior change** (which signals fire) and a plausible partial
+explanation of the long-standing live-vs-backtest execution gap (§48/§41): the backtest
+resolves on closed bars, but the live scan had been reading forming ones. **WATCH the
+post-fix forward record** as a new sub-era on top of the §75/§76 momentum+ride-3R config.
+731 tests. E2 (binance.us cross-venue mislabel) remains FLAGGED, not fixed.
