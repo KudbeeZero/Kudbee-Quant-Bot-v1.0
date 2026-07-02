@@ -7,207 +7,99 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`.
-- **⚙️ WORKFLOW (updated 2026-07-02, owner-set — supersedes the old SERIAL/one-PR rule):**
-  STREAMING & actionable — commit low-risk/docs/verified work directly to `main`; open a PR only
-  when it earns one (large/risky, the money path, a preview-worthy visual, or a requested review);
-  merge-on-green when the owner has authorized it. See `CLAUDE.md` + `docs/BRAIN.md`. Self-updating
-  memory: repeated instruction / new convention / twice-made mistake → save it as you go.
-- **✅ N1+N2 DONE (2026-07-02, §78, /code-review'd, direct-to-main):** binance.us cross-venue
-  data honesty — frames tagged `source_venues`, loud warning on `.us` fallback, tag persisted
-  through the cache so reuse can't launder it (the /code-review HIGH); Pine indicator synced
-  (momentum VWAP §75, ride-3R §76, `barstate.isconfirmed` closed-bar gating §77). 734 tests.
-- **🧭 CROSSROADS BOARD (new 2026-07-02):** `docs/CROSSROADS.md` is the live decision surface —
-  every open fork (owner-decisions X1-X3, do-next N1-N3, watch W1-W2) with evidence + recommended
-  default. Move a row the same turn a decision is made. `docs/BRAIN.md` Part II adds the creative +
-  decision-making council (DMN/reward/OFC/insula/frontopolar) mapped to real files.
-- **This chat = the WEBSITE POLISH + SEO chat (marketing only).** Shipped **PR #118**
-  (`feat/website-premium-polish`) — a premium craft + SEO/AEO pass on the existing **Kudbee Quant**
-  marketing site. Kudbee branding kept (Ascendancy rebrand stays PARKED); honest anti-hype voice
-  preserved; **no fabricated stats / performance claims**. Marketing CSS/HTML + static assets only —
-  NO backend/API, trading/execution, resolver/bracket/journal, or workflow changes. 582 tests green
-  (unchanged trading core).
-- **Owner-authorized BOTH open PRs merged on closeout (2026-06-27):** **#118** (this chat, website) and
-  **#117** (prior-chat §41-gap pre-registration, docs-only) — both green, both squash-merged into `main`
-  at the owner's explicit "Close and merge all PRs."
-- **NOTHING new is live from this chat** beyond marketing pages + Formspree wiring on the static site.
-  Trading core byte-identical; `data/journal.json` bot-owned (only routine bot syncs via `main`).
-- **Audit status:** `CLEAR` (2026-07-01) — post-hoc audits DONE: **#118 PASS WITH NOTES**
-  (`docs/audits/pr-118-posthoc.md` — undisclosed shadow-scorer files in a "marketing only" PR)
-  and **#117 PASS** (`docs/audits/pr-117-posthoc.md`). Repo-state audit merged as **PR #127**
-  (`docs/audits/claude-kudbee-quant-audit-v1-is91p2.md`). MEMORY **§73** records: study #116 +
-  forward shadow (A>B both ways), the live book's `--tp1-frac 0.5` provenance (**PR #94,
-  owner-merged 2026-06-24** — deliberate, was undocumented), and the **§70 deadline checkpoint:
-  trigger met, verdict KEEP** (core net −0.245R pre-#96 → **+0.227R** post, n=56; `_cts` +0.379R,
-  n=36). (The "measured-worst geometry B" standing fact was RESOLVED 2026-07-01 by the §76
-  clean rerun + PR #131 — the paper book now runs ride-3R; see the NEXT-chat section.)
+- **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
+  work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
+  preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
+  See `CLAUDE.md` + `docs/BRAIN.md`. Self-updating memory: repeated instruction / new convention /
+  twice-made mistake → save it as you go.
+- **🧭 THE LIVE DECISION SURFACE IS `docs/CROSSROADS.md`, NOT THIS SECTION.** Every open fork
+  (owner-decisions, do-next, watch) lives there with evidence + a recommended default, and gets
+  moved the same turn a decision is made. **Read it, not a narrative recap here.** Current open
+  owner rows: **X0** (why the app layer wasn't wired — historical record), **X1** (live pre-live
+  gate — 8 latent bugs, money path, needs sign-off), **X2** (the consolidated 5-step bring-up
+  checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the API to Fly.io**,
+  Email Routing, Worker `TRIGGER_SECRET`).
+- **✅ MOST RECENT WORK (2026-07-02):** backend host moved **Render → Fly.io** (owner: "not using
+  Render"); `Dockerfile`/`fly.toml`/`fly-deploy.yml` added, `render.yaml` retired. Found + fixed a
+  **real privacy leak**: Cloudflare Pages was serving the raw `data/journal.json` (open-position
+  entry/stop/target, the exact stop-hunt vector `/api/journal` strips) publicly — closed with a
+  Pages Function that 404s `/data/*` at the edge. Also fixed the `/api/*` proxy (was Netlify-only,
+  dead on the live Cloudflare Pages host). Mobile hero/nav overlap fixed. MEMORY **§80**; full
+  writeup `docs/wiring-verification-2026-07-02.md`. **Independently audited PASS** this session —
+  `docs/audits/streaming-audit-2026-07-02-fly-migration.md` (no open PR existed to gate — streaming
+  workflow — so the audit covered the commit range directly; tests 737/737 green, no scope creep,
+  every claim diff-verified). **The Fly deploy itself is still owner-side** (X2 step 3).
+- **Audit status:** `PASS` (2026-07-02, post-hoc on streaming commits, see above). Prior formal
+  checkpoint: PR #127 repo-state audit + post-hoc #118/#117 (2026-07-01), MEMORY §73. Between
+  those two audits, ~10 more PRs (#128–#136, all confirmed genuinely `merged: true` via
+  `pull_request_read`) and several direct-to-`main` streaming commits landed — each was reviewed
+  inline at the time (tests, and `/code-review` for the N1+N2 diff, §78) but not through this gate;
+  none raised a concern significant enough to need a redo. Full narrative: `docs/MEMORY.md` §74–§80.
+- **⚠️ PROCESS NOTE:** this baton had gone stale (last reconciled 2026-06-27) while the workflow ran
+  streaming — nothing forces a baton update the way a PR-per-chat merge gate used to. Reconciled
+  this turn. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
+  that's the same gap recurring — update it as part of `/handoff-audit`, not just `/closeout`.
 
-## What this chat did (for the auditor to verify against the diff)
+## What recent chats did (for the auditor to verify against the diff / MEMORY)
 
-- **PR #118 (this chat, MERGED) — website premium polish + SEO/AEO.** Diff is marketing-surface only:
-  - **Design system:** additive "PREMIUM POLISH LAYER" appended to `assets/css/style.css` (depth/shadows,
-    fluid `clamp()` type scale, focus-visible, selection, scrollbar, card/CTA hover, section rhythm).
-  - **Content:** `index.html` trade-reads showcase expanded to 8 setups (4 long / 4 short, each narrating
-    position management); `methodology.html` editorial pass; `lab.html` data refreshed from the live engine
-    via `scripts/generate_lab_data.py` (dynamic `generated` date; fixed `+-0.112R` sign-format bug in `lab.js`).
-  - **Forms:** `assets/js/main.js` shared dependency-free `wireFormspree()` AJAX; `index.html` waitlist +
-    `contact.html` contact POST to `https://formspree.io/f/mqevpwzd` (+ honeypot).
-  - **SEO/AEO:** per-page title/desc/canonical/OG/Twitter + JSON-LD (`lab.html` adds a Dataset node for AI
-    answer engines; `live-signals.html` kept intentional `noindex,follow` but got OG/Twitter for sharing).
-    New OG SVGs under `assets/img/og/`.
-  - To diff-confirm: every changed path is `*.html`, `assets/**`, `scripts/generate_lab_data.py`, or
-    `studies/website_polish_progress.md`. NO change under `kudbee_quant/`, `cloudflare/`, or `.github/workflows/`.
-- **PR #117 (prior chat, MERGED this session) — `studies/section41_gap_preregistration.md` only.** Locks the
-  question for the §41 backtest-vs-OOS gap before any analysis. Read-only docs; no code, no live change.
+- **This session (2026-07-02, streaming, no PR):** mobile hero fix, Render→Fly.io migration,
+  `/api` proxy fix, `data/` privacy-leak fix, CROSSROADS board consolidation. See the audit report
+  above for verified detail.
+- **§74–§79 (2026-07-01→07-02, PRs #128–#136 + streaming):** §41 gap fully explained (VWAP rotation
+  flip, PR #129) → v_vwap reverted to momentum (PR #130, §75) → management-geometry contamination
+  audit + clean rerun → ride-3R shipped to paper (PR #131, §76) → website SEO/mobile sweep (PR
+  #132) → redesign "The Journal" (PR #133) → security + engine review (PRs #134/#135) → forming-
+  candle fix (PR #136, §77) → binance.us cross-venue data-honesty + Pine sync (§78, streaming) →
+  DMN idea generator (§79, streaming). Each is detailed in `docs/MEMORY.md` under its own §.
+- **PR #118 (website premium polish + SEO/AEO) + #117 (§41 pre-registration)** — both merged
+  2026-06-27, both post-hoc audited PASS (`docs/audits/pr-118-posthoc.md`, `pr-117-posthoc.md`).
+  Superseded visually by the later redesign (PR #133) but their SEO/forms work stands.
 
 ## NEXT chat
 
-- **✅ §41 GAP INVESTIGATION DONE (2026-07-01, PR #129) — GAP FULLY EXPLAINED (§74).**
-  The §44 VWAP rotation flip (PR #31, one day after §41) is 100% of the gap: momentum-sign
-  signal reproduces §41 EXACTLY (n=8,124, +0.0958R, +778.5R, p<0.001); the CURRENT live
-  rotation signal is n=3,540, −0.015R, p=0.738 on the same frames. **The live book has been
-  trading an UNVALIDATED signal since 2026-06-16.**
-- **✅ v_vwap REVERTED to MOMENTUM (owner-approved 2026-07-01, PR #130, §75).** The live
-  signal is validated again (+0.096R OOS anchor); Python/Pine/site re-aligned; sign now
-  test-pinned (`tests/test_vwap_sign.py`). **WATCH:** score the live 1h book in three eras
-  (pre-06-16 momentum / 06-16→07-01 rotation-unvalidated / post-07-01 momentum) — never
-  pool across the rotation era when judging the validated config forward.
-- **✅ MANAGEMENT GEOMETRY RESOLVED (2026-07-01, PR #131, §76 — owner pre-authorized
-  verify-then-act, paper-only).** Contamination audit first: #116's population was
-  selected by the refuted rotation signal (and the forward shadow was 86% rotation-era
-  trades). CLEAN RERUN on the momentum population (same pre-registered script, n=8,935):
-  A ride-3R +0.090R / B bank-half +0.048R, **A−B=+0.041R paired p=0.000** → gate passed →
-  **ride-3R SHIPPED to the paper book** (tp1 flags removed from both scan steps). The
-  paper book now runs the EXACT §41-validated configuration (momentum + geometry A) for
-  the first time since 06-16. **WATCH:** score the post-07-01 era on its own; revisit
-  only after 50+ resolved era-3 trades. **🔒 NEW PERMANENT RULE (§76d + standing prefs):
-  contamination-window check before shipping on any prior study.**
-- **🆕 BACKLOG (owner request, 2026-07-01) — TRADINGVIEW INDICATOR SUITE.** The owner wants to
-  get into creating TradingView indicators down the line. Starting point exists:
-  `pinescript/kudbee_confluence.pine` (10-factor confluence score + dashboard, PVSRA vector
-  colouring, key levels, limit-retrace bracket, bias filter, alert()→webhook→journal). Candidate
-  units when picked up: (a) sync the Pine indicator with current engine state + add ride-3R
-  bracket display; (b) split standalone indicators (PVSRA candles, session/killzone boxes,
-  M-levels/pivots, confluence meter); (c) publish-quality polish (inputs, tooltips, alerts).
-  Advisory slug: `claude/tv-indicator-suite`. NOTE: keep the Pine vwap sign = momentum (§75
-  parity is test-pinned on the Python side).
-- **🔒 SECURITY REVIEW DONE (2026-07-02) — `docs/audits/security-review-2026-07-02.md`.** Four
-  parallel read-only reviewers over the pre-Fable-5 surface; every finding re-verified firsthand.
-  SHIPPED (web-surface, no trading-logic change): /api/journal no longer leaks open-position
-  entry/stop/target (+read limiter); Cloudflare Worker fetch() now requires TRIGGER_SECRET
-  (fail-closed); register-webhook prefers X-API-Token header; /api/metrics session-gated;
-  rate-limiter bucket eviction. Auth primitives, Telegram gate, alert→journal, runner all
-  verified SAFE. **⚠️ HARD PRE-LIVE GATE:** the live-execution path (gate is airtight, but no
-  venue-side stops, no idempotency, no partial-fill handling, bar-timestamp mismatch, NaN-size
-  slip, kill-switch parse fail-open) has 8 latent findings that MUST be fixed before live bring-up
-  — owner sign-off required (money path). **Deferred:** full engine numerical/quality deep-dive
-  **ENGINE DEEP-DIVE NOW DONE** (2026-07-02, addendum in the same doc): shipped safe
-  correctness fixes (atomic cache write + guarded read, CAGR/Calmar finite-on-ruin, Sortino
-  inf-not-zero, meta-model feature-name alignment + single-class guard, klines_range cache-key
-  snap) — 729 tests. **⚠️ TWO ENGINE ITEMS FLAGGED FOR OWNER (change live-scan data):**
-  (E3) the live bot scans a HALF-FORMED candle — `klines()` returns Binance's forming bar and
-  `paper.py:264` reads `.iloc[-1]`; a bar-close strategy should drop it (Yahoo already does).
-  1-line fix ready; likely explains part of the live-vs-backtest gap. (E2) the endpoint
-  fallback can serve `binance.us` (a different exchange) mislabeled — tag source / don't blind-
-  remove. Both need sign-off (validated-path data). **Deploy note:** set TRIGGER_SECRET on the
-  Worker; rate-limiter proxy-IP handling needs an ASGI trusted-proxy config.
-- **✅ E3 HALF-FORMED-CANDLE FIX SHIPPED (2026-07-02, PR #136, §77 — owner-directed "fix the
-  candle").** `klines()`/`klines_range()` now drop the still-forming final bar so the live scan
-  reads CLOSED bars only. No-op for historical windows → backtests byte-identical. Measured live:
-  1/10 signals changed (SOL +1@60% forming vs 30% closed → no trade). Genuine live-path behavior
-  change; plausibly part of the live-vs-backtest gap. **WATCH** the post-fix forward record as a
-  sub-era on the §75/§76 config. **E2 (binance.us cross-venue) still FLAGGED, unfixed** — needs sign-off.
-- **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
-  this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
-  (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
-  noindex), `leverage-report.html` (add Report/Article JSON-LD), `sitemap.xml` completeness + refreshed
-  lastmod, `llms.txt` verification, and a global pass (lang/viewport/theme-color, image alt text, sitewide
-  WebSite+SearchAction JSON-LD). ALSO finish the visual-polish pages: start-here, about, compare, glossary,
-  trade-story/flow, blog, 404 + responsive. **Note the base domain is still placeholder `kudbeequant.com`**
-  — find-replace sitewide once the real domain is chosen. Advisory slug hint: `claude/website-seo-finish`.
-- Marketing-only, same guardrails as this chat. Start with `/handoff-audit` (post-hoc audits #118 + #117).
-- ~~CANDIDATE next research — the `be_after_tp1` question~~ **ANSWERED (§76, PR #131):** the partial
-  close was the drag (A−C=+0.035R), the BE slide minor (C−B=+0.006R, ns); ride-3R shipped to paper.
-- **CARRY-FORWARD (was the prior scope) — WATCH THE 24h DEADLINE FORWARD.** The 1h resolve window is now
-  24h (PR #96, §70), **LIVE + UNVERIFIED**. After **50+ forward 1h trades**, run `journal-score` on
-  `_cts`/core vs the pre-#96 baseline: net > 0R → keep; below → revisit per
-  `docs/decisions/deadline_bars.md`. **Do NOT revert without data; do NOT re-open the deadline as a
-  backtest candidate without ≥30 forward trades under 24h (hard negative, §70).**
-- **STILL PENDING (standing priority, NOT done this chat) — LIVE BRING-UP (D1 + webhook), then VERIFY.**
-  Two owner-side actions remain unblocked; the next chat verifies the live transport once they're done.
-  Advisory slug hint: `claude/verify-live-bringup`.
-  - **Provision Cloudflare D1** (activates §67 `/levels` `/history` `/vectors`): (a)
-    `wrangler d1 create kudbee-tr-levels`; (b) apply `cloudflare/trade-bot-cron/migrations/0001_tr_levels.sql`;
-    (c) paste `database_id` into `wrangler.toml` + Render `D1_DATABASE_ID`, set `CF_ACCOUNT_ID` +
-    `CF_API_TOKEN` in Render; (d) paper-scan → forward-verify the 3 commands on real D1.
-  - **Register the Telegram webhook** — easiest path now: hit the NEW self-register endpoint in a browser,
-    `https://<RENDER>/api/telegram/register-webhook?token=<KUDBEE_API_TOKEN>` (PR #89). Or the manual
-    `setWebhook` curl in `docs/runbooks/telegram-setup.md` (+ `setMyCommands` for the menu). Then exercise
-    `/help /status /score /positions /scan` (+ rate-limit) and `/trade`→`/yes`/`/cancel`. The
-    `TELEGRAM_WEBHOOK_SECRET` must match Render's value (the #1 failure mode). Routing is test-covered
-    (`test_telegram_commands.py`); only the live transport is unverified.
-- **PR #88** (`max_bars` research, §68) is no longer open — landed; keeps max_bars=24, nothing deployed.
-- **🚩 STUCK GOAL (needs owner action): push commit `1322efa` / `/goal clear`.** A `/goal` set this
-  session asked to push the owner's local commit `1322efa` (branch `fix/webhook-self-register`). That
-  commit lives only on the owner's machine (`/home/claude/qbot`), was never pushed, and is unreachable
-  from the ephemeral container — so the literal condition can't be met here. Its INTENT is already
-  shipped (the self-register endpoint, PR #89, is on `main`). Resolve by `/goal clear` (recommended —
-  work is done) or by pushing `1322efa` from the owner's machine.
-- **OPTIONAL follow-up (loop agent, §64):** wire `kudbee loop-agent` into a half-hourly Action (like
-  the `:35` status ping) so the L7 loop runs on a cadence — its reliability calibration is empty
-  until many cycles accrue forward. Read-only; safe to schedule.
-- **WATCH the live changes:**
-  - **§C 1h `_cts` book (§53):** after ≥30 forward `_cts` trades, `journal-score` filtered to those
-    setups. Net expectancy > 0R net of fees → keep; else → **revert the §C workflow step.** The
-    +0.1152R claim is UNVERIFIED here.
-  - **§A 5m long-only `_lo` book (§52):** same trigger; 5m has been net-negative every prior look.
-  - **Breakeven arm (§49):** confirm new 1h opens carry a non-null `tp1`; watch whether stop→BE
-    lifts the 1h book's expectancy forward.
-  - **`:35` status workflow (§54):** confirm it actually fires a Telegram ping on the half-hour
-    (needs `TELEGRAM_*` secrets set in the repo).
-- **STILL OPEN from §48:** the reverted §1 book (top-10/1h) — does it turn positive once the
-  alt+5m drag is gone, or is there a real backtest→live gap (regime/decay)? Candidate
-  edge-builder: the **killzone/hour gate for 1h** (the flag now exists, UNARMED) to cut the
-  18h/06h toxic clusters — forward-validate before arming.
-- **Tier-2 leverage (still queued, §47):** (a) re-rate the candidate net with **maker-entry +
-  taker-exit** (asymmetric friction; the study's both-maker under-charges crypto); (b)
-  `BINANCE_TESTNET` micro-stake. Only then can `lock+0.1R/≤10x/maker` graduate (micro-stake only).
-- **Open risks / watch-items (still live):**
-  - **🚩 24h DEADLINE IS LIVE + UNVERIFIED (§70, PR #96)** — `_DEADLINE_BARS=24` shortened the 1h resolve
-    window 3.0d→1.0d. Forward expectancy under the shorter window is unmeasured. Watch `_cts`/core after
-    50+ forward trades vs the pre-#96 baseline; revert ONLY on data (and never re-backtest the deadline
-    without ≥30 forward 24h trades). See `docs/decisions/deadline_bars.md`.
-  - **🚩 §C 1h `_cts` book is LIVE on an UNVERIFIED claim (§53, PR #55)** — owner's external
-    +0.1152R/n=804, not reproduced here; separately tagged, revert if forward net-negative.
-  - **🚩 VWAP ROTATION FLIP IS LIVE & UNVALIDATED (§44, PR #31)** — keep observing; be ready to revert.
-  - **§A 5m long-only is a paper HYPOTHESIS** — separately tagged, but it IS logging a live
-    (paper) book; revert if net-negative.
-  - **§B universe (PR #58) is NET-NEW, not the owner's spec** — opt-in/off the validated path;
-    reconcile before any thought of wiring it in.
-  - **§42 maker fee is an ASSUMPTION** (0.0002/side) — Tier-2 must settle before leverage graduates.
-  - **Dashboard (PR #21) UNVERIFIED in production.**
-  - **Loop agent (§64, PR #79) calibration is EMPTY** — it has run 0 forward cycles, so its
-    per-signal reliability means nothing yet; do not trust/act on its proposals until it accrues
-    graded cycles (it only persists state when `loop-agent` is actually invoked).
-  - **PR #78 (D1) is PARKED, not abandoned** — D1 is UNVERIFIED end-to-end; reopening requires
-    real CF provisioning + a MEMORY-section renumber (now collides with BOTH §64 loop agent and §65).
-  - **✅ NULL-R RESOLVED ROW — FIXED THIS CHAT (§66, PR #85).** Located: `7e0d2e94`, a `reach_below`
-    directional CALL (no bracket, no R) — the only non-bracket row in the journal; `outcome_r=None`
-    is correct for it (not a resolver bug, not a missing-R trade). Display-only fix: the closed-trades
-    view + `journal-check` summary now require `kind=='bracket'`. Header is now a consistent 588/588.
-    No journal edit (a backfill would have fabricated P&L on a position that never opened).
-- **Off-limits:** validated strategy defaults (§1) and `FEE_PCT`; **`--trailing-atr` is now a SETTLED
-  HARD NEGATIVE (§72) — keep it OFF; do NOT re-test trailing without a genuinely new rationale**; **the
-  24h deadline — do NOT revert `_DEADLINE_BARS` or re-open it as a backtest candidate without ≥30 forward
-  trades under the new window (§70 hard negative)**; the live execution path
-  (`bracket.py`/`resolver.py`); **the trading/levels core — `build_levels()`,
-  `pvsra_vector_candles()`, `paper_scan()` trading logic, the backtest harness** (left
-  byte-identical this session; the memory/intelligence layers READ, never mutate).
-  `data/journal.json` is bot-owned — the ONLY sanctioned session
-  edit was the idempotent flatten script (#48); no manual journal refreshes. `data/shadow/`
-  (gitignored), `data/alert_inbox/` (host-owned). Keep PR #20 flags OFF on the validated book;
-  hold the parsimony line; paper-scan stays `dry_run=True` for the dashboard runner; killzone
-  gate stays UNARMED until 1h-validated; keep maker retrace, `min_pct` 0.5. No public
-  live-edge / returns claims.
+Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
+redesign, the security/engine review, the forming-candle fix, N1–N3) is **DONE** — see
+`docs/MEMORY.md` §74–§80 for the full record. Do not re-derive any of it. What's actually
+open now:
+
+- **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
+  pre-live gate, 8 latent bugs, money path — needs sign-off) and X2 (the consolidated
+  5-step bring-up checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the
+  API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`) are both OPEN, owner-side. Move
+  a row the same turn a decision is made — that discipline is the whole point of the board.
+- **BACKLOG — TradingView indicator suite, phases (b)/(c).** Phase (a) (sync the Pine
+  indicator to the current engine) shipped §78/N2. Still queued: (b) split standalone
+  indicators (PVSRA candles, session/killzone boxes, M-levels/pivots, confluence meter);
+  (c) publish-quality polish (inputs, tooltips, alerts). Keep the Pine vwap sign = momentum
+  (§75 parity is test-pinned on the Python side).
+- **STILL PENDING — D1 provisioning + Telegram webhook registration.** Neither has changed
+  since the last check: `cloudflare/trade-bot-cron/wrangler.toml:41` still has
+  `database_id = "REPLACE_WITH_DATABASE_ID"` (D1 never provisioned — activates §67
+  `/levels /history /vectors`); the Telegram webhook registration status is unverified from
+  this container. Both depend on the API being deployed (now **Fly.io**, not Render — see
+  X2) before they can be exercised end-to-end. Runbooks: `docs/HOSTING.md`,
+  `docs/runbooks/telegram-setup.md`.
+- **WATCH — the post-07-01 era-3 forward record (W1, CROSSROADS).** After **50+ resolved
+  1h trades** since 2026-07-01, `journal-score` the momentum+ride-3R book (§75/§76/§77 — the
+  first time the live bot has run the exact validated config) as its own era; never pool
+  across the pre-07-01 rotation era when judging it.
+- **Open risks still live (unchanged, not re-verified this session):** §C 1h `_cts` book
+  (§53) runs on an owner-external, here-unreproduced +0.1152R claim — revert if forward
+  net-negative after ≥30 trades. §A 5m long-only (§52) is a paper hypothesis, net-negative
+  every prior look — revert if it stays so. §B universe (PR #58) is opt-in/off the validated
+  path, not the owner's spec — reconcile before wiring in. Loop agent (§64) calibration is
+  still empty (0 graded forward cycles) — don't trust its proposals yet. PR #78/D1 is PARKED
+  (see above). §42 maker-fee assumption still unsettled — blocks Tier-2 leverage graduation.
+- **Off-limits (standing, unchanged):** validated strategy defaults (§1) and `FEE_PCT`;
+  `--trailing-atr` OFF (§72 settled hard negative — do not re-test without new rationale);
+  the 24h deadline — settled KEEP (§70/§73, do not re-open without ≥30 forward trades under
+  the window, per `docs/decisions/deadline_bars.md`); the live execution path
+  (`bracket.py`/`resolver.py`); the trading/levels core (`build_levels()`,
+  `pvsra_vector_candles()`, `paper_scan()`, the backtest harness) — the memory/intelligence
+  layers READ, never mutate. `data/journal.json` is bot-owned — no manual journal refreshes.
+  `data/shadow/` (gitignored), `data/alert_inbox/` (host-owned). Keep PR #20 killzone flag
+  UNARMED until 1h-validated; keep maker retrace, `min_pct` 0.5. No public live-edge/returns
+  claims.
 
 ## Baton history
 - … (prior entries in git) …
@@ -285,3 +177,20 @@
   pre-registration, docs-only) — **BOTH MERGED on the owner's explicit "Close and merge all PRs"** at
   closeout. Next chat audits #118/#117 POST-HOC. NEXT: finish the website SEO sweep + remaining
   visual-polish pages (marketing-only).
+- 2026-07-01→07-02: **PRs #127–#136** (all confirmed `merged: true`) + streaming direct-to-`main`
+  commits — post-hoc audits (#118/#117) + repo-state audit (#127); §41 gap fully explained (§74, #129);
+  v_vwap reverted to momentum (§75, #130); management-geometry contamination audit + clean rerun →
+  ride-3R shipped to paper (§76, #131); website SEO/mobile sweep (#132) + redesign "The Journal" (#133);
+  security + engine correctness review (§77 addendum, #134/#135); forming-candle fix (§77, #136);
+  binance.us cross-venue data-honesty + Pine sync (§78, streaming, `/code-review`'d); DMN idea generator
+  (§79, streaming); `docs/BRAIN.md` + `docs/CROSSROADS.md` stood up as the live decision surface. Baton
+  was NOT reconciled across this streak (workflow shifted to streaming, nothing forced it) — see next entry.
+- 2026-07-02: mobile hero/nav overlap fixed; **backend host moved Render → Fly.io** (owner: "not using
+  Render") — `Dockerfile`/`fly.toml`/`fly-deploy.yml` added, `render.yaml` retired; found + fixed a
+  **real privacy leak** (raw `data/journal.json`, incl. open-position entry/stop/target, was publicly
+  downloadable via Cloudflare Pages serving the repo root) + the `/api/*` proxy (was Netlify-only, dead
+  on Pages) — both via Pages Functions (§80). `/handoff-audit` run: no open PR existed (streaming
+  workflow) so the gate covered this session's direct-to-`main` commit range instead — **independent
+  audit PASS** (`docs/audits/streaming-audit-2026-07-02-fly-migration.md`, 737/737 tests, no scope creep,
+  every claim diff-verified). Baton fully reconciled this turn (was stale since 2026-06-27). NEXT:
+  X1/X2 on `docs/CROSSROADS.md` (Fly deploy is the actionable blocker), TV indicator phases (b)/(c).
