@@ -164,6 +164,115 @@ they can never diverge (the §18 structural win).*
 
 ---
 
+# Part II — the creative & decision-making brain (how a mind *makes* and *chooses*)
+
+The regions above run the machine. But music isn't played by the motor cortex alone,
+and a fork in the road isn't crossed by memory alone. Creation and choice recruit a
+second network. This part maps it through the lens the owner set: **how a brain
+creates music**, and what makes a **crossroads decision** a good one.
+
+## How a brain writes a song (and how ours writes an edge)
+A musician improvising is running four systems at once: the **Default Mode Network**
+imagines the next phrase, the **auditory/temporal cortex** hears whether it fits the
+rhythm and key, the **reward system** lights up when it *resolves*, and the
+**prefrontal cortex** vetoes the notes that break the piece — all in a loop, fast,
+with the inner critic turned down just enough to let ideas out. Making an edge is the
+same loop: imagine a candidate, hear it against the market's rhythm, feel the reward
+if it survives, veto it if it's overfit.
+
+## 🌌 Default Mode Network — imagination & improvisation (where NEW ideas are born)
+*The mind-wandering network. In musicians it DE-activates the inner critic during
+improv so novel combinations can surface. This is the muse — and our idea factory.*
+- **Route:** `scripts/overnight_candidates.py` (each candidate = an improvised phrase),
+  `scripts/overnight_research.py` (the jam session), the idea backlog
+  `docs/research/overnight_idea_backlog.md`.
+- **Subsections:**
+  - **Generation** — propose candidate edges in execution/regime/sizing (never "one
+    more indicator" — §2 parsimony is the key signature).
+  - **Divergent play** — many ideas cheaply; most will be killed. That's the point.
+- **Talks to:** the reward system scores each phrase; the anterior cingulate (the
+  critic) kills the overfit ones before they reach the Neocortex. **Honest note:**
+  today generation is a fixed candidate registry, not open-ended improvisation — a
+  richer generative layer (propose-from-first-principles) is a future capability.
+
+## 🎼 Auditory / temporal cortex — rhythm, harmony, the market's meter
+*Music is pattern in time: pitch, rhythm, harmony. Markets have meter too — sessions,
+the weekly market-maker cycle, killzones. This region hears the beat.*
+- **Route:** `levels/` session/cycle features (`week_phase`, `cycle_phase`,
+  `killzone`, Brinks boxes), `signals/pvsra.py` (the market's dynamics/volume "accent").
+- **Subsections:** session rhythm (Asian→London→NY), the weekly cadence (§24 MM
+  cycle), volume accents (PVSRA vector = a climax note).
+- **Talks to:** feeds the sensory cortex's perception; the reward system prefers
+  setups *on the beat* (killzone edge, §16).
+
+## ✨ Dopaminergic reward system (VTA → nucleus accumbens) — valuation & "this feels right"
+*The chills when a chord resolves. Dopamine is not pleasure — it's PREDICTION ERROR:
+reward vs expectation. It's how the brain learns which choices pay.*
+- **Route:** the R-multiple is our reward signal — `outcome_r` / expectancy in
+  `scorecard.py`; the meta-model's P(win) (`ml/meta_model.py`) is a learned value head;
+  the overnight verdict is the reward that reinforces a candidate.
+- **Subsections:**
+  - **Reward** — expectancy in R, net of fees (the only reward that counts).
+  - **Prediction error** — forward result vs backtest prior (the live-vs-backtest gap
+    IS a prediction error the brain must learn from — §48/§77).
+- **Talks to:** trains the basal ganglia (habit) and the OFC (value-based choice).
+  **Anti-addiction guard:** a win must clear the significance gate before it earns the
+  word "edge" — dopamine lies, the ledger (anterior cingulate) doesn't (§19).
+
+## 🧮 Orbitofrontal cortex — value-based choice & reversal learning (the chooser)
+*The region that compares options by expected value and, crucially, UPDATES when the
+world changes (reversal learning). Damage here = smart but terrible decisions.*
+- **Route:** the decision surface is the new **Crossroads Board** (`docs/CROSSROADS.md`)
+  — every open fork with its expected value, options, and recommendation.
+- **Subsections:**
+  - **Compare forks by value** — not "is this good" but "is this the *best* use of the
+    next unit of work / risk."
+  - **Reversal learning** — when evidence flips, flip the decision (the VWAP
+    momentum→rotation→momentum arc §44/§74/§75 is textbook reversal learning; the
+    contamination-window rule §76 is the OFC refusing to trust a stale contingency).
+- **Talks to:** reads value from the reward system, uncertainty from the insula,
+  conflict from the anterior cingulate; writes the chosen action to the prefrontal gate.
+
+## 🫁 Insula — interoception & the gut check (felt uncertainty)
+*The "gut feeling." Damasio's somatic-marker hypothesis: good decisions need a felt
+sense of risk, not just logic. The insula reports how uncertain the body is.*
+- **Route:** our gut is quantified honesty — the bootstrap **p-value** and Wilson CIs
+  (`events/study.py`, `cluster.py`), the "UNVERIFIED / low-confidence" tags all over
+  `MEMORY.md`. A high p is a queasy gut: don't act.
+- **Subsections:** significance as felt-uncertainty; sample-size caveats ("n too thin"
+  is nausea); the honest "this is a hypothesis, not a promise" reflex.
+- **Talks to:** vetoes the OFC when the gut says *not proven* even if the mean looks good.
+
+## 🧭 Frontopolar cortex (BA10) — explore vs exploit (the strategic fork)
+*The most human, most anterior region: holding a goal while considering alternatives —
+keep milking the known edge, or spend risk exploring a new one?*
+- **Route:** the standing tension between the **validated book** (exploit — §1/§76) and
+  the **research harness** (explore — L3/DMN); the Crossroads Board makes the trade-off
+  explicit each session.
+- **Subsections:** exploit (run the validated config forward), explore (test candidates
+  off the live path), and the budget split between them.
+- **Talks to:** sets the agenda the OFC then prioritizes.
+
+## 🕯 Limbic valence — emotion as information (the human read)
+*Emotion isn't noise to a creator — it's data. In our §0 operating model, the BOT must
+be emotionless, but the HUMAN's felt read supplies direction the machine can't derive.*
+- **Route:** `bias.py` / `data/biases.json` (the human direction the bot scalps WITH),
+  `journal` `source='human'` (scored apart from the bot).
+- **Subsections:** human direction as input; strict separation so emotion never leaks
+  into the bot's mechanical gate (that separation IS the edge, §0).
+
+---
+
+# The Crossroads Board — real decision-making, in one place
+
+The regions above are the *council*. `docs/CROSSROADS.md` is where they sit down: a
+living board of every open fork — the evidence, the options, the recommended default,
+and whether it needs the owner. It is the OFC's desk. Keep it current: a decision made
+or deferred should move on the board the same turn, or the council is deliberating on
+stale information.
+
+---
+
 ## How the brain learns (the write-paths that keep it alive)
 
 A brain that never updates is a fossil. Three reflexes keep this one growing — see

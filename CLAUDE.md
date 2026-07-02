@@ -11,6 +11,9 @@
 2. `docs/MEMORY.md` — never re-derive or re-break settled work; honor its caveats.
 3. `docs/BRAIN.md` — the memory/cognitive architecture; when you add a capability
    or a lesson, file it under the region it belongs to so the map never drifts.
+4. `docs/CROSSROADS.md` — the decision board: every open fork with its evidence,
+   options, and recommended default. Move a row the SAME turn a decision is made or
+   deferred — the board is only useful if it's current.
 
 ## Workflow: streaming, actionable (updated 2026-07-02, owner-set)
 The old strict "one chat = one PR, never push to `main`" rule is RETIRED. Default to

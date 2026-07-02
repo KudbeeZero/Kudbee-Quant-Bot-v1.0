@@ -12,6 +12,10 @@
   when it earns one (large/risky, the money path, a preview-worthy visual, or a requested review);
   merge-on-green when the owner has authorized it. See `CLAUDE.md` + `docs/BRAIN.md`. Self-updating
   memory: repeated instruction / new convention / twice-made mistake → save it as you go.
+- **🧭 CROSSROADS BOARD (new 2026-07-02):** `docs/CROSSROADS.md` is the live decision surface —
+  every open fork (owner-decisions X1-X3, do-next N1-N3, watch W1-W2) with evidence + recommended
+  default. Move a row the same turn a decision is made. `docs/BRAIN.md` Part II adds the creative +
+  decision-making council (DMN/reward/OFC/insula/frontopolar) mapped to real files.
 - **This chat = the WEBSITE POLISH + SEO chat (marketing only).** Shipped **PR #118**
   (`feat/website-premium-polish`) — a premium craft + SEO/AEO pass on the existing **Kudbee Quant**
   marketing site. Kudbee branding kept (Ascendancy rebrand stays PARKED); honest anti-hype voice
