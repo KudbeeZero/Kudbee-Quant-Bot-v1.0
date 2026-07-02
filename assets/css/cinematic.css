@@ -87,3 +87,12 @@
 
 /* Hero FX canvas (candles + particles) — fill the hero, above the glows. */
 .hero__fx { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; }
+
+/* ---- Mobile hero: don't vertically-center tall content under the fixed nav ----
+   .scene--hero centers content in 100svh (great on desktop), but on a phone the
+   tall hero copy is taller than the viewport, so centering pushed its TOP up under
+   the fixed 72px nav — the "private beta" pill collided with the KudbeeQuant logo.
+   On small screens, top-align the hero and clear the nav so it flows cleanly. */
+@media (max-width: 680px) {
+  .scene--hero { min-height: auto; align-items: start; padding-top: 92px; padding-bottom: 40px; }
+}
