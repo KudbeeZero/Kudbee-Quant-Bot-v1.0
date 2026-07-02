@@ -28,13 +28,16 @@
   hold (c) until you actually intend to go live. **Never merge-on-green — money path.**
 - **Status:** OPEN, awaiting owner. No live capital is at risk today (live unwired).
 
-### X2 · Domain mailboxes on kudbeex.xyz  · **OWNER**
-- **Fork:** the site links `hello@ / partners@ / press@kudbeex.xyz`; those mailboxes
-  must exist or the addresses bounce.
-- **Options:** (a) create/forward the three addresses; (b) tell me to drop them and
-  route everything through the Formspree contact form instead.
-- **Recommended:** (a) create `hello@` at minimum; I'll switch the others to the form
-  if you prefer. **Status:** OPEN, owner-side (DNS/mail, outside the repo).
+### X2 · Domain + mailboxes on kudbeex.xyz  · **OWNER**
+- **Fact (2026-07-02):** owner OWNS `kudbeex.xyz` on **Namecheap**. No need to buy a
+  new domain. Registrar stays Namecheap; move the DNS **zone** to Cloudflare (free).
+- **Path (phone, ~10 min):** (1) Cloudflare → Add site `kudbeex.xyz` (Free) → get 2
+  nameservers; (2) Namecheap → Domain → Nameservers → Custom DNS → paste them; (3) once
+  Active: Pages custom domain (`kudbeex.xyz` + `www`) + **Email Routing** forwarding
+  `hello@/partners@/press@` (free — solves the mailbox need) + Worker `TRIGGER_SECRET` (X3).
+- **Alt:** keep DNS on Namecheap and use its free email forwarding — but then no
+  Cloudflare Email Routing / clean Pages custom domain. **Recommended:** move nameservers.
+- **Status:** OPEN, owner-side (all doable from a phone browser; no repo change).
 
 ### X3 · Deploy secrets for the security hardening  · **OWNER**
 - **Fork:** the Worker's manual trigger now needs `TRIGGER_SECRET`; the API rate-limiter
