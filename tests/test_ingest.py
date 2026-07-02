@@ -1,5 +1,6 @@
 """Tests for ingestion routing, period inference, and Yahoo parsing (no network)."""
 import pandas as pd
+import requests
 
 from kudbee_quant.backtest.metrics import infer_periods_per_year
 from kudbee_quant.ingest import RouterClient
@@ -144,6 +145,100 @@ def test_klines_drops_forming_last_bar(tmp_path):
     df = client.klines("BTCUSDT", interval="1h", limit=5)
     assert len(df) == 4                                    # forming bar dropped
     assert df["timestamp"].iloc[-1] == pd.Timestamp(opens[-2], unit="ms", tz="UTC")
+
+
+def test_binance_us_fallback_is_tagged_and_warns(tmp_path, recwarn):
+    """DATA HONESTY (E2): a fetch that falls through to the different-book binance.us
+    must be TAGGED with its venue and raise a warning — never silently mislabeled as
+    global-Binance data. Global endpoints fail here so only .us answers."""
+    from kudbee_quant.ingest.binance import BinanceClient, _INTERVAL_MS
+    from kudbee_quant.ingest.cache import DataCache
+    import time as _time
+
+    step = _INTERVAL_MS["1h"]
+    now_ms = int(_time.time() * 1000)
+    opens = [(now_ms // step) * step - i * step for i in range(4, 0, -1)]  # 4 closed bars
+
+    def row(ot):
+        return [ot, 100.0, 101.0, 99.0, 100.5, 10.0, ot + step - 1,
+                1000.0, 5, 5.0, 500.0, "0"]
+
+    class Sess:
+        def get(self, url, params=None, timeout=None):
+            if "binance.us" in url:
+                return _Resp([row(o) for o in opens])
+            raise requests.RequestException("geo-blocked")  # global endpoints down
+
+    client = BinanceClient(cache=DataCache(tmp_path), session=Sess())  # default bases
+    df = client.klines("BTCUSDT", interval="1h", limit=4)
+    assert df.attrs.get("source_venues") == ["https://api.binance.us"]
+    assert any("binance.us" in str(w.message) or "different-book" in str(w.message).lower()
+               for w in recwarn.list), "a binance.us fallback must warn"
+
+
+def _is_data_honesty_warning(w) -> bool:
+    m = str(w.message).lower()
+    return "binance.us" in m or "different-book" in m or "mixes" in m
+
+
+def test_global_book_fetch_is_not_flagged(tmp_path, recwarn):
+    """The normal path (global mirror answers) tags the venue but raises NO
+    data-honesty warning — the guard must not cry wolf on same-book data. Scoped to
+    the data-honesty message so an unrelated pandas/pyarrow warning can't flake it."""
+    from kudbee_quant.ingest.binance import BinanceClient, _INTERVAL_MS
+    from kudbee_quant.ingest.cache import DataCache
+    import time as _time
+
+    step = _INTERVAL_MS["1h"]
+    now_ms = int(_time.time() * 1000)
+    opens = [(now_ms // step) * step - i * step for i in range(4, 0, -1)]
+
+    def row(ot):
+        return [ot, 100.0, 101.0, 99.0, 100.5, 10.0, ot + step - 1,
+                1000.0, 5, 5.0, 500.0, "0"]
+
+    class Sess:
+        def get(self, url, params=None, timeout=None):
+            return _Resp([row(o) for o in opens])  # first (global) endpoint answers
+
+    client = BinanceClient(cache=DataCache(tmp_path), session=Sess())
+    df = client.klines("ETHUSDT", interval="1h", limit=4)
+    assert df.attrs.get("source_venues") == ["https://api.binance.com"]
+    assert not any(_is_data_honesty_warning(w) for w in recwarn.list)
+
+
+def test_binance_us_tag_and_warning_survive_a_cache_hit(tmp_path, recwarn):
+    """DATA HONESTY on REUSE: a binance.us frame must keep its venue tag AND re-warn
+    when served from cache — the tag is persisted in the cache meta (parquet drops
+    df.attrs), so a cache hit can't launder .us data into looking like global Binance."""
+    from kudbee_quant.ingest.binance import BinanceClient, _INTERVAL_MS
+    from kudbee_quant.ingest.cache import DataCache
+    import time as _time
+
+    step = _INTERVAL_MS["1h"]
+    now_ms = int(_time.time() * 1000)
+    opens = [(now_ms // step) * step - i * step for i in range(4, 0, -1)]
+
+    def row(ot):
+        return [ot, 100.0, 101.0, 99.0, 100.5, 10.0, ot + step - 1,
+                1000.0, 5, 5.0, 500.0, "0"]
+
+    class Sess:
+        def __init__(self): self.calls = 0
+        def get(self, url, params=None, timeout=None):
+            self.calls += 1
+            if "binance.us" in url:
+                return _Resp([row(o) for o in opens])
+            raise requests.RequestException("geo-blocked")
+
+    sess = Sess()
+    client = BinanceClient(cache=DataCache(tmp_path), session=sess)
+    client.klines("BTCUSDT", interval="1h", limit=4)   # miss -> fetch from .us
+    fetched_calls = sess.calls
+    df2 = client.klines("BTCUSDT", interval="1h", limit=4)  # HIT -> served from cache
+    assert sess.calls == fetched_calls, "second call should be a cache hit (no network)"
+    assert df2.attrs.get("source_venues") == ["https://api.binance.us"], "tag lost on reuse"
+    assert any(_is_data_honesty_warning(w) for w in recwarn.list), "reuse must still warn"
 
 
 class _Resp:

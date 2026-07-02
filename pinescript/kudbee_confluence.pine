@@ -14,6 +14,16 @@
 // maker fills + small size. Validated config: 1h, >=50% confluence, 3R,
 // 0.25-ATR retrace, wider 1.5-ATR stop. Size small. Markets don't offer high
 // return at low risk.
+//
+// IN SYNC WITH THE ENGINE (2026-07-02):
+//   * VWAP factor votes MOMENTUM (close>vwap = +1) — matches the reverted, §41-
+//     validated Python sign (MEMORY §75; the Python side is test-pinned).
+//   * Default management is RIDE-TO-3R (Target ONE off) — the clean-population
+//     study result (MEMORY §76); TP1 scale-out stays an opt-in display.
+//   * Signals fire on the CLOSED bar only (barstate.isconfirmed + the webhook's
+//     once-per-bar-close) — no forming-bar repaint, mirroring the Python fix that
+//     made the bot read closed bars only (MEMORY §77). Set any TradingView alert
+//     built on the alertconditions below to "Once Per Bar Close" for the same reason.
 // =============================================================================
 indicator("Kudbee Confluence Engine", overlay=true, max_lines_count=120, max_labels_count=60)
 
@@ -122,7 +132,9 @@ plot(showLevels ? dealMid : na, "Dealing Mid", color.new(color.teal, 40),1)
 plot(showLevels ? vwapv   : na, "VWAP",        color.new(color.purple,10),2)
 
 // ---- Draw entry / stop / target on a fresh actionable signal ----------------
-newSig = actionable and not actionable[1]
+// Gate on barstate.isconfirmed so the bracket is drawn from the CLOSED signal bar
+// and never repaints as the live bar forms (the §77 closed-bar rule, on the chart).
+newSig = actionable and not actionable[1] and barstate.isconfirmed
 var line lE = na
 var line lS = na
 var line lT = na
@@ -141,8 +153,10 @@ if showBracket and newSig
     lab := label.new(bar_index, targetP, side + " " + str.tostring(confPct*100, "#") + "% conf · " + str.tostring(targetR, "#.#") + "R", style=direction>0?label.style_label_down:label.style_label_up, color=color.new(direction>0?color.green:color.red,20), textcolor=color.white, size=size.small)
 
 // ---- Alerts (phone notifications) -------------------------------------------
-alertcondition(actionable and direction > 0 and not actionable[1], "Kudbee LONG setup",  "Kudbee: LONG confluence setup — enter LIMIT at retrace, stop/target on chart")
-alertcondition(actionable and direction < 0 and not actionable[1], "Kudbee SHORT setup", "Kudbee: SHORT confluence setup — enter LIMIT at retrace, stop/target on chart")
+// Gated on barstate.isconfirmed so these fire on the CLOSED bar regardless of the
+// alert's frequency setting — parity with newSig/the webhook, no intrabar repaint (§77).
+alertcondition(actionable and direction > 0 and not actionable[1] and barstate.isconfirmed, "Kudbee LONG setup",  "Kudbee: LONG confluence setup — enter LIMIT at retrace, stop/target on chart")
+alertcondition(actionable and direction < 0 and not actionable[1] and barstate.isconfirmed, "Kudbee SHORT setup", "Kudbee: SHORT confluence setup — enter LIMIT at retrace, stop/target on chart")
 
 // JSON webhook -> POST to the Kudbee API /api/alert to auto-log a paper trade
 // (set the alert to "Any alert() function call" + your API webhook URL).

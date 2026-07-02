@@ -2287,3 +2287,37 @@ explanation of the long-standing live-vs-backtest execution gap (§48/§41): the
 resolves on closed bars, but the live scan had been reading forming ones. **WATCH the
 post-fix forward record** as a new sub-era on top of the §75/§76 momentum+ride-3R config.
 731 tests. E2 (binance.us cross-venue mislabel) remains FLAGGED, not fixed.
+
+## 78. binance.us cross-venue data honesty — silent mislabel guarded + tested (N1) — 2026-07-02
+
+Second instance of the class "provisional/wrong data flows in unnoticed" (the first was
+§77's forming candle). Per the standing rule (same mistake twice → guard + test), this is
+now permanently guarded.
+
+**The risk (E2):** `BinanceClient`'s endpoint fallback ends at `api.binance.us` — a SEPARATE
+exchange with a different order book, liquidity, and prints. On a runner where the global
+endpoints (`.com` 451-geo-blocked, `data-api.binance.vision` mirror) both fail, `.us` candles
+were returned labeled as the same symbol, silently. Silence was the bug.
+
+**The guard (loud + traceable, never silent):**
+- Endpoints split into `_SAME_BOOK_BASES` (`.com` + `.vision`, one book) and
+  `_DIFFERENT_BOOK_BASES` (`.us`). `.us` stays a genuine last resort (some regions reach only it).
+- Every frame is tagged `df.attrs["source_venues"]`; a fetch that touches `.us` warns loudly
+  (`warnings.warn` + a `!! DATA-HONESTY` print visible in Action logs); mixing same+different
+  book WITHIN one history escalates.
+- **Cache-honesty (caught by /code-review):** parquet drops `df.attrs`, and a cache HIT skipped
+  tagging — so on reuse (300s/7-day TTL) a `.us` frame lost its tag+warning, the exact gap the
+  guard exists to close. Fix: `DataCache` now persists JSON-safe `df.attrs` into the meta and
+  restores them on read; `klines`/`klines_range` re-warn on every cache hit. General fix (any
+  frame metadata survives the cache), not a venue special-case.
+- Tests (`tests/test_ingest.py`): `.us` fallback tagged+warns; global path not flagged; and the
+  reuse path (fetch→cache→hit) keeps the tag AND re-warns.
+
+**Pine parity (N2):** `pinescript/kudbee_confluence.pine` synced to the current engine — VWAP
+votes momentum (§75, was already correct), ride-3R default (§76), and signals gated on
+`barstate.isconfirmed` (bracket + webhook + both alertconditions) so the indicator never fires
+on a forming bar — the §77 closed-bar rule applied to the TradingView surface too.
+
+Not fixed (accepted): a shared `BinanceClient` across threads could race the per-fetch venue set,
+but no caller shares one (each builds its own), so it's latent-not-reachable; documented in code.
+734 tests. Reviewed via `/code-review` (3 finder angles → the HIGH double-confirmed + fixed).

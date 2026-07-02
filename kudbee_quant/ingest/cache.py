@@ -49,7 +49,14 @@ class DataCache:
             age = time.time() - meta.get("fetched_at", 0)
             if age > ttl_seconds:
                 return None  # stale — force a refetch rather than lie about freshness
-            return pd.read_parquet(data_path)
+            df = pd.read_parquet(data_path)
+            # Parquet drops DataFrame.attrs; restore the JSON-safe attrs we saved so
+            # frame metadata (e.g. the source-venue tag) survives a cache round-trip
+            # instead of silently vanishing on reuse.
+            saved = meta.get("attrs")
+            if isinstance(saved, dict):
+                df.attrs.update(saved)
+            return df
         except Exception:
             return None
 
@@ -62,5 +69,14 @@ class DataCache:
         tmp_meta = meta_path.with_suffix(meta_path.suffix + ".tmp")
         df.to_parquet(tmp_data, index=False)
         tmp_data.replace(data_path)
-        tmp_meta.write_text(json.dumps({"fetched_at": time.time(), "rows": len(df), "key": key}))
+        meta = {"fetched_at": time.time(), "rows": len(df), "key": key}
+        # Persist JSON-safe frame attrs (parquet drops df.attrs) so metadata like the
+        # source-venue tag survives reuse; skip anything not serializable rather than fail.
+        try:
+            attrs = dict(df.attrs)
+            json.dumps(attrs)
+            meta["attrs"] = attrs
+        except (TypeError, ValueError):
+            pass
+        tmp_meta.write_text(json.dumps(meta))
         tmp_meta.replace(meta_path)

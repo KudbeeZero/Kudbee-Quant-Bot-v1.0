@@ -47,24 +47,18 @@
 
 ## 🟡 DO NEXT — I can act (your pick of order)
 
-### N1 · E2 — binance.us cross-venue data honesty  · **AGENT**
-- **Fork:** the ingest fallback ends at `binance.us` (a *different* exchange); if the
-  first two endpoints fail, its prints get labeled as the same symbol.
-- **Options:** (a) tag the frame with its source + refuse to mix venues within a
-  symbol's history (keep `.us` as a *tagged* last resort); (b) drop `.us` entirely
-  (risk: it may be the only reachable endpoint on some runners); (c) leave it.
-- **Recommended:** (a) — preserves reachability, kills the silent mislabel. Small, safe,
-  testable; I'd commit it directly. **Status:** OPEN, ready when you say go. (Last
-  data-honesty thread from the security review.)
+### N1 · E2 — binance.us cross-venue data honesty  · ✅ **DONE (2026-07-02, §78)**
+- **Chosen:** option (a) — frames tagged with `source_venues`, loud warning on any
+  `.us` fallback, `.us` kept as a tagged last resort. `/code-review` caught that the tag
+  was lost on cache reuse → `DataCache` now persists+restores `df.attrs` and re-warns on
+  every cache hit. Tests cover miss / clean-path / reuse. Direct commit to `main`.
 
-### N2 · TradingView indicator suite  · **AGENT**
-- **Fork:** you want to "get into creating indicators." Starting point exists:
-  `pinescript/kudbee_confluence.pine`.
-- **Options / phases:** (a) sync the Pine indicator to current engine state + add the
-  ride-3R bracket display; (b) split standalone indicators (PVSRA candles, session/
-  killzone boxes, M-levels/pivots, a confluence meter); (c) publish-quality polish.
-- **Recommended:** start with (a) — smallest, highest-fidelity. Keep the Pine VWAP sign
-  = momentum (§75 parity is test-pinned). **Status:** OPEN, queued.
+### N2 · TradingView indicator suite  · phase (a) ✅ **DONE (2026-07-02, §78)**
+- **Done:** synced `pinescript/kudbee_confluence.pine` to the current engine — VWAP
+  momentum (§75), ride-3R default (§76), and `barstate.isconfirmed` closed-bar gating on
+  the bracket + webhook + both alertconditions (§77 parity, no intrabar repaint).
+- **Still open (phases b/c):** split standalone indicators (PVSRA candles, session/
+  killzone boxes, M-levels/pivots, confluence meter) + publish-quality polish. Queued.
 
 ### N3 · Go deeper on the brain map  · **AGENT**
 - **Fork:** which region gets pushed down another level next (you asked for finer
@@ -97,3 +91,5 @@
 - **Security + engine review** (PRs #134/#135) — web surface hardened, safe engine fixes shipped.
 - **Website redesign → The Journal** (PR #133) + SEO/mobile sweep (PR #132) — done.
 - **Workflow → streaming** + **BRAIN.md** brain map — done (direct-to-main, 2026-07-02).
+- **N1 binance.us data honesty + N2 Pine sync** (§78, /code-review'd) — done (direct-to-main).
+- **BRAIN.md Part II** (creative + decision council) + **this board** — done.

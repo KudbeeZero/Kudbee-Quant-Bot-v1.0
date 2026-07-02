@@ -12,6 +12,10 @@
   when it earns one (large/risky, the money path, a preview-worthy visual, or a requested review);
   merge-on-green when the owner has authorized it. See `CLAUDE.md` + `docs/BRAIN.md`. Self-updating
   memory: repeated instruction / new convention / twice-made mistake → save it as you go.
+- **✅ N1+N2 DONE (2026-07-02, §78, /code-review'd, direct-to-main):** binance.us cross-venue
+  data honesty — frames tagged `source_venues`, loud warning on `.us` fallback, tag persisted
+  through the cache so reuse can't launder it (the /code-review HIGH); Pine indicator synced
+  (momentum VWAP §75, ride-3R §76, `barstate.isconfirmed` closed-bar gating §77). 734 tests.
 - **🧭 CROSSROADS BOARD (new 2026-07-02):** `docs/CROSSROADS.md` is the live decision surface —
   every open fork (owner-decisions X1-X3, do-next N1-N3, watch W1-W2) with evidence + recommended
   default. Move a row the same turn a decision is made. `docs/BRAIN.md` Part II adds the creative +

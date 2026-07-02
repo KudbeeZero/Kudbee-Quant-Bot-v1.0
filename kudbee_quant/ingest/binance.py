@@ -6,6 +6,7 @@ backwards through history so you can pull arbitrarily long windows.
 from __future__ import annotations
 
 import time
+import warnings
 
 import pandas as pd
 import requests
@@ -13,14 +14,24 @@ import requests
 from .cache import DataCache
 from .validation import validate_ohlcv
 
-# Primary endpoint, then fallbacks. api.binance.com is geo-blocked (HTTP 451)
-# from many cloud regions; data-api.binance.vision is the public data mirror
-# and is generally exempt, so we try it before giving up.
-_BASES = (
+# Endpoint order matters and is a DATA-HONESTY concern, not just availability:
+#   api.binance.com          — canonical Binance global order book
+#   data-api.binance.vision  — the PUBLIC MIRROR of that SAME book (geo-exempt; the
+#                              usual path from cloud regions where .com returns 451)
+#   api.binance.us           — a SEPARATE EXCHANGE with a DIFFERENT book: different
+#                              liquidity, different prints, a different symbol universe.
+# The first two share a book (safe to interchange); binance.us does NOT. It stays in
+# the chain as a genuine last resort (some regions can reach only it), but a fetch that
+# falls through to it is TAGGED and WARNED so its prices can never be silently mislabeled
+# as global-Binance data (the E2 finding, docs/audits/security-review-2026-07-02.md).
+_SAME_BOOK_BASES = (
     "https://api.binance.com",
     "https://data-api.binance.vision",
+)
+_DIFFERENT_BOOK_BASES = (
     "https://api.binance.us",
 )
+_BASES = _SAME_BOOK_BASES + _DIFFERENT_BOOK_BASES
 _KLINES = "/api/v3/klines"
 _MAX_LIMIT = 1000  # Binance hard cap per request
 
@@ -55,14 +66,54 @@ class BinanceClient:
         self.cache = cache or DataCache()
         self.session = session or requests.Session()
         self.bases = bases
+        # Per-fetch venue set. NOTE: instance state — one client is single-threaded per
+        # fetch (every caller builds its own BinanceClient/RouterClient), so this is not
+        # shared across concurrent fetches. Do not share one client across threads.
+        self._fetch_venues: set[str] = set()
+
+    @staticmethod
+    def _warn_cross_venue(venues, symbol: str) -> None:
+        """Warn (loudly, non-silently) when a frame's data came from a different-book
+        venue. Silence was the E2 bug; this runs on BOTH the fetch path and every cache
+        HIT (via the tag persisted in the cache meta) so reuse can't launder the origin."""
+        venues = list(venues or [])
+        different = [v for v in venues if v in _DIFFERENT_BOOK_BASES]
+        same = [v for v in venues if v in _SAME_BOOK_BASES]
+        if different and same:
+            warnings.warn(
+                f"[binance] {symbol}: history MIXES a different-book venue "
+                f"({different}) with the global book ({same}) — prices are NOT "
+                f"comparable across venues. Treat this frame as suspect.", stacklevel=2)
+            print(f"  !! DATA-HONESTY: {symbol} mixed venues {venues}")
+        elif different:
+            warnings.warn(
+                f"[binance] {symbol}: served from {different} — a SEPARATE exchange "
+                f"with different prices, not global Binance. Global endpoints were "
+                f"unreachable. Frame tagged source_venues={venues}.", stacklevel=2)
+            print(f"  !! DATA-HONESTY: {symbol} served from different-book {different}")
+
+    def _tag_venue(self, df: pd.DataFrame, symbol: str) -> pd.DataFrame:
+        """Stamp the frame with the venue(s) it came from and warn on a different-book
+        fallback. The tag is persisted through the cache (see cache.py) so a later cache
+        hit can re-warn — the guarantee holds on reuse, not just the live fetch."""
+        venues = sorted(self._fetch_venues)
+        df.attrs["source_venues"] = venues
+        self._warn_cross_venue(venues, symbol)
+        return df
 
     def _get_klines(self, params: dict) -> list:
-        """Try each base URL until one answers; surface the last error honestly."""
+        """Try each base URL until one answers; surface the last error honestly.
+
+        Records every host that answers in ``self._fetch_venues`` so the caller can
+        tag the frame — a different-book fallback (binance.us) must never be silently
+        mislabeled as global-Binance data.
+        """
         last_exc: Exception | None = None
         for base in self.bases:
             try:
                 resp = self.session.get(base + _KLINES, params=params, timeout=15)
                 resp.raise_for_status()
+                self._fetch_venues.add(base)
                 return resp.json()
             except requests.RequestException as exc:
                 last_exc = exc  # e.g. 451 geo-block -> fall through to mirror
@@ -88,8 +139,10 @@ class BinanceClient:
         key = f"binance:{symbol}:{interval}:{limit}"
         cached = self.cache.get(key, ttl_seconds=cache_ttl)
         if cached is not None:
+            self._warn_cross_venue(cached.attrs.get("source_venues"), symbol)
             return cached
 
+        self._fetch_venues = set()
         rows: list[list] = []
         end_time: int | None = None
         remaining = limit
@@ -109,7 +162,7 @@ class BinanceClient:
             time.sleep(0.2)  # be polite to the public endpoint
 
         rows = self._drop_forming_bar(rows)   # signals read CLOSED bars only
-        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)
+        df = self._tag_venue(validate_ohlcv(self._to_frame(rows), symbol=symbol), symbol)
         self.cache.put(key, df)
         return df
 
@@ -150,8 +203,10 @@ class BinanceClient:
         key = f"binance-range:{symbol}:{interval}:{s_ms}:{key_e}"
         cached = self.cache.get(key, ttl_seconds=cache_ttl)
         if cached is not None:
+            self._warn_cross_venue(cached.attrs.get("source_venues"), symbol)
             return cached
 
+        self._fetch_venues = set()
         rows: list[list] = []
         cur = s_ms
         while cur < e_ms:
@@ -167,7 +222,8 @@ class BinanceClient:
             time.sleep(0.2)  # be polite to the public endpoint
 
         rows = self._drop_forming_bar(rows)   # no-op for a past window; drops a
-        df = validate_ohlcv(self._to_frame(rows), symbol=symbol)  # forming bar for end=None
+        df = self._tag_venue(  # forming bar for end=None
+            validate_ohlcv(self._to_frame(rows), symbol=symbol), symbol)
         self.cache.put(key, df)
         return df
 
