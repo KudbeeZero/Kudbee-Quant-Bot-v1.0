@@ -30,6 +30,35 @@ def test_journal_endpoint_shape(tmp_path, monkeypatch):
     assert set(body) >= {"counts", "scorecard", "open"}
 
 
+def test_journal_open_positions_hide_price_levels(monkeypatch):
+    """SECURITY: the PUBLIC /api/journal must not expose per-position entry/stop/
+    target — exact live stop/target levels are a stop-hunt / front-running vector.
+    Only non-sensitive fields (id/symbol/setup/status/direction/created_at) are public.
+    """
+    import kudbee_quant.api as api
+
+    class _OpenJournal(_EmptyJournal):
+        predictions = [type("P", (), {
+            "id": "abc", "symbol": "BTCUSDT", "setup": "confluence_r_50pct_tf",
+            "status": "open", "direction": 1.0, "entry": 64000.0, "stop": 63000.0,
+            "target": 67000.0, "created_at": "2026-07-02T00:00:00Z",
+            "kind": "bracket", "timeframe": "1h",
+        })()]
+
+    monkeypatch.setattr(api, "TradeJournal", lambda: _OpenJournal())
+    body = client.get("/api/journal").json()
+    assert body["open"], "expected the open position in the response"
+    leaked = {"entry", "stop", "target"} & set(body["open"][0])
+    assert not leaked, f"price levels leaked publicly: {leaked}"
+    assert set(body["open"][0]) >= {"id", "symbol", "status", "direction"}
+
+
+def test_metrics_endpoint_requires_session():
+    """SECURITY: /api/metrics (host CPU/RAM/disk) must be session-gated, not public."""
+    r = client.get("/api/metrics")
+    assert r.status_code == 401
+
+
 class _EmptyJournal:
     predictions: list = []
 
