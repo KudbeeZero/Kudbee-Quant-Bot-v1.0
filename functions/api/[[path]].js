@@ -7,14 +7,12 @@
 // dynamic pages (Live Signals, Trade Flow, Lab) go dark. This ports the same
 // intent to Pages. Verified live in `docs/wiring-verification-2026-07-02.md`.
 //
-// The upstream defaults to the Render service and can be overridden per
-// environment with the `API_ORIGIN` Pages variable (Settings → Environment
-// variables) — no code change needed if the Render subdomain ever changes.
-//
-// NOTE: this only carries traffic once the Render service is actually deployed
-// (until then Render answers `x-render-routing: no-server` and this proxies a 404).
+// The upstream is the FastAPI engine on **Fly.io** (fly.toml + Dockerfile;
+// runbook docs/HOSTING.md). Override it per environment with the `API_ORIGIN`
+// Pages variable (Settings → Environment variables) if the Fly app name differs
+// from the default below — no code change needed.
 
-const DEFAULT_ORIGIN = "https://kudbee-quant-api.onrender.com";
+const DEFAULT_ORIGIN = "https://kudbee-quant-api.fly.dev";
 
 export async function onRequest(context) {
   const { request, env } = context;

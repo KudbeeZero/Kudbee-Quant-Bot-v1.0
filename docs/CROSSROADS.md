@@ -16,18 +16,22 @@
 
 ## 🔴 DECIDE — needs the owner
 
-### X0 · Wire the application layer (API not deployed)  · **OWNER**
+### X0 · Deploy the API to Fly.io (host decided; deploy pending)  · **OWNER**
 - **Found (2026-07-02, `docs/wiring-verification-2026-07-02.md`):** the marketing
-  site is live + hardened, but the **app layer is not wired end-to-end**. Two breaks:
-  (1) the FastAPI engine is **not deployed on Render** — `kudbee-quant-api.onrender.com`
-  returns `x-render-routing: no-server`; (2) the `/api/*` proxy was **Netlify-only**
-  and dead on Cloudflare Pages.
-- **Done here:** break (2) fixed in-repo — added Pages Function `functions/api/[[path]].js`
-  (same-origin proxy → Render, `API_ORIGIN`-overridable, keeps CSP `connect-src 'self'`).
-- **Owner action:** deploy/redeploy the `kudbee-quant-api` service on Render
-  (`render.yaml`, runbook `docs/HOSTING.md`) + set its env, then the dynamic pages
-  (Live Signals / Trade Flow / Lab) light up. **This is the blocker.**
-- **Status:** OPEN, owner-side (Render deploy). Proxy half is committed to `main`.
+  site is live + hardened, but the **app layer is not wired end-to-end**. Three
+  things surfaced; two are fixed in-repo, one is the owner's deploy.
+- **Decided (2026-07-02):** backend host = **Fly.io** (owner: "not using Render").
+  `render.yaml` retired; added `Dockerfile`, `fly.toml`, `.github/workflows/fly-deploy.yml`.
+- **Fixed in-repo:** (a) `/api/*` proxy was Netlify-only (dead on Cloudflare Pages)
+  → Pages Function `functions/api/[[path]].js` proxies `/api/*` → Fly same-origin
+  (`API_ORIGIN`-overridable); (b) **privacy leak** — raw `data/journal.json` (open
+  entry/stop/target) was public at `kudbeex.xyz/data/*` → Pages Function
+  `functions/data/[[path]].js` 404s the whole tree at the edge.
+- **Owner action (the blocker):** `fly launch --no-deploy` → `fly secrets set …`
+  → `fly deploy` (full runbook `docs/HOSTING.md`). Optionally add the `FLY_API_TOKEN`
+  repo secret to turn on the hourly auto-deploy freshness workflow. Then the
+  dynamic pages (Live Signals / Trade Flow / Lab) light up.
+- **Status:** OPEN, owner-side (Fly deploy). Proxy + leak fixes committed to `main`.
 
 ### X1 · Live bring-up: the money-path pre-live gate  · **OWNER**
 - **Fork:** enable live execution someday, or stay paper-only.

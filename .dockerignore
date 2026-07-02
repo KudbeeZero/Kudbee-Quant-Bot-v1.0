@@ -1,0 +1,24 @@
+# Keep the Fly image lean + reproducible — ship the app code + the JSON data the
+# API reads (journal, research ledgers), but not caches, tests, or the website.
+.git
+.github
+node_modules
+tests
+docs
+assets
+cloudflare
+pinescript
+scripts
+functions
+netlify.toml
+fly.toml
+*.md
+# Parquet OHLCV caches are large + rebuildable at runtime — never ship them.
+*.parquet
+data/cache
+**/__pycache__
+*.pyc
+.pytest_cache
+.ruff_cache
+.venv
+venv

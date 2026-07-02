@@ -2340,3 +2340,40 @@ callable. Reuses `overnight_candidates` helpers (`_gate`, `_atr_pct`, `_rolling_
 no reimplementation. CLI: `--list` / `--emit N [--dry-run]`. Tests in `tests/test_overnight.py`
 (contract = subset of baseline; deterministic; dedup vs tested + hand-written; resolvable
 after register). 737 tests. Direct commit to main (streaming workflow).
+
+## 80. Backend host = Fly.io (Render retired) + two live-wiring fixes — 2026-07-02
+Owner asked to "verify the wiring." The marketing site is **live + hardened** on
+Cloudflare Pages (`kudbeex.xyz` → 200, full CSP/HSTS/COOP; sitemap/robots/llms 200),
+but the **application layer was not wired end-to-end**. Three findings, recorded in
+`docs/wiring-verification-2026-07-02.md`:
+
+1. **API never deployed.** `kudbee-quant-api.onrender.com` answered `404 /
+   x-render-routing: no-server`. Owner then stated plainly: **not using Render.**
+   → Host decision: **Fly.io.** `render.yaml` retired; added `Dockerfile`, `fly.toml`
+   (one always-on machine — `min_machines_running=1`, `auto_stop_machines=false` — so
+   the TradingView webhook POST is never dropped), and `.github/workflows/fly-deploy.yml`
+   (redeploys on code push + hourly for journal freshness; **inert until the
+   `FLY_API_TOKEN` repo secret is set** — a green no-op otherwise). Runbook rewritten
+   in `docs/HOSTING.md` (Fly `fly secrets set …` replaces Render env vars).
+2. **The `/api/*` proxy was Netlify-only.** The site calls same-origin `/api/*` to keep
+   CSP `connect-src 'self'`; that rewrite lived in `netlify.toml`, which **Cloudflare
+   Pages never reads** → every dynamic call 404'd at the static layer. Fix: Pages
+   Function `functions/api/[[path]].js` proxies `/api/*` → the Fly app same-origin
+   (`API_ORIGIN` Pages env var overrides the default `kudbee-quant-api.fly.dev`).
+3. **PRIVACY LEAK (found + fixed).** Cloudflare Pages publishes the repo root
+   (`publish = "."`), so `kudbeex.xyz/data/journal.json` (and every other `data/*.json`)
+   was publicly downloadable in full — **including the exact entry/stop/target on OPEN
+   positions that `/api/journal` deliberately strips** (the documented stop-hunt /
+   front-running vector). Fix: Pages Function `functions/data/[[path]].js` 404s the
+   whole `/data/*` tree at the edge. The site only ever calls `/api/*`, so nothing
+   legitimate breaks.
+
+HARD-NEGATIVE / permanent rule: **when a static host publishes the repo root, the repo's
+`data/` (and any internal JSON) is on the public internet by default.** Privacy stripping in
+an API endpoint is worthless if the raw file is also served next to it. Any new deploy target
+that serves the repo root must block `data/` (and re-verify with
+`curl -o /dev/null -w '%{http_code}' https://<host>/data/journal.json` → 404).
+
+Blocker (owner-side): `fly launch --no-deploy` → `fly secrets set …` → `fly deploy`
+(`docs/HOSTING.md`). Also confirm `www` alongside the apex on the Pages custom domain
+(the agent proxy couldn't reach `www` to verify — X2). Fixes committed to `main` (streaming).

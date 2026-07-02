@@ -1,0 +1,43 @@
+# Fly.io app config for the Kudbee Quant FastAPI engine (dashboard + /api).
+# Replaces the retired Render blueprint. Runbook: docs/HOSTING.md.
+#
+# Deploy (from a machine with flyctl + `fly auth login`):
+#   fly launch --no-deploy        # first time: creates the app (accept this name)
+#   fly secrets set KUDBEE_API_TOKEN=... KUDBEE_DASHBOARD_PASSWORD=... (see HOSTING.md)
+#   fly deploy
+#
+# The public URL is https://<app>.fly.dev — point the website at it by setting the
+# Cloudflare Pages env var API_ORIGIN to that URL (functions/api/[[path]].js).
+
+app = "kudbee-quant-api"
+primary_region = "iad"   # US-East, near the Cloudflare/data sources; change if you prefer.
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  # Always-on: the TradingView alert webhook (POST /api/alert) can arrive any time,
+  # so we must NOT scale to zero (a cold start would drop the POST). This mirrors
+  # the Render "Starter, no spin-down" requirement.
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+
+  [[http_service.checks]]
+    method = "get"
+    path = "/api/health"
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "20s"
+
+[[vm]]
+  # pandas/numpy/scikit-learn need real memory; 512MB is the safe floor for this
+  # engine. Bump to 1024 if you see OOM during a heavy scan.
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1

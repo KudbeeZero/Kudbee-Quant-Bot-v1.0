@@ -43,12 +43,14 @@
   status = 404
 
 # --- Backend API proxy (Live Signals) -------------------------------------
-# The static site calls same-origin /api/* (keeps CSP connect-src 'self').
-# Netlify rewrites it to the FastAPI engine on Render (render.yaml; runbook
-# docs/HOSTING.md). If Render assigns a different subdomain (name collision),
-# update the host here to match the one shown in the Render dashboard.
+# NOTE: the site is deployed on **Cloudflare Pages**, which does NOT read this
+# file — the live /api proxy is the Pages Function functions/api/[[path]].js.
+# This block is kept only as a fallback for a Netlify deploy. It rewrites the
+# same-origin /api/* (keeps CSP connect-src 'self') to the FastAPI engine on
+# Fly.io (fly.toml + Dockerfile; runbook docs/HOSTING.md). Update the host if
+# your Fly app name differs.
 [[redirects]]
   from = "/api/*"
-  to = "https://kudbee-quant-api.onrender.com/api/:splat"
+  to = "https://kudbee-quant-api.fly.dev/api/:splat"
   status = 200
   force = true
