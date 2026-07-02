@@ -1,12 +1,22 @@
 {
   "agg": {
     "losers": 0,
-    "n": 3,
+    "n": 4,
     "unrealized_r": 1.0737,
     "winners": 1
   },
   "trades": {
     "0a2e055f": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "SOLUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "2b727588": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
