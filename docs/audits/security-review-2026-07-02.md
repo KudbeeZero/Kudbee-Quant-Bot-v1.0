@@ -79,9 +79,60 @@ These are the concrete preconditions for the still-pending live bring-up. The de
 subset (6, 7, 8 — pure fail-closed hardening that can never place a worse order) is safe to
 do first under sign-off; items 1–5 need design decisions.
 
-## Not completed this pass
-The engine-quality deep-dive reviewer did its analysis but could not emit its final report
-(repeated API-Overload errors during this run). The lookahead spot-check above is my own
-firsthand verification, not that agent's full pass — a complete engine correctness/numerical
-review (division-by-zero, NaN propagation into sizing, caching TTL, pandas foot-guns) remains
-a scoped follow-up. Advisory slug: `claude/engine-quality-review`.
+## Engine deep-dive — COMPLETED (see the addendum below)
+The engine numerical/quality review initially died on API-overload; it was re-run and
+completed. Findings + fixes are in the "Engine correctness addendum" section below.
+
+---
+
+# Engine correctness addendum — 2026-07-02 (completes the deferred engine review)
+
+The engine numerical/quality reviewer completed on re-run. All findings re-verified
+firsthand. FIXED here are the ones that change NO trade decision on the validated
+path; the two that alter what the live paper book ingests are FLAGGED for owner
+sign-off (same discipline as the money path — the trading/levels core is byte-identical).
+
+## Fixed (safe — no change to any live trade decision)
+| # | Sev | Finding | Fix + test |
+|---|-----|---------|------------|
+| E1 | robustness | `klines_range(end=None)` embedded raw-ms `now` in the cache key → key changed every call, cache never reused, cache dir grew unbounded. | Snap only the cache KEY to the last closed-bar boundary; fetch window unchanged. |
+| E4 | latent-correctness | `meta_prob_for_frame` scored by positional `.to_numpy()` → a frame with different killzone one-hot columns silently returned garbage P(win). No live caller today. | Reindex by name (missing→0); raise on width mismatch vs `n_features_in_`. Tests. |
+| E9 | latent-crash | single-class model → `predict_proba[:,1]` IndexError; and the lone column could be P(loss) mislabeled as P(win). | Guard: 2-class picks the win column by `classes_`; 1-class returns 1.0 iff the class IS win, else 0.0. Test. |
+| E10 | robustness | cache write was non-atomic (parquet then meta separately); a crash/truncated meta made `get()` raise instead of a clean miss. | Temp-file + atomic `replace`; `get()` treats any read/parse error as a MISS. Tests. |
+| E5 | display | CAGR/Calmar went NaN on non-positive terminal equity (leverage ruin) — poisoned reported metrics. | Total loss → CAGR = −1.0 (finite). Test. |
+| E6 | display | Sortino reported 0.0 (worst) for a no-downside strategy — misleading. | Undefined downside → `inf` when mean>0. Test. |
+
+729 tests pass (723 + 6 new in `tests/test_engine_correctness_fixes.py`).
+
+## FLAGGED for owner sign-off (these change what the LIVE paper book ingests)
+Both feed the hourly `paper_scan`, so they alter the validated trading path (byte-identical
+rule) — recommended fixes with the one-liners ready, but NOT shipped unilaterally.
+
+- **E3 — the live bot scans a HALF-FORMED candle. CONFIRMED, highest value.**
+  `klines()` (used by `paper_scan`) returns Binance's currently-forming candle as the
+  last row, and `paper/paper.py:264` evaluates the signal on `.iloc[-1]`. The hourly cron
+  fires ~5 min after the hour, so the "current" 1h bar is ~5/60 formed — its close/ATR/
+  volume/EMA/VWAP are all provisional and shift as the bar completes. A bar-close strategy
+  should read the last CLOSED bar. Yahoo's ingest already drops its partial row
+  (`yahoo.py:94-103`); Binance does not — the two paths disagree. **Recommended fix (1 line):**
+  in `klines`, drop the last row if `open_time > now - interval_ms` (bar not yet closed).
+  **Impact:** changes which signals fire on the live path → owner decision. This likely
+  explains part of the live-vs-backtest execution gap (§48/§41): the backtest resolves on
+  closed bars; the live scan has been reading forming ones.
+- **E2 — cross-venue price mislabeling. CONFIRMED path.** The endpoint fallback chain is
+  `api.binance.com` → `data-api.binance.vision` → `api.binance.us`. On GitHub runners
+  binance.com is geo-blocked (451), so `.vision` (the data mirror, same books) normally
+  answers — but if it fails, `.us` (a DIFFERENT exchange, different prints/liquidity)
+  answers with candles labeled as the same symbol. **Do NOT blind-remove `.us`** (it may be
+  the only reachable endpoint in some regions). **Recommended:** tag the frame with its
+  source and don't mix venues within a symbol's history, or drop `.us` only after confirming
+  `.vision` is reliably reachable from the runners. Owner call on whether `.us` data is
+  acceptable as a last resort.
+
+## Verified CLEAN (numeric core)
+`bracket.py`, `sizing.py` (Kelly guards var≤0), `money.py`, `montecarlo.py` (seeding +
+block bootstrap correct), `risk/*` (correlation/drawdown/session guards), `ml/cv.py`
+(purge/embargo), `ingest/validation.py`, `ingest/resample.py` (causal), `signals/*`
+(zero-denominator guards) — no correctness bugs. Remaining nits (#7 confluence_pct
+denominator drift on sparse frames, #8 scorecard lexicographic date compare) are low-risk
+and recorded here for a future pass.

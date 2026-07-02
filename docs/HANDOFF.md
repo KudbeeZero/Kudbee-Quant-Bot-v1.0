@@ -90,8 +90,16 @@
   venue-side stops, no idempotency, no partial-fill handling, bar-timestamp mismatch, NaN-size
   slip, kill-switch parse fail-open) has 8 latent findings that MUST be fixed before live bring-up
   — owner sign-off required (money path). **Deferred:** full engine numerical/quality deep-dive
-  (reviewer hit API-overload) — slug `claude/engine-quality-review`. **Deploy note:** set
-  TRIGGER_SECRET on the Worker; rate-limiter proxy-IP handling needs an ASGI trusted-proxy config.
+  **ENGINE DEEP-DIVE NOW DONE** (2026-07-02, addendum in the same doc): shipped safe
+  correctness fixes (atomic cache write + guarded read, CAGR/Calmar finite-on-ruin, Sortino
+  inf-not-zero, meta-model feature-name alignment + single-class guard, klines_range cache-key
+  snap) — 729 tests. **⚠️ TWO ENGINE ITEMS FLAGGED FOR OWNER (change live-scan data):**
+  (E3) the live bot scans a HALF-FORMED candle — `klines()` returns Binance's forming bar and
+  `paper.py:264` reads `.iloc[-1]`; a bar-close strategy should drop it (Yahoo already does).
+  1-line fix ready; likely explains part of the live-vs-backtest gap. (E2) the endpoint
+  fallback can serve `binance.us` (a different exchange) mislabeled — tag source / don't blind-
+  remove. Both need sign-off (validated-path data). **Deploy note:** set TRIGGER_SECRET on the
+  Worker; rate-limiter proxy-IP handling needs an ASGI trusted-proxy config.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm

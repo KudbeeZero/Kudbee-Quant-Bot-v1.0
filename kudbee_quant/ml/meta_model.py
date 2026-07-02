@@ -151,10 +151,29 @@ def fit_final(X: pd.DataFrame, y: pd.Series, model: str = "gbt"):
 
 
 def meta_prob_for_frame(model, df: pd.DataFrame, feature_columns: list | None = None) -> pd.Series:
-    """P(win) per bar for a feature frame — the live gating input. Aligns
-    ``make_features(df)`` to the columns the model was trained on."""
+    """P(win) per bar for a feature frame — the live gating input.
+
+    ``make_features`` emits a VARIABLE column set (the killzone one-hots depend on
+    which categories occur in the frame), so scoring by raw positional ``.to_numpy()``
+    would silently misalign columns and return garbage probabilities. Passing the
+    training ``feature_columns`` is therefore strongly recommended: we reindex to
+    them (missing dummies → 0, the natural "category absent" value) so alignment is
+    by NAME. Without them we fall back to positional order but verify the width
+    matches the model, raising rather than emitting a plausible-but-wrong P(win)."""
     feats = make_features(df)
     if feature_columns is not None:
-        feats = feats.reindex(columns=feature_columns)
-    prob = model.predict_proba(feats.to_numpy())[:, 1]
+        feats = feats.reindex(columns=feature_columns, fill_value=0.0)
+    expected = getattr(model, "n_features_in_", None)
+    if expected is not None and feats.shape[1] != expected:
+        raise ValueError(
+            f"meta feature mismatch: frame has {feats.shape[1]} columns but the model "
+            f"expects {expected}. Pass feature_columns=<training columns> to align by name.")
+    proba = model.predict_proba(feats.to_numpy())
+    classes = list(getattr(model, "classes_", [0, 1]))
+    if proba.shape[1] > 1:
+        prob = proba[:, classes.index(1)]           # normal 2-class: P(win)
+    else:
+        # Degenerate single-class model: P(win) is 1.0 iff that class IS the win
+        # class, else 0.0 — never P(loss) mislabeled as P(win) (an IndexError before).
+        prob = proba[:, 0] if classes[:1] == [1] else 1.0 - proba[:, 0]
     return pd.Series(prob, index=df.index, name="meta_prob")
