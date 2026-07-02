@@ -2321,3 +2321,22 @@ on a forming bar — the §77 closed-bar rule applied to the TradingView surface
 Not fixed (accepted): a shared `BinanceClient` across threads could race the per-fetch venue set,
 but no caller shares one (each builds its own), so it's latent-not-reachable; documented in code.
 734 tests. Reviewed via `/code-review` (3 finder angles → the HIGH double-confirmed + fixed).
+
+## 79. DMN open-ended idea generator — the candidate registry becomes generative (N3) — 2026-07-02
+
+`scripts/idea_generator.py` (BRAIN.md Part II, the Default Mode Network) turns the fixed
+hand-written candidate `REGISTRY` into a GENERATIVE layer: it composes new candidates by
+combining primitives — a regime GATE (vol bands, clean-trend, pullback, not-overextended,
+participation) × an execution OVERRIDE (4R/2R target, deep/shallow retrace, wider stop) —
+producing dozens of `gen__<gate>__<override>` combos the registry never enumerated.
+
+Honesty rails (unchanged philosophy, §2/§19): it INVENTS NO EDGE — every combo is a
+hypothesis fed to the SAME significance-gated harness (`overnight_research.py`; bootstrap
+p<0.05 + both-halves-robust before "WINNER"); and it NEVER re-proposes a dead end (skips
+anything already in `data/overnight_results.json`). Generated names are namespaced `gen__`
+so they can't collide with hand-written candidates; `register_generated(REGISTRY)` merges
+them deterministically at harness startup so a queued `gen__*` name resolves to the same
+callable. Reuses `overnight_candidates` helpers (`_gate`, `_atr_pct`, `_rolling_pctrank`) —
+no reimplementation. CLI: `--list` / `--emit N [--dry-run]`. Tests in `tests/test_overnight.py`
+(contract = subset of baseline; deterministic; dedup vs tested + hand-written; resolvable
+after register). 737 tests. Direct commit to main (streaming workflow).

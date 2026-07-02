@@ -190,10 +190,15 @@ improv so novel combinations can surface. This is the muse — and our idea fact
   - **Generation** — propose candidate edges in execution/regime/sizing (never "one
     more indicator" — §2 parsimony is the key signature).
   - **Divergent play** — many ideas cheaply; most will be killed. That's the point.
+- **Generative layer (built 2026-07-02, §79):** `scripts/idea_generator.py` composes
+  NEW candidates by combining primitives — a regime GATE × an execution OVERRIDE — so
+  the DMN is no longer a fixed registry but an open-ended generator (7 gates × 6
+  overrides → dozens of fresh combos the hand-written set never enumerated). It dedups
+  against everything already tested (`data/overnight_results.json`) and the hand-written
+  registry, and enqueues survivors for the SAME significance gate. It PROPOSES; it never
+  claims. `--list` / `--emit N`.
 - **Talks to:** the reward system scores each phrase; the anterior cingulate (the
-  critic) kills the overfit ones before they reach the Neocortex. **Honest note:**
-  today generation is a fixed candidate registry, not open-ended improvisation — a
-  richer generative layer (propose-from-first-principles) is a future capability.
+  critic) kills known dead ends before generation and overfit ones after testing.
 
 ## 🎼 Auditory / temporal cortex — rhythm, harmony, the market's meter
 *Music is pattern in time: pitch, rhythm, harmony. Markets have meter too — sessions,

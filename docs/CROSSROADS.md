@@ -60,14 +60,12 @@
 - **Still open (phases b/c):** split standalone indicators (PVSRA candles, session/
   killzone boxes, M-levels/pivots, confluence meter) + publish-quality polish. Queued.
 
-### N3 · Go deeper on the brain map  · **AGENT**
-- **Fork:** which region gets pushed down another level next (you asked for finer
-  subsections). Candidates: split the Hippocampus into encoding/consolidation/retrieval
-  as real modules; give the amygdala/risk region its own finer map; build the DMN into
-  an open-ended idea generator (today it's a fixed candidate registry).
-- **Recommended:** the **DMN generative layer** — it's the one region that's more
-  metaphor than code, so deepening it adds real capability, not just documentation.
-- **Status:** OPEN, creative direction.
+### N3 · Deepen the brain — DMN generative layer  · ✅ **DONE (2026-07-02, §79)**
+- **Done:** `scripts/idea_generator.py` — the DMN now COMPOSES new candidates
+  (regime-gate × execution-override), dedups vs tested history + hand-written registry,
+  and feeds the significance gate. `--list`/`--emit N`. 3 new tests.
+- **Still open (creative direction, future):** split the Hippocampus into
+  encoding/consolidation/retrieval modules; give the amygdala/risk region a finer map.
 
 ---
 
@@ -93,3 +91,4 @@
 - **Workflow → streaming** + **BRAIN.md** brain map — done (direct-to-main, 2026-07-02).
 - **N1 binance.us data honesty + N2 Pine sync** (§78, /code-review'd) — done (direct-to-main).
 - **BRAIN.md Part II** (creative + decision council) + **this board** — done.
+- **N3 DMN idea generator** (§79) — the registry is now generative; done (direct-to-main).

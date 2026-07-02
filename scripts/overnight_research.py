@@ -60,6 +60,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))        # for overnight_
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))  # for kudbee_quant
 from overnight_candidates import REGISTRY  # noqa: E402
 
+# DMN: merge the generated candidates into REGISTRY so any queued `gen__*` name
+# resolves to its (deterministic) callable. Generation only PROPOSES; the gate below
+# still judges. See scripts/idea_generator.py + docs/BRAIN.md Part II.
+import idea_generator  # noqa: E402
+idea_generator.register_generated(REGISTRY)
+
 from kudbee_quant.backtest.bracket import bracket_backtest  # noqa: E402
 from kudbee_quant.confluence.stack import confluence_position, confluence_score  # noqa: E402
 from kudbee_quant.ingest import load_ohlcv  # noqa: E402

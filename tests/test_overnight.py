@@ -47,6 +47,52 @@ def frame():
     return build_levels(raw)
 
 
+def test_generated_candidates_obey_the_contract(frame):
+    """DMN (idea_generator): every GENERATED candidate is a well-formed filter —
+    signal in {-1,0,1}, a subset of the baseline (gates only mask), dict overrides."""
+    import idea_generator as gen
+    scored = confluence_score(frame)
+    base = confluence_position(frame, min_pct=0.50, trend_align=True)
+    generated = gen.generate_candidates(skip_noop=False)
+    assert generated, "generator produced nothing"
+    for name, (fn, _desc) in generated.items():
+        sig, size, overrides = fn(frame, scored, base)
+        sig = pd.Series(sig, index=frame.index).fillna(0.0)
+        assert set(np.unique(sig)) <= {-1.0, 0.0, 1.0}, f"{name}: bad signal values"
+        assert ((sig != 0) & (base == 0)).sum() == 0, f"{name}: entered outside baseline"
+        assert isinstance(overrides, dict), f"{name}: overrides not a dict"
+
+
+def test_generation_is_deterministic_and_dedups(monkeypatch):
+    """Same inputs → same candidate set (reproducible), and a combo already tested
+    or already hand-written in REGISTRY is never re-proposed (the critic)."""
+    import idea_generator as gen
+    a = set(gen.generate_candidates())
+    b = set(gen.generate_candidates())
+    assert a == b and a, "generation must be deterministic + non-empty"
+    # Generated names live in the `gen__` namespace — none collide with a hand-written
+    # candidate (a name without the prefix).
+    handwritten = {k for k in REGISTRY if not k.startswith("gen__")}
+    assert a.isdisjoint(handwritten), "must not collide with hand-written candidates"
+    assert all(n.startswith("gen__") for n in a)
+    # A name marked as already-tested must drop out of the fresh set.
+    victim = next(iter(a))
+    monkeypatch.setattr(gen, "_tested_names", lambda: {victim})
+    assert victim not in gen.fresh_candidates(), "tested combo must be excluded"
+
+
+def test_register_generated_makes_names_resolvable():
+    """After register_generated, a queued gen__* name resolves in REGISTRY (so the
+    harness can actually run it)."""
+    import idea_generator as gen
+    reg = {k: v for k, v in REGISTRY.items() if not k.startswith("gen__")}
+    added = gen.register_generated(reg)
+    assert added > 0
+    sample = next(n for n in reg if n.startswith("gen__"))
+    fn, desc = reg[sample]
+    assert callable(fn) and isinstance(desc, str)
+
+
 def test_every_candidate_returns_valid_triple(frame):
     scored = confluence_score(frame)
     base = confluence_position(frame, min_pct=0.50, trend_align=True)
