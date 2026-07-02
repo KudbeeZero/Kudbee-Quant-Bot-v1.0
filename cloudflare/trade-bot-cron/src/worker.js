@@ -106,10 +106,39 @@ export default {
     ctx.waitUntil(dispatch(env));
   },
   // Hitting the Worker URL manually triggers a run too (handy health-check).
+  // AUTH: the *.workers.dev URL is not a secret (it appears in deploy output,
+  // wrangler tail, proxy logs), so an unauthenticated fetch() handler lets anyone
+  // who learns it spam workflow_dispatch — burning Actions minutes and flooding
+  // Telegram. Require a shared TRIGGER_SECRET (Worker secret) via header or query,
+  // compared in constant time. When the secret is unset we FAIL CLOSED (403), so a
+  // misconfigured deploy can't silently expose the trigger. The scheduled cron
+  // path is unaffected — it never runs fetch().
   async fetch(request, env) {
+    const expected = env.TRIGGER_SECRET;
+    if (!expected) {
+      return new Response("manual trigger disabled (no TRIGGER_SECRET set); cron still runs\n", { status: 403 });
+    }
+    const url = new URL(request.url);
+    const provided = request.headers.get("x-trigger-secret") || url.searchParams.get("key") || "";
+    if (!timingSafeEqualStr(provided, expected)) {
+      return new Response("forbidden\n", { status: 403 });
+    }
     const msg = await dispatch(env);
-    // 200 only if EVERY workflow dispatched OK; 500 if any failed.
+    // 200 only if EVERY workflow dispatched OK; 500 if any failed. Return only a
+    // generic status to callers — the detailed GitHub body stays in the logs.
     const allOk = msg.split("\n").every((line) => line.startsWith("OK"));
-    return new Response(msg + "\n", { status: allOk ? 200 : 500 });
+    console.log(msg);
+    return new Response((allOk ? "ok" : "dispatch error") + "\n", { status: allOk ? 200 : 500 });
   },
 };
+
+// Constant-time string compare (avoids a timing oracle on the trigger secret).
+function timingSafeEqualStr(a, b) {
+  const enc = new TextEncoder();
+  const ab = enc.encode(String(a));
+  const bb = enc.encode(String(b));
+  if (ab.length !== bb.length) return false;
+  let diff = 0;
+  for (let i = 0; i < ab.length; i++) diff |= ab[i] ^ bb[i];
+  return diff === 0;
+}

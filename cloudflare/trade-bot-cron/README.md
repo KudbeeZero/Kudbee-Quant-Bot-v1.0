@@ -50,13 +50,28 @@ alerts only arrived reliably when you triggered the workflow manually.
    ```
    Leave them unset and the Worker just stays silent on failure (no behavior change).
 
+5. **(Required for the manual URL trigger) Set `TRIGGER_SECRET`** — the scheduled cron
+   needs nothing extra, but the manual `fetch()` health-check URL is now auth-gated so a
+   stranger who learns the `*.workers.dev` URL can't spam `workflow_dispatch`:
+   ```bash
+   wrangler secret put TRIGGER_SECRET   # any long random string
+   wrangler deploy
+   ```
+   Then trigger a run with the secret in a header (preferred) or query param:
+   ```bash
+   curl -H "X-Trigger-Secret: <secret>" https://<worker-url>
+   # or, for a browser: https://<worker-url>?key=<secret>
+   ```
+   **Fail-closed:** if `TRIGGER_SECRET` is unset the manual URL returns 403 (the cron still
+   runs); with it set, a missing/wrong secret returns 403.
+
 That's it. The Worker now fires the bot on Cloudflare's reliable cron, dispatching every
 workflow in `WORKFLOW_FILES` (currently `paper-trade.yml` + the read-only `paper-status.yml`).
 
 ## Verify it works
-- Hit the Worker's URL once (shown after `wrangler deploy`) — it triggers a run
-  immediately and returns one `OK: dispatched <workflow>@main` line per workflow
-  (200 if all succeeded, 500 if any failed).
+- Hit the Worker's URL once with the `TRIGGER_SECRET` (`-H "X-Trigger-Secret: <secret>"`
+  or `?key=<secret>`) — it triggers a run immediately and returns a generic `ok` (200) or
+  `dispatch error` (500). Per-workflow detail stays in `wrangler tail`, not the HTTP body.
 - In the repo, **Actions** tab → you'll see `paper-trade` (and `paper-status`) runs with
   event **workflow_dispatch** kicked off by the token. Telegram pings follow as usual.
 - `wrangler tail` streams the Worker's logs if you want to watch the cron fire.

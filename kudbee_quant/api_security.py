@@ -93,6 +93,10 @@ class RateLimiter:
         if len(dq) >= self.limit:
             raise HTTPException(status_code=429, detail="rate limit exceeded")
         dq.append(now)
+        # Evict buckets that fully aged out this pass, so the map can't grow
+        # unbounded across many distinct client keys (a slow memory leak).
+        for k in [k for k, d in _HITS.items() if not d]:
+            _HITS.pop(k, None)
 
 
 def _reset_rate_limits() -> None:   # test helper

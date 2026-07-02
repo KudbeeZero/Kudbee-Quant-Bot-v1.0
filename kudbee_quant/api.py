@@ -244,7 +244,13 @@ def replay(trade_id: str, _rl: None = Depends(_read_limit)) -> dict:
 
 
 @app.get("/api/journal")
-def journal() -> dict:
+def journal(_rl: None = Depends(_read_limit)) -> dict:
+    # PUBLIC endpoint (the marketing Lab page reads by_source/resolved_series/exposure).
+    # Deliberately does NOT expose per-position entry/stop/target: exact live stop and
+    # target levels are a stop-hunt / front-running vector, and neither the public Lab
+    # nor the (session-gated) dashboard reads them here — the dashboard uses the gated
+    # /api/open-trades for full position detail. Rate-limited like every other read
+    # (it hits disk + runs several pandas groupbys per call).
     from .exposure import portfolio_exposure, total_gross_risk
     j = TradeJournal()
     by_status: dict[str, int] = {}
@@ -255,8 +261,7 @@ def journal() -> dict:
         "counts": by_status,
         "scorecard": sc.to_dict("records") if not sc.empty else [],
         "open": [{"id": p.id, "symbol": p.symbol, "setup": p.setup, "status": p.status,
-                  "direction": p.direction, "entry": p.entry, "stop": p.stop,
-                  "target": p.target, "created_at": p.created_at}
+                  "direction": p.direction, "created_at": p.created_at}
                  for p in j.predictions if p.status in ("open", "pending")],
         "exposure": [ex.as_dict() for ex in portfolio_exposure(j.predictions)],
         "total_gross_risk_pct": round(total_gross_risk(j.predictions) * 100, 2),
@@ -345,21 +350,22 @@ def register_telegram_webhook(
     request: Request,
     token: str | None = Query(default=None),
     url: str | None = Query(default=None),
+    x_api_token: str | None = Header(default=None),
     _rl: None = Depends(_write_limit),
 ) -> dict:
-    """Self-register the Telegram webhook from any browser — no local secrets.
+    """Self-register the Telegram webhook — no local secrets needed.
 
-    The owner hits this ONE URL with ``?token=<KUDBEE_API_TOKEN>`` and the server
-    calls Telegram ``setWebhook`` using the ``TELEGRAM_BOT_TOKEN`` that is already
-    configured in the host env (outgoing alerts confirm it is correct). It points
-    Telegram back at this app's own ``/api/telegram`` with the ``secret_token`` set
-    to ``TELEGRAM_WEBHOOK_SECRET`` so the inbound gate (see telegram_webhook) passes.
+    Auth prefers the ``X-API-Token`` header (curl/scripts); a ``?token=`` query param
+    is still accepted for a plain browser GET, but note it can land in access logs, so
+    the header is recommended and, if the query form is ever used, rotate the token.
+    The server calls Telegram ``setWebhook`` using the ``TELEGRAM_BOT_TOKEN`` already in
+    the host env, pointing Telegram at this app's ``/api/telegram`` with the
+    ``secret_token`` set to ``TELEGRAM_WEBHOOK_SECRET`` so the inbound gate passes.
 
-    Idempotent — ``setWebhook`` can be called repeatedly. Gated by KUDBEE_API_TOKEN
-    via a query param (so a browser GET works; the header-based require_token can't).
-    The bot token is NEVER echoed back. See docs/runbooks/telegram-setup.md.
+    Idempotent — ``setWebhook`` can be called repeatedly. The bot token is NEVER echoed
+    back. See docs/runbooks/telegram-setup.md.
     """
-    check_token(token)  # fail-closed: 503 if no KUDBEE_API_TOKEN set, 401 on mismatch
+    check_token(x_api_token or token)  # header preferred; fail-closed (503 unset, 401 mismatch)
     bot = get_secret("TELEGRAM_BOT_TOKEN", required=False)
     if not bot:
         raise HTTPException(status_code=503, detail="TELEGRAM_BOT_TOKEN not configured")
@@ -415,8 +421,10 @@ def paper_scan_endpoint(req: ScanRequest, _auth: None = Depends(require_token),
 
 
 @app.get("/api/metrics")
-def system_metrics(_rl: None = Depends(_read_limit)) -> dict:
-    """Host CPU/memory/disk of the machine serving the app — dashboard panel."""
+def system_metrics(_rl: None = Depends(_read_limit),
+                   _auth: None = Depends(require_session)) -> dict:
+    """Host CPU/memory/disk of the machine serving the app — dashboard panel.
+    Session-gated: host infra (real RAM/disk totals) is not public reconnaissance."""
     try:
         import psutil
         cpu = psutil.cpu_percent(interval=0.1)

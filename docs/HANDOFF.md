@@ -80,6 +80,18 @@
   M-levels/pivots, confluence meter); (c) publish-quality polish (inputs, tooltips, alerts).
   Advisory slug: `claude/tv-indicator-suite`. NOTE: keep the Pine vwap sign = momentum (§75
   parity is test-pinned on the Python side).
+- **🔒 SECURITY REVIEW DONE (2026-07-02) — `docs/audits/security-review-2026-07-02.md`.** Four
+  parallel read-only reviewers over the pre-Fable-5 surface; every finding re-verified firsthand.
+  SHIPPED (web-surface, no trading-logic change): /api/journal no longer leaks open-position
+  entry/stop/target (+read limiter); Cloudflare Worker fetch() now requires TRIGGER_SECRET
+  (fail-closed); register-webhook prefers X-API-Token header; /api/metrics session-gated;
+  rate-limiter bucket eviction. Auth primitives, Telegram gate, alert→journal, runner all
+  verified SAFE. **⚠️ HARD PRE-LIVE GATE:** the live-execution path (gate is airtight, but no
+  venue-side stops, no idempotency, no partial-fill handling, bar-timestamp mismatch, NaN-size
+  slip, kill-switch parse fail-open) has 8 latent findings that MUST be fixed before live bring-up
+  — owner sign-off required (money path). **Deferred:** full engine numerical/quality deep-dive
+  (reviewer hit API-overload) — slug `claude/engine-quality-review`. **Deploy note:** set
+  TRIGGER_SECRET on the Worker; rate-limiter proxy-IP handling needs an ASGI trusted-proxy config.
 - **THEN — FINISH THE WEBSITE SEO SWEEP (owner-chosen earlier, still queued).** The SEO/AEO loop was mid-run when
   this chat closed. Remaining per `studies/website_polish_progress.md`: `trade-story.html` + `trade-flow.html`
   (canonical + OG/Twitter/JSON-LD or noindex), `be-report.html` (desc/canonical/OG/JSON-LD or confirm
