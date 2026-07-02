@@ -2,8 +2,8 @@
   "agg": {
     "losers": 3,
     "n": 7,
-    "unrealized_r": 0.0118,
-    "winners": 3
+    "unrealized_r": 1.0857,
+    "winners": 4
   },
   "trades": {
     "09721614": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.21807425540594802
+      "ur": 0.452264381884943
     },
     "0c3779ec": {
       "dl_soon": false,
@@ -24,27 +24,27 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.21807425540594802
+      "ur": 0.452264381884943
     },
     "2a4b8ae9": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.08492569002123258
     },
     "4200d4d8": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3084848484848609
+      "ur": -0.2745454545454656
     },
     "78ba11f4": {
       "dl_soon": false,
@@ -54,27 +54,27 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.692743764172334
+      "ur": 0.7199546485260766
     },
     "d5f1510d": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3979630687226283
+      "ur": -0.16304968589377541
     },
     "e73b60dc": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4106529209622022
+      "ur": -0.18613974799541913
     }
   }
 }
