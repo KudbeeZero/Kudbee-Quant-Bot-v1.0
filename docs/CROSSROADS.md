@@ -16,22 +16,19 @@
 
 ## 🔴 DECIDE — needs the owner
 
-### X0 · Deploy the API to Fly.io (host decided; deploy pending)  · **OWNER**
+### X0 · App layer not wired end-to-end (root cause + repo-side fixes)  · **OWNER**
 - **Found (2026-07-02, `docs/wiring-verification-2026-07-02.md`):** the marketing
-  site is live + hardened, but the **app layer is not wired end-to-end**. Three
-  things surfaced; two are fixed in-repo, one is the owner's deploy.
-- **Decided (2026-07-02):** backend host = **Fly.io** (owner: "not using Render").
-  `render.yaml` retired; added `Dockerfile`, `fly.toml`, `.github/workflows/fly-deploy.yml`.
-- **Fixed in-repo:** (a) `/api/*` proxy was Netlify-only (dead on Cloudflare Pages)
-  → Pages Function `functions/api/[[path]].js` proxies `/api/*` → Fly same-origin
-  (`API_ORIGIN`-overridable); (b) **privacy leak** — raw `data/journal.json` (open
-  entry/stop/target) was public at `kudbeex.xyz/data/*` → Pages Function
-  `functions/data/[[path]].js` 404s the whole tree at the edge.
-- **Owner action (the blocker):** `fly launch --no-deploy` → `fly secrets set …`
-  → `fly deploy` (full runbook `docs/HOSTING.md`). Optionally add the `FLY_API_TOKEN`
-  repo secret to turn on the hourly auto-deploy freshness workflow. Then the
-  dynamic pages (Live Signals / Trade Flow / Lab) light up.
-- **Status:** OPEN, owner-side (Fly deploy). Proxy + leak fixes committed to `main`.
+  site is live + hardened, but three app-layer breaks surfaced. **Decided:** backend
+  host = **Fly.io** (owner: "not using Render"); `render.yaml` retired.
+- **Fixed in-repo:** `Dockerfile` + `fly.toml` + `.github/workflows/fly-deploy.yml`;
+  Pages Function `functions/api/[[path]].js` (the `/api/*` proxy was Netlify-only,
+  dead on Cloudflare Pages); Pages Function `functions/data/[[path]].js` (closed a
+  **privacy leak** — raw `data/journal.json`, incl. open entry/stop/target, was
+  publicly downloadable via Pages serving the repo root).
+- **The remaining owner action (the Fly deploy) is now step 3 of the consolidated
+  bring-up checklist → see X2.** Kept here only as the historical record of what
+  broke and why; don't track the deploy step in two places.
+- **Status:** repo-side fixes on `main`. Deploy tracked under X2.
 
 ### X1 · Live bring-up: the money-path pre-live gate  · **OWNER**
 - **Fork:** enable live execution someday, or stay paper-only.
@@ -45,26 +42,31 @@
   hold (c) until you actually intend to go live. **Never merge-on-green — money path.**
 - **Status:** OPEN, awaiting owner. No live capital is at risk today (live unwired).
 
-### X2 · Domain + mailboxes on kudbeex.xyz  · **OWNER**
-- **Fact (2026-07-02):** owner OWNS `kudbeex.xyz` on **Namecheap**. No need to buy a
-  new domain. Registrar stays Namecheap; move the DNS **zone** to Cloudflare (free).
-- **Path (phone, ~10 min):** (1) Cloudflare → Add site `kudbeex.xyz` (Free) → get 2
-  nameservers; (2) Namecheap → Domain → Nameservers → Custom DNS → paste them; (3) once
-  Active: Pages custom domain (`kudbeex.xyz` + `www`) + **Email Routing** forwarding
-  `hello@/partners@/press@` (free — solves the mailbox need) + Worker `TRIGGER_SECRET` (X3).
-- **Alt:** keep DNS on Namecheap and use its free email forwarding — but then no
-  Cloudflare Email Routing / clean Pages custom domain. **Recommended:** move nameservers.
-- **Wiring note (2026-07-02):** apex `kudbeex.xyz` verified **200 live**; `www` could
-  not be confirmed from the agent container (proxy 502'd `www` while apex succeeded) —
-  when setting the Pages custom domain, add **both** `kudbeex.xyz` and `www`.
-- **Status:** OPEN, owner-side (all doable from a phone browser; no repo change).
-
-### X3 · Deploy secrets for the security hardening  · **OWNER**
-- **Fork:** the Worker's manual trigger now needs `TRIGGER_SECRET`; the API rate-limiter
-  wants a trusted-proxy config to key on the real client IP behind Render/Cloudflare.
-- **Recommended:** `wrangler secret put TRIGGER_SECRET` (else the manual URL 403s — cron
-  still runs); the proxy-IP config is a deploy-config change I can draft on request.
-- **Status:** OPEN, owner-side (secrets/deploy).
+### X2 · Full bring-up checklist: domain + API + mailboxes  · **OWNER**
+- **Consolidated (2026-07-02):** everything left to flip the site from "live
+  marketing page" to "fully wired product" in one ordered list. Phone-doable except
+  the Fly deploy (needs `flyctl` on a machine).
+  1. **DNS zone → Cloudflare** (free): owner OWNS `kudbeex.xyz` on **Namecheap** — no
+     new domain needed. Cloudflare → Add site `kudbeex.xyz` (Free) → get 2 nameservers
+     → Namecheap → Domain → Nameservers → Custom DNS → paste them.
+  2. **Pages custom domain:** once Active, add **both** `kudbeex.xyz` **and** `www` —
+     apex verified **200 live** 2026-07-02; `www` couldn't be confirmed from the agent
+     container (proxy 502'd it while apex succeeded), so confirm both are attached.
+  3. **Deploy the API to Fly.io** (X0, the app-layer blocker): `fly launch --no-deploy`
+     → `fly secrets set …` → `fly deploy` (full steps `docs/HOSTING.md`). If the Fly
+     app name isn't `kudbee-quant-api`, also set `API_ORIGIN` in Pages → Settings →
+     Environment variables to `https://<your-app>.fly.dev` so `functions/api/[[path]].js`
+     proxies to the right place.
+  4. **Email Routing** (free, solves the mailbox need): Cloudflare → Email → forward
+     `hello@/partners@/press@`.
+  5. **Worker `TRIGGER_SECRET`:** `wrangler secret put TRIGGER_SECRET` (else the
+     manual trigger URL 403s — the cron itself still runs without it).
+- **Alt (step 1):** keep DNS on Namecheap + its free email forwarding — loses
+  Cloudflare Email Routing and a clean Pages custom domain. **Recommended:** move
+  nameservers.
+- **Status:** OPEN, owner-side. Steps 1/2/4/5 are phone-doable; step 3 needs a
+  machine with `flyctl`. Repo-side halves of steps 2–3 (the proxy Functions) are
+  already committed to `main`.
 
 ---
 
@@ -115,3 +117,5 @@
 - **N1 binance.us data honesty + N2 Pine sync** (§78, /code-review'd) — done (direct-to-main).
 - **BRAIN.md Part II** (creative + decision council) + **this board** — done.
 - **N3 DMN idea generator** (§79) — the registry is now generative; done (direct-to-main).
+- **Backend host → Fly.io** (§80, Render retired) + **`/api` proxy fix** + **`data/` privacy
+  leak closed** — repo-side wiring done (direct-to-main); Fly deploy is X2 step 3, owner-side.
