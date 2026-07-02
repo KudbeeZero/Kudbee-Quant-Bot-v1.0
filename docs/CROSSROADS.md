@@ -16,6 +16,19 @@
 
 ## 🔴 DECIDE — needs the owner
 
+### X0 · Wire the application layer (API not deployed)  · **OWNER**
+- **Found (2026-07-02, `docs/wiring-verification-2026-07-02.md`):** the marketing
+  site is live + hardened, but the **app layer is not wired end-to-end**. Two breaks:
+  (1) the FastAPI engine is **not deployed on Render** — `kudbee-quant-api.onrender.com`
+  returns `x-render-routing: no-server`; (2) the `/api/*` proxy was **Netlify-only**
+  and dead on Cloudflare Pages.
+- **Done here:** break (2) fixed in-repo — added Pages Function `functions/api/[[path]].js`
+  (same-origin proxy → Render, `API_ORIGIN`-overridable, keeps CSP `connect-src 'self'`).
+- **Owner action:** deploy/redeploy the `kudbee-quant-api` service on Render
+  (`render.yaml`, runbook `docs/HOSTING.md`) + set its env, then the dynamic pages
+  (Live Signals / Trade Flow / Lab) light up. **This is the blocker.**
+- **Status:** OPEN, owner-side (Render deploy). Proxy half is committed to `main`.
+
 ### X1 · Live bring-up: the money-path pre-live gate  · **OWNER**
 - **Fork:** enable live execution someday, or stay paper-only.
 - **Know:** the on/off gate is airtight, but `docs/audits/security-review-2026-07-02.md`
@@ -37,6 +50,9 @@
   `hello@/partners@/press@` (free — solves the mailbox need) + Worker `TRIGGER_SECRET` (X3).
 - **Alt:** keep DNS on Namecheap and use its free email forwarding — but then no
   Cloudflare Email Routing / clean Pages custom domain. **Recommended:** move nameservers.
+- **Wiring note (2026-07-02):** apex `kudbeex.xyz` verified **200 live**; `www` could
+  not be confirmed from the agent container (proxy 502'd `www` while apex succeeded) —
+  when setting the Pages custom domain, add **both** `kudbeex.xyz` and `www`.
 - **Status:** OPEN, owner-side (all doable from a phone browser; no repo change).
 
 ### X3 · Deploy secrets for the security hardening  · **OWNER**
