@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 1,
-    "n": 6,
+    "n": 7,
     "unrealized_r": 2.9356,
     "winners": 5
   },
@@ -45,6 +45,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.5365853658536607
+    },
+    "3c9b22f9": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "4c78e938": {
       "dl_soon": false,
