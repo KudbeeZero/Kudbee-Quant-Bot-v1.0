@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 6,
+    "n": 7,
     "unrealized_r": 4.5643,
     "winners": 5
   },
@@ -35,6 +35,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.9246284501061629
+    },
+    "344a8997": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "4c78e938": {
       "dl_soon": false,
