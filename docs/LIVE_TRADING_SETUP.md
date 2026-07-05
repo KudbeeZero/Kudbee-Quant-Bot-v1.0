@@ -92,8 +92,10 @@ journal a live record you can `poll()`/`cancel()`. No mainnet funds are at risk.
 
 ## What's proven vs unproven
 
-- **Proven:** the paper pipeline (signal → journal → resolver → score); top-10
-  majors walk-forward (MEMORY §1); the live order subsystem's *logic* (gate,
+- **Proven:** the paper pipeline (signal → journal → resolver → score); the 6-asset
+  walk-forward (2 crypto + gold/S&P/bonds/oil, correlation 0.00 — MEMORY §1; the
+  top-10 book is the *forward paper* universe, not the validation sample); the live
+  order subsystem's *logic* (gate,
   kill-switch, sizing, maker order shaping, venue-clock fills) under hermetic tests.
 - **Unproven:** any **real** live fill (never run in production); the top-100 long
   tail forward (§31). Treat both accordingly — start on testnet, tiny size.

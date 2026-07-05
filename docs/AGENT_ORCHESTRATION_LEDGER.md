@@ -24,9 +24,15 @@ doesn't back* — **no audit report was written for that nonexistent PR, and no
 orchestration events from this repo's git + PR history. REC numbering therefore
 **starts at REC-001 here**, not REC-004.
 
-## Working agreement (ACTIVE as of 2026-06-15)
+## Working agreement (RETIRED 2026-07-02 — kept as historical record)
 
-**Strict serial flow across all implementation work:**
+> ⚠️ **SUPERSEDED (owner-set, 2026-07-02):** the workflow is now **streaming &
+> actionable** — commit low-risk/docs/verified work directly to `main`; open a PR only
+> when it earns one (large/risky, the money path, a preview-worthy visual, or a
+> requested review); merge-on-green when the owner authorizes it. See `CLAUDE.md` and
+> `docs/SESSION_PROTOCOL.md`. The serial rule below is the retired old regime.
+
+**Strict serial flow across all implementation work (retired):**
 
 > **Finish the full unit → open ONE PR → get it audited → merge → only then start the
 > next unit.**
@@ -60,6 +66,8 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | REC-011 | 2026-07-01 | `claude/section41-gap-run` | #129 | ran the pre-registered §41 gap investigation: gap 100% = the §44 VWAP flip; momentum signal reproduces §41 EXACTLY; live signal unvalidated since 06-16 (MEMORY §74) | pre-registered, read-only, residual 0 | ✅ owner-authorized merge-on-green |
 | REC-012 | 2026-07-01 | `claude/revert-vwap-momentum` | #130 | LIVE SIGNAL change (owner one-tap sign-off on §74 evidence): v_vwap reverted to the §41-validated momentum sign; sign test-pinned; Pine/site re-aligned (MEMORY §75) | evidence-gated live change, owner-approved | ✅ owner-authorized merge-on-green |
 | REC-013 | 2026-07-01 | `claude/mgmt-geometry-clean-rerun` | #131 | contamination audit of #116 (population selected by refuted rotation signal; shadow 86% rotation-era) → CLEAN RERUN on momentum population (n=8,935: A−B=+0.041R p=0.000) → ride-3R shipped to the PAPER book; permanent contamination-check rule (MEMORY §76) | owner pre-authorized paper change, verify-then-act | ✅ owner-authorized merge-on-green |
+| — | 2026-07-01 → 2026-07-04 | *(streaming era — per-PR rows retired with the serial agreement)* | #132–#137 + direct commits | website SEO/redesign (#132/#133), security+engine review (#134/#135), forming-candle fix (#136), N1–N3 + Fly migration (streaming), weekly status + §81/§82 rejections (#137, post-hoc PASS `docs/audits/claude-weekly-trades-status-z8thda.md`) | per-unit records live in `docs/HANDOFF.md` + `docs/MEMORY.md` §74–§82 | ✅ |
+| REC-014 | 2026-07-05 | `claude/fable-five-codebase-review-9d61n5` | (this PR) | Fable-5 full-codebase review: 5-subsystem fresh-eyes sweep + docs/memory reconciliation (MEMORY §83) | independent post-hoc audit of #137 PASS; review findings filed §83 + CROSSROADS | ⏳ |
 
 ### Process deviations (honest log)
 

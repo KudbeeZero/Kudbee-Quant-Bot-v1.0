@@ -119,7 +119,7 @@ they can never diverge (the §18 structural win).*
 ## 🛡 Amygdala — threat & risk: the survival veto
 *Fear, sized correctly. Stops the account from dying before the edge pays.*
 - **Route:** `kudbee_quant/risk/` (correlation guard, drawdown guard, session sizer,
-  Kelly / risk-of-ruin) + `execution/killswitch.py` + `exposure.py`.
+  Kelly / risk-of-ruin) + `execution/killswitch.py` + `kudbee_quant/exposure.py`.
 - **Subsections:**
   - **Daily loss kill-switch** — fail-closed cap on a bad day (pre-live gaps flagged).
   - **Exposure guard** — per-coin gross-risk cap (net-exposure, §14).
@@ -242,8 +242,8 @@ world changes (reversal learning). Damage here = smart but terrible decisions.*
 *The "gut feeling." Damasio's somatic-marker hypothesis: good decisions need a felt
 sense of risk, not just logic. The insula reports how uncertain the body is.*
 - **Route:** our gut is quantified honesty — the bootstrap **p-value** and Wilson CIs
-  (`events/study.py`, `cluster.py`), the "UNVERIFIED / low-confidence" tags all over
-  `MEMORY.md`. A high p is a queasy gut: don't act.
+  (`kudbee_quant/events/study.py`, `kudbee_quant/cluster.py`), the "UNVERIFIED /
+  low-confidence" tags all over `MEMORY.md`. A high p is a queasy gut: don't act.
 - **Subsections:** significance as felt-uncertainty; sample-size caveats ("n too thin"
   is nausea); the honest "this is a hypothesis, not a promise" reflex.
 - **Talks to:** vetoes the OFC when the gut says *not proven* even if the mean looks good.

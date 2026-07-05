@@ -12,7 +12,7 @@ This repository is one unit:
 | `kudbee_quant/` | The Python engine (ingestion, signals, backtest, confluence, paper loop, API) |
 | `research/` | The Traders Reality / ICT / BTMM research corpus (Vols 1–10) |
 | `docs/research/` | Honest findings & the testable rule set (what survived the null) |
-| `*.html`, `assets/`, `blog/` | The static marketing/education website (Netlify) |
+| `*.html`, `assets/`, `blog/` | The static marketing/education website (Cloudflare Pages) |
 | `kudbee_quant/api.py` | FastAPI backend that serves the website's Live Signals page |
 
 ## The validated strategy (what survived honest testing)
@@ -48,8 +48,9 @@ python -m kudbee_quant.cli journal-score                        # forward R expe
 ```bash
 # 1) backend API (serves live signals to the site)
 uvicorn kudbee_quant.api:app --port 8000
-# 2) static site (any static server, or Netlify). The site calls /api/* which
-#    Netlify proxies to the backend (see netlify.toml). Open live-signals.html.
+# 2) static site (any static server; production is Cloudflare Pages). The site
+#    calls /api/* which the Pages Function functions/api/[[path]].js proxies to
+#    the FastAPI backend on Fly.io (see docs/HOSTING.md). Open live-signals.html.
 ```
 
 ## Honesty layer

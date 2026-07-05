@@ -10,7 +10,7 @@
 >
 > Legend — **OWNER** = needs your call/sign-off · **AGENT** = I can do it under the
 > streaming workflow (direct commit / PR as it earns one) · **WATCH** = a trigger that
-> fires later, no decision yet. Updated 2026-07-02.
+> fires later, no decision yet. Updated 2026-07-05 (Fable-5 review, MEMORY §83).
 
 ---
 
@@ -68,9 +68,76 @@
   machine with `flyctl`. Repo-side halves of steps 2–3 (the proxy Functions) are
   already committed to `main`.
 
+### X3 · Transparency posture: the whole repo is public (GitHub + Pages)  · **OWNER**
+- **Found (2026-07-05, Fable-5 review §83):** the GitHub repo is **public**, and
+  Cloudflare Pages publishes the repo root, so `docs/MEMORY.md`, `docs/audits/`,
+  `research/`, and the engine source are all world-readable on BOTH surfaces. Yet we
+  block `/data/*` on the site (§80 "privacy leak" fix) — an inconsistent posture:
+  the journal that Function hides is public on GitHub anyway.
+- **Options:** (a) **embrace transparency** (it fits the "honest quant" thesis) —
+  keep everything public, accept that strategy internals/ops playbooks are readable,
+  optionally still blocking `/data/*` as a courtesy speed-bump; (b) **go private** —
+  make the GitHub repo private + restrict Pages to an allowlist of site files (needs
+  a build step or a catch-all Function); (c) middle: keep the repo public but strip
+  the site publish surface to HTML/assets only.
+- **Recommended:** (a) — the site already markets radical honesty, the edge is
+  execution not secrecy (§2), and (b) breaks the public journal/lab pages. Decide
+  deliberately rather than by accident.
+- **Status:** OPEN, owner call. No action taken.
+
+### X4 · Core-engine fixes from the §83 review (change-gated code)  · **OWNER**
+- **Fork:** the review found real defects in the levels/backtest core, which is
+  off-limits without your sign-off: the **London Brinks box lookahead** +
+  `ny_open` leak + AWR/AMR stub-period gap (`levels/builder.py`), the
+  **entry-bar fill blind spot** in the maker-entry backtests (`backtest/bracket.py`
+  — entry-bar stop-outs impossible by construction, optimistic bias), the
+  `bracket_excursions` MFE/stop-bar accounting, and never-clearing FVG zones
+  (semantics differ from the docstring the `v_fvg` vote was validated under).
+- **Know:** none of these touch the live 3.0R/1.5-ATR/1h defaults directly, but the
+  Brinks/FVG items affect research-layer scores, and the entry-bar item means every
+  maker-entry backtest (incl. §42's) is somewhat flattered. Fixes are localized and
+  test-pinnable; changing them will shift research numbers, so it earns a PR.
+- **Options:** (a) authorize a reviewed PR fixing all of the above with regression
+  tests + a before/after impact table; (b) fix only the causality bugs (Brinks/
+  ny_open/FVG) and leave fill simulation for later; (c) leave as documented caveats.
+- **Recommended:** (a) — one honest PR, since the whole point of the harness is that
+  its numbers are trustworthy. **Not merge-on-green — backtest core.**
+- **Status:** OPEN, awaiting owner.
+
 ---
 
 ## 🟡 DO NEXT — I can act (your pick of order)
+
+### N4 · Journal durability hardening (paper path)  · **AGENT**
+- **From §83:** (i) make `journal.save()` atomic (temp file + `os.replace`, same
+  pattern as the data cache; also `chart_reviews.py`/`control.py`); (ii) per-symbol
+  try/except in `check_open()` so one dead feed can't block the whole book, with a
+  loud warning + partial save; (iii) NaN guards on the paper path (`sd <= 0` →
+  `not (sd > 0)`, same for pct/direction) so a NaN ATR can never journal an
+  unresolvable bracket; (iv) `commit_journal.sh` validates JSON before committing.
+- All paper-book plumbing, no strategy change, fully testable. The highest-value
+  fixes in the review — they close the "bot silently stopped trading" failure class.
+
+### N5 · Deploy/CI hardening remainder  · **AGENT**
+- ✅ Done this session: `telegram-register.yml` re-pointed Render→Fly (it was
+  self-healing the webhook against the dead host daily).
+- Open: pin `superfly/flyctl-actions` by SHA + add `permissions: contents: read` to
+  `fly-deploy.yml`/`telegram-scheduled.yml`; add a pip lockfile (or deploy only on
+  dependency change) so the hourly rebuild can't ship unreviewed env drift; fix
+  `api.py` webhook self-register base-URL for Fly (`RENDER_EXTERNAL_URL` fallback is
+  dead; needs `--proxy-headers`/`API_ORIGIN` awareness) — do together with X2 step 3.
+- Low-risk singles: drop `MATIC` from `config/crypto_universe.yaml` (delisted pair);
+  align Kestra flows to top-10 (they claim to mirror the Action but scan top-100);
+  `/summary` "on the crypto book" copy fix (sums both venues).
+
+### N6 · Research-honesty fixes (ML/audit/overnight)  · **AGENT**
+- **From §83:** purge by label-END (`entry_time >= test_start - horizon`) in
+  `ml/cv.py`; sample meta-label features at the signal bar, not the fill bar
+  (`ml/labels.py`); `scenarios/audit.py` must not report clean on zero checks;
+  stamp/refuse stale overnight caches (`overnight_research.py`); drop the trailing
+  partial bucket in `ingest/resample.py`; registry import failure should be loud.
+- None touch the live path; all sharpen the significance gate the project's claims
+  rest on. Do before the next research campaign.
 
 ### N1 · E2 — binance.us cross-venue data honesty  · ✅ **DONE (2026-07-02, §78)**
 - **Chosen:** option (a) — frames tagged with `source_venues`, loud warning on any
@@ -102,12 +169,15 @@
   configuration) as its own era; do NOT pool across the 06-16→07-01 rotation era. Then
   the fork opens: keep / adjust.
 
-### W2 · §70 24h deadline  · **RESOLVED (kept)**
-- Checkpoint met, verdict KEEP (§73). No action; left here for continuity, remove next sweep.
 
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **PR #137 post-hoc audit PASS** (2026-07-05) + **stop-to-TP1 settled HARD-NEGATIVE**
+  (§82) — the "test it properly" fork closed; do not re-test without a new angle.
+- **W2 (§70 24h deadline)** — resolved KEPT (§73); row removed this sweep as planned.
+- **Fable-5 full-codebase review** (§83, 2026-07-05) — findings triaged into X3/X4/N4–N6
+  above; docs/memory layers reconciled the same session.
 - **Ride-3R shipped** to the paper book (§76, PR #131) — geometry fork closed.
 - **VWAP reverted to momentum** (§75, PR #130) — signal fork closed.
 - **Forming-candle fix** (§77, PR #136) — the bot now reads closed bars only.

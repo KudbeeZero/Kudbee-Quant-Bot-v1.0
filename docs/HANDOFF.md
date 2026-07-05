@@ -6,10 +6,9 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE`. Branch `claude/weekly-trades-status-z8thda`, PR **AWAITING_AUDIT**
-  (see below) — this is a normal one-PR closeout, not streaming (the diff is docs-only but the
-  session's substance was a rejected strategy-change proposal, worth a reviewed PR per the "money
-  path gets a PR" rule even though nothing code-level changed).
+- **Protocol status:** `ACTIVE`. Current chat: branch `claude/fable-five-codebase-review-9d61n5`
+  — full Fable-5 codebase review + docs/memory sweep (PR in progress). Previous chat's PR #137
+  (`claude/weekly-trades-status-z8thda`) is MERGED, post-hoc audit PASS (see Audit status).
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -18,21 +17,30 @@
 - **🧭 THE LIVE DECISION SURFACE IS `docs/CROSSROADS.md`, NOT THIS SECTION.** Every open fork
   (owner-decisions, do-next, watch) lives there with evidence + a recommended default, and gets
   moved the same turn a decision is made. **Read it, not a narrative recap here.** Current open
-  owner rows: **X0** (why the app layer wasn't wired — historical record), **X1** (live pre-live
-  gate — 8 latent bugs, money path, needs sign-off), **X2** (the consolidated 5-step bring-up
-  checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the API to Fly.io**,
-  Email Routing, Worker `TRIGGER_SECRET`).
-- **✅ MOST RECENT WORK (2026-07-03):** owner asked for a weekly trade status (given in plain
-  English: +14.8R / 64% win rate this week vs -130.3R all-time on the old book) then proposed
-  tightening the exit to 1.2R target / 0.5-ATR stop after a ~$1400 historical loss. First backtest
-  pass looked great but was **wrong** — `tp-backtest` defaults to `--interval 1d` (not the bot's
-  `1h`) and full-sample (no OOS holdout), which silently flatters results. Re-run correctly (1h,
-  30% OOS) reversed the verdict: current defaults net **+9.7R**, the tighter stop nets **-94.2R**,
-  across the same 6 coins — reconfirming the already-settled §10 finding. **No code, Telegram, or
-  workflow changes were made.** MEMORY **§81**. Full detail in the PR below.
-- **Audit status:** `AWAITING_AUDIT` (this PR). Prior: `PASS` (2026-07-02, post-hoc on streaming
-  commits). Prior formal checkpoint before that: PR #127 repo-state audit + post-hoc #118/#117
-  (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§81.
+  owner rows: **X0** (historical record), **X1** (live pre-live gate — 8 latent bugs, money path,
+  needs sign-off), **X2** (5-step bring-up: DNS→Cloudflare, Pages custom domain incl. `www`,
+  **deploy the API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), **X3** (transparency
+  posture — repo is public on GitHub AND via Pages, decide deliberately), **X4** (§83 core-engine
+  fixes — Brinks lookahead, entry-bar fill blind spot — change-gated, needs sign-off). Agent-side
+  queue: **N4** (journal durability), **N5** (deploy/CI hardening remainder), **N6**
+  (research-honesty fixes).
+- **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
+  directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
+  docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
+  PR #137 post-hoc audited **PASS** (740/740 green). Nothing invalidates §1. Key finds: journal
+  durability gaps (non-atomic save, no per-symbol isolation, NaN pass-through), core-engine
+  causality bugs (London Brinks lookahead, entry-bar fill blind spot), ML honesty gaps (CV purge
+  leak, fill-bar features), infra drift (telegram-register self-healing against dead Render —
+  FIXED; flyctl@master unpinned). Everything filed: MEMORY **§83** + CROSSROADS X3/X4/N4–N6;
+  ~15 docs reconciled (README, runbooks, ledger, PHILOSOPHY, etc.).
+- **Prior work (2026-07-03, PR #137, merged + post-hoc PASS):** weekly status; two exit-management
+  proposals honestly tested and **rejected** — 1.2R/0.5-ATR (§81, reconfirms §10) and stop-to-TP1
+  (§82, HARD-NEGATIVE, loses on all 6 coins). No live config changed.
+- **Audit status:** PR #137 `MERGED (post-hoc PASS, 2026-07-05)` — owner merged from the UI
+  2026-07-04 before the gate ran; independent audit verified every claim against the diff
+  (report: `docs/audits/claude-weekly-trades-status-z8thda.md`; suite 740/740 green). Prior:
+  `PASS` (2026-07-02, post-hoc on streaming commits); PR #127 repo-state audit + post-hoc
+  #118/#117 (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§82.
 - **⚠️ PROCESS NOTE:** this baton had gone stale (last reconciled 2026-06-27) while the workflow ran
   streaming — nothing forces a baton update the way a PR-per-chat merge gate used to. Reconciled
   2026-07-02. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
@@ -40,7 +48,16 @@
 
 ## What recent chats did (for the auditor to verify against the diff / MEMORY)
 
-- **This session (2026-07-03, PR AWAITING_AUDIT):** weekly trade status report (read-only, no
+- **This session (2026-07-05, branch `claude/fable-five-codebase-review-9d61n5`):** ran the
+  handoff gate (PR #137 → post-hoc **PASS**, `docs/audits/claude-weekly-trades-status-z8thda.md`)
+  → Fable-5 full-codebase review via 5 independent subsystem reviewers → findings filed as
+  MEMORY §83 + CROSSROADS X3/X4/N4–N6 → reconciled ~15 stale docs (README Netlify→Pages/Fly,
+  telegram-setup runbook Render→Fly, `telegram-register.yml` Render→Fly [the only code-ish
+  change], ledger retirement banner + REC-014, PHILOSOPHY checkboxes, MEMORY §34/§40
+  supersession pointers, OPEN_SETUPS historical banner, BRAIN path cites, webmanifest copy).
+  **No strategy, engine, paper-loop, or Telegram-behavior changes.** Auditor: the diff should
+  be docs + `telegram-register.yml` + `site.webmanifest` only.
+- **2026-07-03 (PR #137, merged, post-hoc PASS):** weekly trade status report (read-only, no
   diff) → owner proposed tightening TP/stop to 1.2R/0.5-ATR after a ~$1400 loss → first backtest
   wrongly ran on `1d` bars full-sample (tool default footgun) and looked profitable → caught the
   error, re-ran on the correct `1h` timeframe with 30% OOS holdout, which reversed the result
@@ -66,19 +83,20 @@
 
 Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
 redesign, the security/engine review, the forming-candle fix, N1–N3, the tp-backtest
-footgun/tighter-R:R re-test) is **DONE** — see `docs/MEMORY.md` §74–§81 for the full record. Do
-not re-derive any of it. What's actually open now:
+footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE, do NOT
+propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see `docs/MEMORY.md`
+§74–§83 for the full record. Do not re-derive any of it. What's actually open now:
 
-- **This chat's suggested next priority (not urgent, owner hasn't confirmed):** backtest the
-  post-TP1 "stop-to-TP1" idea properly from the start (1h, OOS) — after TP1 fills, move the
-  runner's stop to the TP1 price instead of breakeven. Genuinely untested, does not contradict
-  §10/§81 (different mechanism: post-fill stop placement, not entry R:R geometry). Low priority
-  vs. the CROSSROADS board below if the owner doesn't ask for it explicitly.
+- **This chat's suggested next priority:** **N4 — journal durability hardening** (atomic
+  `journal.save()`, per-symbol error isolation in `check_open()`, NaN guards, JSON-validated
+  commit). Highest-value fixes from the §83 review, pure paper-book plumbing, no strategy
+  change, fully testable. Then N5/N6 as they're picked.
 - **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
-  pre-live gate, 8 latent bugs, money path — needs sign-off) and X2 (the consolidated
+  pre-live gate, 8 latent bugs, money path — needs sign-off), X2 (the consolidated
   5-step bring-up checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the
-  API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`) are both OPEN, owner-side. Move
-  a row the same turn a decision is made — that discipline is the whole point of the board.
+  API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), X3 (transparency posture) and
+  X4 (§83 core-engine fixes) are OPEN, owner-side. Move a row the same turn a decision is
+  made — that discipline is the whole point of the board.
 - **BACKLOG — TradingView indicator suite, phases (b)/(c).** Phase (a) (sync the Pine
   indicator to the current engine) shipped §78/N2. Still queued: (b) split standalone
   indicators (PVSRA candles, session/killzone boxes, M-levels/pivots, confluence meter);
