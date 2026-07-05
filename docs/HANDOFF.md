@@ -6,10 +6,9 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE`. Branch `claude/weekly-trades-status-z8thda`, PR **AWAITING_AUDIT**
-  (see below) — this is a normal one-PR closeout, not streaming (the diff is docs-only but the
-  session's substance was a rejected strategy-change proposal, worth a reviewed PR per the "money
-  path gets a PR" rule even though nothing code-level changed).
+- **Protocol status:** `ACTIVE`. Current chat: branch `claude/fable-five-codebase-review-9d61n5`
+  — full Fable-5 codebase review + docs/memory sweep (PR in progress). Previous chat's PR #137
+  (`claude/weekly-trades-status-z8thda`) is MERGED, post-hoc audit PASS (see Audit status).
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -30,9 +29,11 @@
   30% OOS) reversed the verdict: current defaults net **+9.7R**, the tighter stop nets **-94.2R**,
   across the same 6 coins — reconfirming the already-settled §10 finding. **No code, Telegram, or
   workflow changes were made.** MEMORY **§81**. Full detail in the PR below.
-- **Audit status:** `AWAITING_AUDIT` (this PR). Prior: `PASS` (2026-07-02, post-hoc on streaming
-  commits). Prior formal checkpoint before that: PR #127 repo-state audit + post-hoc #118/#117
-  (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§81.
+- **Audit status:** PR #137 `MERGED (post-hoc PASS, 2026-07-05)` — owner merged from the UI
+  2026-07-04 before the gate ran; independent audit verified every claim against the diff
+  (report: `docs/audits/claude-weekly-trades-status-z8thda.md`; suite 740/740 green). Prior:
+  `PASS` (2026-07-02, post-hoc on streaming commits); PR #127 repo-state audit + post-hoc
+  #118/#117 (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§82.
 - **⚠️ PROCESS NOTE:** this baton had gone stale (last reconciled 2026-06-27) while the workflow ran
   streaming — nothing forces a baton update the way a PR-per-chat merge gate used to. Reconciled
   2026-07-02. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
