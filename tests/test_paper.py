@@ -163,6 +163,61 @@ def test_paper_scan_logs_when_signalling(tmp_path, monkeypatch):
     assert pp.paper_scan(["ETHUSDT"], min_pct=0.5, journal=j2, client=C()) == []
 
 
+def test_paper_scan_skips_nan_confluence_pct(tmp_path, monkeypatch):
+    """N4: a NaN confluence_pct must never pass the `pct < min_pct` gate — any
+    comparison except `!=` is False against NaN, so pre-fix a NaN read would
+    fall through and could reach the bracket build with a NaN entry/stop/target."""
+    import kudbee_quant.paper.paper as pp
+    fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                                "direction": [1.0], "confluence_pct": [float("nan")]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           stop_atr=1.0, journal=j, client=C())
+    assert logged == []
+
+
+def test_paper_scan_skips_nan_direction(tmp_path, monkeypatch):
+    """N4: a NaN direction must never pass the `direction == 0` gate (NaN != 0
+    is True in IEEE754, so the equality check alone lets it through)."""
+    import kudbee_quant.paper.paper as pp
+    fake_levels = pd.DataFrame({"close": [100.0], "atr": [1.0], "strength": [6.0],
+                                "direction": [float("nan")], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           stop_atr=1.0, journal=j, client=C())
+    assert logged == []
+
+
+def test_paper_scan_skips_nan_atr(tmp_path, monkeypatch):
+    """N4: a NaN ATR makes `sd` NaN; `sd <= 0` is False for NaN, so pre-fix a
+    NaN ATR reading would build an unresolvable bracket (NaN stop/target)."""
+    import kudbee_quant.paper.paper as pp
+    fake_levels = pd.DataFrame({"close": [100.0], "atr": [float("nan")], "strength": [6.0],
+                                "direction": [1.0], "confluence_pct": [0.6]})
+    monkeypatch.setattr(pp, "build_levels", lambda df: df)
+    monkeypatch.setattr(pp, "confluence_score", lambda df: fake_levels)
+
+    class C:
+        def klines(self, *a, **k):
+            return pd.DataFrame({"timestamp": pd.date_range("2024-01-01", periods=1, freq="h", tz="UTC")})
+    j = TradeJournal(path=tmp_path / "j.json", client=C())
+    logged = pp.paper_scan(["BTCUSDT"], min_pct=0.5, target_r=2.0, retrace_atr=0.25,
+                           stop_atr=1.0, journal=j, client=C())
+    assert logged == []
+
+
 def test_paper_scan_tags_tradfi_venue(tmp_path, monkeypatch):
     """A yahoo: (TradFi) spec is logged with the '_tradfi' setup tag so its
     forward record scores separately from the fee-paying crypto book; a bare
