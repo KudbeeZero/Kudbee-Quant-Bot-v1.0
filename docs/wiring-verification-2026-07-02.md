@@ -55,7 +55,7 @@ legitimate breaks. *Unverified until the next Pages deploy; re-check with
 | Item | Why it can't be confirmed here |
 |---|---|
 | `https://www.kudbeex.xyz/` | The agent proxy returns **502 CONNECT (policy denial or upstream failure)** for the `www` host while the apex succeeds through the same proxy. Can't distinguish "proxy policy blocks www" from "www not added as a Pages custom domain." **Owner:** in Cloudflare Pages → Custom domains, confirm both `kudbeex.xyz` **and** `www` are added (part of X2). |
-| Telegram webhook registration | Depends on the Render service being up + `KUDBEE_API_TOKEN`; register via `.github/workflows/telegram-register.yml` or `GET /api/telegram/register-webhook?token=…` once #1 is done. |
+| Telegram webhook registration | Depends on the Fly service being up + `KUDBEE_API_TOKEN`; register via `.github/workflows/telegram-register.yml` or `GET /api/telegram/register-webhook?token=…` once #1 is done. |
 | Worker `TRIGGER_SECRET` | Owner-side secret (X3) — `wrangler secret put TRIGGER_SECRET`. Cron runs without it; only the manual trigger URL needs it. |
 
 ## Bottom line

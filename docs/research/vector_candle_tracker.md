@@ -53,7 +53,7 @@ NET of fees, simulated as a 3R bracket from the climax close:
 
 Detection is solved; the gap is seeing a low-TF climax in time. Three options:
 1. **TradingView alert → existing `/api/alert` inbox (§34)** — lowest effort, truly
-   real-time; needs the Render host live (still unprovisioned).
+   real-time; needs the Fly.io host live (deploy pending — CROSSROADS X2 step 3).
 2. **Polling vector-watcher** — a worker that pulls 1m bars every minute, detects fresh
    climaxes, logs + escalates to multi-TF confluence. Robust; needs a persistent host.
 3. **`vector-scan` on a tighter Action** — cheapest, but Actions cron is coarse/delayed;

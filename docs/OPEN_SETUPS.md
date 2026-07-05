@@ -1,5 +1,9 @@
-# Open Setups — tracking board
+# Open Setups — tracking board (HISTORICAL snapshot)
 
+> ⚠️ **Historical** — frozen 2026-06-16; the 5m and TradFi positions shown were cut
+> 2026-06-22. For the current book run `review-open-trades`; this file is kept as a
+> dated record only.
+>
 > Snapshot taken **2026-06-16 ~17:47 UTC**. The manual tickets below are
 > discretionary reads entered by hand; the bot book is the paper engine's live
 > positions. Live marks move — regenerate the bot book anytime with

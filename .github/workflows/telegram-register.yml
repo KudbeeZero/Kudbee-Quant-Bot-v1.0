@@ -2,20 +2,20 @@ name: Telegram register webhook (one-tap, no laptop)
 
 # Registers the Telegram two-way command webhook with ZERO typing and NO local machine.
 # The owner taps Actions -> this workflow -> "Run workflow" once from the GitHub mobile app;
-# a daily cron then keeps it fresh (self-heal). It does the work server-side via the Render
+# a daily cron then keeps it fresh (self-heal). It does the work server-side via the Fly.io
 # app's existing self-register endpoint, so no secret is ever typed or echoed:
 #
-#   1. GET  https://kudbee-quant-api.onrender.com/api/telegram/register-webhook?token=<KUDBEE_API_TOKEN>
-#      -> Render calls Telegram setWebhook with ITS OWN bot token + TELEGRAM_WEBHOOK_SECRET,
+#   1. GET  https://kudbee-quant-api.fly.dev/api/telegram/register-webhook?token=<KUDBEE_API_TOKEN>
+#      -> the API calls Telegram setWebhook with ITS OWN bot token + TELEGRAM_WEBHOOK_SECRET,
 #         pointing Telegram back at /api/telegram. The byte-exact secret match (the #1 failure
-#         mode of hand-registering) is handled inside Render. The bot token is never returned.
+#         mode of hand-registering) is handled inside the app. The bot token is never returned.
 #   2. POST .../setMyCommands so the live slash-commands autocomplete in the Telegram app.
 #   3. GET  .../getWebhookInfo to confirm the url is set and surface any last_error_message.
 #
 # This is a NEW workflow; no existing workflow is modified. It is idempotent (setWebhook /
 # setMyCommands can be called repeatedly) and fail-soft (|| true + explicit status echoes), so a
 # transient curl error never hard-fails the run. Needs two repo secrets that the bot already uses:
-#   - KUDBEE_API_TOKEN   (the write-API token; also set on Render)
+#   - KUDBEE_API_TOKEN   (the write-API token; also set as a Fly secret)
 #   - TELEGRAM_BOT_TOKEN (the same token the alerts already send with)
 # If a secret is missing the step prints a plain, phone-doable fix and moves on.
 
@@ -35,7 +35,9 @@ jobs:
   register:
     runs-on: ubuntu-latest
     env:
-      RENDER_BASE: https://kudbee-quant-api.onrender.com
+      # Fly.io host (Render retired 2026-07-02, MEMORY §80). If the Fly app name differs,
+      # update this to match — same value as the Pages API_ORIGIN (CROSSROADS X2 step 3).
+      API_BASE: https://kudbee-quant-api.fly.dev
       KUDBEE_API_TOKEN: ${{ secrets.KUDBEE_API_TOKEN }}
       TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
     steps:
@@ -45,22 +47,22 @@ jobs:
             echo "::warning::KUDBEE_API_TOKEN is not set as a repo secret."
             echo "Fix (phone-doable): repo Settings -> Secrets and variables -> Actions ->"
             echo "  New repository secret -> name KUDBEE_API_TOKEN, value = the same write"
-            echo "  token set on Render. Then re-run this workflow. Skipping registration."
+            echo "  token set as a Fly secret. Then re-run this workflow. Skipping registration."
             exit 0
           fi
-          echo "Calling the Render self-register endpoint (token sent as a query param, not echoed)..."
+          echo "Calling the app's self-register endpoint (token sent as a query param, not echoed)..."
           # Build the URL from the env var so the secret never appears in the command text.
           code=$(curl -sS -o resp.json -w "%{http_code}" \
-            "$RENDER_BASE/api/telegram/register-webhook?token=$KUDBEE_API_TOKEN" || echo "000")
+            "$API_BASE/api/telegram/register-webhook?token=$KUDBEE_API_TOKEN" || echo "000")
           echo "HTTP status: $code"
           echo "Response (no token in it):"
           cat resp.json 2>/dev/null || true
           echo
           if [ "$code" = "401" ] || [ "$code" = "403" ]; then
-            echo "::warning::Render rejected the token (401/403). The KUDBEE_API_TOKEN repo secret"
-            echo "  must match the value set on Render. Update it and re-run."
+            echo "::warning::the API rejected the token (401/403). The KUDBEE_API_TOKEN repo secret"
+            echo "  must match the value set as a Fly secret. Update it and re-run."
           elif [ "$code" = "000" ]; then
-            echo "::warning::Could not reach Render (network/cold-start). Re-run in a minute."
+            echo "::warning::Could not reach the Fly app (network/not deployed yet). Re-run in a minute."
           fi
 
       - name: Set the command menu (autocomplete in the Telegram app)
@@ -99,11 +101,11 @@ jobs:
       - name: Verify the webhook (getWebhookInfo)
         run: |
           if [ -z "$TELEGRAM_BOT_TOKEN" ]; then
-            echo "TELEGRAM_BOT_TOKEN not set; cannot verify. (Registration via Render may still have"
+            echo "TELEGRAM_BOT_TOKEN not set; cannot verify. (Registration via the app may still have"
             echo "  succeeded — check the first step's response above.)"
             exit 0
           fi
-          echo "Webhook status (url should be the Render /api/telegram endpoint):"
+          echo "Webhook status (url should be the Fly app's /api/telegram endpoint):"
           curl -sS "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/getWebhookInfo" \
             -o info.json -w "HTTP %{http_code}\n" || echo "(getWebhookInfo unreachable)"
           # Print only the safe, non-token fields.
@@ -119,5 +121,5 @@ jobs:
           if d.get("url"):
               print("OK: the webhook is registered. Try /help in Telegram.")
           else:
-              print("NOT SET: re-run after confirming KUDBEE_API_TOKEN matches Render.")
+              print("NOT SET: re-run after confirming KUDBEE_API_TOKEN matches the Fly secret.")
           PY

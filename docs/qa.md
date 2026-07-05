@@ -34,7 +34,8 @@ in a browser-enabled session or on devices).
 
 ## Known follow-ups (need a browser to do well)
 1. **Partials build (Dev 3)** — de-dup the header/footer across 18 files via
-   `scripts/build_site.py` + `partials/`; verify byte-stable regeneration and
+   a to-be-created `scripts/build_site.py` + `partials/` (neither exists yet);
+   verify byte-stable regeneration and
    identical nav on every page.
 2. **Responsive chart re-render (Dev 5+)** — redraw charts at the container's true
    width on resize for crisp mobile labels.
