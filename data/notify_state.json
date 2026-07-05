@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 4,
-    "unrealized_r": 2.5621,
-    "winners": 3
+    "unrealized_r": 2.0246,
+    "winners": 2
   },
   "trades": {
     "1e9db3c2": {
@@ -14,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.04337296345222924
+      "ur": -0.09225011008366032
     },
     "afa94d44": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1715520481022266
+      "ur": 0.9295377677564904
     },
     "ef7bbe85": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3471673254281993
+      "ur": 1.1873078612209091
     }
   }
 }
