@@ -55,6 +55,7 @@ def bracket_backtest(
     tp1_r: float | None = None,
     tp1_frac: float = 0.5,
     be_after_tp1: bool = True,
+    stop_to_tp1: bool = False,
     tp2_r: float | None = None,
     tp2_frac: float = 0.0,
     leverage: float = 1.0,
@@ -100,6 +101,9 @@ def bracket_backtest(
             BREAKEVEN (entry). This is the classic "free trade" — once half is
             banked, the worst case on the rest is ~0R. Conservative within a
             bar: the (breakeven) stop is checked before the favorable level.
+        stop_to_tp1: when ``be_after_tp1`` is set, move the post-TP1 stop to the
+            TP1 PRICE instead of breakeven — locks in the TP1 R-multiple on the
+            runner instead of merely avoiding a loss on it. Default-off.
         tp2_r: if set (requires ``tp1_r``), add a SECOND scale-out leg at this
             R-multiple between TP1 and ``target_r`` — bank a further ``tp2_frac``
             of the original position there, ride the remainder to ``target_r``.
@@ -179,7 +183,8 @@ def bracket_backtest(
                                                tp1_frac, be_after_tp1, high, low, close,
                                                entry_bar, end, tp2_r=tp2_r, tp2_frac=tp2_frac,
                                                atr_at_entry=atr[t], runner_trail_atr=runner_trail_atr,
-                                               runner_floor_r=runner_floor_r, runner_max_bars=runner_max_bars)
+                                               runner_floor_r=runner_floor_r, runner_max_bars=runner_max_bars,
+                                               stop_to_tp1=stop_to_tp1)
             extra_exit = tp1_frac + (tp2_frac if tp2_r is not None else 0.0)
         # Realistic cost: convert a price-fraction cost to R via the stop size.
         # Each partial exit (TP1, TP2) incurs an extra half round-trip on its fraction.
@@ -286,7 +291,7 @@ def _resolve_full(direction, entry, stop, target, sd, target_r,
 def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_tp1,
                      high, low, close, entry_bar, end, *, tp2_r=None, tp2_frac=0.0,
                      atr_at_entry=None, runner_trail_atr=None, runner_floor_r=1.0,
-                     runner_max_bars=None):
+                     runner_max_bars=None, stop_to_tp1=False):
     """Scale-out exit: bank ``tp1_frac`` at TARGET ONE (tp1_r), optionally trim a
     further ``tp2_frac`` at TARGET TWO (tp2_r), then ride the remainder to the
     final target (target_r); optionally move the stop to breakeven after TP1.
@@ -302,6 +307,7 @@ def _resolve_partial(direction, entry, sd, target_r, tp1_r, tp1_frac, be_after_t
                           high[entry_bar + 1:end + 1], low[entry_bar + 1:end + 1],
                           close[entry_bar + 1:end + 1], force_close_at_end=True,
                           tp1=tp1, tp1_r=tp1_r, tp1_frac=tp1_frac, be_after_tp1=be_after_tp1,
+                          stop_to_tp1=stop_to_tp1,
                           tp2=tp2, tp2_r=tp2_r, tp2_frac=tp2_frac,
                           atr_at_entry=atr_at_entry, runner_trail_atr=runner_trail_atr,
                           runner_floor_r=runner_floor_r, runner_max_bars=runner_max_bars)

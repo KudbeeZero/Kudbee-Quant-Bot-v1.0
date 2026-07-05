@@ -58,6 +58,7 @@ def resolve_bracket(
     tp1_r: float | None = None,
     tp1_frac: float = 0.5,
     be_after_tp1: bool = True,
+    stop_to_tp1: bool = False,
     tp2: float | None = None,
     tp2_r: float | None = None,
     tp2_frac: float = 0.0,
@@ -85,6 +86,10 @@ def resolve_bracket(
         tp1, tp1_r, tp1_frac, be_after_tp1: optional scale-out at TARGET ONE — bank
             ``tp1_frac`` at ``tp1`` (worth ``tp1_r`` R), ride the rest to ``target``;
             move the stop to breakeven after TP1 when ``be_after_tp1``.
+        stop_to_tp1: when ``be_after_tp1`` is also set, move the post-TP1 stop to the
+            ``tp1`` PRICE instead of breakeven (``entry``) — locks in the TP1 R on
+            the runner instead of merely avoiding a loss on it. Default-off
+            (breakeven, the original/live behaviour, is unchanged).
         tp2, tp2_r, tp2_frac: optional SECOND scale-out leg between TP1 and the final
             ``target`` — after TP1 banks, take a further ``tp2_frac`` of the (original)
             position at ``tp2`` (worth ``tp2_r`` R), and ride the remainder to
@@ -218,7 +223,7 @@ def resolve_bracket(
                 tp1_done = True
                 tp1_off = j
                 if be_after_tp1:
-                    cur_stop = entry
+                    cur_stop = tp1 if stop_to_tp1 else entry
                 if _in_runner():        # no TP2 leg -> runner begins right after TP1
                     runner_start = j
                     if runner_trailing:

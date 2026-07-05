@@ -131,6 +131,56 @@ def test_be_only_clean_stop_takes_full_minus_one_r():
     assert out.tp1_offset is None   # TP1 never banked
 
 
+# --- stop_to_tp1: post-TP1 stop moves to the TP1 PRICE instead of breakeven ---
+
+
+def test_stop_to_tp1_off_by_default_matches_breakeven():
+    # stop_to_tp1 not passed at all -> byte-identical to the existing breakeven
+    # behaviour (test_tp2_stop_after_tp1_banks_partial_then_breakeven above).
+    path = ([101.6, 100.2, 100.3], [100.5, 99.8, 99.9], [101.5, 100.0, 100.1])
+    out = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0, *path,
+                          tp1=101.5, tp1_r=1.5, tp1_frac=0.75,
+                          tp2=102.5, tp2_r=2.5, tp2_frac=0.10, be_after_tp1=True)
+    assert out.exited and out.exit_offset == 1
+    assert abs(out.outcome_r - 1.125) < 1e-9
+
+
+def test_stop_to_tp1_locks_in_tp1_r_instead_of_breakeven():
+    # Same path as the breakeven test above, but stop_to_tp1=True: after TP1 banks
+    # 75% @ 1.5R on bar 0, the runner's stop sits at the TP1 PRICE (101.5) instead
+    # of breakeven (100). Bar 1's collapse to ~100 now stops the runner out AT
+    # 101.5 (+1.5R), not at breakeven (0R) -> total = 0.75*1.5 + 0.25*1.5 = 1.5R
+    # (vs 1.125R with plain breakeven) — strictly better on this path.
+    out = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0,
+                          [101.6, 100.2, 100.3], [100.5, 99.8, 99.9],
+                          [101.5, 100.0, 100.1],
+                          tp1=101.5, tp1_r=1.5, tp1_frac=0.75,
+                          tp2=102.5, tp2_r=2.5, tp2_frac=0.10, be_after_tp1=True,
+                          stop_to_tp1=True)
+    assert out.exited and out.exit_offset == 1
+    assert abs(out.outcome_r - 1.5) < 1e-9
+
+
+def test_stop_to_tp1_exits_earlier_than_breakeven_on_a_deep_reversal():
+    # The trade-off: stop_to_tp1's stop sits ABOVE breakeven, so a pullback that
+    # breakeven would have absorbed (price dips below TP1 but stays above entry,
+    # then recovers) instead stops the runner out immediately at TP1 (+1.5R) —
+    # forgoing any later run to the full target. Same path as the breakeven test:
+    # bar 1's low (100.9) is below the TP1 stop (101.5) but well above the
+    # breakeven stop (100), so stop_to_tp1 exits on bar 1 at +1.5R where plain
+    # breakeven would still be in the trade (and, per that test, exits flat at
+    # bar 2 for 0R on the runner). Neither is strictly "better" — stop_to_tp1
+    # banks more per stop-out but stops out more readily.
+    out = resolve_bracket(1.0, 100.0, 99.0, 103.0, 1.0, 3.0,
+                          [101.6, 101.4, 99.0], [100.5, 100.9, 98.5],
+                          [101.5, 101.2, 98.8],
+                          tp1=101.5, tp1_r=1.5, tp1_frac=0.75,
+                          tp2=102.5, tp2_r=2.5, tp2_frac=0.10, be_after_tp1=True,
+                          stop_to_tp1=True)
+    assert out.exited and out.exit_offset == 1   # stopped at 101.5 on bar 1, not bar 2
+    assert abs(out.outcome_r - 1.5) < 1e-9
+
+
 def test_random_equivalence_no_exits():
     # Fuzz: resolver with no exits == a plain stop-then-target reference walk.
     rng = np.random.default_rng(0)

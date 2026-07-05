@@ -6,7 +6,10 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE`.
+- **Protocol status:** `ACTIVE`. Branch `claude/weekly-trades-status-z8thda`, PR **AWAITING_AUDIT**
+  (see below) — this is a normal one-PR closeout, not streaming (the diff is docs-only but the
+  session's substance was a rejected strategy-change proposal, worth a reviewed PR per the "money
+  path gets a PR" rule even though nothing code-level changed).
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -19,30 +22,34 @@
   gate — 8 latent bugs, money path, needs sign-off), **X2** (the consolidated 5-step bring-up
   checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the API to Fly.io**,
   Email Routing, Worker `TRIGGER_SECRET`).
-- **✅ MOST RECENT WORK (2026-07-02):** backend host moved **Render → Fly.io** (owner: "not using
-  Render"); `Dockerfile`/`fly.toml`/`fly-deploy.yml` added, `render.yaml` retired. Found + fixed a
-  **real privacy leak**: Cloudflare Pages was serving the raw `data/journal.json` (open-position
-  entry/stop/target, the exact stop-hunt vector `/api/journal` strips) publicly — closed with a
-  Pages Function that 404s `/data/*` at the edge. Also fixed the `/api/*` proxy (was Netlify-only,
-  dead on the live Cloudflare Pages host). Mobile hero/nav overlap fixed. MEMORY **§80**; full
-  writeup `docs/wiring-verification-2026-07-02.md`. **Independently audited PASS** this session —
-  `docs/audits/streaming-audit-2026-07-02-fly-migration.md` (no open PR existed to gate — streaming
-  workflow — so the audit covered the commit range directly; tests 737/737 green, no scope creep,
-  every claim diff-verified). **The Fly deploy itself is still owner-side** (X2 step 3).
-- **Audit status:** `PASS` (2026-07-02, post-hoc on streaming commits, see above). Prior formal
-  checkpoint: PR #127 repo-state audit + post-hoc #118/#117 (2026-07-01), MEMORY §73. Between
-  those two audits, ~10 more PRs (#128–#136, all confirmed genuinely `merged: true` via
-  `pull_request_read`) and several direct-to-`main` streaming commits landed — each was reviewed
-  inline at the time (tests, and `/code-review` for the N1+N2 diff, §78) but not through this gate;
-  none raised a concern significant enough to need a redo. Full narrative: `docs/MEMORY.md` §74–§80.
+- **✅ MOST RECENT WORK (2026-07-03):** owner asked for a weekly trade status (given in plain
+  English: +14.8R / 64% win rate this week vs -130.3R all-time on the old book) then proposed
+  tightening the exit to 1.2R target / 0.5-ATR stop after a ~$1400 historical loss. First backtest
+  pass looked great but was **wrong** — `tp-backtest` defaults to `--interval 1d` (not the bot's
+  `1h`) and full-sample (no OOS holdout), which silently flatters results. Re-run correctly (1h,
+  30% OOS) reversed the verdict: current defaults net **+9.7R**, the tighter stop nets **-94.2R**,
+  across the same 6 coins — reconfirming the already-settled §10 finding. **No code, Telegram, or
+  workflow changes were made.** MEMORY **§81**. Full detail in the PR below.
+- **Audit status:** `AWAITING_AUDIT` (this PR). Prior: `PASS` (2026-07-02, post-hoc on streaming
+  commits). Prior formal checkpoint before that: PR #127 repo-state audit + post-hoc #118/#117
+  (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§81.
 - **⚠️ PROCESS NOTE:** this baton had gone stale (last reconciled 2026-06-27) while the workflow ran
   streaming — nothing forces a baton update the way a PR-per-chat merge gate used to. Reconciled
-  this turn. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
+  2026-07-02. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
   that's the same gap recurring — update it as part of `/handoff-audit`, not just `/closeout`.
 
 ## What recent chats did (for the auditor to verify against the diff / MEMORY)
 
-- **This session (2026-07-02, streaming, no PR):** mobile hero fix, Render→Fly.io migration,
+- **This session (2026-07-03, PR AWAITING_AUDIT):** weekly trade status report (read-only, no
+  diff) → owner proposed tightening TP/stop to 1.2R/0.5-ATR after a ~$1400 loss → first backtest
+  wrongly ran on `1d` bars full-sample (tool default footgun) and looked profitable → caught the
+  error, re-ran on the correct `1h` timeframe with 30% OOS holdout, which reversed the result
+  (current +9.7R vs proposed -94.2R across BTC/ETH/SOL/AVAX/ADA/LINK) → **rejected the change,
+  nothing deployed**. Only diff: MEMORY §81 (this finding + the `tp-backtest` footgun warning) and
+  this baton. Auditor: verify §81's numbers are actually reproducible with
+  `tp-backtest <SYM> --interval 1h --target-r 1.2 --stop-atr 0.5 --oos-frac 0.3` (and the `3.0`/`1.5`
+  baseline variant) — the whole point of this PR is that the number is easy to get wrong silently.
+- **2026-07-02 (streaming, no PR):** mobile hero fix, Render→Fly.io migration,
   `/api` proxy fix, `data/` privacy-leak fix, CROSSROADS board consolidation. See the audit report
   above for verified detail.
 - **§74–§79 (2026-07-01→07-02, PRs #128–#136 + streaming):** §41 gap fully explained (VWAP rotation
@@ -58,10 +65,15 @@
 ## NEXT chat
 
 Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
-redesign, the security/engine review, the forming-candle fix, N1–N3) is **DONE** — see
-`docs/MEMORY.md` §74–§80 for the full record. Do not re-derive any of it. What's actually
-open now:
+redesign, the security/engine review, the forming-candle fix, N1–N3, the tp-backtest
+footgun/tighter-R:R re-test) is **DONE** — see `docs/MEMORY.md` §74–§81 for the full record. Do
+not re-derive any of it. What's actually open now:
 
+- **This chat's suggested next priority (not urgent, owner hasn't confirmed):** backtest the
+  post-TP1 "stop-to-TP1" idea properly from the start (1h, OOS) — after TP1 fills, move the
+  runner's stop to the TP1 price instead of breakeven. Genuinely untested, does not contradict
+  §10/§81 (different mechanism: post-fill stop placement, not entry R:R geometry). Low priority
+  vs. the CROSSROADS board below if the owner doesn't ask for it explicitly.
 - **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
   pre-live gate, 8 latent bugs, money path — needs sign-off) and X2 (the consolidated
   5-step bring-up checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the
@@ -91,7 +103,9 @@ open now:
   still empty (0 graded forward cycles) — don't trust its proposals yet. PR #78/D1 is PARKED
   (see above). §42 maker-fee assumption still unsettled — blocks Tier-2 leverage graduation.
 - **Off-limits (standing, unchanged):** validated strategy defaults (§1) and `FEE_PCT`;
-  `--trailing-atr` OFF (§72 settled hard negative — do not re-test without new rationale);
+  tightening R:R below §1's 3.0R/1.5-ATR (now settled TWICE — §10 and §81 — do not re-test without
+  a genuinely new angle, e.g. per-symbol geometry); `--trailing-atr` OFF (§72 settled hard negative
+  — do not re-test without new rationale);
   the 24h deadline — settled KEEP (§70/§73, do not re-open without ≥30 forward trades under
   the window, per `docs/decisions/deadline_bars.md`); the live execution path
   (`bracket.py`/`resolver.py`); the trading/levels core (`build_levels()`,
@@ -194,3 +208,9 @@ open now:
   audit PASS** (`docs/audits/streaming-audit-2026-07-02-fly-migration.md`, 737/737 tests, no scope creep,
   every claim diff-verified). Baton fully reconciled this turn (was stale since 2026-06-27). NEXT:
   X1/X2 on `docs/CROSSROADS.md` (Fly deploy is the actionable blocker), TV indicator phases (b)/(c).
+- 2026-07-03: PR (this, `/closeout`) on `claude/weekly-trades-status-z8thda` — weekly status report
+  (read-only) + a proposed TP/stop tighten (1.2R/0.5-ATR) that was backtested, found to be a
+  `1d`-vs-`1h` + full-sample measurement error, corrected (1h, 30% OOS), and **rejected**
+  (+9.7R baseline vs -94.2R proposed across 6 coins) — reconfirms §10. **Nothing deployed.**
+  Docs-only diff: MEMORY §81 + this baton. AWAITING_AUDIT. NEXT: audit this PR, then either the
+  post-TP1 stop-to-TP1 idea (if owner wants it) or back to the CROSSROADS X1/X2 board.
