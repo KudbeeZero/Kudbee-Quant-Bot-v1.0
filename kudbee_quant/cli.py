@@ -440,6 +440,7 @@ def _tp_backtest(args) -> None:
         fee_pct=args.fee_pct, limit_retrace_atr=args.retrace_atr,
         entry_window=args.entry_window,
         tp1_r=args.tp1_r, tp1_frac=args.tp1_frac, be_after_tp1=not args.no_be,
+        stop_to_tp1=args.stop_to_tp1,
         tp2_r=tp2_r, tp2_frac=args.tp2_frac, leverage=args.leverage,
     )
     m = result
@@ -455,8 +456,9 @@ def _tp_backtest(args) -> None:
     print("-" * 64)
     print(f"  entry      LIMIT retrace {args.retrace_atr} ATR (maker), "
           f"{args.entry_window}-bar fill window  [NOT market-at-zone]")
+    stop_mode = ("TP1 price" if args.stop_to_tp1 else "breakeven") if not args.no_be else "unchanged"
     print(f"  stop       {args.stop_atr} ATR = 1R   |   leverage {args.leverage}x   "
-          f"|   BE after TP1: {not args.no_be}")
+          f"|   post-TP1 stop: {stop_mode}")
     print(f"  scale-out  {legs}")
     print("-" * 64)
     print(f"  trades        {m.n_trades}")
@@ -1213,6 +1215,9 @@ def main() -> None:
                          "0 = full sample (flatters)")
     tb.add_argument("--no-be", action="store_true",
                     help="do NOT move stop to breakeven after TP1")
+    tb.add_argument("--stop-to-tp1", action="store_true",
+                    help="after TP1 fills, move the runner's stop to the TP1 price "
+                         "instead of breakeven (locks in TP1 R on the runner)")
     tb.set_defaults(func=_tp_backtest)
 
     sw = sub.add_parser("sweep", help="test the scenario battery across assets (OOS-ranked)")

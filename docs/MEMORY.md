@@ -2377,3 +2377,70 @@ that serves the repo root must block `data/` (and re-verify with
 Blocker (owner-side): `fly launch --no-deploy` → `fly secrets set …` → `fly deploy`
 (`docs/HOSTING.md`). Also confirm `www` alongside the apex on the Pages custom domain
 (the agent proxy couldn't reach `www` to verify — X2). Fixes committed to `main` (streaming).
+
+## 81. `tp-backtest` footgun (wrong-timeframe default) + reconfirmed §10: tighter R:R still loses — 2026-07-03
+
+Owner asked to backtest a tighter exit (1.2R target / 0.5-ATR stop, derived from this
+week's average win) after a ~$1400 historical loss. First pass looked great (ADA
++27.5R, SOL +19.8R, ETH +14.5R…) — **it was wrong.** `tp-backtest`'s `--interval`
+flag **defaults to `1d`**, not the bot's actual `1h`, and `--oos-frac` defaults to
+`0.0` (full-sample, which the tool's own footer admits "flatters"). Re-run correctly
+(`--interval 1h --oos-frac 0.3`, same 6 coins) reversed the verdict completely:
+
+| coin | current (3.0R / 1.5-ATR, 1h OOS) | tight (1.2R / 0.5-ATR, 1h OOS) |
+|---|---|---|
+| ETH | +6.3R (47% WR) | -27.9R (37% WR) |
+| SOL | -3.2R | -27.6R |
+| AVAX | -12.1R | -23.1R |
+| ADA | +20.5R (62% WR) | +5.2R |
+| LINK | -7.2R | -7.2R |
+| BTC | +5.4R | -13.6R |
+| **total** | **+9.7R** | **-94.2R** |
+
+Tighter stops did **not** raise win rate either (more whipsaw stop-outs, not fewer).
+This reconfirms the already-settled §10 finding (2026-06-09, proper 1h walk-forward):
+widening stop+target together beat tightening them; tightening R:R hurts expectancy.
+**No code, Telegram, or workflow changes were made** — the proposed change was caught
+before deployment.
+
+HARD-NEGATIVE / permanent rule: **any `tp-backtest` / strategy-geometry result run
+without explicit `--interval 1h --oos-frac 0.3+` is not evidence** — the tool's
+defaults (`1d`, full-sample) silently produce numbers on a timeframe the bot doesn't
+trade, optimistically biased. Always pass both flags explicitly when evaluating a
+change to §1's defaults. §1 / `STOP_ATR=1.5` / `TARGET_R=3.0` remain untouched and
+validated; do not re-test the "tighten R:R" hypothesis again without a genuinely new
+angle (e.g. per-symbol geometry).
+
+## 82. Post-TP1 "stop-to-TP1" management tested — also a loser (new negative, different mechanism than §81) — 2026-07-03
+
+Follow-up to §81: the untested idea flagged there (after TP1 banks, move the
+runner's stop to the TP1 PRICE instead of breakeven) was implemented properly —
+`resolve_bracket`/`bracket_backtest` gained a new `stop_to_tp1` kwarg (default
+`False`, byte-identical to existing behaviour when omitted — same additive pattern
+as `trailing_atr`/`mae_giveup`/`time_decay`), exposed via `tp-backtest --stop-to-tp1`
+— then backtested correctly from the start (1h, 30% OOS) against the exact
+validated baseline (`target_r=3.0 stop_atr=1.5`, same 6 coins as §81):
+
+| coin | baseline (stop→breakeven) | stop→TP1 price |
+|---|---|---|
+| ETH | +6.0R (46% WR) | -3.1R (40% WR) |
+| SOL | -2.0R | -1.6R |
+| AVAX | -11.5R | -7.5R |
+| ADA | +20.9R (63% WR) | +13.6R (51% WR) |
+| LINK | -6.7R | -7.9R |
+| BTC | +2.3R | -4.4R |
+| **total** | **+9.0R** | **-10.9R** |
+
+**Loses on every single coin.** Mechanism: raising the runner's stop above
+breakeven makes it trigger earlier and more often on ordinary pullbacks, killing
+runs that would have continued to the full 3R target — worse expectancy per trade,
+*and* it exits sooner, freeing the position slot for more (average-quality) entries
+(275 vs 222 trades across the same 6 coins/window), diluting further. Keep
+`be_after_tp1` = breakeven (the current live behaviour, `stop_to_tp1` stays
+`False`). The new kwarg itself is harmless (default-off, tested in
+`tests/test_resolver_exits.py`) and can stay in the codebase as a research knob —
+just don't arm it. **No live config changed.**
+
+HARD-NEGATIVE: post-TP1 stop-to-TP1 is settled negative on this 6-coin OOS sample;
+don't re-test without a materially different angle (e.g. only raising the stop
+partway to TP1, not all the way).
