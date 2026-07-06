@@ -1,5 +1,5 @@
 {
-  "daily_recap": false,
+  "daily_recap": true,
   "live_tracker": false,
   "session_brief": false,
   "signal_cards": false,

@@ -1,0 +1,89 @@
+name: Telegram command polling (no-server slash commands)
+
+# Answers Telegram slash commands (/summary, /status, /score, /pause, /enable …)
+# from a cron, so commands WORK before the API is deployed anywhere (§86: the
+# webhook path needs the Fly app — CROSSROADS X2 steps 3+6 — and until then every
+# command died silently while the command menu still showed in the app).
+#
+# Design (see kudbee_quant/telegram_poll.py):
+#   * Stands down automatically the moment a real webhook is registered
+#     (Telegram forbids getUpdates alongside a webhook) — no cleanup needed
+#     when the Fly deploy lands; the instant path just takes over.
+#   * Reuses the exact webhook gate + dispatch (chat-id whitelist, admin gate),
+#     so there is ONE command implementation, not two.
+#   * Stateless: processed updates are ack'd server-side via the offset call.
+#   * Admin commands (/pause /resume /enable /disable) write data/control.json /
+#     data/feature_flags.json on the runner; the commit step below persists them
+#     so the hourly paper cron actually honors them (the webhook-on-Fly path
+#     can't do this — flags flipped there never reach the Actions cron).
+#   * /scan works too: GITHUB_TOKEN with actions:write fires the paper-trade
+#     workflow_dispatch.
+#
+# Latency is the cron interval (GitHub cron is best-effort — expect ~10-20 min).
+# Silent no-op without the TELEGRAM_* secrets.
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write     # persist /pause + /enable state files
+  actions: write      # let /scan fire paper-trade.yml workflow_dispatch
+
+concurrency:
+  group: telegram-poll
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    env:
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      # Admin commands default to the owner chat; /scan dispatches with the
+      # workflow's own token (actions: write above).
+      TELEGRAM_ADMIN_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_ID }}
+      KUDBEE_GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Skip when Telegram is not configured
+        id: gate
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "TELEGRAM_* secrets not set — nothing to poll (clean no-op)."
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.configured == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.configured == 'true'
+        with:
+          python-version: "3.11"
+      - name: Install deps
+        if: steps.gate.outputs.configured == 'true'
+        run: pip install -q -r requirements.txt
+      - name: Poll + answer commands
+        if: steps.gate.outputs.configured == 'true'
+        run: python -m kudbee_quant.telegram_poll
+
+      - name: Persist admin-command state (pause/feature flags)
+        # Only /pause /resume /enable /disable change these; commit so the
+        # hourly paper cron sees them. Rebase+retry survives a concurrent
+        # journal commit; [skip ci] keeps CI quiet.
+        if: steps.gate.outputs.configured == 'true'
+        run: |
+          git add data/control.json data/feature_flags.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No admin-state changes this poll."
+            exit 0
+          fi
+          git config user.name "kudbee-telegram-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git commit -m "telegram: admin command state update [skip ci]"
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            echo "push bounced (attempt $i) — retrying"; sleep $((i * 2))
+          done
+          echo "::warning::could not persist admin-command state after 3 attempts."

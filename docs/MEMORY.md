@@ -2617,8 +2617,23 @@ it reads this file); (iii) emitters now SAY WHY they sent zero ("feature 'live_t
 OFF — set repo variable …"), test-pinned (4 new tests); (iv) `telegram-register.yml` names
 the real blockers when the API is unreachable. Suite 751/751.
 
-**Still owner-side to revive slash commands:** deploy the API (X2 step 3) + add the
-`KUDBEE_API_TOKEN` repo secret (same value as the Fly secret) → next 06:30 UTC register
-cron (or one tap of the workflow) registers the webhook. Alternative that needs NO server:
-a getUpdates **polling workflow** (commands answered every ~10 min; must self-disable once
-a webhook exists — Telegram forbids both). Proposed, not built.
+**Slash commands revived WITHOUT a server (owner-approved, same day):**
+`kudbee_quant/telegram_poll.py` + `.github/workflows/telegram-poll.yml` — a */10 cron
+does getUpdates → the SAME `handle_update` gate/dispatch the webhook uses → replies;
+acks server-side via the offset call (stateless, no offset file); **stands down
+automatically** the moment a real webhook is registered (Telegram forbids both), so the
+Fly deploy just takes over when it lands. Admin commands now actually WORK end-to-end:
+the workflow commits `data/control.json`/`data/feature_flags.json` after processing
+(`[skip ci]`, rebase+retry) — which the Fly-webhook path can't do (its file writes never
+reach the Actions cron); and `/scan` fires `workflow_dispatch` with the job's own
+GITHUB_TOKEN (`actions: write`). Expect ~10-20 min reply latency (GitHub cron is
+best-effort). Instant replies still arrive with X2 steps 3+6 (deploy + KUDBEE_API_TOKEN).
+
+**Also shipped (owner picks):** entry-fill event — the `pending→open` edge now pings
+("📥 Entry Filled") in the hourly event layer; before, a resting limit filling later had
+NO ping at all (open ping fires at bracket creation, close ping at resolution). The
+"near-miss" pings the owner asked for mostly already existed (tp1_touched,
+approaching_stop, deadline_soon, recovered/flipped — events.py, live on the hourly read);
+only the fill edge was missing. **`daily_recap` switched ON** via the committed
+`data/feature_flags.json` (owner one-tap) — first message ~13:05 UTC daily. Suite
+756/756 (5 new tests).

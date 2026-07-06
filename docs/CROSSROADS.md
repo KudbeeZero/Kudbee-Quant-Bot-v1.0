@@ -181,6 +181,11 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **Telegram audit + upgrades SHIPPED** (2026-07-06, §86, owner-picked): polling-mode
+  slash commands (no server needed, self-stands-down when the webhook arrives), scheduled
+  suite finally enable-able (repo Variables + committed flags file), `daily_recap` ON,
+  entry-fill event ping added, emitters say WHY they send zero. Slash commands answer in
+  ~10-20 min from the next cron; instant path still = X2 steps 3+6.
 - **N5 deploy/CI hardening SHIPPED** (2026-07-06, direct-to-main, §85): flyctl action
   SHA-pinned (=1.6) + `permissions: contents: read` on both workflows; `requirements.lock`
   (full transitive pin, Docker image installs from it — the hourly rebuild can't drift);

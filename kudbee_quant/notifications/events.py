@@ -48,6 +48,7 @@ _DEADLINE_SOON_HOURS = 6.0
 
 # Per-event presentation. Keys are the event ``type`` strings emitted below.
 _ICONS = {
+    "filled": "📥",
     "approaching_stop": "⚠️",
     "warning_cleared": "✔️",
     "recovered": "📈",
@@ -57,6 +58,7 @@ _ICONS = {
     "deadline_soon": "⏳",
 }
 _LABELS = {
+    "filled": "Entry Filled",
     "approaching_stop": "Stop Approaching",
     "warning_cleared": "Warning Cleared",
     "recovered": "Recovered to Profit",
@@ -128,6 +130,13 @@ def diff_events(prev: dict | None, curr: dict) -> list[dict]:
         sym = c.get("symbol") or "?"
         c_ur, p_ur = c.get("ur"), p.get("ur")
         c_health, p_health = c.get("health"), p.get("health")
+
+        # Entry filled (pending→open edge): the open-event ping fires when the
+        # BRACKET is created, but a resting limit filling later had no ping at
+        # all — the moment the trade actually goes live (§86 owner ask).
+        if p.get("status") == "pending" and c.get("status") == "open":
+            out.append({"type": "filled", "symbol": sym, "r": c_ur,
+                        "detail": "Limit order filled — bracket is live."})
 
         # TP1 banked (one-way latch: only fires on the False→True edge).
         if c.get("tp1_filled") and not p.get("tp1_filled"):
