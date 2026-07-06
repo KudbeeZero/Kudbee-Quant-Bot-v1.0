@@ -1,14 +1,22 @@
 #!/usr/bin/env bash
 # Delete the remote branches the 2026-07-06 Branch Execution Ledger classified DEAD
-# (section D: 66 fully merged + 36 patch-equivalent squash leftovers), owner-approved
-# under CROSSROADS X5. Agent containers cannot delete refs (the git proxy 403s
-# `push --delete`), so this is the owner-runnable half of that approval.
+# (section D: 66 fully merged + 36 patch-equivalent squash leftovers) or SUPERSEDED
+# (section C: 21 branches whose unique value has been harvested into MEMORY/docs/audits
+# — see MEMORY §88, N7), owner-approved under CROSSROADS X5. Agent containers cannot
+# delete refs (the git proxy 403s `push --delete`), so this is the owner-runnable half
+# of that approval.
 #
-# SAFETY: each branch is RE-VERIFIED against a fresh origin/main immediately before
-# deletion — it must be either an ancestor of main or fully patch-equivalent
-# (`git cherry` reports zero unique commits). Anything that fails verification is
-# skipped loudly, never deleted. Run from a FULL clone (the script unshallows if
-# needed — see MEMORY §84).
+# SAFETY:
+#   - DEAD_BRANCHES (section D): RE-VERIFIED against a fresh origin/main immediately
+#     before deletion — must be either an ancestor of main or fully patch-equivalent
+#     (`git cherry` reports zero unique commits).
+#   - SUPERSEDED_BRANCHES (section C): these DO carry unique commits (that's why they
+#     needed harvesting, not just a merge check), so the safety net is different: each
+#     branch's head SHA is PINNED here at the moment its content was harvested. If the
+#     branch has moved since (someone pushed to it), the pin won't match and it's
+#     skipped rather than deleted blind.
+# Anything that fails its verification is skipped loudly, never deleted. Run from a
+# FULL clone (the script unshallows if needed — see MEMORY §84).
 #
 # Usage:  bash scripts/delete_dead_branches.sh          # dry-run (default)
 #         bash scripts/delete_dead_branches.sh --run    # actually delete
@@ -67,6 +75,23 @@ DEAD_BRANCHES=(
   research/exit-geometry-sweep research/graphify-evaluation
 )
 
+# Section C of docs/AGENT_ORCHESTRATION_LEDGER.md (2026-07-06) — "branch head_sha"
+# pairs, pinned at harvest time. `git cherry` can't be used to verify these (they
+# have real unique commits by definition); the pin substitutes.
+SUPERSEDED_BRANCHES=(
+  "claude/fix-partial-bar d353ee3c" "claude/website-seo-finish 582981f4"
+  "claude/section41-gap-run dc426171" "claude/kudbee-quant-audit-v1-is91p2 a1780fc1"
+  "claude/agent-orchestration-ledger 57650c25" "feat/website-premium-polish 60838055"
+  "feat/management-shadow-scorer b59e86f9" "feat/management-geometry-study 2c2b0d6f"
+  "feat/telegram-deadline-alert 3078bdc5" "feat/brand-telegram-messages affd7e9e"
+  "feat/tr-mlevel-system 80c49e43" "feat/mtf-15m-30m-backtest 5610db74"
+  "claude/fable-5-release-review-mow58s 4746e66e"
+  "claude/handoff-audit-fee-scoring-p0yg4n 9ae6f581" "claude/handoff-audit-xtn2bz 26eef3fc"
+  "claude/vah-trap-reversal-study 753e5462" "claude/handoff-audit-rk3gn7 0669fb37"
+  "research/psych-level-reversal-1h 069d4ef1" "claude/kudbeex-blank-page-q6pdql 85dbc98d"
+  "claude/handoff-audit-8aps4t 05e2d54b" "claude/pr-14-handoff-audit-gpo9ab d0a4d358"
+)
+
 if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then
   echo "Shallow clone detected — unshallowing first (MEMORY §84)…"
   git fetch --unshallow origin main
@@ -91,6 +116,24 @@ for b in "${DEAD_BRANCHES[@]}"; do
       || { echo "FAILED to delete: $b" >&2; skipped=$((skipped+1)); }
   else
     echo "would delete ($verdict): $b"; deleted=$((deleted+1))
+  fi
+done
+
+for pair in "${SUPERSEDED_BRANCHES[@]}"; do
+  b="${pair%% *}"; pinned_sha="${pair##* }"
+  if ! git show-ref --verify --quiet "refs/remotes/origin/$b"; then
+    echo "GONE (already deleted): $b"; gone=$((gone+1)); continue
+  fi
+  current_sha="$(git rev-parse "origin/$b" | cut -c1-8)"
+  if [ "$current_sha" != "$pinned_sha" ]; then
+    echo "SKIP (moved since harvest — pinned $pinned_sha, now $current_sha): $b" >&2
+    skipped=$((skipped+1)); continue
+  fi
+  if [ "$RUN" = "1" ]; then
+    git push origin --delete "$b" && { echo "DELETED (superseded, harvested): $b"; deleted=$((deleted+1)); } \
+      || { echo "FAILED to delete: $b" >&2; skipped=$((skipped+1)); }
+  else
+    echo "would delete (superseded, harvested): $b"; deleted=$((deleted+1))
   fi
 done
 

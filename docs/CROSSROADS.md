@@ -92,9 +92,9 @@
 ### X5 · Branch cleanup: approve the dead-branch deletion list  · **OWNER**
 - **From the 2026-07-06 Branch Execution Ledger** (`docs/AGENT_ORCHESTRATION_LEDGER.md`,
   bottom section): of 135 remote branches, **102 are dead** (66 fully merged + 36
-  patch-equivalent squash leftovers — section D), **16 more are superseded** (section C,
-  deletable after two small verdict-harvests), **12 carry unique value** (section B —
-  each with its own recommended action; `zcash-…` stays SALVAGE-HOLD per MEMORY).
+  patch-equivalent squash leftovers — section D), **21 are superseded** (section C, now
+  fully harvested per N7/MEMORY §88), **8 carry unique value** (section B — each with its
+  own recommended action; `zcash-…` stays SALVAGE-HOLD per MEMORY).
 - **Owner APPROVED (2026-07-06): delete D now, C after the N7 harvests.** But the agent
   container **cannot delete remote refs** (the git credential proxy 403s `push --delete`;
   the GitHub MCP toolset has no delete-branch tool) — so the approved deletion is packaged
@@ -102,10 +102,13 @@
   merged/patch-equivalent against fresh `origin/main` immediately before deleting it,
   skips loudly otherwise; dry-run by default (`--run` to execute). Dry-run verified
   2026-07-06: 102/102 verified dead, 0 skipped.
+- **N7 harvests DONE (2026-07-06, MEMORY §88):** conf_70/psych-1h/VAH-trap verdicts
+  recorded, #102/#14 audit reports landed, no-JS fix confirmed already-live. Section C
+  (21 branches, pinned-SHA verified) appended to the script.
 - **Remaining action (owner, one command):** `bash scripts/delete_dead_branches.sh --run`
-  from any machine with push rights (or delete from the GitHub branches UI). Section C's
-  16 get appended to the script after the N7 harvests land.
-- **Status:** APPROVED — execution owner-side (script ready).
+  from any machine with push rights (or delete from the GitHub branches UI). Dry-run
+  verified 2026-07-06: 123/123 deletable (102 dead + 21 superseded), 0 skipped.
+- **Status:** APPROVED — execution owner-side (script ready, fully populated).
 
 ### X4 · Core-engine fixes from the §83 review (change-gated code)  · **OWNER**
 - **Fork:** the review found real defects in the levels/backtest core, which is
@@ -172,6 +175,11 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **N7 ledger harvests SHIPPED** (2026-07-06, direct-to-main, §88) — the LAST item in
+  the §83-review agent queue (N4-N7 all done). conf_70/psych-1h/VAH-trap verdicts now in
+  MEMORY; #102/#14 audit reports landed in `docs/audits/`; the no-JS site fix confirmed
+  already live on `main`. `scripts/delete_dead_branches.sh` now covers all 123
+  deletable branches (102 dead + 21 superseded-and-harvested).
 - **N6 research-honesty fixes SHIPPED** (2026-07-06, direct-to-main, §87): CV purge
   now closes the label-end leak (a `horizon` param, auto-computed by
   `build_dataset`); `scenarios/audit.py` can no longer report clean on zero checks

@@ -7,21 +7,23 @@
 ## Current baton
 
 - **Protocol status:** `ACTIVE`, streaming (no branch/PR for this chat — see below).
-  This session (2026-07-06, continuation of the `claude/n4-ps42u7` chat): shipped **N4**
-  (PR #140, MERGED), merged **PR #138**, stood up the **Branch Execution Ledger** (135
-  branches classified, `docs/AGENT_ORCHESTRATION_LEDGER.md`), got owner approval on **X5**
-  (packaged as `scripts/delete_dead_branches.sh` — owner runs `--run`, agent containers
-  can't delete remote refs), shipped **N5** (deploy/CI hardening, §85), ran a full
-  **Telegram audit** (§86): outbound alerts verified working; slash commands verified DEAD
-  (no webhook registered) → shipped a **no-server polling workaround**
-  (`kudbee_quant/telegram_poll.py` + `telegram-poll.yml` — **confirmed live**: both of its
-  first two scheduled runs completed green, poll + admin-state-persist steps both
-  succeeded), an entry-**fill event** ping, and armed `daily_recap`; then shipped **N6**
-  (research-honesty fixes, §87) — all 5 items: the CV label-end purge leak, `audit.py`'s
-  clean-on-zero-checks bug, the unstaled overnight cache, the trailing-partial resample
-  bucket, and the silent registry-import swallow. All direct commits to `main`
-  (streaming) — no PR opened this session. Suite: 772/772; CI green through `da9493aa`
-  (N6's own commit not yet CI-checked as of this baton write).
+  This session (2026-07-06, continuation of the `claude/n4-ps42u7` chat, running under
+  an owner standing directive to keep working the queue autonomously and keep
+  everything merged/green): shipped **N4** (PR #140, MERGED), merged **PR #138**, stood
+  up the **Branch Execution Ledger** (135 branches classified,
+  `docs/AGENT_ORCHESTRATION_LEDGER.md`), got owner approval on **X5** (packaged as
+  `scripts/delete_dead_branches.sh` — owner runs `--run`, agent containers can't delete
+  remote refs), shipped **N5** (deploy/CI hardening, §85), ran a full **Telegram audit**
+  (§86, no-server polling command answerer — confirmed live via 2 green scheduled runs
+  — fill-event ping, `daily_recap` armed), shipped **N6** (research-honesty fixes, §87,
+  all 5 items), and shipped **N7** (ledger harvests, §88) — the LAST item in the
+  §83-review agent queue, closing it out entirely: conf_70/psych-1h/VAH-trap verdicts
+  recorded in MEMORY, the #102/#14 audit reports landed in `docs/audits/`, the no-JS
+  site fix confirmed already live, and `scripts/delete_dead_branches.sh` extended to
+  cover all 123 deletable branches (102 dead + 21 superseded, pinned-SHA verified).
+  **Agent-side queue is now EMPTY** — everything left on `docs/CROSSROADS.md` is an
+  owner-decision row (X1-X5). All direct commits to `main` (streaming) — no PR opened
+  this session. Suite: 772/772; CI confirmed green through `190a6745` (N6).
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -37,11 +39,9 @@
   Telegram commands answer instantly instead of via the ~10-20min polling fallback), **X3**
   (transparency posture), **X4** (§83 core-engine fixes, change-gated, needs sign-off), **X5**
   (branch cleanup — **APPROVED**, script ready, owner runs `bash scripts/delete_dead_branches.sh
-  --run`). Agent-side queue: **N7** (ledger harvests) is the only one left. ~~N4~~/~~N5~~/~~N6~~
-  shipped 2026-07-06.
-- **Verify live (not yet confirmed as of this baton write):** CI hasn't checked N6's commit
-  yet (pushed moments before this baton write) — next chat should do a quick
-  `list_workflow_runs` confirm before assuming it's green (local suite was 772/772).
+  --run`). ~~N4~~/~~N5~~/~~N6~~/~~N7~~ all shipped 2026-07-06 — the agent-side queue is empty.
+- **Verify live:** CI on the N7 commit (this session's last push) is not yet confirmed as
+  of this baton write — a quick `list_workflow_runs` check is the first thing to do.
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
@@ -99,7 +99,16 @@
   end boundary); `memory/registry.py`'s broken-import path silently swallowed every
   exception (now logs loudly). 16 new tests, 772/772 total. Also wrote
   `docs/dsa_study_plan.md` at the owner's request — unrelated to the trading system, a
-  study plan mapping a DSA infographic onto this codebase's real structures.
+  study plan mapping a DSA infographic onto this codebase's real structures. Then
+  shipped **N7** (§88), the last item in the queue: pulled the conf_70 (Δ+0.195R p=0.035,
+  re-verify caveat — predates §75-§77), psych-1h (HARD NEGATIVE), and VAH-trap (REJECT)
+  verdicts directly from their source branch commits into MEMORY; copied the #14 and
+  #102 audit reports (which existed only on never-merged branches) into `docs/audits/`
+  with provenance notes; verified the no-JS white-screen site fix is already live on
+  `main` (`assets/css/style.css:517-525`) — nothing to ship there. Updated the ledger
+  (section B 12→8, section C 16→21) and extended `delete_dead_branches.sh` with a
+  pinned-SHA verification mode for the 21 section-C branches (dry-run: 123/123
+  deletable, 0 skipped).
 - **2026-07-05 (branch `claude/fable-five-codebase-review-9d61n5`):** ran the
   handoff gate (PR #137 → post-hoc **PASS**, `docs/audits/claude-weekly-trades-status-z8thda.md`)
   → Fable-5 full-codebase review via 5 independent subsystem reviewers → findings filed as
@@ -140,25 +149,24 @@
 ## NEXT chat
 
 Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
-redesign, the security/engine review, the forming-candle fix, N1–N3, the tp-backtest
+redesign, the security/engine review, the forming-candle fix, N1–N7, the tp-backtest
 footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE, do NOT
-propose it as "untested" again)**, the Fable-5 review §83, N4/N5/N6, and the §86 Telegram
-audit) is **DONE** — see `docs/MEMORY.md` §74–§87 for the full record. Do not re-derive
-any of it. What's actually open now:
+propose it as "untested" again)**, the Fable-5 review §83, and the §86 Telegram audit)
+is **DONE** — see `docs/MEMORY.md` §74–§88 for the full record. Do not re-derive any of
+it. What's actually open now:
 
-- **Scope for the next chat: N7 — ledger harvests** (small, docs/research-honesty):
-  record the conf_70 high-conviction result (Δ+0.195R p=0.035,
-  `handoff-audit-rk3gn7`, predates §75-§77 — re-verify before use), the psych-1h HARD
-  NEGATIVE, and the VAH-trap REJECT verdicts into MEMORY; copy the missing #102/#14
-  audit reports into `docs/audits/`; re-test the no-JS white-screen site fix
-  (`kudbeex-blank-page-q6pdql`) against the current site. Unblocks section-C branch
-  deletions.
-- **Open risks:** CI on this session's final commit (N6) is unconfirmed as of this baton
+- **The agent-side queue is EMPTY.** N4-N7 (everything the §83 Fable-5 review put in the
+  agent's court) are all shipped. There is no pre-assigned "next scope" for the next
+  chat — read `docs/CROSSROADS.md` fresh, look for anything new the owner has said or
+  any CI/PR activity needing attention, and pick up from there. Under the owner's
+  standing streaming/proactive directives (`CLAUDE.md`), that can mean: watching for new
+  owner asks, doing a fresh pass for small safe fixes, or simply confirming everything
+  stays green if truly nothing new has come up.
+- **Open risks:** CI on this session's final commit (N7) is unconfirmed as of this baton
   write (see "Verify live" above) — quick check first; X2 (Fly deploy) still blocks
-  instant Telegram commands and the D1-backed `/levels /history /vectors` features;
-  section-C branch harvests (conf_70 etc.) are still pending before those 16 branches
-  can be deleted; X5 is owner-approved but not yet executed (the deletion
-  script needs the owner to run it — agent containers can't push branch deletions).
+  instant Telegram commands and the D1-backed `/levels /history /vectors` features; X5
+  is owner-approved but not yet executed (the deletion script needs the owner to run
+  it — agent containers can't push branch deletions).
 - **Off-limits (standing, unchanged this session):** validated strategy defaults (§1),
   the live execution path, the 24h deadline (§70/§73), section-B ledger branches (owner
   call per-branch, not agent-delete — see the ledger for each one's recommendation).
@@ -320,6 +328,9 @@ any of it. What's actually open now:
   flag-forwarding), added a fill-event ping, armed `daily_recap` — telegram-poll.yml's
   first 2 scheduled runs confirmed green same session; shipped N6 (research-honesty
   fixes, §87: CV label-end purge leak, audit.py clean-on-zero-checks, unstaled overnight
-  cache, trailing-partial resample bucket, silent registry-import swallow — 16 new tests).
-  All direct-to-`main`, no PR. Suite 772/772. NEXT: N7 (ledger harvests); first confirm
-  CI ran green on this session's final commit.
+  cache, trailing-partial resample bucket, silent registry-import swallow — 16 new tests);
+  shipped N7 (ledger harvests, §88: conf_70/psych-1h/VAH-trap verdicts into MEMORY,
+  #14/#102 audit reports landed, no-JS site fix confirmed already-live, delete script
+  extended to 123 branches) — closes the entire §83-review agent queue (N4-N7 done).
+  All direct-to-`main`, no PR. Suite 772/772. NEXT: agent queue is empty; read
+  CROSSROADS fresh for anything new, or confirm CI green on this session's final commit.

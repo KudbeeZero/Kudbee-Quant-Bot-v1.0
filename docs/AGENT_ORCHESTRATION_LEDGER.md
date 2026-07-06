@@ -141,24 +141,20 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 | `claude/fable-five-codebase-review-9d61n5` | PR #139 **MERGED** (REC-014); tree-identical to main | delete on cleanup |
 | `claude/weekly-trades-status-z8thda` | PR #137 **MERGED** (audited PASS ×2) | delete on cleanup |
 
-## B · Unique unmerged value — needs a decision or a harvest (12)
+## B · Unique unmerged value — needs a decision or a harvest (8)
 
 | Branch | What's uniquely on it | Risk | Verdict / recommended action |
 |---|---|---|---|
 | `claude/crypto-confluences-research-cxrtp3` | 10 research volumes (TR/Tino/ICT/BTMM/Wyckoff, ~10.4k lines, docs only, 2026-06-08/09) | none (docs) | **OWNER**: merge into `docs/research/` as the reference library, or archive. Recommended: merge — it's the source material behind the confluence votes. |
 | `claude/next-level-signals` | DXY inverse-corr regime filter + fingerprint gate, drawdown guard, session sizing, correlation guard, ADR filter (1.4k lines, default-off books, 06-29) | medium (new signal surface, unvalidated) | **OWNER**: never merged, not in MEMORY, would need the significance gate before any book arms. Recommended: leave parked; harvest ideas via N-queue only with pre-registration. |
 | `claude/confluence-indicators-lab` | Owner's indicator-suite measurements (Bollinger/RSI+KDJ/Fib/spider/M-zone) + level-cluster "magnet" feature (933 lines, 06-22) | low (research) | **HARVEST**: verdicts overlap §57/§59 but the level-cluster feature + lab results aren't on main. Copy results table into MEMORY, then delete. |
-| `claude/handoff-audit-rk3gn7` | **conf_70 high-conviction gate research (Δ+0.195R, both halves, p=0.035)** + Fly hosting draft + §33 memory (06-12) | low (research) | **HARVEST**: the conf_70 result is NOT in MEMORY — record it (with a re-verify caveat: predates §75-§77 fixes) before deleting. Fly draft superseded by §80. |
-| `research/psych-level-reversal-1h` | psych-level + PVSRA-absorption reversal candidate — **HARD NEGATIVE** (200 lines, 06-24) | none | **HARVEST**: negative verdict not recorded in MEMORY — file it (hard-negatives are the cheapest guardrails), then delete. Sibling `research/psych-level-reversal` is DEAD-MERGED. |
-| `claude/kudbeex-blank-page-q6pdql` | no-JS white-screen site fix (`<noscript>` absent on main today) + journal records CLI (06-28) | low (site) | **HARVEST**: the no-JS fix looks still-applicable to the live site — re-test against current pages, apply if real. CLI part superseded by later reporting. |
 | `claude/zcash-backtest-orderbook-shjg5o` | ZCash live scan + orderbook-fill backtest + mission-control dashboard (06-10) | low | **SALVAGE-HOLD** — explicitly held per MEMORY ("Held for salvage"). Keep parked; do not delete without owner OK. |
 | `claude/cinematic-homepage` | Lenis+GSAP scroll-cinematic homepage alternative (06-28/29) | none (visual) | **OWNER**: alternative look superseded by "The Journal" redesign (PR #133). Recommended: archive (delete) unless the owner wants the cinematic direction revisited via a Pages preview. |
 | `feat/session-crossover-alerts` | *(corrected 2026-07-06: `cli notify-session` IS on main and fires from `paper-trade.yml` — this branch is the pre-squash copy)* | none | **SUPERSEDED** — delete on cleanup (moved from OWNER after the Telegram audit §86 found the feature live). |
 | `claude/hello-3vl2b8` | live order-placement subsystem (maker-only, gated) as-of 06-14 + PR #14 audit | **HIGH (money path)** | **SUPERSEDED/OWNER**: became PR #16 (audited PASS, merged); branch copy is stale. Delete on cleanup — the live path on `main` is the only copy that may ever be worked on, under X1's gate. |
 | `claude/near-miss-autopsy` | near-miss autopsy + OOS scenario re-sim research (3.3k lines, 06-14) | low (research) | **SUPERSEDED** (PR #17 audited PASS + merged; branch = pre-squash copy). Delete on cleanup. |
-| `claude/handoff-audit-8aps4t` + `claude/pr-14-handoff-audit-gpo9ab` | post-hoc audit reports for #102 / #14 not present in `docs/audits/` on main | none (docs) | **HARVEST**: copy the two audit reports into `docs/audits/` (gate evidence should live on main), then delete. |
 
-## C · Superseded — unique SHAs, content verified on main or refuted later (16)
+## C · Superseded — unique SHAs, content verified on main or refuted later (21)
 
 `claude/fix-partial-bar` (=PR #136 §77) · `claude/website-seo-finish` (=PR #132) ·
 `claude/section41-gap-run` (=PR #129 §74) · `claude/kudbee-quant-audit-v1-is91p2` (=PR #127) ·
@@ -171,10 +167,17 @@ recorded MEMORY §57: NO edge) · `feat/mtf-15m-30m-backtest` (verdict recorded:
 `claude/fable-5-release-review-mow58s` (§29 TradFi fixes shipped via PR #5) ·
 `claude/handoff-audit-fee-scoring-p0yg4n` + `claude/handoff-audit-xtn2bz` (net-of-fee scoring
 superseded by the merged per-venue implementation, §26/§28) · `claude/vah-trap-reversal-study`
-(pre-registered REJECT — verdict in the branch report; **copy verdict to MEMORY if absent
-before deleting**).
+(pre-registered REJECT — verdict copied to MEMORY §88, 2026-07-06).
 
-→ all deletable on cleanup approval (after the two flagged verdict-copies).
+**Harvested this session (N7, 2026-07-06) — moved here from section B, all fully captured:**
+`claude/handoff-audit-rk3gn7` (conf_70 verdict → MEMORY §88) ·
+`research/psych-level-reversal-1h` (HARD NEGATIVE verdict → MEMORY §88) ·
+`claude/kudbeex-blank-page-q6pdql` (no-JS fix confirmed already live on `main`,
+`assets/css/style.css:517-525` — nothing to harvest, just verified) ·
+`claude/handoff-audit-8aps4t` + `claude/pr-14-handoff-audit-gpo9ab` (audit reports copied to
+`docs/audits/feat-binary-event-filter.md` + `docs/audits/pr-14-audit.md`).
+
+→ all 21 deletable on cleanup approval — no harvests remain pending (N7 done, MEMORY §88).
 
 ## D · Dead — no unique content (102)
 

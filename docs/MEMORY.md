@@ -2697,3 +2697,60 @@ default — purely measurement/tooling honesty, per the §83 review's original f
 Suite: 772/772 (756 baseline + 16 new tests across `test_ml_cv.py`, `test_ml_labels.py`,
 `test_btmm_audit.py`, `test_overnight.py`, new `test_resample.py`, new
 `test_memory_registry.py`).
+
+## 88. N7 ledger harvests — three unrecorded verdicts, two audit reports, one already-fixed site bug — 2026-07-06 (streaming, direct-to-main)
+
+Closes CROSSROADS N7, the last item in the §83-review agent queue. All content pulled
+directly from the source branch commits (not re-derived), each landed with a provenance
+note. No code changed except where noted.
+
+**Unrecorded research verdicts, now in MEMORY (all historical — none re-run this session):**
+
+- **conf_70 high-conviction gate** (`claude/handoff-audit-rk3gn7`, 2026-06-12): harness
+  WINNER over full history — Δ+0.195R vs baseline (+0.353 vs +0.158), **both halves
+  positive** (+0.151/+0.227), bootstrap p=0.0355, keeps 18% of trades, Sharpe 0.10→0.20,
+  maxDD −25.5R→−9.5R. Corroborated live at the time (5 forward trades, 3 wins, +1.40R/
+  trade) and by a separate lab slice (§16). `conf_60` HURTS both backward and forward —
+  the conviction signal lives at the TOP of the scale, not the middle; `conf_80` was THIN
+  (n=50). Under family-wide BH-FDR (41 candidates that pass) it did **not** survive as a
+  family-wide winner, only as the top candidate with out-of-family corroboration — never
+  "proven," per the harness's own honesty rule. **RE-VERIFY CAVEAT: this measurement
+  predates §75 (VWAP momentum revert), §76 (ride-3R), and §77 (forming-candle fix) — the
+  live signal has changed underneath it since. Do not treat as current; re-run before
+  acting on it.**
+- **psych-level + PVSRA-absorption reversal** (`research/psych-level-reversal-1h`,
+  2026-06-24): **HARD NEGATIVE.** Every variant (long 8/4/24-bar hold, short) HURT vs the
+  +0.067R trend baseline over ~4000 bars/top-10 crypto; per-symbol effect was inconsistent
+  (not SOL-specific despite the live anecdote that inspired it — SOL was actually one of
+  the mildly positive ones, ADA the worst at −0.26R). Do NOT deploy, do NOT re-test this
+  exact config (round-level + PVSRA climax, no trend gate) without a genuinely new angle.
+- **VAH trap-reversal** (`claude/vah-trap-reversal-study`, 2026-06-26): **REJECT**,
+  pre-registered gate failed on significance. Qualifying signals (within 0.5·ATR of prior-
+  session VAH + a rejection candle): n=101, mean −0.033R, boot_p=0.634 (need <0.05) — fails
+  outright despite a directionally-better mean than the −0.055R full-population baseline.
+  Secondary/descriptive-only split (shorts n=31, +0.132R, boot_p=0.268) leans the thesis
+  direction but is far too small and non-significant to rescue — per the pre-registration's
+  own hard rule, not wired, no post-hoc exception.
+
+**Audit reports landed** (`docs/audits/pr-14-audit.md`, `docs/audits/feat-binary-event-filter.md`
+— both existed only on branches that never reached `main`; copied verbatim with a
+provenance note, not re-verified against current code): PR #14 (top-100 foundation +
+review skills, 2026-06-14, PASS, 254/254) and PR #102 (binary-event filter, 2026-06-25,
+post-hoc PASS, 520/520).
+
+**No-JS white-screen site fix — CHECKED, already live, no action needed.** The ledger
+flagged this as "looks still-applicable, re-test." Verified against current `main`:
+`assets/css/style.css:517-525` already carries the exact fix from
+`claude/kudbeex-blank-page-q6pdql` (`.reveal` visible by default, fade-in gated under
+`.js-anim` which `assets/js/main.js:43` only adds once JS is confirmed running) — it must
+have been carried forward through a later merge. All three affected pages (`index.html`,
+`compare.html`, `blog/index.html`) still use `.reveal`. Confirmed the two other unscoped
+`opacity: 0` rules in `style.css` (lines ~310, ~808) are unrelated `:hover`-only decorative
+pseudo-elements, not a repeat of this bug class. Nothing to ship here.
+
+This clears CROSSROADS N7 to zero — the agent-side queue from the §83 review is now
+fully done (N4-N7 all shipped). It also unblocks the Branch Execution Ledger's section-C
+deletions (the two branches carrying real value — `handoff-audit-rk3gn7` and
+`handoff-audit-8aps4t` — have now had their value harvested and can move to the delete
+list; `vah-trap-reversal-study`, `psych-level-reversal-1h`, and `kudbeex-blank-page-q6pdql`
+were already section-B branches whose content is now fully captured here too).
