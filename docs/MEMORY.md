@@ -2523,3 +2523,36 @@ LESSON (process): a full-codebase re-read by a stronger model is cheap relative 
 what it surfaces — but the highest-value findings were all in the SEAMS (atomicity,
 error isolation, NaN semantics, fold boundaries, forming buckets), not in the
 much-audited strategy math. When auditing again, start at the seams.
+
+## 84. N4 shipped + Branch Execution Ledger + the shallow-clone trap — 2026-07-06 (PRs #140/#138 + streaming)
+
+**N4 journal durability is DONE** (PR #140, owner-authorized merge, 746/746 with 6 new
+regression tests): `TradeJournal.save()` / `ChartReviewJournal.save()` / `control.set_paused()`
+are atomic (tmp + `Path.replace()`, the DataCache pattern); `check_open()` evaluates each
+prediction in its own try/except (one dead feed logs loudly and skips — the book keeps
+resolving, partial save beats none); the paper path rejects NaN `atr`/`confluence_pct`/
+`direction` (`not (sd > 0)` + `x != x` self-inequality — remember: EVERY comparison except
+`!=` is False against NaN, so `sd <= 0` silently passed NaN); `commit_journal.sh` refuses
+to commit a `data/journal.json` that doesn't parse. Closes §83's "bot silently stopped
+trading" failure class.
+
+**Branch Execution Ledger stood up** (owner-greenlit, `docs/AGENT_ORCHESTRATION_LEDGER.md`
+bottom section): all 135 remote branches classified — 102 dead (66 merged + 36
+patch-equivalent), 16 superseded, 12 with unique value each carrying a recommended action.
+Deletions are gated on CROSSROADS **X5** (owner chose: ledger first, then approve).
+Unrecorded findings surfaced by the sweep → CROSSROADS **N7** harvests: conf_70
+high-conviction gate (Δ+0.195R p=0.035, `handoff-audit-rk3gn7`, predates §75-§77 — re-verify
+before use), psych-1h reversal HARD NEGATIVE, VAH-trap REJECT, missing #102/#14 audit
+reports, a possibly-still-real no-JS white-screen site fix.
+
+**HARD LESSON (tooling): the agent container clones this repo SHALLOW.** Against a shallow
+clone, `git merge-base` returns nothing for older branches and every branch looks like
+"no common ancestor / 1,697 commits ahead" — which pattern-matches to "main history was
+rewritten" and is FALSE. `git rev-parse --is-shallow-repository` first; `git fetch
+--unshallow origin main` before ANY branch archaeology. (This session nearly reported a
+history rewrite that never happened.)
+
+**Process note:** PR #137 was audited TWICE by two parallel 2026-07-05 sessions (both PASS
+— `pr-137.md` + `claude-weekly-trades-status-z8thda.md`); their baton writes collided in
+`docs/HANDOFF.md`. Same parallel-chat drift class as 2026-06-15; recorded in the ledger's
+deviations log. Redundant audits are wasteful but safe; colliding batons are the real cost.

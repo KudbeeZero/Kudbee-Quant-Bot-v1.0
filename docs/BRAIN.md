@@ -157,8 +157,11 @@ they can never diverge (the §18 structural win).*
 *The container is wiped like sleep; identity survives via the baton. This is how
 "the same team" persists across amnesia.*
 - **Route:** `docs/HANDOFF.md` (the baton), `docs/SESSION_PROTOCOL.md` (relay ritual),
-  `docs/AGENT_ORCHESTRATION_LEDGER.md` (session→branch→PR→audit timeline),
+  `docs/AGENT_ORCHESTRATION_LEDGER.md` (session→branch→PR→audit timeline **+ the Branch
+  Execution Ledger** — every remote branch classified dead/superseded/harvest/owner, §84),
   `docs/audits/` (per-unit gate evidence).
+- **Lesion guard (§84):** the agent container clones SHALLOW — `git fetch --unshallow`
+  before any branch archaeology, or every old branch falsely reads as orphaned.
 - **Subsections:** wake (`/handoff-audit`), sleep (`/closeout`), the ledger's honest
   deviation log. **This is the file that makes the brain a *team* and not a goldfish.**
 

@@ -10,7 +10,7 @@
 >
 > Legend — **OWNER** = needs your call/sign-off · **AGENT** = I can do it under the
 > streaming workflow (direct commit / PR as it earns one) · **WATCH** = a trigger that
-> fires later, no decision yet. Updated 2026-07-05 (Fable-5 review, MEMORY §83).
+> fires later, no decision yet. Updated 2026-07-06 (N4 shipped; branch ledger stood up).
 
 ---
 
@@ -85,6 +85,20 @@
   deliberately rather than by accident.
 - **Status:** OPEN, owner call. No action taken.
 
+### X5 · Branch cleanup: approve the dead-branch deletion list  · **OWNER**
+- **From the 2026-07-06 Branch Execution Ledger** (`docs/AGENT_ORCHESTRATION_LEDGER.md`,
+  bottom section): of 135 remote branches, **102 are dead** (66 fully merged + 36
+  patch-equivalent squash leftovers — section D), **16 more are superseded** (section C,
+  deletable after two small verdict-harvests), **12 carry unique value** (section B —
+  each with its own recommended action; `zcash-…` stays SALVAGE-HOLD per MEMORY).
+- **Owner chose (2026-07-06): ledger first, then approve deletions.** The ledger now
+  exists — this row is the approval gate.
+- **Options:** (a) approve deleting D now, C after its harvests; (b) approve D only;
+  (c) keep everything, ledger just marks them.
+- **Recommended:** (a) — every deletion re-verified merged/equivalent immediately before
+  it runs; section B untouched.
+- **Status:** OPEN, awaiting owner one-tap.
+
 ### X4 · Core-engine fixes from the §83 review (change-gated code)  · **OWNER**
 - **Fork:** the review found real defects in the levels/backtest core, which is
   off-limits without your sign-off: the **London Brinks box lookahead** +
@@ -108,15 +122,13 @@
 
 ## 🟡 DO NEXT — I can act (your pick of order)
 
-### N4 · Journal durability hardening (paper path)  · **AGENT**
-- **From §83:** (i) make `journal.save()` atomic (temp file + `os.replace`, same
-  pattern as the data cache; also `chart_reviews.py`/`control.py`); (ii) per-symbol
-  try/except in `check_open()` so one dead feed can't block the whole book, with a
-  loud warning + partial save; (iii) NaN guards on the paper path (`sd <= 0` →
-  `not (sd > 0)`, same for pct/direction) so a NaN ATR can never journal an
-  unresolvable bracket; (iv) `commit_journal.sh` validates JSON before committing.
-- All paper-book plumbing, no strategy change, fully testable. The highest-value
-  fixes in the review — they close the "bot silently stopped trading" failure class.
+### N7 · Ledger harvests (small, docs/research-honesty)  · **AGENT**
+- From the Branch Execution Ledger section B: record the **conf_70 high-conviction
+  result** (Δ+0.195R p=0.035, `handoff-audit-rk3gn7`, with a predates-§75/§77 caveat),
+  the **psych-1h HARD NEGATIVE** and the **VAH-trap REJECT** verdicts into MEMORY;
+  copy the **#102/#14 audit reports** into `docs/audits/`; re-test the **no-JS
+  white-screen site fix** (`kudbeex-blank-page-q6pdql`) against the current site.
+- All tiny, all sharpen the record; unblocks section C deletions under X5.
 
 ### N5 · Deploy/CI hardening remainder  · **AGENT**
 - ✅ Done this session: `telegram-register.yml` re-pointed Render→Fly (it was
@@ -173,7 +185,14 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
-- **PR #137 post-hoc audit PASS** (2026-07-05) + **stop-to-TP1 settled HARD-NEGATIVE**
+- **N4 journal durability SHIPPED** (2026-07-06, PR #140 merged, owner-authorized):
+  atomic saves (journal/chart_reviews/control), per-symbol isolation in `check_open()`,
+  NaN guards on the paper path, JSON-validated `commit_journal.sh`; 746/746 (6 new tests).
+  Closes the "bot silently stopped trading" failure class from §83.
+- **PR #138 merged** (2026-07-06, owner-authorized) — the parallel `/handoff-audit` of
+  #137 (`docs/audits/pr-137.md`, PASS ×2 with #139's) + baton reconciliation; its baton
+  collision with #139 resolved. **Branch Execution Ledger stood up** the same turn
+  (`docs/AGENT_ORCHESTRATION_LEDGER.md`): 135 branches classified, deletions gated on X5.
   (§82) — the "test it properly" fork closed; do not re-test without a new angle.
 - **W2 (§70 24h deadline)** — resolved KEPT (§73); row removed this sweep as planned.
 - **Fable-5 full-codebase review** (§83, 2026-07-05) — findings triaged into X3/X4/N4–N6

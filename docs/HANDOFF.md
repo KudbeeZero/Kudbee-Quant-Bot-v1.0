@@ -6,9 +6,12 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE`. Current chat: branch `claude/fable-five-codebase-review-9d61n5`
-  — full Fable-5 codebase review + docs/memory sweep (PR in progress). Previous chat's PR #137
-  (`claude/weekly-trades-status-z8thda`) is MERGED, post-hoc audit PASS (see Audit status).
+- **Protocol status:** `ACTIVE`. Current chat: branch `claude/n4-ps42u7` (harness-assigned) —
+  shipped **N4 journal durability** (PR #140, MERGED 2026-07-06, owner-authorized), resolved the
+  #138/#139 baton collision and merged **PR #138** (owner-authorized), stood up the **Branch
+  Execution Ledger** (all 135 branches classified — `docs/AGENT_ORCHESTRATION_LEDGER.md`, bottom
+  section), and adopted the owner's **Fable 5 execution contract** (see `CLAUDE.md` "Branch &
+  Commit Machine"). No open PRs. Prior chats' #137/#138/#139/#140 all MERGED.
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -21,9 +24,10 @@
   needs sign-off), **X2** (5-step bring-up: DNS→Cloudflare, Pages custom domain incl. `www`,
   **deploy the API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), **X3** (transparency
   posture — repo is public on GitHub AND via Pages, decide deliberately), **X4** (§83 core-engine
-  fixes — Brinks lookahead, entry-bar fill blind spot — change-gated, needs sign-off). Agent-side
-  queue: **N4** (journal durability), **N5** (deploy/CI hardening remainder), **N6**
-  (research-honesty fixes).
+  fixes — Brinks lookahead, entry-bar fill blind spot — change-gated, needs sign-off), **X5**
+  (approve the branch-cleanup deletion list from the new ledger). Agent-side queue: **N7**
+  (ledger harvests), **N5** (deploy/CI hardening remainder), **N6** (research-honesty fixes).
+  ~~N4~~ shipped (PR #140).
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
@@ -98,10 +102,10 @@ footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE
 propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see `docs/MEMORY.md`
 §74–§83 for the full record. Do not re-derive any of it. What's actually open now:
 
-- **This chat's suggested next priority:** **N4 — journal durability hardening** (atomic
-  `journal.save()`, per-symbol error isolation in `check_open()`, NaN guards, JSON-validated
-  commit). Highest-value fixes from the §83 review, pure paper-book plumbing, no strategy
-  change, fully testable. Then N5/N6 as they're picked.
+- **This chat's suggested next priority:** **N5 — deploy/CI hardening remainder**, then **N6**
+  (research-honesty fixes) and **N7** (ledger harvests) as picked. ~~N4~~ is DONE (PR #140,
+  2026-07-06, §84). Owner one-tap pending: **X5** (branch cleanup per the new Branch Execution
+  Ledger in `docs/AGENT_ORCHESTRATION_LEDGER.md`).
 - **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
   pre-live gate, 8 latent bugs, money path — needs sign-off), X2 (the consolidated
   5-step bring-up checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the

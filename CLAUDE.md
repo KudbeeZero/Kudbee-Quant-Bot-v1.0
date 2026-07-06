@@ -29,6 +29,29 @@ the fastest safe path that keeps momentum:
 - `/handoff-audit` (wake) and `/closeout` (sleep) still frame a session, but no
   longer force a single-PR bottleneck.
 
+## Branch & Commit Machine (owner-set 2026-07-06, Fable 5 execution contract)
+Enforceable rules, followed literally, one focused unit of work at a time:
+1. **Default: direct commit to `main`** for small verified fixes, docs, and memory
+   updates (the streaming workflow above).
+2. **PR required:** large change, risky change, anything touching the
+   **live-execution / money path** (explicit owner approval, NEVER merge-on-green),
+   or website/visual work worth a Cloudflare Pages preview.
+3. **Verification-first:** run the relevant tests (`pytest`, CLI smoke, paper-scan
+   checks) BEFORE commit/PR when code changed. Targeted diffs only — never full-file
+   rewrites unless the file is new or tiny; no broad refactors.
+4. **Memory the same turn:** any commit/PR that changes facts updates the matching
+   layer (`docs/MEMORY.md` under its `docs/BRAIN.md` region, `docs/CROSSROADS.md`,
+   the Branch Execution Ledger in `docs/AGENT_ORCHESTRATION_LEDGER.md`) in the SAME
+   turn. Honor existing per-branch audits in `docs/audits/`.
+5. **Live/money = hard owner gate**, surfaced as an `AskUserQuestion` with concrete
+   options, recommended default first. Same for anything altering the
+   honesty/measurement thesis.
+6. **Branch hygiene:** the Branch Execution Ledger is the single source of truth for
+   branch state; deletions only with owner approval (CROSSROADS X5). Agent containers
+   clone shallow — `git fetch --unshallow` before any branch archaeology (§84).
+7. **Every working turn ends with Summary + Next** (see below) — honest over
+   optimistic, always an actionable result.
+
 ## Standing rule: SELF-UPDATING MEMORY (owner-set 2026-07-02)
 The memory file should, over time, stop looking like documentation and start looking
 like the team. So **write memory as you go, not just at closeout**:
