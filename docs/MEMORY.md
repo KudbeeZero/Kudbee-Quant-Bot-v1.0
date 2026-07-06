@@ -2637,3 +2637,10 @@ approaching_stop, deadline_soon, recovered/flipped — events.py, live on the ho
 only the fill edge was missing. **`daily_recap` switched ON** via the committed
 `data/feature_flags.json` (owner one-tap) — first message ~13:05 UTC daily. Suite
 756/756 (5 new tests).
+
+**Process lesion (§86 addendum, guard immediately):** the `cf45aff4` upgrade commit
+itself was silently SKIPPED by CI — its commit body contained the literal token
+"[skip ci]" in a sentence *describing* the poll workflow's commit behavior, and GitHub
+honors skip directives anywhere in the message. Rule: **never write the bracketed skip
+tokens verbatim in a commit message unless you mean them** — spell it "skip-ci" when
+referring to the mechanism. This commit exists partly to run CI over the skipped tree.
