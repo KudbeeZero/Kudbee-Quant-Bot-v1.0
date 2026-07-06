@@ -56,9 +56,11 @@ the product.
 - [x] Market-maker cycle context (sessions, PDH/PDL/PWH/PWL, sweeps, cycle)
 - [x] Multi-asset validation harness (correlation-adjusted, OOS-scored)
 - [ ] Cross-asset correlation / catalyst graph (the "Mirofish" view)
-- [ ] Orchestrator: Scan -> Detect -> Validate -> Size -> Fill -> Settle
-- [ ] Paper-trading execution; live opt-in with guards
-- [ ] Dashboard UI with confidence intervals on every number
+- [x] Orchestrator: Scan -> Detect -> Validate -> Size -> Fill -> Settle (the hourly
+      paper loop: `paper-scan` → journal → shared resolver → `journal-score`)
+- [x] Paper-trading execution; live opt-in with guards (double-gated `LiveExecutor`,
+      never yet run live — see `docs/LIVE_TRADING_SETUP.md`)
+- [x] Dashboard UI (gated, `api_auth.py`; shipped PR #21, redesigned PR #133)
 
 ## Reality check from the first backtest
 

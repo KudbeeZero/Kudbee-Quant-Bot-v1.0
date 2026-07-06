@@ -76,6 +76,47 @@ def test_open_prediction_stays_open(tmp_path):
     assert j.predictions[0].status == "open"
 
 
+# --- N4: journal durability hardening ---------------------------------------
+
+def test_save_is_atomic_no_tmp_file_left_behind(tmp_path):
+    """save() must write via a temp file + replace, never leaving a stray
+    .tmp behind and never a truncated journal.json on disk."""
+    j = _journal(tmp_path)
+    j.add(Prediction(symbol="ZECUSDT", kind="touch", level=100.0, deadline_days=7))
+    assert j.path.exists()
+    tmp = j.path.with_suffix(j.path.suffix + ".tmp")
+    assert not tmp.exists()
+    # The committed file must be complete, valid JSON.
+    import json
+    data = json.loads(j.path.read_text())
+    assert len(data) == 1 and data[0]["symbol"] == "ZECUSDT"
+
+
+def test_check_open_isolates_one_symbols_failure(tmp_path, monkeypatch):
+    """A dead feed for ONE symbol must not block the rest of the book from
+    resolving (regression for the '|| true' masked full-book stall)."""
+    j = _journal(tmp_path)
+    good = Prediction(symbol="GOOD", kind="touch", level=100.0, deadline_days=0.0001, setup="g")
+    bad = Prediction(symbol="BAD", kind="touch", level=100.0, deadline_days=0.0001, setup="b")
+    j.add(good)
+    j.add(bad)
+
+    orig_evaluate = j._evaluate
+
+    def _flaky(p):
+        if p.symbol == "BAD":
+            raise RuntimeError("dead feed")
+        return orig_evaluate(p)
+
+    monkeypatch.setattr(j, "_evaluate", _flaky)
+    changed = j.check_open()
+    symbols_changed = {p.symbol for p in changed}
+    assert "GOOD" in symbols_changed
+    assert "BAD" not in symbols_changed
+    assert good.status == "hit"
+    assert bad.status == "open"   # untouched, still open — will retry next cycle
+
+
 def test_scorecard_counts_resolved(tmp_path):
     j = _journal(tmp_path)
     j.add(Prediction(symbol="A", kind="touch", level=100.0, deadline_days=0.0001, setup="s1"))

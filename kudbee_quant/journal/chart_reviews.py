@@ -47,7 +47,9 @@ class ChartReviewJournal:
 
     def save(self):
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps([asdict(r) for r in self.reviews], indent=2))
+        tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp.write_text(json.dumps([asdict(r) for r in self.reviews], indent=2))
+        tmp.replace(self.path)
 
     def add(self, review: ChartReview) -> ChartReview:
         self.reviews.append(review)

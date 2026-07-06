@@ -264,7 +264,11 @@ def paper_scan(
         last = confluence_score(f).iloc[-1]
         pct, direction = float(last["confluence_pct"]), float(last["direction"])
         strength = float(last["strength"])
-        if pct < min_pct or direction == 0:
+        # NaN guard: `pct < min_pct` / `direction == 0` are both False for NaN
+        # (any comparison except `!=` is False against NaN), so a NaN confluence
+        # read would otherwise fall through and could reach the bracket build
+        # below with a NaN entry/stop/target. `x != x` is True only for NaN.
+        if pct != pct or direction != direction or pct < min_pct or direction == 0:
             continue
         # HTF TREND FILTER (tested, robust): don't fight the 800-EMA trend.
         if trend_filter and "ema_800" in last and last["ema_800"] == last["ema_800"]:
@@ -355,7 +359,10 @@ def paper_scan(
         signal_price = float(last["close"])
         atr = float(last["atr"])
         sd = atr * stop_atr
-        if sd <= 0:
+        # `sd <= 0` is False for a NaN ATR, which would otherwise let a NaN
+        # stop-distance through to build an unresolvable bracket. Flipping the
+        # comparison closes that: `sd > 0` is also False for NaN, so `not` catches it.
+        if not (sd > 0):
             continue
         # Validated execution: LIMIT entry at a retrace pullback (maker), stop/
         # target measured from the limit. The order is PENDING until filled.

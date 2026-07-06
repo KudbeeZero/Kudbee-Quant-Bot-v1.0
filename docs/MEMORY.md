@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-02 (§77)._
+_Last updated: 2026-07-05 (§83)._
 
 ---
 
@@ -1036,6 +1036,9 @@ response/CLI footer; keep it there.
 
 ## 34. Hosting architecture: the host is a disposable MIRROR; the repo journal stays the record; alerts travel via a create-only inbox — 2026-06-12
 
+> **SUPERSEDED on hosting (§80, 2026-07-02):** the host is now **Fly.io**; Render was
+> retired and `render.yaml` deleted. The mirror/inbox architecture below still stands.
+
 DECIDED (user, 2026-06-12): Render **Starter** ($7/mo, `render.yaml`) hosts the
 FastAPI app. Free tier was rejected for a measured reason: 15-min idle
 spin-down + 30-60s cold start would drop TradingView webhook POSTs (TV doesn't
@@ -1268,7 +1271,9 @@ User-confirmed scope: shared-password login now (no email/DB yet), a curated
   copies to `kudbee_quant/static/app.css`. Both compiled files committed so
   Netlify (`command=""`) and the Render `pip install` build need no Node.
   `node_modules/` gitignored.
-- **CSP — now THREE sources of truth:** `netlify.toml` + `_headers` (static host)
+- **CSP — now THREE sources of truth** *(superseded by §80: the live pair is
+  `_headers` (Cloudflare Pages) + the FastAPI header on Fly; `netlify.toml` is an
+  inert fallback)*: `netlify.toml` + `_headers` (static host)
   and a NEW strict FastAPI response header in `api.py` (`script-src 'self'`, no
   inline) for the Render-served dashboard/login (which had NO CSP before). That's
   why dashboard/login JS is external (`static/app.js`, `static/login.js`).
@@ -2444,3 +2449,77 @@ just don't arm it. **No live config changed.**
 HARD-NEGATIVE: post-TP1 stop-to-TP1 is settled negative on this 6-coin OOS sample;
 don't re-test without a materially different angle (e.g. only raising the stop
 partway to TP1, not all the way).
+
+## 83. Fable-5 full-codebase review — every subsystem re-read with fresh eyes; findings triaged, docs reconciled — 2026-07-05
+
+Owner directive: with Fable 5 released, sweep the ENTIRE codebase (anything a prior
+model wrote) and reconcile every doc/memory layer. Five independent reviewer agents
+covered (1) the analytical core, (2) the money-adjacent operational layer, (3) the
+research/intelligence layers, (4) infra/deploy, (5) docs+website drift. PR #137 was
+also post-hoc audited (**PASS**, `docs/audits/claude-weekly-trades-status-z8thda.md`;
+suite 740/740 green). Nothing found invalidates §1's validated defaults. Full triage
+lives on the CROSSROADS board (X3, N4–N6); the load-bearing findings:
+
+**Core engine (owner sign-off needed — levels/backtest core is change-gated):**
+- **London Brinks box is lookahead** (`levels/builder.py:140-144`): box high/low is
+  broadcast to ALL bars of the NY date, including pre-08:00 bars — the NY box right
+  below it is correctly `formed`-gated, this one isn't. Contaminates the BTMM
+  scenario backtests + research confluence proximity. Same class: `ny_open` leaks to
+  pre-08:00 bars (builder.py:129); AWR/AMR lack the §29 stub-period guard.
+- **Maker-entry backtests never simulate the fill bar's remaining range**
+  (`backtest/bracket.py:148-173` + money.py/execution_modes.py): entry-bar stop-outs
+  are impossible by construction, systematically flattering limit-entry expectancy.
+  Affects the flagship validated-entry harness; direction of bias is known (optimistic).
+- `bracket_excursions` credits the stop bar's favorable extreme to MFE (its own
+  docstring's TP-hit-rate equivalence is broken); FVG zones never clear (contradicts
+  docstring; skews the live `v_fvg` vote semantics vs what was validated).
+
+**Operational durability (paper book — the "silently stopped trading" class):**
+- `journal.save()` is a **non-atomic write** to the canonical money file, and
+  `paper-trade.yml` `|| true`s every step, so a mid-write kill commits a truncated
+  journal to main and every later run silently no-ops (journal.py:134).
+- `check_open()` has **no per-symbol error isolation** — one dead feed blocks the
+  entire book's resolution forever, masked by `|| true` (journal.py:252-277).
+- **NaN passes the paper-path guards** (`sd <= 0` is False for NaN, paper.py:356) →
+  an unresolvable NaN bracket poisons scorecards/API/Telegram totals.
+
+**Research honesty machinery (fix before the next campaign leans on it):**
+- `ml/cv.py` purge is entry-time-only — label windows leak across fold boundaries
+  (~24-30 bars), inflating the OOS gate the project treats as its honesty check.
+- Meta-label features are sampled at the *fill* bar's completed OHLC, not
+  decision time (ml/labels.py:128) — train/serve mismatch if ever wired live.
+- `scenarios/audit.py` reports `clean=True` on zero checks (vacuous pass of the
+  anti-lookahead auditor); overnight harness silently reuses an unbounded-age data
+  cache and records verdicts as if fresh (overnight_research.py:122).
+- `resample_ohlcv` emits the trailing partial bucket — the §77 forming-candle bug
+  one level up (research-only consumers today).
+
+**Infra:** `telegram-register.yml` still self-healed against the retired Render host
+daily (FIXED this session → Fly URL); `fly-deploy.yml` pins `flyctl-actions@master`
+(mutable) with `FLY_API_TOKEN` and no `permissions:` block — armed the moment the
+token is set (X2 step 3); no dependency lockfile + hourly rebuild = unreviewed env
+drift; Kestra flows scan top-100 while claiming to mirror the top-10 Action.
+**Repo is PUBLIC on GitHub** — so Pages serving the repo root (docs/, research/,
+engine source) adds little *new* exposure, but the transparency-vs-privacy posture
+is inconsistent (we block `/data/*` on the site while the same file is public on
+GitHub) → owner fork X3.
+
+**Docs reconciled this session:** README (Netlify→Cloudflare Pages/Fly),
+telegram-setup runbook (fully Render→Fly), telegram-register.yml (Render→Fly),
+HANDOFF baton (§82 + merged #137 + stop-to-TP1 no longer "untested"),
+AGENT_ORCHESTRATION_LEDGER (serial agreement marked RETIRED + streaming-era gap row
++ REC-014), MEMORY §34/§40 supersession pointers, PHILOSOPHY roadmap checkboxes,
+LIVE_TRADING_SETUP walk-forward wording (6-asset validation ≠ top-10 forward book),
+EXECUTION_BACKTEST citation, wiring-verification + vector_candle_tracker Render
+residue, OPEN_SETUPS historical banner, qa.md phrasing, BRAIN path cites,
+site.webmanifest description (was "AI trade signals…" — off-thesis).
+
+**Verified clean (for the record):** resolver stop-first ordering, §75 VWAP sign
+pin, §77 closed-bar gating (Python + all Pine firing surfaces), §78 venue tagging,
+auth surfaces (fail-closed, constant-time), the paper/live double gate, alert-inbox
+idempotency, no public performance claims anywhere on the site.
+
+LESSON (process): a full-codebase re-read by a stronger model is cheap relative to
+what it surfaces — but the highest-value findings were all in the SEAMS (atomicity,
+error isolation, NaN semantics, fold boundaries, forming buckets), not in the
+much-audited strategy math. When auditing again, start at the seams.

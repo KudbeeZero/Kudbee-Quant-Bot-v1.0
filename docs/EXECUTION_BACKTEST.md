@@ -17,8 +17,8 @@ tests: `kudbee_quant/backtest/execution_modes.py`, `tests/test_execution_modes.p
 ## Method (what was held constant, what varied)
 
 - **Signal = the real production signal:** `confluence_position(min_pct=0.50,
-  trend_align=True)` — the 800-EMA HTF filter the live paper scan applies
-  (`paper.py:95-100`).
+  trend_align=True)` (`kudbee_quant/confluence/stack.py`) — the 800-EMA HTF filter
+  the live paper scan applies via `trend_filter` in `kudbee_quant/paper/paper.py`.
 - **Geometry held constant** (validated defaults, MEMORY §1): stop `1.5·ATR` (=1R),
   target `3R`, `max_bars=24`, retrace `0.25·ATR`, `entry_window=6`.
 - **Three entry modes** (all no-lookahead; signal decided at bar T's close):

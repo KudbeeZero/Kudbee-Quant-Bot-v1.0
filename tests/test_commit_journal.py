@@ -187,3 +187,21 @@ def test_no_changes_is_a_clean_noop(tmp_path: Path) -> None:
     result = _run_script(ours)
     assert result.returncode == 0
     assert "No journal changes" in result.stdout
+
+
+def test_corrupt_journal_json_refuses_to_commit(tmp_path: Path) -> None:
+    """N4: a truncated/invalid data/journal.json must never be committed — a
+    mid-write kill must fail loudly here rather than ship a corrupt canonical
+    money file that every later run then silently no-ops against."""
+    origin, _ = _setup_origin(tmp_path)
+    ours = _clone(origin, tmp_path / "ours")
+
+    # Simulate a mid-write kill: journal.json is truncated invalid JSON.
+    (ours / "data" / "journal.json").write_text('{"trades": ["t0", "t1"')
+
+    result = _run_script(ours)
+    assert result.returncode != 0
+    assert "journal.json" in (result.stdout + result.stderr)
+    # Nothing was committed.
+    status = _git(ours, "status", "--porcelain").stdout
+    assert "journal.json" in status  # still shows as a dirty working-tree change

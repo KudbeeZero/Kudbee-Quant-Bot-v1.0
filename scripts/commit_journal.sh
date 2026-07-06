@@ -51,6 +51,14 @@ _is_regen() {
   return 1
 }
 
+# Refuse to commit a corrupt journal. A mid-write kill (the failure mode N4
+# hardens against) can leave data/journal.json truncated; committing that
+# would make every later run load it and silently no-op forever.
+if [ -e data/journal.json ] && ! python3 -c "import json; json.load(open('data/journal.json'))" 2>/dev/null; then
+  echo "data/journal.json failed JSON validation — refusing to commit a corrupt journal." >&2
+  exit 1
+fi
+
 # Stage only the paths that exist (a non-matching pathspec would abort the whole
 # `git add`, silently staging nothing). data/alert_inbox may be absent on a fresh
 # checkout; the others are always present once the bot has run.
