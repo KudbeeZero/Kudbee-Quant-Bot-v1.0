@@ -25,9 +25,9 @@
   **deploy the API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), **X3** (transparency
   posture — repo is public on GitHub AND via Pages, decide deliberately), **X4** (§83 core-engine
   fixes — Brinks lookahead, entry-bar fill blind spot — change-gated, needs sign-off), **X5**
-  (approve the branch-cleanup deletion list from the new ledger). Agent-side queue: **N7**
-  (ledger harvests), **N5** (deploy/CI hardening remainder), **N6** (research-honesty fixes).
-  ~~N4~~ shipped (PR #140).
+  (approve the branch-cleanup deletion list from the new ledger). Agent-side queue: **N6**
+  (research-honesty fixes), **N7** (ledger harvests). ~~N4~~ (PR #140) + ~~N5~~ (§85)
+  shipped 2026-07-06.
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
@@ -102,9 +102,8 @@ footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE
 propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see `docs/MEMORY.md`
 §74–§83 for the full record. Do not re-derive any of it. What's actually open now:
 
-- **This chat's suggested next priority:** **N5 — deploy/CI hardening remainder**, then **N6**
-  (research-honesty fixes) and **N7** (ledger harvests) as picked. ~~N4~~ is DONE (PR #140,
-  2026-07-06, §84). Owner one-tap pending: **X5** (branch cleanup per the new Branch Execution
+- **This chat's suggested next priority:** **N6 — research-honesty fixes**, then **N7**
+  (ledger harvests). ~~N4~~ (PR #140) and ~~N5~~ (streaming, §85) are DONE 2026-07-06. Owner one-tap pending: **X5** (branch cleanup per the new Branch Execution
   Ledger in `docs/AGENT_ORCHESTRATION_LEDGER.md`).
 - **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
   pre-live gate, 8 latent bugs, money path — needs sign-off), X2 (the consolidated

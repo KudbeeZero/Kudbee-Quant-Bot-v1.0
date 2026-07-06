@@ -120,6 +120,24 @@ def test_register_webhook_success(monkeypatch):
     assert "999:BOTABC" not in r.text
 
 
+def test_register_webhook_uses_api_origin_then_fly_app(monkeypatch):
+    """Base-URL fallback order without ?url=: API_ORIGIN wins, else the Fly app
+    hostname. (The old RENDER_EXTERNAL_URL fallback died with Render, §80.)"""
+    cap = _arm_telegram(monkeypatch)
+    monkeypatch.setenv("API_ORIGIN", "https://kudbee-quant-api.fly.dev")
+    monkeypatch.setenv("FLY_APP_NAME", "should-not-win")
+    r = client.get("/api/telegram/register-webhook", params={"token": "tok-123"})
+    assert r.status_code == 200, r.text
+    assert r.json()["webhook_url"] == "https://kudbee-quant-api.fly.dev/api/telegram"
+
+    monkeypatch.delenv("API_ORIGIN")
+    monkeypatch.setenv("FLY_APP_NAME", "kudbee-quant-api")
+    r = client.get("/api/telegram/register-webhook", params={"token": "tok-123"})
+    assert r.status_code == 200, r.text
+    assert r.json()["webhook_url"] == "https://kudbee-quant-api.fly.dev/api/telegram"
+    assert cap["json"]["url"] == "https://kudbee-quant-api.fly.dev/api/telegram"
+
+
 def test_register_webhook_bad_token_401(monkeypatch):
     _arm_telegram(monkeypatch, token="right")
     r = client.get("/api/telegram/register-webhook",

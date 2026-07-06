@@ -373,9 +373,19 @@ def register_telegram_webhook(
     secret = get_secret("TELEGRAM_WEBHOOK_SECRET", required=False)
     secret_val = secret.reveal() if secret else ""
 
-    # Resolve the public base URL: explicit ?url= wins, else RENDER_EXTERNAL_URL,
-    # else this request's own base. Telegram requires HTTPS for the webhook.
-    base = (url or os.environ.get("RENDER_EXTERNAL_URL") or str(request.base_url)).rstrip("/")
+    # Resolve the public base URL: explicit ?url= wins, else API_ORIGIN (the
+    # canonical public origin — same variable the Pages /api proxy uses), else
+    # the Fly app's public hostname (Fly sets FLY_APP_NAME in every machine),
+    # else this request's own base (correct behind Fly's TLS-terminating proxy
+    # only because uvicorn runs with --proxy-headers; see Dockerfile). The old
+    # RENDER_EXTERNAL_URL fallback is gone with Render (§80).
+    fly_app = os.environ.get("FLY_APP_NAME")
+    base = (
+        url
+        or os.environ.get("API_ORIGIN")
+        or (f"https://{fly_app}.fly.dev" if fly_app else None)
+        or str(request.base_url)
+    ).rstrip("/")
     if not base.startswith("https://"):
         raise HTTPException(
             status_code=400,

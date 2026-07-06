@@ -148,7 +148,7 @@ def cmd_summary(journal: TradeJournal | None = None, client=None) -> str:
     wins = sum(v.get("hits", 0) for v in rec.values())
     total = sum(v.get("n", 0) for v in rec.values())
     tail = (f"The bot has run {coverage} check windows today. "
-            f"All-time record is {wins} wins from {total} trades on the crypto book.")
+            f"All-time record is {wins} wins from {total} trades across all books.")
 
     if n == 0:
         return "The bot has no open positions right now. " + tail

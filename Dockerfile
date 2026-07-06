@@ -10,9 +10,12 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /app
 
-# Install deps first so the layer caches across code-only changes.
-COPY requirements.txt ./
-RUN pip install -r requirements.txt
+# Install deps first so the layer caches across code-only changes. The image
+# installs from requirements.lock (full transitive pin) so the HOURLY rebuild
+# (fly-deploy.yml cron, journal freshness) cannot pull unreviewed dependency
+# drift between deploys. Regenerate the lock deliberately — see its header.
+COPY requirements.lock ./
+RUN pip install -r requirements.lock
 
 # App code + the JSON data the API reads (journal, research ledgers). The
 # .dockerignore keeps the parquet OHLCV caches + tests/website out of the image;
@@ -27,4 +30,8 @@ EXPOSE 8080
 
 # One worker: the app holds process-local state (the in-memory rate-limiter,
 # run-job registry) that must not be split across workers. Vertical scale only.
-CMD ["sh", "-c", "uvicorn kudbee_quant.api:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# --proxy-headers: Fly's edge terminates TLS and forwards X-Forwarded-Proto, so
+# without this every request.base_url would be http:// (breaking, e.g., the
+# webhook self-register HTTPS guard). Trust is safe here: the only route into
+# this container's port is Fly's own proxy (fly.toml [http_service]).
+CMD ["sh", "-c", "uvicorn kudbee_quant.api:app --host 0.0.0.0 --port ${PORT:-8080} --proxy-headers --forwarded-allow-ips='*'"]

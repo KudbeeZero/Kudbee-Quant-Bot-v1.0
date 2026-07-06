@@ -8,8 +8,10 @@
 id: hourly_top100_scan
 namespace: kudbee.quant
 description: |
-  Hourly confluence-R scan of the enabled top-100 universe on the 1h timeframe,
-  logging paper trades. Idempotent: concurrency is capped at 1 so a re-run cannot
+  Hourly confluence-R scan of the VALIDATED top-10 majors (TOP_10_CRYPTO) on the
+  1h timeframe, logging paper trades — the exact universe the proven GitHub
+  Action scans (top-100 was reverted 2026-06-19, MEMORY §45: the long tail bled
+  -0.50R). Flow id keeps its historical name; the universe is top-10. Idempotent: concurrency is capped at 1 so a re-run cannot
   double-log; the journal de-dupes one open trade per (symbol, timeframe).
 
 # One run at a time — prevents duplicate work / orders if a run overlaps or reruns.
@@ -19,7 +21,7 @@ concurrency:
 tasks:
   - id: scan
     type: io.kestra.plugin.scripts.python.Commands
-    description: Scan the enabled universe (1h only) and log paper trades.
+    description: Scan the validated top-10 majors (1h only) and log paper trades.
     env:
       TRADING_MODE: paper
       ENABLE_LIVE_EXECUTION: "false"
@@ -28,7 +30,7 @@ tasks:
       interval: PT1M
       maxAttempt: 3
     commands:
-      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe_loader import universe_specs; print(' '.join(universe_specs()))") --intervals 1h --trend-filter
+      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe import TOP_10_CRYPTO; print(' '.join(TOP_10_CRYPTO))") --intervals 1h --trend-filter
       - python -m kudbee_quant.cli journal-check
 
 triggers:

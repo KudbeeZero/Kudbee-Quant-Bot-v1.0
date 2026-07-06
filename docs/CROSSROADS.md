@@ -134,18 +134,6 @@
   white-screen site fix** (`kudbeex-blank-page-q6pdql`) against the current site.
 - All tiny, all sharpen the record; unblocks section C deletions under X5.
 
-### N5 · Deploy/CI hardening remainder  · **AGENT**
-- ✅ Done this session: `telegram-register.yml` re-pointed Render→Fly (it was
-  self-healing the webhook against the dead host daily).
-- Open: pin `superfly/flyctl-actions` by SHA + add `permissions: contents: read` to
-  `fly-deploy.yml`/`telegram-scheduled.yml`; add a pip lockfile (or deploy only on
-  dependency change) so the hourly rebuild can't ship unreviewed env drift; fix
-  `api.py` webhook self-register base-URL for Fly (`RENDER_EXTERNAL_URL` fallback is
-  dead; needs `--proxy-headers`/`API_ORIGIN` awareness) — do together with X2 step 3.
-- Low-risk singles: drop `MATIC` from `config/crypto_universe.yaml` (delisted pair);
-  align Kestra flows to top-10 (they claim to mirror the Action but scan top-100);
-  `/summary` "on the crypto book" copy fix (sums both venues).
-
 ### N6 · Research-honesty fixes (ML/audit/overnight)  · **AGENT**
 - **From §83:** purge by label-END (`entry_time >= test_start - horizon`) in
   `ml/cv.py`; sample meta-label features at the signal bar, not the fill bar
@@ -189,6 +177,13 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **N5 deploy/CI hardening SHIPPED** (2026-07-06, direct-to-main, §85): flyctl action
+  SHA-pinned (=1.6) + `permissions: contents: read` on both workflows; `requirements.lock`
+  (full transitive pin, Docker image installs from it — the hourly rebuild can't drift);
+  `api.py` webhook base-URL now `?url=` → `API_ORIGIN` → `FLY_APP_NAME` → request base
+  (dead `RENDER_EXTERNAL_URL` removed) + uvicorn `--proxy-headers`; MATIC dropped
+  (delisted); Kestra flows now scan TOP_10 like the Action; `/summary` copy honest
+  ("across all books"). 747/747 tests (1 new). Fly deploy itself is still X2 step 3.
 - **N4 journal durability SHIPPED** (2026-07-06, PR #140 merged, owner-authorized):
   atomic saves (journal/chart_reviews/control), per-symbol isolation in `check_open()`,
   NaN guards on the paper path, JSON-validated `commit_journal.sh`; 746/746 (6 new tests).

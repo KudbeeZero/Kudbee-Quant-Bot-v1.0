@@ -21,7 +21,7 @@ tasks:
       interval: PT1M
       maxAttempt: 3
     commands:
-      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe_loader import universe_specs; print(' '.join(universe_specs()))") --intervals 1h --trend-filter
+      - python -m kudbee_quant.cli paper-scan $(python -c "from kudbee_quant.universe import TOP_10_CRYPTO; print(' '.join(TOP_10_CRYPTO))") --intervals 1h --trend-filter
   - id: resolve
     type: io.kestra.plugin.scripts.python.Commands
     commands:

@@ -20,6 +20,11 @@ on:
         description: "Which job to run manually (tracker|london|ny|daily|weekly)"
         default: "weekly"
 
+# Least privilege: every job only reads the repo (emitters send to Telegram,
+# they never push).
+permissions:
+  contents: read
+
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}

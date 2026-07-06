@@ -2556,3 +2556,25 @@ history rewrite that never happened.)
 — `pr-137.md` + `claude-weekly-trades-status-z8thda.md`); their baton writes collided in
 `docs/HANDOFF.md`. Same parallel-chat drift class as 2026-06-15; recorded in the ledger's
 deviations log. Redundant audits are wasteful but safe; colliding batons are the real cost.
+
+## 85. N5 deploy/CI hardening shipped — 2026-07-06 (streaming, direct-to-main)
+
+All remaining §83 infra items: **flyctl action SHA-pinned** (`ed8efb3` = tag 1.6 — a
+moving `@master` in a job with repo-secret access was the §83 supply-chain finding) and
+`permissions: contents: read` on `fly-deploy.yml`/`telegram-scheduled.yml`;
+**`requirements.lock`** added (full transitive pin, resolved in a clean python:3.11 venv
+— the SAME base as the Dockerfile, which now installs from the lock, so the HOURLY
+journal-freshness rebuild can't ship unreviewed dependency drift; CI still installs
+`requirements.txt` ranges on purpose, to catch upstream breakage early — regenerate the
+lock deliberately per its header); **`api.py` webhook self-register base-URL** is now
+`?url=` → `API_ORIGIN` (same var the Pages proxy uses) → `https://$FLY_APP_NAME.fly.dev`
+→ request base, with uvicorn `--proxy-headers` in the Dockerfile so `request.base_url`
+is honest behind Fly's TLS-terminating edge (dead `RENDER_EXTERNAL_URL` removed, §80);
+**MATIC dropped** from `config/crypto_universe.yaml` (delisted pair, top-100 loader now
+99); **Kestra flows aligned** — they claimed to mirror the proven Action but scanned
+top-100 via `universe_specs()`; now `TOP_10_CRYPTO` exactly like `paper-trade.yml`
+(§45: the top-100 tail bled -0.50R — a stood-up Kestra would have silently re-run the
+refuted experiment); **`/summary` copy fix** — the all-time record sums BOTH venues, so
+it now says "across all books", not "on the crypto book". Suite: **747/747** (1 new
+`API_ORIGIN`/`FLY_APP_NAME` fallback test). Live path untouched; Fly deploy itself is
+still owner-side X2 step 3.

@@ -37,7 +37,6 @@ symbols:
   - {symbol: DOT, max_position_usd: 150, risk_label: major}
   # --- large caps ---
   - {symbol: TRX, risk_label: large}
-  - {symbol: MATIC, risk_label: large}
   - {symbol: TON, risk_label: large}
   - {symbol: LTC, risk_label: large}
   - {symbol: BCH, risk_label: large}
