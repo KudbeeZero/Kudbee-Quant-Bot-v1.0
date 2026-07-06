@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 2,
-    "unrealized_r": 0.0,
-    "winners": 0
+    "unrealized_r": 0.1539,
+    "winners": 1
   },
   "trades": {
     "6399f879": {
@@ -18,13 +18,13 @@
     },
     "b9265a5e": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.1539475997889931
     }
   }
 }
