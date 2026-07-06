@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 1,
-    "n": 10,
-    "unrealized_r": 5.7018,
+    "n": 8,
+    "unrealized_r": 5.0128,
     "winners": 7
   },
   "trades": {
@@ -14,17 +14,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.11734918538089827
+      "ur": -0.0675913694407743
     },
     "23771d95": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.0029239766081885334
     },
     "3ecc4554": {
       "dl_soon": false,
@@ -34,17 +34,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.32051282051282387
+      "ur": 0.9102564102564034
     },
     "503ef0c4": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.0029239766081885334
     },
     "72a13b0e": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.6437810987606227
+      "ur": 1.940241689900608
     },
     "79bb3a02": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.08691121300541574
+      "ur": 0.5816543930341209
     },
     "afa94d44": {
       "dl_soon": false,
@@ -74,27 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4713048186247943
-    },
-    "d19eba38": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.2452085682074436
-    },
-    "ef7bbe85": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.8882301273605755
+      "ur": 1.022107922757615
     },
     "fa119e00": {
       "dl_soon": false,
@@ -104,7 +84,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.07148643175373456
+      "ur": 0.620291616038895
     }
   }
 }
