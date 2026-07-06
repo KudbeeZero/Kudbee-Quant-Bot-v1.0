@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 2,
-    "n": 3,
-    "unrealized_r": -1.439,
-    "winners": 1
+    "n": 2,
+    "unrealized_r": -0.5408,
+    "winners": 0
   },
   "trades": {
     "0c3086cc": {
@@ -14,27 +14,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.33792048929663626
-    },
-    "3440a970": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": true,
-      "symbol": "AVAXUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.9558991981672472
+      "ur": -0.09021406727828772
     },
     "3aa8cc39": {
       "dl_soon": false,
-      "health": "near stop",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.8209876543209891
+      "ur": -0.4506172839506175
     }
   }
 }
