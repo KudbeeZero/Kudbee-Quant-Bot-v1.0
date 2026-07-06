@@ -46,5 +46,7 @@ def set_paused(value: bool, *, reason: str | None = None, since: str | None = No
         d.pop("since", None)
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(json.dumps(d, indent=2, sort_keys=True))
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(json.dumps(d, indent=2, sort_keys=True))
+    tmp.replace(p)
     return d

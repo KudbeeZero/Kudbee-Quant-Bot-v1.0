@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import logging
 import uuid
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
@@ -12,6 +13,8 @@ import pandas as pd
 from ..backtest.resolver import resolve_bracket
 from ..config.validated_defaults import VENUE_FEE_PCT
 from ..ingest import RouterClient, parse_spec
+
+logger = logging.getLogger(__name__)
 
 # Prediction kinds and how each is verified against OHLCV over the window:
 #   touch        : a bar's [low, high] contains the level             -> hit
@@ -132,8 +135,13 @@ class TradeJournal:
             self.predictions = [Prediction(**d) for d in json.loads(self.path.read_text())]
 
     def save(self):
+        """Write the full journal atomically: a crash mid-write must never
+        leave a truncated ``journal.json`` (the canonical money file) for the
+        next run to load and silently no-op against."""
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps([asdict(p) for p in self.predictions], indent=2))
+        tmp = self.path.with_suffix(self.path.suffix + ".tmp")
+        tmp.write_text(json.dumps([asdict(p) for p in self.predictions], indent=2))
+        tmp.replace(self.path)
 
     def add(self, prediction: Prediction) -> Prediction:
         self.predictions.append(prediction)
@@ -250,14 +258,27 @@ class TradeJournal:
         return ("hit" if r > 0 else "miss", float(r))
 
     def check_open(self) -> list[Prediction]:
-        """Re-evaluate open/pending predictions; persist state transitions."""
+        """Re-evaluate open/pending predictions; persist state transitions.
+
+        Each prediction is evaluated independently: a failure resolving ONE
+        symbol (dead feed, bad data, transient network error) is logged loudly
+        and skipped for this cycle rather than raised, so it can never block
+        the rest of the book from resolving. Whatever DID successfully change
+        is still saved (a partial save beats none)."""
         changed = []
         for p in self.predictions:
             if p.status not in ("open", "pending"):
                 continue
             tp1_before = p.tp1_filled_at
             fill_before = p.filled_at
-            status, outcome_r = self._evaluate(p)   # may bank TP1/fill as side-effects
+            try:
+                status, outcome_r = self._evaluate(p)   # may bank TP1/fill as side-effects
+            except Exception:
+                logger.warning(
+                    "check_open: failed to evaluate %s (id=%s) — skipping this cycle, "
+                    "rest of the book continues", p.symbol, p.id, exc_info=True,
+                )
+                continue
             if p.filled_at is not None and status == "pending":
                 status = "open"   # invariant: a filled limit is never 'pending'
             if status == p.status:
