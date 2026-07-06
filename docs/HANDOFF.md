@@ -36,15 +36,20 @@
 - **Prior work (2026-07-03, PR #137, merged + post-hoc PASS):** weekly status; two exit-management
   proposals honestly tested and **rejected** — 1.2R/0.5-ATR (§81, reconfirms §10) and stop-to-TP1
   (§82, HARD-NEGATIVE, loses on all 6 coins). No live config changed.
-- **Audit status:** PR #137 `MERGED (post-hoc PASS, 2026-07-05)` — owner merged from the UI
-  2026-07-04 before the gate ran; independent audit verified every claim against the diff
-  (report: `docs/audits/claude-weekly-trades-status-z8thda.md`; suite 740/740 green). Prior:
+- **Audit status:** PR #137 `MERGED (post-hoc PASS, 2026-07-05)` — audited **twice, independently,
+  by two parallel 2026-07-05 sessions** (a real parallel-chat collision, recorded honestly): reports
+  `docs/audits/claude-weekly-trades-status-z8thda.md` and `docs/audits/pr-137.md`, both PASS,
+  suite 740/740 green at head. Prior:
   `PASS` (2026-07-02, post-hoc on streaming commits); PR #127 repo-state audit + post-hoc
   #118/#117 (2026-07-01), MEMORY §73. Full narrative: `docs/MEMORY.md` §74–§82.
 - **⚠️ PROCESS NOTE:** this baton had gone stale (last reconciled 2026-06-27) while the workflow ran
   streaming — nothing forces a baton update the way a PR-per-chat merge gate used to. Reconciled
   2026-07-02. If a future chat notices the baton lagging `docs/MEMORY.md`'s highest `§` number again,
   that's the same gap recurring — update it as part of `/handoff-audit`, not just `/closeout`.
+  **Corollary (third occurrence, 2026-07-05): `/handoff-audit` must always check for open PRs
+  directly via the GitHub API — never assume the baton's PR list is exhaustive.** Nothing on
+  `main` forces a baton write when a PR is opened; only `/closeout` writes it, on a branch,
+  pre-merge — so an open PR can be invisible to anyone reading only the baton.
 
 ## What recent chats did (for the auditor to verify against the diff / MEMORY)
 
@@ -57,15 +62,21 @@
   supersession pointers, OPEN_SETUPS historical banner, BRAIN path cites, webmanifest copy).
   **No strategy, engine, paper-loop, or Telegram-behavior changes.** Auditor: the diff should
   be docs + `telegram-register.yml` + `site.webmanifest` only.
+- **2026-07-05 (branch `claude/handoff-audit-dn37my`, PR #138):** parallel `/handoff-audit`
+  session — discovered PR #137 open and absent from the baton (via `list_pull_requests`, not the
+  baton), spawned an independent auditor (true merge-base located, every claim diff-verified,
+  740/740 at head, `stop_to_tp1` confirmed default-off + research-only), verdict **PASS**
+  (`docs/audits/pr-137.md`), marked #137 ready-for-review and squash-merged it, reconciled the
+  baton. Docs-only; collided with the Fable-5 review session's own baton update (resolved here).
 - **2026-07-03 (PR #137, merged, post-hoc PASS):** weekly trade status report (read-only, no
   diff) → owner proposed tightening TP/stop to 1.2R/0.5-ATR after a ~$1400 loss → first backtest
   wrongly ran on `1d` bars full-sample (tool default footgun) and looked profitable → caught the
   error, re-ran on the correct `1h` timeframe with 30% OOS holdout, which reversed the result
   (current +9.7R vs proposed -94.2R across BTC/ETH/SOL/AVAX/ADA/LINK) → **rejected the change,
-  nothing deployed**. Only diff: MEMORY §81 (this finding + the `tp-backtest` footgun warning) and
-  this baton. Auditor: verify §81's numbers are actually reproducible with
-  `tp-backtest <SYM> --interval 1h --target-r 1.2 --stop-atr 0.5 --oos-frac 0.3` (and the `3.0`/`1.5`
-  baseline variant) — the whole point of this PR is that the number is easy to get wrong silently.
+  nothing deployed** (MEMORY §81). Follow-up: implemented + backtested the post-TP1 "stop-to-TP1"
+  idea properly (default-off `stop_to_tp1` kwarg, isolated to the research CLI) → **also rejected**,
+  loses on every one of the 6 coins (MEMORY §82). Independently audited PASS this session
+  (`docs/audits/pr-137.md`) and merged.
 - **2026-07-02 (streaming, no PR):** mobile hero fix, Render→Fly.io migration,
   `/api` proxy fix, `data/` privacy-leak fix, CROSSROADS board consolidation. See the audit report
   above for verified detail.
@@ -122,8 +133,9 @@ propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see 
   (see above). §42 maker-fee assumption still unsettled — blocks Tier-2 leverage graduation.
 - **Off-limits (standing, unchanged):** validated strategy defaults (§1) and `FEE_PCT`;
   tightening R:R below §1's 3.0R/1.5-ATR (now settled TWICE — §10 and §81 — do not re-test without
-  a genuinely new angle, e.g. per-symbol geometry); `--trailing-atr` OFF (§72 settled hard negative
-  — do not re-test without new rationale);
+  a genuinely new angle, e.g. per-symbol geometry); post-TP1 `stop_to_tp1` (§82, settled negative —
+  the kwarg exists as a default-off research knob, never arm it without a materially different
+  angle); `--trailing-atr` OFF (§72 settled hard negative — do not re-test without new rationale);
   the 24h deadline — settled KEEP (§70/§73, do not re-open without ≥30 forward trades under
   the window, per `docs/decisions/deadline_bars.md`); the live execution path
   (`bracket.py`/`resolver.py`); the trading/levels core (`build_levels()`,
@@ -226,9 +238,18 @@ propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see 
   audit PASS** (`docs/audits/streaming-audit-2026-07-02-fly-migration.md`, 737/737 tests, no scope creep,
   every claim diff-verified). Baton fully reconciled this turn (was stale since 2026-06-27). NEXT:
   X1/X2 on `docs/CROSSROADS.md` (Fly deploy is the actionable blocker), TV indicator phases (b)/(c).
-- 2026-07-03: PR (this, `/closeout`) on `claude/weekly-trades-status-z8thda` — weekly status report
-  (read-only) + a proposed TP/stop tighten (1.2R/0.5-ATR) that was backtested, found to be a
-  `1d`-vs-`1h` + full-sample measurement error, corrected (1h, 30% OOS), and **rejected**
-  (+9.7R baseline vs -94.2R proposed across 6 coins) — reconfirms §10. **Nothing deployed.**
-  Docs-only diff: MEMORY §81 + this baton. AWAITING_AUDIT. NEXT: audit this PR, then either the
-  post-TP1 stop-to-TP1 idea (if owner wants it) or back to the CROSSROADS X1/X2 board.
+- 2026-07-03: PR #137 (`claude/weekly-trades-status-z8thda`) — weekly status report (read-only) +
+  a proposed TP/stop tighten (1.2R/0.5-ATR) that was backtested, found to be a `1d`-vs-`1h` +
+  full-sample measurement error, corrected (1h, 30% OOS), and **rejected** (+9.7R baseline vs
+  -94.2R proposed across 6 coins, §81) — plus the post-TP1 stop-to-TP1 idea, implemented as a
+  default-off research kwarg and **also rejected** (§82). Nothing deployed. Left AWAITING_AUDIT
+  (draft PR) — see next entry.
+- 2026-07-05: `/handoff-audit` on `claude/handoff-audit-dn37my` — PR #137 was **not on the baton at
+  all** (opened 2026-07-03, but `main`'s `docs/HANDOFF.md` still read "streaming, no open PR" since
+  its own baton update never reached `main` pre-merge); found via `list_pull_requests(state=open)`,
+  not the baton (process note above). Independently audited — **PASS**
+  (`docs/audits/pr-137.md`: true diff isolated via the real merge-base, `stop_to_tp1` confirmed
+  byte-identical when omitted and confirmed isolated to the research CLI, non-trivial new tests,
+  740/740 green at head, no scope creep) — merged (was draft; marked ready-for-review then
+  squash-merged). Baton reconciled. NEXT: back to the CROSSROADS X1/X2 board (Fly deploy is the
+  actionable blocker) — both R:R-tighten and stop-to-tp1 are now closed lines of inquiry.
