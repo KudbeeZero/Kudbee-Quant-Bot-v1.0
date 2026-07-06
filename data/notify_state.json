@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 3,
-    "unrealized_r": 1.1942,
+    "unrealized_r": 0.5948,
     "winners": 1
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1941896024464842
+      "ur": 0.5948012232415907
     },
     "846717f5": {
       "dl_soon": false,
