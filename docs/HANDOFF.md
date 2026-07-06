@@ -6,12 +6,18 @@
 
 ## Current baton
 
-- **Protocol status:** `ACTIVE`. Current chat: branch `claude/n4-ps42u7` (harness-assigned) —
-  shipped **N4 journal durability** (PR #140, MERGED 2026-07-06, owner-authorized), resolved the
-  #138/#139 baton collision and merged **PR #138** (owner-authorized), stood up the **Branch
-  Execution Ledger** (all 135 branches classified — `docs/AGENT_ORCHESTRATION_LEDGER.md`, bottom
-  section), and adopted the owner's **Fable 5 execution contract** (see `CLAUDE.md` "Branch &
-  Commit Machine"). No open PRs. Prior chats' #137/#138/#139/#140 all MERGED.
+- **Protocol status:** `ACTIVE`, streaming (no branch/PR for this chat — see below).
+  This session (2026-07-06, continuation of the `claude/n4-ps42u7` chat): shipped **N4**
+  (PR #140, MERGED), merged **PR #138**, stood up the **Branch Execution Ledger** (135
+  branches classified, `docs/AGENT_ORCHESTRATION_LEDGER.md`), got owner approval on **X5**
+  (packaged as `scripts/delete_dead_branches.sh` — owner runs `--run`, agent containers
+  can't delete remote refs), shipped **N5** (deploy/CI hardening, §85), and ran a full
+  **Telegram audit** (§86): outbound alerts verified working; slash commands verified DEAD
+  (no webhook registered) → shipped a **no-server polling workaround**
+  (`kudbee_quant/telegram_poll.py` + `telegram-poll.yml`, stands down automatically once a
+  real webhook exists), an entry-**fill event** ping, and armed `daily_recap`. All direct
+  commits to `main` (streaming) — no PR opened this session. Suite: 756/756 (761 with the
+  new poller tests) at last local run; CI green through `da9493aa`.
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -21,13 +27,18 @@
   (owner-decisions, do-next, watch) lives there with evidence + a recommended default, and gets
   moved the same turn a decision is made. **Read it, not a narrative recap here.** Current open
   owner rows: **X0** (historical record), **X1** (live pre-live gate — 8 latent bugs, money path,
-  needs sign-off), **X2** (5-step bring-up: DNS→Cloudflare, Pages custom domain incl. `www`,
-  **deploy the API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), **X3** (transparency
-  posture — repo is public on GitHub AND via Pages, decide deliberately), **X4** (§83 core-engine
-  fixes — Brinks lookahead, entry-bar fill blind spot — change-gated, needs sign-off), **X5**
-  (approve the branch-cleanup deletion list from the new ledger). Agent-side queue: **N6**
-  (research-honesty fixes), **N7** (ledger harvests). ~~N4~~ (PR #140) + ~~N5~~ (§85)
-  shipped 2026-07-06.
+  needs sign-off), **X2** (bring-up checklist, now 6 steps: DNS→Cloudflare, Pages custom domain
+  incl. `www`, **deploy the API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`, and the
+  **`KUDBEE_API_TOKEN` repo secret** — §86 found this last one missing, and it's what would let
+  Telegram commands answer instantly instead of via the ~10-20min polling fallback), **X3**
+  (transparency posture), **X4** (§83 core-engine fixes, change-gated, needs sign-off), **X5**
+  (branch cleanup — **APPROVED**, script ready, owner runs `bash scripts/delete_dead_branches.sh
+  --run`). Agent-side queue: **N6** (research-honesty fixes, next priority), **N7** (ledger
+  harvests). ~~N4~~/~~N5~~ shipped 2026-07-06.
+- **Verify live (not yet confirmed as of this baton write):** `telegram-poll.yml`'s first
+  scheduled run hadn't fired yet ~40 min after commit (new-workflow cron start-up lag is
+  normal, up to ~1h) — next chat should confirm it ran clean (0 updates or answered
+  commands, not an error) before trusting it's actually working.
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
@@ -57,7 +68,23 @@
 
 ## What recent chats did (for the auditor to verify against the diff / MEMORY)
 
-- **This session (2026-07-05, branch `claude/fable-five-codebase-review-9d61n5`):** ran the
+- **This session (2026-07-06, streaming on `main`, no branch):** merged PR #140 (N4) + PR
+  #138 (resolving their baton collision in the process); built the Branch Execution Ledger
+  (135 branches: 66 merged + 36 patch-equivalent = 102 dead, 16 superseded, 12 unique-value,
+  1 salvage-hold) and got owner sign-off on X5 (packaged as a script, not executed directly —
+  agent containers can't delete remote git refs, confirmed via a failed `push --delete`
+  test); shipped N5 (flyctl SHA-pin, workflow `permissions:`, `requirements.lock`, Fly-aware
+  webhook base-URL resolution, MATIC delisting cleanup, Kestra-flow universe alignment,
+  `/summary` copy fix — MEMORY §85); ran the owner-requested Telegram audit end-to-end using
+  live evidence (Actions logs, `getWebhookInfo`, state files, not code claims) — found
+  outbound alerts genuinely working, slash commands genuinely dead (no registered webhook)
+  and the scheduled digest suite silently unable to be enabled at all (no flag-forwarding
+  path existed); fixed the enable-path, added a no-server polling command answerer, added
+  a fill-event ping, armed daily_recap — MEMORY §86 (+ addendum: a commit body that quotes
+  the literal skip-ci token gets silently skipped by CI — filed as a guard). Also corrected
+  one ledger row (`feat/session-crossover-alerts` was mis-classified OWNER; the feature is
+  actually live on main).
+- **2026-07-05 (branch `claude/fable-five-codebase-review-9d61n5`):** ran the
   handoff gate (PR #137 → post-hoc **PASS**, `docs/audits/claude-weekly-trades-status-z8thda.md`)
   → Fable-5 full-codebase review via 5 independent subsystem reviewers → findings filed as
   MEMORY §83 + CROSSROADS X3/X4/N4–N6 → reconciled ~15 stale docs (README Netlify→Pages/Fly,
@@ -99,17 +126,34 @@
 Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
 redesign, the security/engine review, the forming-candle fix, N1–N3, the tp-backtest
 footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE, do NOT
-propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see `docs/MEMORY.md`
-§74–§83 for the full record. Do not re-derive any of it. What's actually open now:
+propose it as "untested" again)**, the Fable-5 review §83, N4/N5, and the §86 Telegram
+audit) is **DONE** — see `docs/MEMORY.md` §74–§86 for the full record. Do not re-derive
+any of it. What's actually open now:
 
-- **This chat's suggested next priority:** **N6 — research-honesty fixes**, then **N7**
-  (ledger harvests). ~~N4~~ (PR #140) and ~~N5~~ (streaming, §85) are DONE 2026-07-06. Owner one-tap pending: **X5** (branch cleanup per the new Branch Execution
-  Ledger in `docs/AGENT_ORCHESTRATION_LEDGER.md`).
+- **Scope for the next chat (owner-picked): N6 — research-honesty fixes.** CV purge by
+  label-END (`ml/cv.py`), sample meta-label features at the signal bar not the fill bar
+  (`ml/labels.py`), `scenarios/audit.py` must not report clean on zero checks, stamp/refuse
+  stale overnight caches (`overnight_research.py`), drop the trailing partial bucket in
+  `ingest/resample.py`, loud registry-import failure. None touch the live path; do before
+  the next research campaign. (Slug hint, ADVISORY only — the harness assigns the real
+  branch name: `claude/n6-research-honesty`.)
+- **First thing to check:** whether `telegram-poll.yml` has fired its first scheduled run
+  clean (see "Verify live" above) — a quick `list_workflow_runs` + job-log read.
+- **Then N7 — ledger harvests** (small): conf_70/psych-1h/VAH verdicts into MEMORY, land
+  the missing #102/#14 audit reports, re-test the no-JS site fix. Unblocks section-C branch
+  deletions.
+- **Open risks:** `telegram-poll.yml`'s first cron run is unconfirmed (see above); X2 (Fly
+  deploy) still blocks instant Telegram commands and the D1-backed `/levels /history
+  /vectors` features; section-C branch harvests (conf_70 etc.) are still pending before
+  those 16 branches can be deleted; X5 is owner-approved but not yet executed (the deletion
+  script needs the owner to run it — agent containers can't push branch deletions).
+- **Off-limits (standing, unchanged this session):** validated strategy defaults (§1),
+  the live execution path, the 24h deadline (§70/§73), section-B ledger branches (owner
+  call per-branch, not agent-delete — see the ledger for each one's recommendation).
 - **Owner decisions — work the `docs/CROSSROADS.md` board, not this list.** X1 (live
-  pre-live gate, 8 latent bugs, money path — needs sign-off), X2 (the consolidated
-  5-step bring-up checklist: DNS→Cloudflare, Pages custom domain incl. `www`, **deploy the
-  API to Fly.io**, Email Routing, Worker `TRIGGER_SECRET`), X3 (transparency posture) and
-  X4 (§83 core-engine fixes) are OPEN, owner-side. Move a row the same turn a decision is
+  pre-live gate, 8 latent bugs, money path — needs sign-off), X2 (now 6 steps — see above),
+  X3 (transparency posture), X4 (§83 core-engine fixes), and X5 (branch cleanup — APPROVED,
+  just needs the owner to run the script) are OPEN. Move a row the same turn a decision is
   made — that discipline is the whole point of the board.
 - **BACKLOG — TradingView indicator suite, phases (b)/(c).** Phase (a) (sync the Pine
   indicator to the current engine) shipped §78/N2. Still queued: (b) split standalone
@@ -256,3 +300,11 @@ propose it as "untested" again)**, the Fable-5 review §83) is **DONE** — see 
   740/740 green at head, no scope creep) — merged (was draft; marked ready-for-review then
   squash-merged). Baton reconciled. NEXT: back to the CROSSROADS X1/X2 board (Fly deploy is the
   actionable blocker) — both R:R-tighten and stop-to-tp1 are now closed lines of inquiry.
+- 2026-07-06: continuation of the `claude/n4-ps42u7` chat, streaming — merged PR #140 (N4) +
+  PR #138; built the Branch Execution Ledger + got owner approval on X5 (packaged as
+  `scripts/delete_dead_branches.sh`, owner-run); shipped N5 (deploy/CI hardening, §85); ran
+  a full Telegram audit (§86) — found slash commands dead (no webhook) and the scheduled
+  digest suite unable to be enabled at all, fixed both (no-server polling command answerer +
+  flag-forwarding), added a fill-event ping, armed `daily_recap`. All direct-to-`main`,
+  no PR. Suite 756/756. NEXT: N6 (research-honesty fixes), then N7 (ledger harvests); first
+  confirm `telegram-poll.yml`'s first cron ran clean.
