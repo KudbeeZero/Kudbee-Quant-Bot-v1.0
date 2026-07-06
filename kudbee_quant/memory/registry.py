@@ -10,8 +10,11 @@ have?" is one query, not tribal knowledge.
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import asdict, dataclass
 from pathlib import Path
+
+logger = logging.getLogger(__name__)
 
 RESULTS_PATH = Path("data/overnight_results.json")
 
@@ -58,6 +61,16 @@ class StrategyRegistry:
             sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "scripts"))
             from overnight_candidates import REGISTRY  # type: ignore
         except Exception:
+            # A broken/missing overnight_candidates must not look identical to "no
+            # candidates exist yet" — that silently under-reports the research
+            # pipeline (validated()/by_status() would just look thin, not broken).
+            # Loud, not fatal: this registry still constructs with just the
+            # baseline, but the gap is now visible instead of swallowed.
+            logger.warning(
+                "StrategyRegistry: failed to import overnight_candidates.REGISTRY — "
+                "candidate strategies will be MISSING (not just empty) from this "
+                "registry", exc_info=True,
+            )
             REGISTRY = {}
         for name, (_fn, desc) in REGISTRY.items():
             v = self._verdicts.get(name, {})

@@ -1,10 +1,11 @@
 """Tests for the BTMM scenarios, indicators, and the lookahead self-audit."""
 import numpy as np
 import pandas as pd
+import pytest
 
 from kudbee_quant.levels import build_levels
 from kudbee_quant.scenarios import SCENARIOS
-from kudbee_quant.scenarios.audit import audit_all, lookahead_audit
+from kudbee_quant.scenarios.audit import AuditResult, audit_all, lookahead_audit
 from kudbee_quant.scenarios.btmm import BTMM_SCENARIOS
 from kudbee_quant.scenarios.indicators import add_emas, cross_up, swing_pivots
 
@@ -81,3 +82,44 @@ def test_audit_all_runs_over_registry():
     table = audit_all(df, subset, n_checks=25, min_history=300)
     assert set(table["scenario"]) == set(subset)
     assert table["clean"].all()  # both must be causal after the lookahead fix
+
+
+# --- N6: an audit that ran ZERO checks must never read as clean -------------
+# (MEMORY §86/CROSSROADS N6: "scenarios/audit.py must not report clean on zero
+# checks" — a scenario that never actually got tested previously sailed through
+# as clean=True, since `mismatches == 0` is trivially true over an empty set.)
+
+def test_too_short_series_is_not_clean():
+    df = _ohlcv(50)   # far below min_history + 5
+
+    def anything(levels_df):
+        return pd.Series(0.0, index=levels_df.index)
+
+    r = lookahead_audit(df, anything, min_history=300, name="too_short")
+    assert r.checks == 0
+    assert not r.clean, "zero checks must never report clean=True"
+
+
+def test_scenario_that_always_raises_on_truncated_data_is_not_clean():
+    """The initial full-series call must succeed (so this exercises the loop's
+    per-candidate try/except, not a hard failure before any check runs)."""
+    df = _ohlcv(700)
+    full_len = len(df)
+
+    def raises_on_any_truncated_slice(levels_df):
+        if len(levels_df) < full_len:
+            raise RuntimeError("scenario breaks on any truncated slice")
+        return pd.Series(0.0, index=levels_df.index)
+
+    r = lookahead_audit(df, raises_on_any_truncated_slice, n_checks=20,
+                        min_history=300, name="broken")
+    assert r.checks == 0
+    assert not r.clean, "every candidate raising must not report clean=True"
+
+
+def test_auditresult_rejects_clean_true_with_zero_checks():
+    """The invariant is enforced at construction, not just by the two call sites
+    above — a hard guard so this specific bug class can't recur."""
+    with pytest.raises(ValueError):
+        AuditResult("x", 0, 0, True)
+    AuditResult("x", 0, 0, False)   # the honest zero-checks result is fine

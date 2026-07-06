@@ -57,3 +57,37 @@ def test_single_class_fold_falls_back():
     y[:] = 0                       # degenerate: all one class
     oos = cross_val_oos(lambda: LogisticRegression(max_iter=200), X, y, meta, n_splits=4)
     assert (oos["oos_prob"] == 0.0).all()   # constant base-rate fallback, no crash
+
+
+def test_horizon_purges_label_leak_zone_before_test_start():
+    """MEMORY §86/N6: a training row entered just before a test fold can still
+    resolve (its label finalizes) INSIDE the test fold — purging by entry_time
+    alone lets that label quietly use test-span data. `horizon` must widen the
+    purge to also drop the [test_start - horizon, test_start) zone."""
+    X, y, meta = _dataset()
+    t = pd.to_datetime(meta["entry_time"], utc=True).to_numpy()
+    horizon = pd.Timedelta(hours=6)   # > the 1h bar spacing in _dataset()
+    for tr, te in purged_walk_forward_splits(meta, n_splits=5, embargo_frac=0.02,
+                                             horizon=horizon):
+        test_start = t[te].min()
+        leak_zone = (t[tr] >= (test_start - np.timedelta64(horizon))) & (t[tr] < test_start)
+        assert not leak_zone.any(), "a training row falls inside the label-leak zone"
+
+
+def test_horizon_defaults_to_meta_attrs_label_horizon():
+    """cross_val_oos must auto-pick up build_dataset's meta.attrs['label_horizon']
+    without every caller having to pass horizon= explicitly."""
+    X, y, meta = _dataset()
+    meta.attrs["label_horizon"] = pd.Timedelta(hours=6)
+    t = pd.to_datetime(meta["entry_time"], utc=True).to_numpy()
+    splits = list(purged_walk_forward_splits(meta, n_splits=5, embargo_frac=0.02))
+    for tr, te in splits:
+        test_start = t[te].min()
+        leak_zone = (t[tr] >= (test_start - np.timedelta64(pd.Timedelta(hours=6)))) & (t[tr] < test_start)
+        assert not leak_zone.any()
+    # horizon=0 (the old default) must NOT purge the leak zone — proves the new
+    # behavior is opt-in via the horizon, not always-on regardless of it.
+    meta_no_horizon = meta.copy()
+    meta_no_horizon.attrs.pop("label_horizon", None)
+    splits_bare = list(purged_walk_forward_splits(meta_no_horizon, n_splits=5, embargo_frac=0.02))
+    assert sum(len(tr) for tr, _ in splits_bare) >= sum(len(tr) for tr, _ in splits)

@@ -56,3 +56,15 @@ def test_build_dataset_shapes(frame):
     assert len(X) == len(y) == len(meta)
     assert "n_trades" in meta.attrs and "n_signal_bars" in meta.attrs
     assert meta["entry_time"].notna().any()
+
+
+def test_build_dataset_sets_label_horizon_from_bar_spacing_and_max_bars(frame):
+    """MEMORY §86/N6: the CV purge (ml/cv.py) needs the longest a label can take
+    to resolve, or it can only purge by entry_time and leak label-end overlap
+    across the fold boundary. build_dataset must compute it: bar-interval (here
+    1h, from the fixture) * max_bars, and expose it via meta.attrs."""
+    sig = lambda d: confluence_position(d, min_pct=0.5, trend_align=True)
+    X, y, meta = build_dataset({"SYNTH": frame}, sig, target_r=3.0, max_bars=24)
+    if len(y) == 0:
+        pytest.skip("no trades on synthetic frame")
+    assert meta.attrs["label_horizon"] == pd.Timedelta(hours=24)

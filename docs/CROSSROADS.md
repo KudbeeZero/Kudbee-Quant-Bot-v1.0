@@ -138,15 +138,6 @@
   white-screen site fix** (`kudbeex-blank-page-q6pdql`) against the current site.
 - All tiny, all sharpen the record; unblocks section C deletions under X5.
 
-### N6 · Research-honesty fixes (ML/audit/overnight)  · **AGENT**
-- **From §83:** purge by label-END (`entry_time >= test_start - horizon`) in
-  `ml/cv.py`; sample meta-label features at the signal bar, not the fill bar
-  (`ml/labels.py`); `scenarios/audit.py` must not report clean on zero checks;
-  stamp/refuse stale overnight caches (`overnight_research.py`); drop the trailing
-  partial bucket in `ingest/resample.py`; registry import failure should be loud.
-- None touch the live path; all sharpen the significance gate the project's claims
-  rest on. Do before the next research campaign.
-
 ### N1 · E2 — binance.us cross-venue data honesty  · ✅ **DONE (2026-07-02, §78)**
 - **Chosen:** option (a) — frames tagged with `source_venues`, loud warning on any
   `.us` fallback, `.us` kept as a tagged last resort. `/code-review` caught that the tag
@@ -181,6 +172,14 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **N6 research-honesty fixes SHIPPED** (2026-07-06, direct-to-main, §87): CV purge
+  now closes the label-end leak (a `horizon` param, auto-computed by
+  `build_dataset`); `scenarios/audit.py` can no longer report clean on zero checks
+  (both call sites fixed + a hard dataclass guard); `overnight_research.py`'s cache
+  fallback refuses data older than 72h instead of reusing it forever; `resample.py`
+  drops a trailing partial bucket instead of handing it downstream as if closed;
+  `memory/registry.py`'s broken-import path now logs loudly instead of silently
+  looking like "no candidates." 772/772 tests (16 new). No live/strategy changes.
 - **Telegram audit + upgrades SHIPPED** (2026-07-06, §86, owner-picked): polling-mode
   slash commands (no server needed, self-stands-down when the webhook arrives), scheduled
   suite finally enable-able (repo Variables + committed flags file), `daily_recap` ON,

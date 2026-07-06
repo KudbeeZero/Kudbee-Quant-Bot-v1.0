@@ -26,6 +26,18 @@ class AuditResult:
     mismatches: int
     clean: bool
 
+    def __post_init__(self):
+        # An audit that ran ZERO checks (series too short, or every candidate bar
+        # raised inside the scenario/build pipeline) has proven nothing — it must
+        # never read as "clean" (mismatches == 0 is trivially true over an empty
+        # set). This is the one invariant this dataclass exists to guarantee, so
+        # it's enforced here rather than trusted to every call site.
+        if self.checks == 0 and self.clean:
+            raise ValueError(
+                f"{self.scenario}: clean=True with 0 checks — an audit with no "
+                "checks cannot claim to be clean; construct with clean=False"
+            )
+
     @property
     def leak_rate(self) -> float:
         return self.mismatches / self.checks if self.checks else 0.0
@@ -51,7 +63,10 @@ def lookahead_audit(
     full_sig = scenario_fn(build_fn(df)).reset_index(drop=True)
     n = len(df)
     if n <= min_history + 5:
-        return AuditResult(name, 0, 0, True)
+        # Too little history to run even one truncated check — this proves
+        # NOTHING about lookahead safety, so it must not read as clean (a scenario
+        # with zero real data would otherwise sail through every audit table).
+        return AuditResult(name, 0, 0, False)
 
     rng = np.random.default_rng(seed)
     candidates = np.arange(min_history, n - 1)
@@ -71,7 +86,10 @@ def lookahead_audit(
         b = 0.0 if pd.isna(full_t) else float(full_t)
         if abs(a - b) > 1e-9:
             mismatches += 1
-    return AuditResult(name, checks, mismatches, mismatches == 0)
+    # checks can still be 0 here if every candidate bar raised inside
+    # scenario_fn/build_fn (e.g. a scenario that's simply broken on truncated
+    # data) — that must not read as clean either.
+    return AuditResult(name, checks, mismatches, checks > 0 and mismatches == 0)
 
 
 def audit_all(df: pd.DataFrame, scenarios: dict, n_checks: int = 80, **kw) -> pd.DataFrame:

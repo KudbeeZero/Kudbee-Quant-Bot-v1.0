@@ -105,7 +105,7 @@ def _expectancy_gate(oos: pd.DataFrame, thresholds) -> list:
 
 def evaluate(X: pd.DataFrame, y: pd.Series, meta: pd.DataFrame,
              thresholds=(0.5, 0.6, 0.7), n_splits: int = 5,
-             embargo_frac: float = 0.01) -> dict:
+             embargo_frac: float = 0.01, horizon=None) -> dict:
     """Out-of-sample evaluation of both models. Returns an honest report dict."""
     from sklearn.metrics import brier_score_loss, roc_auc_score
 
@@ -114,7 +114,8 @@ def evaluate(X: pd.DataFrame, y: pd.Series, meta: pd.DataFrame,
               "n_signal_bars": meta.attrs.get("n_signal_bars"),
               "models": {}}
     for name, factory in (("gbt", gbt_factory), ("logit", logit_factory)):
-        oos = cross_val_oos(factory, X, y, meta, n_splits=n_splits, embargo_frac=embargo_frac)
+        oos = cross_val_oos(factory, X, y, meta, n_splits=n_splits,
+                           embargo_frac=embargo_frac, horizon=horizon)
         if len(oos) == 0 or oos["y_true"].nunique() < 2:
             report["models"][name] = {"error": "insufficient OOS data / single class"}
             continue

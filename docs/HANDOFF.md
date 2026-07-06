@@ -11,13 +11,17 @@
   (PR #140, MERGED), merged **PR #138**, stood up the **Branch Execution Ledger** (135
   branches classified, `docs/AGENT_ORCHESTRATION_LEDGER.md`), got owner approval on **X5**
   (packaged as `scripts/delete_dead_branches.sh` — owner runs `--run`, agent containers
-  can't delete remote refs), shipped **N5** (deploy/CI hardening, §85), and ran a full
+  can't delete remote refs), shipped **N5** (deploy/CI hardening, §85), ran a full
   **Telegram audit** (§86): outbound alerts verified working; slash commands verified DEAD
   (no webhook registered) → shipped a **no-server polling workaround**
-  (`kudbee_quant/telegram_poll.py` + `telegram-poll.yml`, stands down automatically once a
-  real webhook exists), an entry-**fill event** ping, and armed `daily_recap`. All direct
-  commits to `main` (streaming) — no PR opened this session. Suite: 756/756 (761 with the
-  new poller tests) at last local run; CI green through `da9493aa`.
+  (`kudbee_quant/telegram_poll.py` + `telegram-poll.yml` — **confirmed live**: both of its
+  first two scheduled runs completed green, poll + admin-state-persist steps both
+  succeeded), an entry-**fill event** ping, and armed `daily_recap`; then shipped **N6**
+  (research-honesty fixes, §87) — all 5 items: the CV label-end purge leak, `audit.py`'s
+  clean-on-zero-checks bug, the unstaled overnight cache, the trailing-partial resample
+  bucket, and the silent registry-import swallow. All direct commits to `main`
+  (streaming) — no PR opened this session. Suite: 772/772; CI green through `da9493aa`
+  (N6's own commit not yet CI-checked as of this baton write).
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -33,12 +37,11 @@
   Telegram commands answer instantly instead of via the ~10-20min polling fallback), **X3**
   (transparency posture), **X4** (§83 core-engine fixes, change-gated, needs sign-off), **X5**
   (branch cleanup — **APPROVED**, script ready, owner runs `bash scripts/delete_dead_branches.sh
-  --run`). Agent-side queue: **N6** (research-honesty fixes, next priority), **N7** (ledger
-  harvests). ~~N4~~/~~N5~~ shipped 2026-07-06.
-- **Verify live (not yet confirmed as of this baton write):** `telegram-poll.yml`'s first
-  scheduled run hadn't fired yet ~40 min after commit (new-workflow cron start-up lag is
-  normal, up to ~1h) — next chat should confirm it ran clean (0 updates or answered
-  commands, not an error) before trusting it's actually working.
+  --run`). Agent-side queue: **N7** (ledger harvests) is the only one left. ~~N4~~/~~N5~~/~~N6~~
+  shipped 2026-07-06.
+- **Verify live (not yet confirmed as of this baton write):** CI hasn't checked N6's commit
+  yet (pushed moments before this baton write) — next chat should do a quick
+  `list_workflow_runs` confirm before assuming it's green (local suite was 772/772).
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;
@@ -83,7 +86,20 @@
   a fill-event ping, armed daily_recap — MEMORY §86 (+ addendum: a commit body that quotes
   the literal skip-ci token gets silently skipped by CI — filed as a guard). Also corrected
   one ledger row (`feat/session-crossover-alerts` was mis-classified OWNER; the feature is
-  actually live on main).
+  actually live on main). Confirmed telegram-poll.yml live via 2 green scheduled runs.
+  Then shipped **N6** (§87), closing the §83-review agent queue: `ml/cv.py`'s purge was
+  entry-time-only (leaked label-end overlap across fold boundaries — fixed with a
+  `horizon` param, auto-computed by `ml/labels.py::build_dataset` from each frame's own
+  bar spacing × `max_bars`, no caller signature changes needed); `scenarios/audit.py`
+  could report `clean=True` on zero checks (both call sites fixed + a hard
+  `AuditResult.__post_init__` guard against recurrence); `overnight_research.py`'s
+  parquet cache had no staleness check (now refuses fallback data older than 72h, using
+  the file's own mtime as the stamp); `ingest/resample.py` could hand a partial trailing
+  bucket downstream looking closed (now drops it unless source data reaches the bucket's
+  end boundary); `memory/registry.py`'s broken-import path silently swallowed every
+  exception (now logs loudly). 16 new tests, 772/772 total. Also wrote
+  `docs/dsa_study_plan.md` at the owner's request — unrelated to the trading system, a
+  study plan mapping a DSA infographic onto this codebase's real structures.
 - **2026-07-05 (branch `claude/fable-five-codebase-review-9d61n5`):** ran the
   handoff gate (PR #137 → post-hoc **PASS**, `docs/audits/claude-weekly-trades-status-z8thda.md`)
   → Fable-5 full-codebase review via 5 independent subsystem reviewers → findings filed as
@@ -126,26 +142,22 @@
 Everything below §73 (§41 gap, VWAP revert, management geometry, the website SEO sweep +
 redesign, the security/engine review, the forming-candle fix, N1–N3, the tp-backtest
 footgun/tighter-R:R re-test, **stop-to-TP1 (§82 — now a settled HARD-NEGATIVE, do NOT
-propose it as "untested" again)**, the Fable-5 review §83, N4/N5, and the §86 Telegram
-audit) is **DONE** — see `docs/MEMORY.md` §74–§86 for the full record. Do not re-derive
+propose it as "untested" again)**, the Fable-5 review §83, N4/N5/N6, and the §86 Telegram
+audit) is **DONE** — see `docs/MEMORY.md` §74–§87 for the full record. Do not re-derive
 any of it. What's actually open now:
 
-- **Scope for the next chat (owner-picked): N6 — research-honesty fixes.** CV purge by
-  label-END (`ml/cv.py`), sample meta-label features at the signal bar not the fill bar
-  (`ml/labels.py`), `scenarios/audit.py` must not report clean on zero checks, stamp/refuse
-  stale overnight caches (`overnight_research.py`), drop the trailing partial bucket in
-  `ingest/resample.py`, loud registry-import failure. None touch the live path; do before
-  the next research campaign. (Slug hint, ADVISORY only — the harness assigns the real
-  branch name: `claude/n6-research-honesty`.)
-- **First thing to check:** whether `telegram-poll.yml` has fired its first scheduled run
-  clean (see "Verify live" above) — a quick `list_workflow_runs` + job-log read.
-- **Then N7 — ledger harvests** (small): conf_70/psych-1h/VAH verdicts into MEMORY, land
-  the missing #102/#14 audit reports, re-test the no-JS site fix. Unblocks section-C branch
+- **Scope for the next chat: N7 — ledger harvests** (small, docs/research-honesty):
+  record the conf_70 high-conviction result (Δ+0.195R p=0.035,
+  `handoff-audit-rk3gn7`, predates §75-§77 — re-verify before use), the psych-1h HARD
+  NEGATIVE, and the VAH-trap REJECT verdicts into MEMORY; copy the missing #102/#14
+  audit reports into `docs/audits/`; re-test the no-JS white-screen site fix
+  (`kudbeex-blank-page-q6pdql`) against the current site. Unblocks section-C branch
   deletions.
-- **Open risks:** `telegram-poll.yml`'s first cron run is unconfirmed (see above); X2 (Fly
-  deploy) still blocks instant Telegram commands and the D1-backed `/levels /history
-  /vectors` features; section-C branch harvests (conf_70 etc.) are still pending before
-  those 16 branches can be deleted; X5 is owner-approved but not yet executed (the deletion
+- **Open risks:** CI on this session's final commit (N6) is unconfirmed as of this baton
+  write (see "Verify live" above) — quick check first; X2 (Fly deploy) still blocks
+  instant Telegram commands and the D1-backed `/levels /history /vectors` features;
+  section-C branch harvests (conf_70 etc.) are still pending before those 16 branches
+  can be deleted; X5 is owner-approved but not yet executed (the deletion
   script needs the owner to run it — agent containers can't push branch deletions).
 - **Off-limits (standing, unchanged this session):** validated strategy defaults (§1),
   the live execution path, the 24h deadline (§70/§73), section-B ledger branches (owner
@@ -305,6 +317,9 @@ any of it. What's actually open now:
   `scripts/delete_dead_branches.sh`, owner-run); shipped N5 (deploy/CI hardening, §85); ran
   a full Telegram audit (§86) — found slash commands dead (no webhook) and the scheduled
   digest suite unable to be enabled at all, fixed both (no-server polling command answerer +
-  flag-forwarding), added a fill-event ping, armed `daily_recap`. All direct-to-`main`,
-  no PR. Suite 756/756. NEXT: N6 (research-honesty fixes), then N7 (ledger harvests); first
-  confirm `telegram-poll.yml`'s first cron ran clean.
+  flag-forwarding), added a fill-event ping, armed `daily_recap` — telegram-poll.yml's
+  first 2 scheduled runs confirmed green same session; shipped N6 (research-honesty
+  fixes, §87: CV label-end purge leak, audit.py clean-on-zero-checks, unstaled overnight
+  cache, trailing-partial resample bucket, silent registry-import swallow — 16 new tests).
+  All direct-to-`main`, no PR. Suite 772/772. NEXT: N7 (ledger harvests); first confirm
+  CI ran green on this session's final commit.

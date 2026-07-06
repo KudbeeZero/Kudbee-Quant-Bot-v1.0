@@ -202,6 +202,8 @@ def build_dataset(
     """
     X_parts, y_parts, meta_parts = [], [], []
     n_signal_bars = n_trades = 0
+    max_bars = label_kw.get("max_bars", 24)     # trade_outcomes' own default
+    horizon = pd.Timedelta(0)                    # longest possible label window seen
     for sym, df in frames.items():
         sig = signal_fn(df)
         n_signal_bars += int((pd.Series(sig, index=df.index).fillna(0) != 0).sum())
@@ -221,6 +223,14 @@ def build_dataset(
         X_parts.append(Xs)
         y_parts.append(labels["label"].reset_index(drop=True))
         meta_parts.append(meta)
+        # A label at entry_bar isn't final until the trade resolves, up to
+        # ``max_bars`` bars later (trade_outcomes' resolve window) — the CV purge
+        # (ml/cv.py) needs this to purge by label-END, not just entry_time, or a
+        # training row's label can incorporate data that overlaps the test fold.
+        if "timestamp" in df.columns:
+            bar_td = pd.to_datetime(df["timestamp"], utc=True, errors="coerce").diff().median()
+            if pd.notna(bar_td) and bar_td > pd.Timedelta(0):
+                horizon = max(horizon, bar_td * max_bars)
     if not X_parts:
         return pd.DataFrame(), pd.Series(dtype=int), pd.DataFrame()
     X = pd.concat(X_parts, ignore_index=True)
@@ -232,4 +242,5 @@ def build_dataset(
     # so we never overclaim. (A true fill-rate needs entry-attempt accounting.)
     meta.attrs["n_signal_bars"] = n_signal_bars
     meta.attrs["n_trades"] = n_trades
+    meta.attrs["label_horizon"] = horizon
     return X, y, meta

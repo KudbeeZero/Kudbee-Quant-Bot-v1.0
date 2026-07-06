@@ -8,8 +8,12 @@ honest construction (López de Prado, *Advances in Financial ML*, ch. 7):
   * EXPANDING WINDOW, forward only — fold k trains on everything strictly BEFORE
     the test fold's start time and tests on the fold. A model is only ever judged
     on data that came after everything it learned from.
-  * PURGE — drop training rows whose entry time falls inside the test fold's span
-    (removes overlap when many symbols share timestamps / ties on the boundary).
+  * PURGE — drop training rows whose LABEL could overlap the test fold: not just
+    entries inside the test span, but entries in the ``horizon`` immediately
+    BEFORE it too, since a label isn't final until the trade resolves (up to
+    ``horizon`` later). Purging only by entry_time (dropping the horizon check)
+    lets a training row's label quietly incorporate data from inside the test
+    fold — the model would then be judged on a fold it partly trained on.
   * EMBARGO — drop training rows within a small window AFTER the test fold, so
     serially-correlated labels just past the boundary can't leak. With a pure
     expanding window train is always before the test, so the embargo only trims
@@ -28,7 +32,7 @@ MIN_TRAIN = 30   # below this a fold is uninformative; skip it
 
 
 def purged_walk_forward_splits(meta: pd.DataFrame, n_splits: int = 5,
-                               embargo_frac: float = 0.01):
+                               embargo_frac: float = 0.01, horizon=None):
     """Yield ``(train_idx, test_idx)`` positional index arrays (into meta's rows).
 
     Args:
@@ -36,9 +40,19 @@ def purged_walk_forward_splits(meta: pd.DataFrame, n_splits: int = 5,
             preserved; the returned indices are positions into that order.
         n_splits: number of contiguous, forward-only test folds.
         embargo_frac: embargo length as a fraction of the total time span.
+        horizon: the longest a label can take to resolve after ``entry_time``
+            (a ``pd.Timedelta``) — training rows entered within ``horizon``
+            BEFORE the test fold starts are purged too, since their label may
+            have been computed using data inside the test span. Defaults to
+            ``meta.attrs["label_horizon"]`` if present (set by
+            :func:`kudbee_quant.ml.labels.build_dataset`), else zero (the old,
+            entry-time-only behavior).
     """
     if "entry_time" not in meta.columns or len(meta) == 0:
         return
+    if horizon is None:
+        horizon = meta.attrs.get("label_horizon", pd.Timedelta(0))
+    horizon = pd.Timedelta(horizon)
     t = pd.to_datetime(meta["entry_time"], utc=True)
     order = np.argsort(t.values, kind="stable")          # positions, time-ascending
     t_sorted = t.values[order]
@@ -53,12 +67,15 @@ def purged_walk_forward_splits(meta: pd.DataFrame, n_splits: int = 5,
         test_start = t_sorted[fold[0]]
         test_end = t_sorted[fold[-1]]
         tt = t.values
-        # Train = strictly before the test window, PURGED of any in-span overlap,
-        # and EMBARGOED for the window just after the test fold.
+        # Train = strictly before the test window, PURGED of any in-span overlap
+        # AND of the label-end leak zone (entries within `horizon` before
+        # test_start, whose label could resolve past test_start), and EMBARGOED
+        # for the window just after the test fold.
         before = tt < test_start
         in_test_span = (tt >= test_start) & (tt <= test_end)
+        in_label_leak = (tt >= (test_start - np.timedelta64(horizon))) & (tt < test_start)
         in_embargo = (tt > test_end) & (tt <= test_end + embargo)
-        train_mask = before & ~in_test_span & ~in_embargo
+        train_mask = before & ~in_test_span & ~in_label_leak & ~in_embargo
         train_pos = np.where(train_mask)[0]
         if len(train_pos) < MIN_TRAIN:
             continue
@@ -66,7 +83,8 @@ def purged_walk_forward_splits(meta: pd.DataFrame, n_splits: int = 5,
 
 
 def cross_val_oos(estimator_factory, X: pd.DataFrame, y: pd.Series,
-                  meta: pd.DataFrame, n_splits: int = 5, embargo_frac: float = 0.01):
+                  meta: pd.DataFrame, n_splits: int = 5, embargo_frac: float = 0.01,
+                  horizon=None):
     """Out-of-sample predictions via purged walk-forward CV.
 
     ``estimator_factory`` is a zero-arg callable returning a fresh, unfitted
@@ -82,7 +100,9 @@ def cross_val_oos(estimator_factory, X: pd.DataFrame, y: pd.Series,
     Xv = X.reset_index(drop=True)
     yv = pd.Series(np.asarray(y), name="y").reset_index(drop=True)
     rows = []
-    for fold_i, (tr, te) in enumerate(purged_walk_forward_splits(meta, n_splits, embargo_frac)):
+    for fold_i, (tr, te) in enumerate(
+        purged_walk_forward_splits(meta, n_splits, embargo_frac, horizon=horizon)
+    ):
         ytr = yv.iloc[tr]
         if ytr.nunique() < 2:                       # single-class train -> baseline
             prob = np.full(len(te), float(ytr.mean()))

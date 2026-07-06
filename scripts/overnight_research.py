@@ -51,6 +51,7 @@ import argparse
 import datetime as dt
 import json
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -89,6 +90,11 @@ BASE_KW = dict(BRACKET_KW)
 MIN_TRADES = 120          # below this the candidate sample is too thin to trust
 DELTA_GATE = 0.015        # R/trade improvement that counts as real
 SIG_P = 0.05              # bootstrap p-value a WINNER must clear (no more luck)
+MAX_CACHE_AGE_HOURS = 72  # a fallback cache older than this is refused, not silently
+                          # reused — an "overnight" harness re-testing frozen, days-old
+                          # history while every report claims a fresh "Last run" would
+                          # be exactly the kind of unstated staleness this project's
+                          # honesty culture (docs/PHILOSOPHY.md) exists to prevent.
 
 
 def _bootstrap_p(base: list, cand: list, n_boot: int = 2000, seed: int = 0) -> float:
@@ -111,7 +117,14 @@ def _bootstrap_p(base: list, cand: list, n_boot: int = 2000, seed: int = 0) -> f
 
 def _load_frames(interval: str, limit: int) -> dict[str, pd.DataFrame]:
     """Load + feature-build every symbol, with a parquet cache fallback so a
-    transient network blip doesn't abort a whole overnight cycle."""
+    transient network blip doesn't abort a whole overnight cycle.
+
+    The cache is trusted ONLY up to ``MAX_CACHE_AGE_HOURS`` old (the file's own
+    mtime is the stamp — it's written fresh on every successful live fetch). A
+    stale cache is refused, not silently reused: testing candidates against
+    frozen, days-old history while the findings report claims a current "Last
+    run" timestamp would misrepresent how fresh the result actually is.
+    """
     CACHE.mkdir(parents=True, exist_ok=True)
     frames = {}
     for sym in UNIVERSE:
@@ -120,12 +133,17 @@ def _load_frames(interval: str, limit: int) -> dict[str, pd.DataFrame]:
             raw = load_ohlcv(sym, interval=interval, limit=limit)
             raw.to_parquet(cache_file)
         except Exception as exc:  # network/exchange hiccup — fall back to cache
-            if cache_file.exists():
-                print(f"  [{sym}] live fetch failed ({exc}); using cache")
-                raw = pd.read_parquet(cache_file)
-            else:
+            if not cache_file.exists():
                 print(f"  [{sym}] live fetch failed and no cache; skipping")
                 continue
+            age_hours = (time.time() - cache_file.stat().st_mtime) / 3600.0
+            if age_hours > MAX_CACHE_AGE_HOURS:
+                print(f"  [{sym}] live fetch failed ({exc}); cache is "
+                     f"{age_hours:.0f}h old (> {MAX_CACHE_AGE_HOURS}h) — "
+                     "refusing stale data, skipping")
+                continue
+            print(f"  [{sym}] live fetch failed ({exc}); using cache ({age_hours:.0f}h old)")
+            raw = pd.read_parquet(cache_file)
         frames[sym] = build_levels(raw)
     return frames
 

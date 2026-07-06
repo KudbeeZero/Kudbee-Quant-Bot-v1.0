@@ -10,6 +10,7 @@ the test's job to presume.
 from __future__ import annotations
 
 import sys
+import time
 from pathlib import Path
 
 import numpy as np
@@ -133,6 +134,51 @@ def test_risk_metrics_helper():
     sharpe, std, dd = orx._risk_metrics([1.0, -1.0, 1.0, -1.0, 1.0])
     assert std > 0 and sharpe != 0 and dd <= 0
     assert orx._risk_metrics([])[0] == 0.0
+
+
+# --- N6: overnight cache must be stamped and REFUSED once stale ------------
+# (MEMORY §86/CROSSROADS N6: "stamp/refuse stale overnight caches" — a network
+# blip used to fall back to a parquet cache of any age, silently, forever.)
+
+def _tiny_ohlcv(n=40):
+    ts = pd.date_range("2024-01-01", periods=n, freq="1h", tz="UTC")
+    close = np.linspace(100, 101, n)
+    return pd.DataFrame({"timestamp": ts, "open": close, "high": close + 1,
+                         "low": close - 1, "close": close,
+                         "volume": np.full(n, 10.0), "quote_volume": np.full(n, 1000.0),
+                         "trades": np.full(n, 5)})
+
+
+def test_fresh_cache_is_used_on_fetch_failure(tmp_path, monkeypatch):
+    monkeypatch.setattr(orx, "CACHE", tmp_path)
+    monkeypatch.setattr(orx, "UNIVERSE", ["BTCUSDT"])
+    cache_file = tmp_path / "binance_BTCUSDT_1h.parquet"
+    _tiny_ohlcv().to_parquet(cache_file)   # freshly written -> age ~0h
+
+    def _boom(*a, **kw):
+        raise ConnectionError("network blip")
+
+    monkeypatch.setattr(orx, "load_ohlcv", _boom)
+    frames = orx._load_frames("1h", 4000)
+    assert "BTCUSDT" in frames, "a fresh cache must still be used as a fallback"
+
+
+def test_stale_cache_is_refused_not_silently_reused(tmp_path, monkeypatch):
+    monkeypatch.setattr(orx, "CACHE", tmp_path)
+    monkeypatch.setattr(orx, "UNIVERSE", ["BTCUSDT"])
+    cache_file = tmp_path / "binance_BTCUSDT_1h.parquet"
+    _tiny_ohlcv().to_parquet(cache_file)
+    # Backdate the file's mtime past the staleness cutoff.
+    stale_ts = time.time() - (orx.MAX_CACHE_AGE_HOURS + 1) * 3600
+    import os
+    os.utime(cache_file, (stale_ts, stale_ts))
+
+    def _boom(*a, **kw):
+        raise ConnectionError("network blip")
+
+    monkeypatch.setattr(orx, "load_ohlcv", _boom)
+    frames = orx._load_frames("1h", 4000)
+    assert "BTCUSDT" not in frames, "a stale cache must be refused, not silently used"
 
 
 def test_queue_roundtrip(tmp_path, monkeypatch):

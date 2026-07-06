@@ -2644,3 +2644,56 @@ itself was silently SKIPPED by CI — its commit body contained the literal toke
 honors skip directives anywhere in the message. Rule: **never write the bracketed skip
 tokens verbatim in a commit message unless you mean them** — spell it "skip-ci" when
 referring to the mechanism. This commit exists partly to run CI over the skipped tree.
+
+## 87. N6 research-honesty fixes shipped — 2026-07-06 (streaming, direct-to-main)
+
+Closes CROSSROADS N6, the last of the §83-review agent queue. All five items, each
+guarded by a new test:
+
+- **`ml/cv.py` purge was entry-time-only, leaking label-end overlap across fold
+  boundaries.** A training row entered just before a test fold can still RESOLVE
+  (its label finalizes) up to `max_bars` later — possibly inside the test fold's own
+  span — so purging only by `entry_time` let that row's label quietly incorporate
+  test-span data. Fixed: `purged_walk_forward_splits`/`cross_val_oos` now accept a
+  `horizon` (a `pd.Timedelta`) and additionally purge the `[test_start - horizon,
+  test_start)` zone. `ml/labels.py::build_dataset` computes it automatically —
+  `bar_interval * max_bars`, from each frame's own timestamp spacing — and stores it
+  on `meta.attrs["label_horizon"]`, so every existing caller (`meta_model.evaluate`,
+  the three `scripts/validate_*.py` campaigns) gets the fix for free with no call-site
+  changes required.
+- **`scenarios/audit.py` could report `clean=True` on ZERO checks** — either the
+  input series was too short (`n <= min_history + 5`, previously returned
+  `AuditResult(name, 0, 0, True)`) or every candidate bar raised inside
+  `scenario_fn`/`build_fn` (silently `continue`d, `checks` stayed 0). Since
+  `mismatches == 0` is trivially true over an empty set, a scenario that literally
+  never got tested could sail through `audit_all`'s table as "clean." Fixed both call
+  sites (`clean = checks > 0 and mismatches == 0` at the end; the short-series early
+  return now returns `False`) AND added a hard guard in `AuditResult.__post_init__`
+  that raises if ever constructed with `clean=True, checks=0` again — the invariant
+  no longer depends on every call site remembering it.
+- **`scripts/overnight_research.py`'s parquet cache had no staleness check** — a
+  network blip on `load_ohlcv` fell back to whatever cache existed, however old,
+  forever, while the findings report's "Last run" timestamp implied current data.
+  Fixed: the cache file's own mtime is the stamp (no new file needed); a fallback
+  older than `MAX_CACHE_AGE_HOURS` (72h) is refused and the symbol skipped, same as
+  "no cache at all."
+- **`ingest/resample.py` could hand a PARTIAL trailing bucket downstream** looking
+  like a normal closed bar — e.g. resampling 1h data to 3h buckets when only 2 of the
+  3 constituent hours have arrived yet. Same failure class as the §77 forming-candle
+  bug, one level up. Fixed: a bucket only counts as closed once the source data
+  reaches (or passes) its END boundary (`agg.index[-1] + to_offset(rule)`); otherwise
+  it's dropped. Deliberately conservative — a historical slice that happens to end
+  exactly on a bucket boundary loses one trailing row too, an inconsequential cost
+  next to trading a partial bar as if it were closed.
+- **`memory/registry.py`'s `overnight_candidates` import swallowed ALL exceptions**
+  silently, leaving a broken import indistinguishable from "no candidates exist yet"
+  (`validated()`/`by_status()` would just look thin). Fixed: logs a loud warning
+  naming the gap (`logger.warning(..., exc_info=True)`) before falling back to
+  `REGISTRY = {}` — still non-fatal (the registry still constructs with the
+  baseline), but no longer silent.
+
+None of these touch the live/paper execution path or change any validated strategy
+default — purely measurement/tooling honesty, per the §83 review's original framing.
+Suite: 772/772 (756 baseline + 16 new tests across `test_ml_cv.py`, `test_ml_labels.py`,
+`test_btmm_audit.py`, `test_overnight.py`, new `test_resample.py`, new
+`test_memory_registry.py`).
