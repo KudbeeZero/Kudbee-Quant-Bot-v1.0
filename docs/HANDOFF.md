@@ -40,8 +40,12 @@
   (transparency posture), **X4** (§83 core-engine fixes, change-gated, needs sign-off), **X5**
   (branch cleanup — **APPROVED**, script ready, owner runs `bash scripts/delete_dead_branches.sh
   --run`). ~~N4~~/~~N5~~/~~N6~~/~~N7~~ all shipped 2026-07-06 — the agent-side queue is empty.
-- **Verify live:** CI on the N7 commit (this session's last push) is not yet confirmed as
-  of this baton write — a quick `list_workflow_runs` check is the first thing to do.
+- **Verify live:** CI confirmed green through `70a95397` (N7) and every workflow this
+  session. `fly-deploy.yml` genuinely no-ops every run (`FLY_API_TOKEN` unset, confirmed
+  from live job logs, not a workflow bug) — **owner explicitly deferred the Fly deploy**
+  to self-serve later via `docs/HOSTING.md` (asked directly this session). Not a stalled
+  item; don't re-raise unprompted (see CROSSROADS X2). Cloudflare Pages (the marketing
+  site) auto-deploys from `main` on every push and stays in sync regardless.
 - **✅ MOST RECENT WORK (2026-07-05, this branch):** Fable-5 **full-codebase review** — owner
   directive after the Fable 5 release: re-read every subsystem with fresh eyes and reconcile all
   docs/memory layers. Five independent reviewer agents swept core/ops/research/infra/docs;

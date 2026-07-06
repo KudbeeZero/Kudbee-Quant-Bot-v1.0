@@ -71,6 +71,15 @@
 - **Status:** OPEN, owner-side. Steps 1/2/4/5 are phone-doable; step 3 needs a
   machine with `flyctl`. Repo-side halves of steps 2–3 (the proxy Functions) are
   already committed to `main`.
+- **Confirmed 2026-07-06:** `fly-deploy.yml` has run on every push/schedule since —
+  its "Set up flyctl"/"Deploy" steps SKIP every time (`FLY_API_TOKEN` genuinely unset,
+  not a workflow bug). **Owner explicitly deferred this** to self-serve later via
+  `docs/HOSTING.md` (asked directly, chose "I'll do it myself later" over a guided
+  walkthrough now) — this is a deliberate deferral, not a stalled/forgotten item.
+  Meanwhile the marketing site (Cloudflare Pages) DOES auto-deploy from `main` on
+  every push and stays in sync automatically; only the API/dashboard backend +
+  Telegram webhook wait on this step. Do not re-raise this unprompted; pick it back
+  up only if the owner brings it up or asks for deploy status.
 
 ### X3 · Transparency posture: the whole repo is public (GitHub + Pages)  · **OWNER**
 - **Found (2026-07-05, Fable-5 review §83):** the GitHub repo is **public**, and
