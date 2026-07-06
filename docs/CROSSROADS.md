@@ -91,13 +91,17 @@
   patch-equivalent squash leftovers — section D), **16 more are superseded** (section C,
   deletable after two small verdict-harvests), **12 carry unique value** (section B —
   each with its own recommended action; `zcash-…` stays SALVAGE-HOLD per MEMORY).
-- **Owner chose (2026-07-06): ledger first, then approve deletions.** The ledger now
-  exists — this row is the approval gate.
-- **Options:** (a) approve deleting D now, C after its harvests; (b) approve D only;
-  (c) keep everything, ledger just marks them.
-- **Recommended:** (a) — every deletion re-verified merged/equivalent immediately before
-  it runs; section B untouched.
-- **Status:** OPEN, awaiting owner one-tap.
+- **Owner APPROVED (2026-07-06): delete D now, C after the N7 harvests.** But the agent
+  container **cannot delete remote refs** (the git credential proxy 403s `push --delete`;
+  the GitHub MCP toolset has no delete-branch tool) — so the approved deletion is packaged
+  as **`scripts/delete_dead_branches.sh`**: re-verifies every branch is still
+  merged/patch-equivalent against fresh `origin/main` immediately before deleting it,
+  skips loudly otherwise; dry-run by default (`--run` to execute). Dry-run verified
+  2026-07-06: 102/102 verified dead, 0 skipped.
+- **Remaining action (owner, one command):** `bash scripts/delete_dead_branches.sh --run`
+  from any machine with push rights (or delete from the GitHub branches UI). Section C's
+  16 get appended to the script after the N7 harvests land.
+- **Status:** APPROVED — execution owner-side (script ready).
 
 ### X4 · Core-engine fixes from the §83 review (change-gated code)  · **OWNER**
 - **Fork:** the review found real defects in the levels/backtest core, which is

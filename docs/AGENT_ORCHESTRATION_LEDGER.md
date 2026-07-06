@@ -126,8 +126,11 @@ Columns: **REC** · date · session/branch · PR · unit · gate outcome · merg
 > copying to `main` (then delete) · **SALVAGE-HOLD** deliberately parked per MEMORY ·
 > **OWNER** unique unmerged work that needs an owner call.
 >
-> **Deletion gate (owner-set 2026-07-06):** nothing is deleted until the owner approves
-> this ledger's dead list. Verdicts below re-verified per-branch before any deletion.
+> **Deletion gate (owner-set 2026-07-06):** owner APPROVED deleting section D (and C
+> after its harvests) the same day — but agent containers cannot delete remote refs
+> (git proxy 403s `push --delete`; no MCP delete-branch tool), so the approved deletion
+> ships as **`scripts/delete_dead_branches.sh`** (re-verifies each branch dead against
+> fresh `origin/main` before deleting; dry-run by default). Owner runs it with `--run`.
 
 ## A · Live / just closed (2026-07-06)
 
