@@ -52,9 +52,12 @@
   2. **Pages custom domain:** once Active, add **both** `kudbeex.xyz` **and** `www` —
      apex verified **200 live** 2026-07-02; `www` couldn't be confirmed from the agent
      container (proxy 502'd it while apex succeeded), so confirm both are attached.
-  3. **Deploy the API to Fly.io** (X0, the app-layer blocker): `fly launch --no-deploy`
-     → `fly secrets set …` → `fly deploy` (full steps `docs/HOSTING.md`). If the Fly
-     app name isn't `kudbee-quant-api`, also set `API_ORIGIN` in Pages → Settings →
+  3. **Deploy the API to Fly.io** (X0, the app-layer blocker) — **fastest path
+     (2026-07-06):** install flyctl + `fly auth login`, then
+     `bash scripts/fly_bootstrap.sh` does the rest (creates the app, secrets,
+     deploy, smoke-test, prints the one token you paste into GitHub yourself).
+     Manual steps still in `docs/HOSTING.md` if preferred. If the Fly app name
+     isn't `kudbee-quant-api`, also set `API_ORIGIN` in Pages → Settings →
      Environment variables to `https://<your-app>.fly.dev` so `functions/api/[[path]].js`
      proxies to the right place.
   4. **Email Routing** (free, solves the mailbox need): Cloudflare → Email → forward

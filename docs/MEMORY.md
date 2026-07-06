@@ -2754,3 +2754,29 @@ deletions (the two branches carrying real value — `handoff-audit-rk3gn7` and
 `handoff-audit-8aps4t` — have now had their value harvested and can move to the delete
 list; `vah-trap-reversal-study`, `psych-level-reversal-1h`, and `kudbeex-blank-page-q6pdql`
 were already section-B branches whose content is now fully captured here too).
+
+## 89. Fly deploy deliberately deferred by the owner + a one-shot bootstrap script to minimize the remaining friction — 2026-07-06
+
+The owner was asked directly (`AskUserQuestion`) how to close the last gap between this
+repo and what's live: deploy the API/dashboard/Telegram-webhook backend to Fly.io (X2
+step 3), which structurally requires `flyctl` authenticated to the owner's own Fly
+account — no agent can do this on the owner's behalf. **Owner chose to self-serve it
+later via `docs/HOSTING.md`.** This is a deliberate deferral, confirmed via live job logs
+(not assumption): `fly-deploy.yml`'s "Set up flyctl"/"Deploy" steps skip on every single
+run because `FLY_API_TOKEN` is genuinely unset. Do not re-raise this unprompted in a
+future session — only act on it if the owner brings it up.
+
+**What IS in sync regardless:** the marketing site (Cloudflare Pages) auto-deploys from
+`main` on every push — confirmed green on every commit this session. Only the API
+backend/Telegram webhook piece is missing; the static site content is never stale.
+
+**To shrink the remaining friction as much as possible without the owner's live
+participation**, added `scripts/fly_bootstrap.sh`: collapses `docs/HOSTING.md`'s 6 manual
+steps into one script (idempotent — safe to re-run) that creates the app, auto-generates
+the two pure-random secrets, prompts (hidden input) for the two the owner must choose,
+deploys, smoke-tests `/api/health`, and prints the one Fly deploy token that still has to
+be pasted into GitHub's UI by hand (a script has no path to write a GitHub Actions secret
+without an even bigger credential than the task needs). 5 new tests (syntax, strict mode,
+no-hardcoded-secrets, fails loudly without flyctl) — can't test the real Fly calls
+without a real account, so these pin what's checkable: it parses, it's safe, and it fails
+closed rather than silently. Suite: 777/777.

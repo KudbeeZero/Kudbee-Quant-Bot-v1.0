@@ -36,6 +36,14 @@ if your app name differs from `kudbee-quant-api.fly.dev`).
 
 ## One-time setup (owner, ~15 minutes, needs a machine with `flyctl`)
 
+**Fastest path:** install flyctl + log in (below), then run
+`bash scripts/fly_bootstrap.sh` — it does steps 2-5 for you (creates the app,
+generates/prompts for secrets, deploys, smoke-tests, and prints the one Fly
+token you still have to paste into GitHub's UI yourself, since that's the one
+step no local script can do on your behalf). The manual walkthrough below is
+the same thing spelled out step by step, if you'd rather do it by hand or the
+script hits something environment-specific.
+
 1. **Install + auth:** `curl -L https://fly.io/install.sh | sh`, then
    `fly auth login`.
 2. **Create the app** (does not deploy yet):
