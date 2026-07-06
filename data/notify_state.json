@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 1,
+    "losers": 4,
     "n": 8,
-    "unrealized_r": 5.0128,
-    "winners": 7
+    "unrealized_r": 1.3422,
+    "winners": 4
   },
   "trades": {
     "1e9db3c2": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.0675913694407743
+      "ur": -0.32650814619110496
     },
     "23771d95": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.0029239766081885334
+      "ur": -0.29008925823328924
     },
     "3ecc4554": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9102564102564034
+      "ur": 0.2692307692307557
     },
     "503ef0c4": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.0029239766081885334
+      "ur": -0.29008925823328924
     },
     "72a13b0e": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.940241689900608
+      "ur": 1.4478878605754337
     },
     "79bb3a02": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5816543930341209
+      "ur": 0.1297068222870512
     },
     "afa94d44": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.022107922757615
+      "ur": 0.5189496480779512
     },
     "fa119e00": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.620291616038895
+      "ur": -0.1168489266909633
     }
   }
 }
