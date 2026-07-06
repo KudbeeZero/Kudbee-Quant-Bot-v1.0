@@ -94,7 +94,12 @@ def _main(argv=None) -> int:
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args(argv)
     ok = emit(args.session, force=args.force or args.dry_run, dry_run=args.dry_run)
-    print(f"session-brief({args.session}): {'sent' if ok else 'skipped'}.")
+    if not ok and not (args.force or args.dry_run) and not session_brief_enabled():
+        print(f"session-brief({args.session}): skipped — feature 'session_brief' is OFF "
+              "(set repo variable TELEGRAM_SESSION_BRIEF_ENABLED=true or flip it in "
+              "data/feature_flags.json).")
+    else:
+        print(f"session-brief({args.session}): {'sent' if ok else 'skipped'}.")
     return 0
 
 

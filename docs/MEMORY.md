@@ -2578,3 +2578,47 @@ refuted experiment); **`/summary` copy fix** — the all-time record sums BOTH v
 it now says "across all books", not "on the crypto book". Suite: **747/747** (1 new
 `API_ORIGIN`/`FLY_APP_NAME` fallback test). Live path untouched; Fly deploy itself is
 still owner-side X2 step 3.
+
+## 86. Telegram full audit — what actually works, why slash commands are dead, fixes shipped — 2026-07-06
+
+Owner: "I still can't use slash commands; I don't think everything's working 100%."
+Audited every pathway with LIVE evidence (Actions run logs, `getWebhookInfo`, state files
+— not the code's claims). Verdict:
+
+**WORKING (verified in the 2026-07-06 01:18 run log):** the hourly summary ("Summary
+sent."), trade-open/resolved pings (paper-scan/journal-check), session-crossover alerts
+(correctly skip non-session hours), the failure alert, the :35 `--only-if-open` status
+ping, and the heartbeat coverage line (25/24h). `TELEGRAM_BOT_TOKEN`/`CHAT_ID` secrets are
+set and sends succeed. (Correction logged: `feat/session-crossover-alerts` IS live on main
+— the ledger's B-row was wrong, now fixed.)
+
+**DEAD — slash commands (root cause, 3 stacked):** Telegram has **NO webhook registered**
+(`getWebhookInfo` → `url: (empty)`, seen in the 07-05 register-run log). (1) The API the
+webhook must point at isn't deployed anywhere — Fly deploy is still owner-side X2 step 3
+(Render is retired/dead); (2) the `KUDBEE_API_TOKEN` repo secret is MISSING, so
+`telegram-register.yml` skips self-registration even once the API exists; (3) until 07-05
+that workflow still pointed at dead Render (already re-pointed to Fly, §83). Cruelly,
+`setMyCommands` SUCCEEDS (bot token present), so the command menu shows in the app while
+every command goes nowhere — that mismatch is exactly the owner's complaint.
+
+**DEAD — the whole scheduled suite** (live tracker ×48/day, London/NY briefs, daily/weekly
+recaps): every feature defaults OFF; `data/feature_flags.json` didn't exist; and
+`telegram-scheduled.yml` never forwarded any `TELEGRAM_*_ENABLED` env — so there was **no
+working path to enable them at all** (the `/enable` command path needs the dead webhook,
+and a flag flipped on the API host wouldn't reach the Actions cron anyway until committed).
+Worse, `... || true` + "0 update(s)" made the disabled state look like a healthy quiet run.
+
+**Fixes shipped (this commit):** (i) `telegram-scheduled.yml` now forwards the four
+switches from **repo Variables** (`vars.TELEGRAM_*_ENABLED`) — phone-doable enable TODAY:
+Settings → Secrets and variables → Actions → Variables → e.g.
+`TELEGRAM_DAILY_RECAP_ENABLED=true`; (ii) `data/feature_flags.json` committed (all false,
+visible, editable from the GitHub app — second phone path; the cron checks out the repo so
+it reads this file); (iii) emitters now SAY WHY they sent zero ("feature 'live_tracker' is
+OFF — set repo variable …"), test-pinned (4 new tests); (iv) `telegram-register.yml` names
+the real blockers when the API is unreachable. Suite 751/751.
+
+**Still owner-side to revive slash commands:** deploy the API (X2 step 3) + add the
+`KUDBEE_API_TOKEN` repo secret (same value as the Fly secret) → next 06:30 UTC register
+cron (or one tap of the workflow) registers the webhook. Alternative that needs NO server:
+a getUpdates **polling workflow** (commands answered every ~10 min; must self-disable once
+a webhook exists — Telegram forbids both). Proposed, not built.

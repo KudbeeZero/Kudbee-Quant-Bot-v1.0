@@ -61,6 +61,10 @@
      `hello@/partners@/press@`.
   5. **Worker `TRIGGER_SECRET`:** `wrangler secret put TRIGGER_SECRET` (else the
      manual trigger URL 403s — the cron itself still runs without it).
+  6. **`KUDBEE_API_TOKEN` repo secret** (found missing by the §86 Telegram audit): repo
+     Settings → Secrets → Actions → `KUDBEE_API_TOKEN` = the same write token set as a
+     Fly secret. Without it `telegram-register.yml` can never self-register the webhook,
+     so slash commands stay dead even after step 3 deploys the API.
 - **Alt (step 1):** keep DNS on Namecheap + its free email forwarding — loses
   Cloudflare Email Routing and a clean Pages custom domain. **Recommended:** move
   nameservers.

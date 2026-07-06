@@ -28,6 +28,16 @@ permissions:
 env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+  # Feature switches — repo VARIABLES (Settings → Secrets and variables → Actions →
+  # Variables tab), phone-editable and visible. Without this forwarding the emitters
+  # could NEVER be enabled from GitHub: they self-gate on these env vars (or on
+  # data/feature_flags.json), and neither existed in this workflow's environment —
+  # every scheduled send was a silent no-op regardless of what the owner set.
+  # An unset variable renders as "" which the toggle reader treats as absent.
+  TELEGRAM_LIVE_TRACKER_ENABLED: ${{ vars.TELEGRAM_LIVE_TRACKER_ENABLED }}
+  TELEGRAM_SESSION_BRIEF_ENABLED: ${{ vars.TELEGRAM_SESSION_BRIEF_ENABLED }}
+  TELEGRAM_DAILY_RECAP_ENABLED: ${{ vars.TELEGRAM_DAILY_RECAP_ENABLED }}
+  TELEGRAM_WEEKLY_RECAP_ENABLED: ${{ vars.TELEGRAM_WEEKLY_RECAP_ENABLED }}
 
 jobs:
   live-tracker:

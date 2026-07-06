@@ -97,7 +97,14 @@ def _main(argv=None) -> int:
     ap.add_argument("--force", action="store_true", help="ignore the feature flag")
     args = ap.parse_args(argv)
     n = emit(force=args.force or args.dry_run, dry_run=args.dry_run)
-    print(f"trade-tracker: {n} update(s).")
+    if n == 0 and not (args.force or args.dry_run) and not live_tracker_enabled():
+        # A green run with 0 sends is indistinguishable from a working feature with
+        # no open trades — say WHY so the Actions log is diagnosable at a glance.
+        print("trade-tracker: 0 update(s) — feature 'live_tracker' is OFF "
+              "(set repo variable TELEGRAM_LIVE_TRACKER_ENABLED=true or flip it in "
+              "data/feature_flags.json).")
+    else:
+        print(f"trade-tracker: {n} update(s).")
     return 0
 
 

@@ -176,12 +176,19 @@ def _main(argv=None) -> int:
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args(argv)
     force = args.force or args.dry_run
+
+    def _report(label: str, flag: str, ok: bool) -> None:
+        if not ok and not force and not _enabled(flag):
+            print(f"{label}: skipped — feature '{flag}' is OFF (set repo variable "
+                  f"TELEGRAM_{flag.upper()}_ENABLED=true or flip it in "
+                  "data/feature_flags.json).")
+        else:
+            print(f"{label}: {'sent' if ok else 'skipped'}.")
+
     if args.daily:
-        ok = emit_daily(force=force, dry_run=args.dry_run)
-        print(f"daily-recap: {'sent' if ok else 'skipped'}.")
+        _report("daily-recap", "daily_recap", emit_daily(force=force, dry_run=args.dry_run))
     if args.weekly or not args.daily:
-        ok = emit_weekly(force=force, dry_run=args.dry_run)
-        print(f"weekly-recap: {'sent' if ok else 'skipped'}.")
+        _report("weekly-recap", "weekly_recap", emit_weekly(force=force, dry_run=args.dry_run))
     return 0
 
 

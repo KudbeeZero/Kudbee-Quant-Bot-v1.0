@@ -62,7 +62,9 @@ jobs:
             echo "::warning::the API rejected the token (401/403). The KUDBEE_API_TOKEN repo secret"
             echo "  must match the value set as a Fly secret. Update it and re-run."
           elif [ "$code" = "000" ]; then
-            echo "::warning::Could not reach the Fly app (network/not deployed yet). Re-run in a minute."
+            echo "::warning::Could not reach the Fly app. If it has never been deployed, this is"
+            echo "  CROSSROADS X2 step 3 (fly launch + fly secrets set + fly deploy — docs/HOSTING.md):"
+            echo "  slash commands stay dead until the API exists somewhere for Telegram to call."
           fi
 
       - name: Set the command menu (autocomplete in the Telegram app)
