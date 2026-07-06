@@ -24,6 +24,12 @@
   **Agent-side queue is now EMPTY** — everything left on `docs/CROSSROADS.md` is an
   owner-decision row (X1-X5). All direct commits to `main` (streaming) — no PR opened
   this session. Suite: 772/772; CI confirmed green through `190a6745` (N6).
+- **New session (2026-07-06, this branch):** the prior session ended abruptly. Audited
+  PR/branch state fresh (0 open PRs, all recent PRs through #140 merged, working tree
+  clean, this branch had 0 unpushed commits — nothing left dangling). Picked up the one
+  remaining agent-actionable backlog item: **N2 phases (b)/(c)**, splitting the Pine
+  indicator suite into standalone tools — shipped, MEMORY §90, direct-to-`main`. Pine-only,
+  no Python/engine/live changes.
 - **⚙️ WORKFLOW (2026-07-02, owner-set):** STREAMING & actionable — commit low-risk/docs/verified
   work directly to `main`; open a PR only when it earns one (large/risky, the money path, a
   preview-worthy visual, or a requested review); merge-on-green when the owner has authorized it.
@@ -179,11 +185,9 @@ it. What's actually open now:
   X3 (transparency posture), X4 (§83 core-engine fixes), and X5 (branch cleanup — APPROVED,
   just needs the owner to run the script) are OPEN. Move a row the same turn a decision is
   made — that discipline is the whole point of the board.
-- **BACKLOG — TradingView indicator suite, phases (b)/(c).** Phase (a) (sync the Pine
-  indicator to the current engine) shipped §78/N2. Still queued: (b) split standalone
-  indicators (PVSRA candles, session/killzone boxes, M-levels/pivots, confluence meter);
-  (c) publish-quality polish (inputs, tooltips, alerts). Keep the Pine vwap sign = momentum
-  (§75 parity is test-pinned on the Python side).
+- **N2 (TradingView indicator suite) is now fully DONE** (both phases, §78 + §90) —
+  don't re-open. Keep the Pine vwap sign = momentum (§75 parity is test-pinned on the
+  Python side).
 - **STILL PENDING — D1 provisioning + Telegram webhook registration.** Neither has changed
   since the last check: `cloudflare/trade-bot-cron/wrangler.toml:41` still has
   `database_id = "REPLACE_WITH_DATABASE_ID"` (D1 never provisioned — activates §67

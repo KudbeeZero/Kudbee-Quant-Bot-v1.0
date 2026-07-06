@@ -1,0 +1,98 @@
+//@version=5
+// =============================================================================
+// Kudbee Quant — Sessions & Killzones
+//
+// NY-local session bands (asian/london/ny) + the classic ICT killzones, plus
+// the two "Brinks box" accumulation windows (EU 08:00-09:00 UTC, NY 08:00-09:00
+// NY). Mirrors kudbee_quant/context/calendar.py's _SESSIONS/_KILLZONES tables
+// and kudbee_quant/levels/builder.py's Brinks-window construction.
+//
+// HONESTY (docs/MEMORY.md): on the 24/7 crypto book the bot actually trades,
+// the FX session/killzone/Brinks folklore has been tested and does NOT show an
+// edge — in-killzone hours ran +0.021R vs +0.102R off-hours. This indicator is
+// a discretionary READ of the session structure (useful for context, e.g.
+// "the NY reversal happened at the Brinks box"), not a validated signal.
+//
+// CAUSALITY: both Brinks boxes are drawn only once their own 1h window has
+// CLOSED — a box never appears before it is fully formed. (The Python
+// research-layer EU Brinks column has a known lookahead bug, CROSSROADS X4 —
+// this chart tool does not carry that bug; it is built causally from scratch.)
+// =============================================================================
+indicator("Kudbee Sessions & Killzones", overlay=true, max_boxes_count=20)
+
+showSessions  = input.bool(true,  "Shade sessions (asian/london/ny)", group="Sessions")
+showKillzones = input.bool(true,  "Shade killzones",                 group="Killzones")
+showOverlap   = input.bool(true,  "Shade London-NY overlap",         group="Killzones")
+showEuBrinks  = input.bool(true,  "Draw EU Brinks box (08:00-09:00 UTC)", group="Brinks")
+showNyBrinks  = input.bool(true,  "Draw NY Brinks box (08:00-09:00 NY)",  group="Brinks")
+
+cAsian   = input.color(color.new(color.purple, 88), "Asian",   group="Sessions")
+cLondon  = input.color(color.new(color.blue,   88), "London",  group="Sessions")
+cNy      = input.color(color.new(color.orange, 88), "NY",      group="Sessions")
+cKz      = input.color(color.new(color.yellow, 82), "Killzone shade", group="Killzones")
+cOverlap = input.color(color.new(color.teal,   82), "Overlap shade",  group="Killzones")
+cEuBox   = input.color(color.new(color.fuchsia,70), "EU Brinks box",  group="Brinks")
+cNyBox   = input.color(color.new(color.aqua,   70), "NY Brinks box",  group="Brinks")
+
+// ---- NY-local clock (DST-correct via Pine's built-in timezone arg) ----------
+nyHour = hour(time, "America/New_York")
+nyMin  = minute(time, "America/New_York")
+modNY  = nyHour * 60 + nyMin
+
+// ---- Sessions (NY local hour; asian wraps midnight) -------------------------
+inAsian  = nyHour >= 19 or nyHour < 2
+inLondon = nyHour >= 2  and nyHour < 8
+inNy     = nyHour >= 8  and nyHour < 17
+
+bgcolor(showSessions and inAsian  ? cAsian  : na, title="Asian session")
+bgcolor(showSessions and inLondon ? cLondon : na, title="London session")
+bgcolor(showSessions and inNy     ? cNy     : na, title="NY session")
+
+// ---- Killzones (NY local minute-of-day) --------------------------------------
+kzAsian      = modNY >= 20*60      and modNY < 22*60
+kzLondonOpen = modNY >= 2*60       and modNY < 5*60
+kzNyForex    = modNY >= 7*60       and modNY < 10*60
+kzNyIndices  = modNY >= 8*60 + 30  and modNY < 11*60
+kzLondonClose= modNY >= 10*60      and modNY < 12*60
+inOverlap    = modNY >= 8*60       and modNY < 11*60
+inKillzone   = kzAsian or kzLondonOpen or kzNyForex or kzNyIndices or kzLondonClose
+
+bgcolor(showKillzones and inKillzone ? cKz      : na, title="Killzone")
+bgcolor(showOverlap   and inOverlap  ? cOverlap : na, title="London-NY overlap")
+
+// ---- EU Brinks box: 08:00-09:00 UTC, accumulate then draw on close ----------
+utcHour = hour(time)
+inEuWin = utcHour == 8
+var float euHi    = na
+var float euLo    = na
+var int   euStart = na
+var box   euBox   = na
+if inEuWin and not inEuWin[1]
+    euHi    := high
+    euLo    := low
+    euStart := bar_index
+if inEuWin
+    euHi := math.max(euHi, high)
+    euLo := math.min(euLo, low)
+if showEuBrinks and inEuWin[1] and not inEuWin
+    euBox := box.new(euStart, euHi, bar_index[1], euLo, border_color=color.fuchsia, bgcolor=cEuBox, extend=extend.none)
+if showEuBrinks and not na(euBox) and barstate.islast
+    box.set_right(euBox, bar_index)
+
+// ---- NY Brinks box: 08:00-09:00 NY, accumulate then draw on close -----------
+inNyWin = nyHour == 8
+var float nyHi    = na
+var float nyLo    = na
+var int   nyStart = na
+var box   nyBox   = na
+if inNyWin and not inNyWin[1]
+    nyHi    := high
+    nyLo    := low
+    nyStart := bar_index
+if inNyWin
+    nyHi := math.max(nyHi, high)
+    nyLo := math.min(nyLo, low)
+if showNyBrinks and inNyWin[1] and not inNyWin
+    nyBox := box.new(nyStart, nyHi, bar_index[1], nyLo, border_color=color.aqua, bgcolor=cNyBox, extend=extend.none)
+if showNyBrinks and not na(nyBox) and barstate.islast
+    box.set_right(nyBox, bar_index)

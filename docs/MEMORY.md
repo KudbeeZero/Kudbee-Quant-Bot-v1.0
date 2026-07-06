@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-05 (§83)._
+_Last updated: 2026-07-06 (§90)._
 
 ---
 
@@ -2780,3 +2780,37 @@ without an even bigger credential than the task needs). 5 new tests (syntax, str
 no-hardcoded-secrets, fails loudly without flyctl) — can't test the real Fly calls
 without a real account, so these pin what's checkable: it parses, it's safe, and it fails
 closed rather than silently. Suite: 777/777.
+
+## 90. N2 phases (b)/(c): TradingView indicator suite split into standalone tools — 2026-07-06
+
+Closes the last open item on CROSSROADS N2 (phase (a), the combined Confluence Engine
+sync, shipped 2026-07-02 per §78). Split the reusable pieces of
+`pinescript/kudbee_confluence.pine` into 3 new standalone indicators — traders who want
+one read without the full execution overlay can now add just that piece:
+
+- `kudbee_session_killzones.pine` — NY-local session shading (asian/london/ny) +
+  the 5 ICT killzones + the London-NY overlap window, plus two literal Brinks boxes
+  (EU 08:00-09:00 UTC, NY 08:00-09:00 NY) drawn from real high/low accumulation over
+  the window. Built **causally from scratch** (box only appears once its own window
+  has closed) — does NOT inherit the known EU-Brinks lookahead bug flagged in
+  `levels/builder.py` (CROSSROADS X4, still open/owner-gated); a chart tool has no
+  excuse to preview an unformed window. Carries an explicit HONESTY note pointing at
+  the hour-map finding above (§62-era): killzone hours ran *worse* than off-hours on
+  the 24/7 book the bot trades (+0.021R vs +0.102R) — this is a discretionary context
+  read, not a validated signal, and the header says so.
+- `kudbee_mlevels_pivots.pine` — daily/weekly/monthly opens, ADR/AWR/AMR bands
+  (configurable lookback), classic floor pivots (PP/R1-3/S1-3) from the prior complete
+  NY day, and the Traders-Reality M0-M5 midpoint grid. Formulas match
+  `kudbee_quant/levels/builder.py` (`build_levels`/`MLEVEL_COLUMNS`) exactly; built via
+  `request.security` so the chart never depends on the Python engine.
+- `kudbee_confluence_meter.pine` — the 10-factor dashboard table + triangle markers on
+  a fresh actionable read, with no entry/stop/target bracket drawn (that's what
+  "Kudbee Confluence Engine" is for). Same closed-bar gating (§77) and VWAP-momentum
+  sign (§75) as the combined script.
+- `pinescript/pvsra_vector_candles.pine` (PVSRA candles) already existed as a
+  standalone script from an earlier, unrecorded pass — verified it faithfully mirrors
+  `kudbee_quant/signals/pvsra.py`'s thresholds (climax_mult=2.0, rising_mult=1.5,
+  lookback=10) and needed no changes.
+
+No Python/engine/live-execution code touched — Pine-only, marketing/tooling surface.
+Direct commit to `main` (small, verified, non-risky per the streaming workflow).
