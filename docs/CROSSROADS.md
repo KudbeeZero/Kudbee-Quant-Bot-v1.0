@@ -159,12 +159,17 @@
   was lost on cache reuse → `DataCache` now persists+restores `df.attrs` and re-warns on
   every cache hit. Tests cover miss / clean-path / reuse. Direct commit to `main`.
 
-### N2 · TradingView indicator suite  · phase (a) ✅ **DONE (2026-07-02, §78)**
-- **Done:** synced `pinescript/kudbee_confluence.pine` to the current engine — VWAP
-  momentum (§75), ride-3R default (§76), and `barstate.isconfirmed` closed-bar gating on
-  the bracket + webhook + both alertconditions (§77 parity, no intrabar repaint).
-- **Still open (phases b/c):** split standalone indicators (PVSRA candles, session/
-  killzone boxes, M-levels/pivots, confluence meter) + publish-quality polish. Queued.
+### N2 · TradingView indicator suite  · ✅ **DONE (2026-07-06, §90)**
+- **Phase (a)** (2026-07-02, §78): synced `pinescript/kudbee_confluence.pine` to the
+  current engine — VWAP momentum (§75), ride-3R default (§76), and
+  `barstate.isconfirmed` closed-bar gating on the bracket + webhook + both
+  alertconditions (§77 parity, no intrabar repaint).
+- **Phases (b)/(c)** (2026-07-06, §90): split into standalone indicators —
+  `kudbee_session_killzones.pine`, `kudbee_mlevels_pivots.pine`,
+  `kudbee_confluence_meter.pine` (new) + `pvsra_vector_candles.pine` (already existed,
+  verified in sync). All mirror the Python engine formulas 1:1; the killzone tool
+  carries an explicit honesty note that killzone hours underperform off-hours on the
+  24/7 book (§62-era finding).
 
 ### N3 · Deepen the brain — DMN generative layer  · ✅ **DONE (2026-07-02, §79)**
 - **Done:** `scripts/idea_generator.py` — the DMN now COMPOSES new candidates
@@ -187,6 +192,10 @@
 ---
 
 ## Recently decided (short memory, so the board shows momentum)
+- **N2 Pine indicator suite phases (b)/(c) SHIPPED** (2026-07-06, direct-to-main, §90) —
+  split into `kudbee_session_killzones.pine` / `kudbee_mlevels_pivots.pine` /
+  `kudbee_confluence_meter.pine` (new) + verified `pvsra_vector_candles.pine`
+  already in sync. N2 fully closed (both phases done).
 - **N7 ledger harvests SHIPPED** (2026-07-06, direct-to-main, §88) — the LAST item in
   the §83-review agent queue (N4-N7 all done). conf_70/psych-1h/VAH-trap verdicts now in
   MEMORY; #102/#14 audit reports landed in `docs/audits/`; the no-JS site fix confirmed

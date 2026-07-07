@@ -1,0 +1,112 @@
+//@version=5
+// =============================================================================
+// Kudbee Quant — Confluence Meter
+//
+// The 10-factor confluence READ on its own, with no execution bracket drawn —
+// for traders who want the directional dashboard without the entry/stop/target
+// overlay (that full version is "Kudbee Confluence Engine"). Mirrors
+// kudbee_quant/confluence/stack.py factor-for-factor:
+//   EMA stack (13/50 vs 800), EMA 13/50 cross, EMA cloud position, VWAP,
+//   daily open, floor pivot, premium/discount (48-bar dealing range), prior-
+//   day-high/low liquidity sweep, PVSRA vector candle, FVG occupancy.
+//
+// IN SYNC WITH THE ENGINE (2026-07-02): VWAP votes momentum (§75); signals are
+// evaluated on the CLOSED bar only via barstate.isconfirmed (§77) — no
+// intrabar repaint of the dashboard's "actionable" flag.
+//
+// HONESTY: a confluence score is a directional read, not a signal to trade
+// blind. See "Kudbee Confluence Engine" for the validated execution template
+// this read feeds into.
+// =============================================================================
+indicator("Kudbee Confluence Meter", overlay=true, max_labels_count=20)
+
+minPct    = input.float(0.5, "Actionable threshold (fraction of factors)", minval=0.1, maxval=1.0, step=0.05)
+biasInput = input.string("Auto", "Directional bias filter", options=["Auto", "Long only", "Short only"])
+showDash  = input.bool(true, "Show confluence dashboard table")
+markBar   = input.bool(true, "Mark actionable bars with a triangle")
+
+ema13  = ta.ema(close, 13)
+ema50  = ta.ema(close, 50)
+ema800 = ta.ema(close, 800)
+vwapv  = ta.vwap(hlc3)
+
+dOpen = request.security(syminfo.tickerid, "D", open,     lookahead=barmerge.lookahead_off)
+pdh   = request.security(syminfo.tickerid, "D", high[1],  lookahead=barmerge.lookahead_off)
+pdl   = request.security(syminfo.tickerid, "D", low[1],   lookahead=barmerge.lookahead_off)
+pdc   = request.security(syminfo.tickerid, "D", close[1], lookahead=barmerge.lookahead_off)
+pp    = (pdh + pdl + pdc) / 3.0
+
+dealHi  = ta.highest(high, 48)[1]
+dealLo  = ta.lowest(low, 48)[1]
+dealMid = (dealHi + dealLo) / 2.0
+
+av     = ta.sma(volume, 10)
+value2 = volume * (high - low)
+hv     = ta.highest(value2, 10)
+climax = volume >= 2 * av or value2 >= hv
+isBull = close > open
+bullClimax = climax and isBull
+bearClimax = climax and not isBull
+
+var float bullFvgTop = na
+var float bullFvgBot = na
+var float bearFvgTop = na
+var float bearFvgBot = na
+if low > high[2]
+    bullFvgBot := high[2]
+    bullFvgTop := low
+if high < low[2]
+    bearFvgTop := low[2]
+    bearFvgBot := high
+inBullFvg = not na(bullFvgTop) and low  <= bullFvgTop and high >= bullFvgBot
+inBearFvg = not na(bearFvgTop) and high >= bearFvgBot and low  <= bearFvgTop
+
+sweptHigh = high > pdh and close < pdh
+sweptLow  = low  < pdl and close > pdl
+
+// ---- 10 factor votes (mirror confluence/stack.py) ---------------------------
+vEmaStack = close > ema50 and ema50 > ema800 ? 1 : close < ema50 and ema50 < ema800 ? -1 : 0
+vEmaFast  = int(math.sign(ema13 - ema50))
+cloudHi   = math.max(ema13, ema50)
+cloudLo   = math.min(ema13, ema50)
+vCloud    = close > cloudHi ? 1 : close < cloudLo ? -1 : 0
+vVwap     = int(math.sign(close - vwapv))
+vDopen    = int(math.sign(close - dOpen))
+vPivot    = int(math.sign(close - pp))
+vPd       = int(-math.sign(close - dealMid))
+vSweep    = sweptLow ? 1 : sweptHigh ? -1 : 0
+vVector   = bullClimax ? 1 : bearClimax ? -1 : 0
+vFvg      = inBullFvg ? 1 : inBearFvg ? -1 : 0
+
+netScore  = vEmaStack + vEmaFast + vCloud + vVwap + vDopen + vPivot + vPd + vSweep + vVector + vFvg
+confPct   = math.abs(netScore) / 10
+direction = int(math.sign(netScore))
+
+biasDir    = biasInput == "Long only" ? 1 : biasInput == "Short only" ? -1 : 0
+aligned    = biasDir == 0 or direction == biasDir
+actionable = confPct >= minPct and direction != 0 and aligned
+
+newSig = actionable and not actionable[1] and barstate.isconfirmed
+plotshape(markBar and newSig and direction > 0, "Long confluence", shape.triangleup,   location.belowbar, color.new(color.green, 0), size=size.tiny)
+plotshape(markBar and newSig and direction < 0, "Short confluence", shape.triangledown, location.abovebar, color.new(color.red,   0), size=size.tiny)
+
+alertcondition(actionable and direction > 0 and not actionable[1] and barstate.isconfirmed, "Kudbee LONG confluence", "Kudbee: confluence crossed the LONG threshold")
+alertcondition(actionable and direction < 0 and not actionable[1] and barstate.isconfirmed, "Kudbee SHORT confluence", "Kudbee: confluence crossed the SHORT threshold")
+
+f_arrow(v) => v > 0 ? "▲" : v < 0 ? "▼" : "·"
+f_col(v)   => v > 0 ? color.new(color.green, 0) : v < 0 ? color.new(color.red, 0) : color.new(color.gray, 0)
+
+if showDash and barstate.islast
+    var table t = table.new(position.top_right, 2, 13, border_width=1, frame_color=color.new(color.gray, 50))
+    table.cell(t, 0, 0, "Kudbee Confluence", text_color=color.white, bgcolor=color.new(color.blue, 10), text_size=size.small)
+    table.cell(t, 1, 0, str.tostring(confPct*100, "#") + "% " + (direction>0?"LONG":direction<0?"SHORT":"flat"), text_color=color.white, bgcolor=color.new(direction>0?color.green:direction<0?color.red:color.gray, 10), text_size=size.small)
+    rows = array.from("EMA stack", "EMA 13/50", "EMA cloud", "VWAP", "Daily open", "Pivot", "Prem/Disc", "Sweep", "Vector", "FVG")
+    votes = array.from(vEmaStack, vEmaFast, vCloud, vVwap, vDopen, vPivot, vPd, vSweep, vVector, vFvg)
+    for i = 0 to 9
+        v = array.get(votes, i)
+        table.cell(t, 0, i+1, array.get(rows, i), text_color=color.new(color.white, 15), text_size=size.tiny)
+        table.cell(t, 1, i+1, f_arrow(v), text_color=f_col(v), text_size=size.tiny)
+    table.cell(t, 0, 11, "Net score",  text_color=color.white, text_size=size.tiny)
+    table.cell(t, 1, 11, str.tostring(netScore), text_color=color.white, text_size=size.tiny)
+    table.cell(t, 0, 12, "Actionable", text_color=color.white, text_size=size.tiny)
+    table.cell(t, 1, 12, actionable ? "YES" : "no", text_color=actionable ? color.lime : color.gray, text_size=size.tiny)
