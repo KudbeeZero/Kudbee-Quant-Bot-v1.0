@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 10,
+    "n": 11,
     "unrealized_r": 10.2636,
     "winners": 7
   },
@@ -65,6 +65,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 2.3236434108527178
+    },
+    "61085202": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "ac647100": {
       "dl_soon": false,
