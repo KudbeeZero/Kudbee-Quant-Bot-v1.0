@@ -1,11 +1,31 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 5,
-    "unrealized_r": 2.1079,
+    "losers": 1,
+    "n": 7,
+    "unrealized_r": 3.0657,
     "winners": 4
   },
   "trades": {
+    "2bb2976d": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "480ee3b8": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "52cc0d6b": {
       "dl_soon": false,
       "health": "healthy",
@@ -14,7 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4968782518210186
+      "ur": 0.7882414151925159
     },
     "690f206a": {
       "dl_soon": false,
@@ -24,7 +44,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8846153846153805
+      "ur": 1.1456876456876413
     },
     "afdf848d": {
       "dl_soon": false,
@@ -34,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.14889827821990068
+      "ur": -0.15239108634906418
     },
     "c896bc30": {
       "dl_soon": false,
@@ -44,17 +64,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5775018811136199
+      "ur": 0.8935289691497438
     },
     "dfa7997d": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.39066666666666855
     }
   }
 }
