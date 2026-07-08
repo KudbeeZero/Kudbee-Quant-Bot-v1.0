@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 11,
-    "unrealized_r": 8.1225,
+    "losers": 2,
+    "n": 10,
+    "unrealized_r": 8.6008,
     "winners": 6
   },
   "trades": {
     "2105ddd7": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.702343792782438
     },
     "2bb2976d": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0266485998193589
+      "ur": 1.1928635953026405
     },
     "2c6feba7": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0484496124031126
+      "ur": 0.9467054263565973
     },
     "52cc0d6b": {
       "dl_soon": false,
@@ -54,37 +54,27 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8662851196670247
+      "ur": 2.002254595907054
     },
     "690f206a": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7331002331002283
-    },
-    "afdf848d": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.6775170397372402
+      "ur": 2.1247086247086195
     },
     "c896bc30": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.0628291948833684
+      "ur": 2.210308502633557
     },
     "ce59c63e": {
       "dl_soon": false,
@@ -104,17 +94,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.062666666666666
+      "ur": 1.5106666666666642
     },
     "f7f53835": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.6843355201760533
     }
   }
 }
