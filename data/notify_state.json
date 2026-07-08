@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 5,
+    "losers": 8,
     "n": 9,
-    "unrealized_r": 0.1845,
-    "winners": 4
+    "unrealized_r": -0.4627,
+    "winners": 1
   },
   "trades": {
     "0fafcefa": {
@@ -14,7 +14,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.20666666666666214
+      "ur": -0.13008547008546853
     },
     "30920c69": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.0729356284397268
+      "ur": -0.2762306745157322
     },
     "54b7423d": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.04213123743374141
+      "ur": -0.15746664229573476
     },
     "73802bdf": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.12073490813648514
+      "ur": -0.044619422572183015
     },
     "858e63ed": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.04213123743374141
+      "ur": -0.15746664229573476
     },
     "95b7a0e8": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.22357723577236058
+      "ur": -0.2560975609756091
     },
     "ac647100": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.20666666666666214
+      "ur": -0.13008547008546853
     },
     "ceb3c65f": {
       "dl_soon": false,
