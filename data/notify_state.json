@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 7,
+    "n": 8,
     "unrealized_r": 11.368,
     "winners": 7
   },
@@ -65,6 +65,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.902564102564104
+    },
+    "ceb3c65f": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "dfa7997d": {
       "dl_soon": false,
