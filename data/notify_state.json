@@ -2,7 +2,7 @@
   "agg": {
     "losers": 4,
     "n": 12,
-    "unrealized_r": 0.2087,
+    "unrealized_r": 1.4823,
     "winners": 5
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.032649572649577845
+      "ur": 0.17623931623931918
     },
     "30920c69": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.008223421582096749
+      "ur": 0.3119524372199031
     },
     "54b7423d": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.26664838847254374
+      "ur": -0.02440138914275064
     },
     "73802bdf": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2677165354330736
+      "ur": 0.49737532808398804
     },
     "7526c7c7": {
       "dl_soon": false,
@@ -84,17 +84,17 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.26664838847254374
+      "ur": -0.02440138914275064
     },
     "95b7a0e8": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.20078740157480318
+      "ur": -0.34776902887139166
     },
     "9832be42": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.28861788617886663
+      "ur": -0.028455284552842446
     },
     "ac647100": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.032649572649577845
+      "ur": 0.17623931623931918
     },
     "ceb3c65f": {
       "dl_soon": false,
@@ -124,7 +124,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8901808785529726
+      "ur": 0.7454780361757111
     }
   }
 }
