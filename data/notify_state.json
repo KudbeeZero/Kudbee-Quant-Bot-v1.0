@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 4,
-    "unrealized_r": 1.2623,
+    "unrealized_r": 1.1511,
     "winners": 2
   },
   "trades": {
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9510201229737251
+      "ur": 1.0036798956586512
     },
     "8ce4fc01": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3112947658402194
+      "ur": 0.14738292011018772
     },
     "f842f945": {
       "dl_soon": false,
