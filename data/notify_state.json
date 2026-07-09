@@ -1,11 +1,21 @@
 {
   "agg": {
     "losers": 0,
-    "n": 2,
-    "unrealized_r": 1.1628,
+    "n": 4,
+    "unrealized_r": 1.2623,
     "winners": 2
   },
   "trades": {
+    "3c567027": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "8ae8c1df": {
       "dl_soon": false,
       "health": "healthy",
@@ -14,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8129127590418811
+      "ur": 0.9510201229737251
     },
     "8ce4fc01": {
       "dl_soon": false,
@@ -24,7 +34,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3498622589531716
+      "ur": 0.3112947658402194
+    },
+    "f842f945": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
