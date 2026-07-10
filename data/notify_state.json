@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 1,
-    "n": 6,
+    "n": 7,
     "unrealized_r": 4.4743,
     "winners": 5
   },
@@ -35,6 +35,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.4765258215962529
+    },
+    "42bd2845": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "8ce4fc01": {
       "dl_soon": false,
