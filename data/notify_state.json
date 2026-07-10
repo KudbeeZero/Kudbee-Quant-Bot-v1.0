@@ -1,80 +1,40 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 7,
-    "unrealized_r": 2.4638,
-    "winners": 7
+    "losers": 2,
+    "n": 3,
+    "unrealized_r": -0.8146,
+    "winners": 0
   },
   "trades": {
-    "023b3f1b": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.20523415977961895
-    },
-    "052f3bad": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.3104009950838048
-    },
     "3c567027": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.44835680751174467
+      "ur": -0.30281690140844664
     },
     "42bd2845": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6542811481959541
+      "ur": -0.5118015858380938
     },
-    "cf194534": {
+    "50b965d0": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "pending",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5481105843285525
-    },
-    "dd5dfb86": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "AVAXUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.19516539440204725
-    },
-    "e40ec1fb": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.1022988505747097
+      "ur": null
     }
   }
 }
