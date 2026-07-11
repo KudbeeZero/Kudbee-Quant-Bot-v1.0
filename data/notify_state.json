@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 10,
-    "unrealized_r": 4.4098,
-    "winners": 6
+    "n": 9,
+    "unrealized_r": 3.1015,
+    "winners": 5
   },
   "trades": {
     "02d8ed31": {
@@ -45,16 +45,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.6366906474820397
-    },
-    "329efd32": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.3082622575880363
     },
     "4f753b8a": {
       "dl_soon": false,
