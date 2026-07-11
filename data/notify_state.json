@@ -2,8 +2,8 @@
   "agg": {
     "losers": 2,
     "n": 8,
-    "unrealized_r": 1.8158,
-    "winners": 5
+    "unrealized_r": 1.7058,
+    "winners": 6
   },
   "trades": {
     "02d8ed31": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.27864434138610494
+      "ur": 0.16756436151454485
     },
     "1ca26ac4": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4346756152125239
+      "ur": -0.42214765100670326
     },
     "1f28ea25": {
       "dl_soon": false,
@@ -34,17 +34,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3328767123287671
+      "ur": 0.44794520547945593
     },
     "2219fc9c": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.12670072503030796
     },
     "329efd32": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8008370260955219
+      "ur": 0.8310779689013886
     },
     "4f753b8a": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.40569105691057206
+      "ur": 0.50813008130082
     },
     "50b965d0": {
       "dl_soon": false,
@@ -74,17 +74,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8008370260955219
+      "ur": 0.8310779689013886
     },
     "cd671f76": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.36836518046709377
+      "ur": -0.7845010615711321
     }
   }
 }
