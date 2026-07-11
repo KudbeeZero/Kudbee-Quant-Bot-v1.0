@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 2,
+    "losers": 1,
     "n": 10,
-    "unrealized_r": 4.3935,
+    "unrealized_r": 6.6299,
     "winners": 6
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.20235979442231314
+      "ur": 0.4668285026477863
     },
     "2219fc9c": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.17822586887529662
+      "ur": 0.5698516397037887
     },
     "2d0fd1af": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0843325339728382
+      "ur": 1.509592326139109
     },
     "3cca514e": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.387179487179488
+      "ur": 1.099999999999992
     },
     "a3fdf257": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3693371483071037
+      "ur": 1.5019074868860367
     },
     "a6e82b3d": {
       "dl_soon": false,
@@ -74,17 +74,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3693371483071037
+      "ur": 1.5019074868860367
     },
-    "c939d57b": {
+    "bdc3b05c": {
       "dl_soon": false,
-      "health": "near stop",
+      "health": "pending",
       "status": "pending",
-      "stop_touched": true,
-      "symbol": "SOLUSDT",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.9154589371980618
+      "ur": null
     },
     "edf68050": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.28182259434537116
+      "ur": -0.020203858755043123
     },
     "fd77d007": {
       "dl_soon": false,
