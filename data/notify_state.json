@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 9,
+    "n": 10,
     "unrealized_r": 3.1015,
     "winners": 5
   },
@@ -62,6 +62,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "a3fdf257": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
