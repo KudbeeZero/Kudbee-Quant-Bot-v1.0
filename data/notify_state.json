@@ -1,40 +1,20 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 9,
-    "unrealized_r": 0.6641,
-    "winners": 4
+    "losers": 4,
+    "n": 5,
+    "unrealized_r": -7.1902,
+    "winners": 0
   },
   "trades": {
-    "02d8ed31": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.24738114255367186
-    },
     "2219fc9c": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2448935676135892
-    },
-    "2d0fd1af": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.3033573141486931
+      "ur": -0.8650210284594
     },
     "719c13b5": {
       "dl_soon": false,
@@ -48,53 +28,33 @@
     },
     "71ebe270": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
-    },
-    "9cfb1edb": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.264102564102564
+      "ur": -2.2769696969696516
     },
     "a3fdf257": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.45278969957081455
+      "ur": -2.024082021936126
     },
     "a6e82b3d": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.45278969957081455
-    },
-    "edf68050": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.16630263317560237
+      "ur": -2.024082021936126
     }
   }
 }
