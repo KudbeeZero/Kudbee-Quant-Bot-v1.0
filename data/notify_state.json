@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 3,
-    "n": 9,
-    "unrealized_r": 3.092,
-    "winners": 6
+    "n": 8,
+    "unrealized_r": 0.8895,
+    "winners": 5
   },
   "trades": {
     "0a6c7d6b": {
@@ -14,7 +14,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.31269199070951237
+      "ur": -0.4695062560874998
     },
     "3c4cd625": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.690275829827019
+      "ur": 0.7819074333800765
     },
     "5c5a7452": {
       "dl_soon": false,
@@ -34,17 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7998643147896924
-    },
-    "719c13b5": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.9350877192982399
+      "ur": 0.711216644052474
     },
     "a53afdd2": {
       "dl_soon": false,
@@ -54,7 +44,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.06031907449365827
+      "ur": -0.20568866845472725
     },
     "ace70c21": {
       "dl_soon": false,
@@ -64,7 +54,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.01890941072998323
+      "ur": 0.006596306068598404
     },
     "b71c02a9": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1194125159642345
+      "ur": 0.059386973180083076
     },
     "ce7c1d76": {
       "dl_soon": false,
@@ -84,7 +74,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2545098039215537
+      "ur": 0.2435294117646923
     },
     "d1e2711b": {
       "dl_soon": false,
@@ -94,7 +84,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.23489787049105632
+      "ur": -0.23794002607558204
     }
   }
 }
