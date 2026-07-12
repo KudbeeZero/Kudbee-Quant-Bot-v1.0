@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 7,
-    "unrealized_r": 1.744,
-    "winners": 3
+    "losers": 2,
+    "n": 8,
+    "unrealized_r": 3.0489,
+    "winners": 4
   },
   "trades": {
     "0a6c7d6b": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2675882220723708
+      "ur": -0.6934517119951926
     },
     "3c4cd625": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.27138849929873554
+      "ur": 1.5935016362786285
     },
     "5c5a7452": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.39461781999096013
+      "ur": 0.0020352781546812086
     },
     "719c13b5": {
       "dl_soon": false,
@@ -44,27 +44,37 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3456140350877162
+      "ur": 2.033333333333327
     },
     "a53afdd2": {
+      "dl_soon": false,
+      "health": "warning",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": -0.4923720262697446
+    },
+    "ace70c21": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "BTCUSDT",
+      "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
     },
     "ce7c1d76": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.6058823529411669
     },
     "d1e2711b": {
       "dl_soon": false,
