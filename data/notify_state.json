@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 3,
+    "losers": 1,
     "n": 10,
-    "unrealized_r": 5.0728,
-    "winners": 7
+    "unrealized_r": 8.093,
+    "winners": 9
   },
   "trades": {
     "1c0d0094": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7550986992913489
+      "ur": 0.88999864645962
     },
     "230b96c0": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4624413145539738
+      "ur": 0.5062597809076494
     },
     "3b297f9e": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.0030303030303000045
+      "ur": 0.42121212121212454
     },
     "44f441ec": {
       "dl_soon": false,
@@ -44,27 +44,27 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6324544883866879
+      "ur": 1.0718769617074557
     },
     "4e257d09": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5293398533007263
+      "ur": -0.07294213528931241
     },
     "61824633": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.36163522012578725
+      "ur": 0.07861635220125768
     },
     "76977292": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7735871364388813
+      "ur": 0.9832505714510844
     },
     "b8200006": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8580246913580248
+      "ur": 1.203703703703702
     },
     "d677709e": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.043624161073813
+      "ur": 1.0937360178970768
     },
     "f134b3e4": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4415562351342406
+      "ur": 1.9172612979952628
     }
   }
 }
