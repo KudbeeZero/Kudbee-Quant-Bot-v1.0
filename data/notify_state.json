@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 7,
-    "unrealized_r": 2.7271,
-    "winners": 6
+    "losers": 2,
+    "n": 8,
+    "unrealized_r": 2.0992,
+    "winners": 5
   },
   "trades": {
     "4cb6102f": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5409659335920695
+      "ur": 0.5530401034928948
     },
     "4eae1cd7": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.04863813229572141
+      "ur": 0.012321660181588133
     },
     "6b699ece": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6589877324465041
+      "ur": 0.663509561035706
     },
     "825e8afe": {
       "dl_soon": false,
@@ -44,7 +44,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.6142098273572368
+      "ur": -0.6513944223107625
+    },
+    "8a448e68": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "d2b5b8d2": {
       "dl_soon": false,
@@ -54,7 +64,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1305625524769225
+      "ur": 0.7896725440806062
     },
     "d40edab3": {
       "dl_soon": false,
@@ -64,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8423714224230636
+      "ur": 0.785560576716159
     },
     "d977f875": {
       "dl_soon": false,
@@ -74,7 +84,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.11982434127978796
+      "ur": -0.053492262651626
     }
   }
 }
