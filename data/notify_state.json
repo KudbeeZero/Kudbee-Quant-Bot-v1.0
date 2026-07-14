@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 3,
+    "n": 4,
     "unrealized_r": 0.0,
     "winners": 0
   },
@@ -12,6 +12,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "4eae1cd7": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
