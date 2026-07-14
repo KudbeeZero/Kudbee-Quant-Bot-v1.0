@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 7,
-    "unrealized_r": -1.2746,
-    "winners": 2
+    "losers": 5,
+    "n": 6,
+    "unrealized_r": -0.872,
+    "winners": 1
   },
   "trades": {
     "1c0d0094": {
@@ -14,17 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.16858782075631876
-    },
-    "3b297f9e": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.0030303030303000045
+      "ur": 0.2788446004654463
     },
     "3de8cd67": {
       "dl_soon": false,
@@ -34,37 +24,37 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.09391239792131315
+      "ur": -0.061989606533026355
     },
     "4e257d09": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.48370008149957844
+      "ur": -0.2669111654441625
     },
     "811d0455": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3830265848670684
+      "ur": -0.24560327198363793
     },
     "87c51414": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.11375661375661439
     },
     "b498c8b4": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.667343623070681
+      "ur": -0.4626320064987867
     }
   }
 }
