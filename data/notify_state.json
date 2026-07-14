@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 5,
-    "n": 10,
-    "unrealized_r": 0.7151,
-    "winners": 4
+    "losers": 4,
+    "n": 8,
+    "unrealized_r": -0.2257,
+    "winners": 3
   },
   "trades": {
     "0ccb92e5": {
@@ -14,7 +14,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.40769230769230536
+      "ur": -0.45555555555554805
     },
     "1c0d0094": {
       "dl_soon": false,
@@ -24,17 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.30839544337179997
-    },
-    "230b96c0": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.4624413145539738
+      "ur": 0.257938950962543
     },
     "3b297f9e": {
       "dl_soon": false,
@@ -44,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6757575757575792
+      "ur": 0.33636363636363964
     },
     "44f441ec": {
       "dl_soon": false,
@@ -54,7 +44,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7642812303829066
+      "ur": 0.7379158819836629
     },
     "4e257d09": {
       "dl_soon": false,
@@ -64,17 +54,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3924205378972989
-    },
-    "76977292": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.045203751871999744
+      "ur": -0.47229013854930363
     },
     "811d0455": {
       "dl_soon": false,
@@ -94,7 +74,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.40769230769230536
+      "ur": -0.45555555555554805
     },
     "b498c8b4": {
       "dl_soon": false,
@@ -104,7 +84,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.24275656647712418
+      "ur": -0.17451936095315718
     }
   }
 }
