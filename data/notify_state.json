@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 8,
-    "unrealized_r": 0.5848,
-    "winners": 5
+    "losers": 4,
+    "n": 9,
+    "unrealized_r": -0.5762,
+    "winners": 4
   },
   "trades": {
     "16611fa9": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.26837105336687717
+      "ur": -0.052388935456816145
     },
     "220b8b30": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.08446904469043579
+      "ur": -0.22182041820418835
     },
     "2e1b06c3": {
       "dl_soon": false,
@@ -44,17 +44,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.30539261088812647
+      "ur": 0.03082227024801779
     },
     "7a95de1e": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.02631578947369113
     },
     "8d9506e8": {
       "dl_soon": false,
@@ -64,7 +64,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1085512660855137
+      "ur": 0.0039435450394321725
+    },
+    "a322689f": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "bb635fbb": {
       "dl_soon": false,
@@ -74,7 +84,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.21584699453551515
+      "ur": -0.29234972677595206
     },
     "d9a00752": {
       "dl_soon": false,
@@ -84,7 +94,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1085512660855137
+      "ur": 0.0039435450394321725
     }
   }
 }
