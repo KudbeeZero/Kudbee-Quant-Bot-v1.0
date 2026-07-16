@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 2,
     "n": 3,
-    "unrealized_r": 0.0231,
+    "unrealized_r": -2.3897,
     "winners": 1
   },
   "trades": {
     "149f203c": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -1.018281227740139
     },
     "4534ac34": {
       "dl_soon": false,
@@ -24,17 +24,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.023076923076912042
+      "ur": 0.310256410256408
     },
     "dc52581e": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -1.6816993464052266
     }
   }
 }
