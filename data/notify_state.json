@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 7,
-    "unrealized_r": 5.2059,
-    "winners": 6
+    "losers": 0,
+    "n": 9,
+    "unrealized_r": 11.9089,
+    "winners": 7
   },
   "trades": {
     "10e7b329": {
@@ -14,37 +14,37 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6693186454508541
+      "ur": 1.848837209302326
     },
     "29f5aaa1": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.275577557755778
+      "ur": 2.2458745874587374
     },
     "4534ac34": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.6456410256410263
+      "ur": 2.736923076923075
     },
     "5a377cd1": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4758848697005079
+      "ur": 0.22112018669778186
     },
     "83fbc5bf": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2706592386258009
+      "ur": 1.3625812441968164
     },
     "b49e8226": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6922767497988624
+      "ur": 1.4281308661839536
     },
     "cb46411e": {
       "dl_soon": false,
@@ -74,7 +74,27 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1283575517393298
+      "ur": 2.0653896961690967
+    },
+    "db69fa4d": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "e5f71214": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
