@@ -2,29 +2,29 @@
   "agg": {
     "losers": 2,
     "n": 4,
-    "unrealized_r": -0.6423,
+    "unrealized_r": -0.7986,
     "winners": 2
   },
   "trades": {
     "57e99acf": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.6011447121134447
+      "ur": -0.7853237655902885
     },
     "83dcc3b9": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.6924882629107836
+      "ur": -0.8732394366196999
     },
     "83fbc5bf": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4396471680594067
+      "ur": 0.5696378830083314
     },
     "a6c4b5e1": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.21164658634538666
+      "ur": 0.29036144578313416
     }
   }
 }
