@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 9,
-    "unrealized_r": 3.276,
+    "losers": 4,
+    "n": 10,
+    "unrealized_r": 2.4864,
     "winners": 4
   },
   "trades": {
@@ -28,13 +28,13 @@
     },
     "57e99acf": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.2743037758414363
     },
     "5a377cd1": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2471800855698203
+      "ur": -0.14916374951380718
     },
     "7ddc2035": {
       "dl_soon": false,
@@ -54,7 +54,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.031120331950230038
+      "ur": -0.10442600276623526
+    },
+    "83dcc3b9": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "83fbc5bf": {
       "dl_soon": false,
@@ -64,7 +74,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0376044568244862
+      "ur": 0.8426183844010992
     },
     "cb46411e": {
       "dl_soon": false,
@@ -74,27 +84,27 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8188022897402025
+      "ur": 1.498238661382654
     },
     "db69fa4d": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.14224676372720663
+      "ur": -0.5352704908669393
     },
     "e5f71214": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.22046889089268776
+      "ur": -0.3382927562368464
     }
   }
 }
