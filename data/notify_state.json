@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 7,
-    "unrealized_r": 0.8185,
+    "losers": 1,
+    "n": 6,
+    "unrealized_r": 1.4196,
     "winners": 5
   },
   "trades": {
@@ -25,16 +25,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.5216587427363896
-    },
-    "57e99acf": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.6011447121134447
     },
     "7b0610fa": {
       "dl_soon": false,
