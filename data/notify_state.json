@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 3,
-    "n": 11,
-    "unrealized_r": 4.3143,
-    "winners": 6
+    "n": 10,
+    "unrealized_r": 3.233,
+    "winners": 5
   },
   "trades": {
     "351277d2": {
@@ -95,16 +95,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
-    },
-    "df75280c": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.0812917594654898
     },
     "ed6043bb": {
       "dl_soon": false,
