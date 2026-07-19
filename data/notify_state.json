@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 10,
-    "unrealized_r": 3.5299,
-    "winners": 8
+    "losers": 3,
+    "n": 11,
+    "unrealized_r": 4.3143,
+    "winners": 6
   },
   "trades": {
     "351277d2": {
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0024875621890446
+      "ur": 1.2810945273631722
     },
     "47d48858": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.03805774278214259
+      "ur": -0.017060367454079677
     },
     "91adba59": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.25186721991701266
+      "ur": 0.37665590902103796
     },
     "94ed0e99": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.48904147593286224
+      "ur": 0.36475239284226185
     },
     "9abfeaeb": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0547017189079988
+      "ur": 1.1915402763734355
     },
     "b2087ad5": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.03805774278214259
+      "ur": -0.017060367454079677
     },
     "bbc453cb": {
       "dl_soon": false,
@@ -84,7 +84,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.0929824561403565
+      "ur": 0.14210526315788147
+    },
+    "cfa79769": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "df75280c": {
       "dl_soon": false,
@@ -94,7 +104,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8526354862657864
+      "ur": 1.0812917594654898
     },
     "ed6043bb": {
       "dl_soon": false,
@@ -104,7 +114,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2899543378995395
+      "ur": -0.08904109589040794
     }
   }
 }
