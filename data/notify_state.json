@@ -2,7 +2,7 @@
   "agg": {
     "losers": 2,
     "n": 14,
-    "unrealized_r": 2.7676,
+    "unrealized_r": 1.8712,
     "winners": 9
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2736389684813653
+      "ur": 0.1488379496975372
     },
     "206c5150": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3588235294117527
+      "ur": 0.23071895424835334
     },
     "20986783": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2590795675076226
+      "ur": 0.1707328343036721
     },
     "215f7d3f": {
       "dl_soon": false,
@@ -44,17 +44,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2590795675076226
+      "ur": 0.1707328343036721
     },
     "3a77060b": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.15715122236862794
+      "ur": -0.39284145805885756
     },
     "4abb5d0a": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.11627696544488447
+      "ur": -0.21610342491202955
     },
     "5f68a393": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.10052493438319733
+      "ur": 0.08582677165353361
     },
     "81f3d1c9": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.18533333333333396
+      "ur": 0.04533333333332931
     },
     "bdc61672": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.32653616095704724
+      "ur": 0.36460032626427535
     },
     "c0805b6f": {
       "dl_soon": false,
@@ -144,7 +144,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.10052493438319733
+      "ur": 0.08582677165353361
     }
   }
 }
