@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 9,
-    "unrealized_r": 2.4391,
+    "losers": 2,
+    "n": 7,
+    "unrealized_r": 5.3648,
     "winners": 5
   },
   "trades": {
@@ -14,17 +14,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2055705570557482
-    },
-    "a6fcae26": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": true,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -1.0934870106110597
+      "ur": 1.4351935193519636
     },
     "aa5de7ef": {
       "dl_soon": false,
@@ -34,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2647058823529265
+      "ur": 1.5941176470588088
     },
     "ac86555e": {
       "dl_soon": false,
@@ -44,17 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.011312217194555
-    },
-    "c63f2656": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.748354044037499
+      "ur": 1.5321769733534456
     },
     "cf5b004d": {
       "dl_soon": false,
@@ -64,17 +44,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.011312217194555
+      "ur": 1.5321769733534456
     },
     "d67c59f9": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1778523489932965
+      "ur": -0.6163310961968806
     },
     "e40c660e": {
       "dl_soon": false,
@@ -84,17 +64,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.33950617283950646
+      "ur": 0.5987654320987685
     },
     "f37e3888": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3736131210805855
+      "ur": -0.7112879884226101
     }
   }
 }
