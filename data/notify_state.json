@@ -1,20 +1,20 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 3,
-    "unrealized_r": 1.1908,
+    "unrealized_r": 1.4929,
     "winners": 2
   },
   "trades": {
     "0e423146": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.048463356974001434
     },
     "6300da6a": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1666666666666611
+      "ur": 0.46774193548386434
     },
     "65011222": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.024146054181386
+      "ur": 1.0736160188456991
     }
   }
 }
