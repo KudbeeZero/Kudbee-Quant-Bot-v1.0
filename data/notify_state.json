@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 8,
+    "losers": 9,
     "n": 10,
-    "unrealized_r": -1.8874,
-    "winners": 2
+    "unrealized_r": -3.2041,
+    "winners": 1
   },
   "trades": {
     "160aa925": {
@@ -14,17 +14,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.508888888888888
+      "ur": -0.695555555555554
     },
     "42f785cf": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.21764705882352398
+      "ur": -0.4647058823529391
     },
     "65011222": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.22909305064782615
+      "ur": 0.5294464075382694
     },
     "6c41f9d8": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.508888888888888
+      "ur": -0.695555555555554
     },
     "778698ca": {
       "dl_soon": false,
@@ -54,17 +54,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3693974473137472
+      "ur": -0.4679430097952004
     },
     "7c155797": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.09624413145540119
+      "ur": -0.39201877934272805
     },
     "8469d67e": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.11616161616158704
+      "ur": -0.23524720893140547
     },
     "c7852763": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.00043530170534217353
+      "ur": -0.24590168075292726
     },
     "e227bf00": {
       "dl_soon": false,
@@ -94,17 +94,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.15496406921192776
+      "ur": -0.0540366935645723
     },
     "f8d24930": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.004347826086956679
+      "ur": -0.4826086956521733
     }
   }
 }
