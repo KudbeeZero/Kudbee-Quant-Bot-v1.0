@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 3,
     "n": 6,
-    "unrealized_r": 4.9715,
-    "winners": 6
+    "unrealized_r": 2.1597,
+    "winners": 3
   },
   "trades": {
     "3318d7c1": {
@@ -14,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.10857538035961359
+      "ur": -0.1818810511756575
     },
     "365caca4": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6061544816191851
+      "ur": 0.2707558859975239
     },
     "645e422a": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.629411764705887
+      "ur": 2.143137254901964
     },
     "b1e12e8e": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4577464788732296
+      "ur": -0.1525821596244229
     },
     "d4271264": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4586592178770887
+      "ur": -0.21918063314711939
     },
     "f872ac70": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7110004741583812
+      "ur": 0.29943100995733896
     }
   }
 }
