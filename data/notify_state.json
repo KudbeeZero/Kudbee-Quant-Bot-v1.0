@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 3,
-    "unrealized_r": -0.1953,
+    "losers": 1,
+    "n": 2,
+    "unrealized_r": -0.1761,
     "winners": 0
   },
   "trades": {
@@ -25,16 +25,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
-    },
-    "f872ac70": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.019203413940251872
     }
   }
 }
