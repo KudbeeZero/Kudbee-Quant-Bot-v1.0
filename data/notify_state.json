@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 4,
-    "unrealized_r": 1.2196,
-    "winners": 4
+    "unrealized_r": 0.9227,
+    "winners": 3
   },
   "trades": {
     "2cd0a807": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.21341124095712652
+      "ur": 0.22899276572062913
     },
     "365caca4": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.37484510532839405
+      "ur": 0.4904997934737767
     },
     "63880fae": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3186046511627717
+      "ur": -0.12273901808787312
     },
     "f872ac70": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.31270744428639263
+      "ur": 0.32598387861546524
     }
   }
 }
