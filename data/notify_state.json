@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 5,
-    "unrealized_r": -0.3793,
+    "losers": 2,
+    "n": 4,
+    "unrealized_r": -0.1985,
     "winners": 2
   },
   "trades": {
@@ -25,16 +25,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.2707558859975239
-    },
-    "b1e12e8e": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.18075117370893215
     },
     "d4271264": {
       "dl_soon": false,
