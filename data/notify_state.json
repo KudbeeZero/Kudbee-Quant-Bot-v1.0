@@ -2,7 +2,7 @@
   "agg": {
     "losers": 2,
     "n": 4,
-    "unrealized_r": -0.2285,
+    "unrealized_r": -0.2855,
     "winners": 2
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.09821925431274857
+      "ur": -0.06705620478576549
     },
     "365caca4": {
       "dl_soon": false,
@@ -28,13 +28,13 @@
     },
     "d4271264": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.24003724394785625
+      "ur": -0.3547486033519523
     },
     "f872ac70": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.047178757705092125
+      "ur": 0.07373162636321841
     }
   }
 }
