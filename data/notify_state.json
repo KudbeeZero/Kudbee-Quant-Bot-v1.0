@@ -1,30 +1,20 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 10,
-    "unrealized_r": 6.7828,
-    "winners": 6
+    "losers": 2,
+    "n": 9,
+    "unrealized_r": 8.7738,
+    "winners": 5
   },
   "trades": {
-    "03af2e57": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.8636363636363247
-    },
     "0d42bfab": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.5701754385964918
     },
     "3aa36835": {
       "dl_soon": false,
@@ -34,7 +24,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.07640232108318261
+      "ur": 0.9609929078014064
     },
     "3db00e1a": {
       "dl_soon": false,
@@ -44,7 +34,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.248272126598794
+      "ur": 1.5735283248761025
     },
     "5cb44a1b": {
       "dl_soon": false,
@@ -54,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0491721524037076
+      "ur": 1.61889088370232
     },
     "9c22451c": {
       "dl_soon": false,
@@ -78,23 +68,23 @@
     },
     "ac7869a3": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3271604938271657
+      "ur": -0.21851851851852472
     },
     "adecb32a": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.6341181600174384
+      "ur": 3.592347939829988
     },
     "ba9e775e": {
       "dl_soon": false,
@@ -104,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2383556095584538
+      "ur": 1.816727420008001
     }
   }
 }
