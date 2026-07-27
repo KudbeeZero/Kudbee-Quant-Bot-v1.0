@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 4,
-    "unrealized_r": 2.5909,
+    "unrealized_r": 1.3477,
     "winners": 1
   },
   "trades": {
@@ -14,17 +14,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.5909090909090877
+      "ur": 2.8333333333333313
     },
     "9f8e761a": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -1.4856577645895115
     },
     "ccf86f6d": {
       "dl_soon": false,
