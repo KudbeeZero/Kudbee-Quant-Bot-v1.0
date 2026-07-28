@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 0,
-    "n": 9,
-    "unrealized_r": 13.9247,
+    "n": 8,
+    "unrealized_r": 10.1519,
     "winners": 8
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9065584208850581
+      "ur": 1.0402737981534482
     },
     "3c70a38c": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.516302462712457
+      "ur": 0.5842872008324718
     },
     "46454d2a": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.6732283464567068
+      "ur": 1.5997375328084107
     },
     "51b41ac4": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.9254335260115674
+      "ur": 1.5909441233140753
     },
     "5d9e6cb0": {
       "dl_soon": false,
@@ -54,27 +54,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.27819268110529816
+      "ur": 0.34789644012945353
     },
     "6e01df23": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
-    },
-    "bd2107ac": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 3.6925925925926206
+      "ur": 0.23758865248228267
     },
     "cec3acdc": {
       "dl_soon": false,
@@ -84,7 +74,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 3.21014492753626
+      "ur": 3.1086956521739406
     },
     "fd5b045a": {
       "dl_soon": false,
@@ -94,7 +84,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7222222222222328
+      "ur": 1.6424501424501503
     }
   }
 }
