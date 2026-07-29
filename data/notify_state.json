@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 2,
-    "n": 8,
-    "unrealized_r": 0.2267,
-    "winners": 3
+    "n": 9,
+    "unrealized_r": 0.0203,
+    "winners": 4
   },
   "trades": {
     "0cde6d02": {
@@ -14,27 +14,27 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5461562210558861
+      "ur": -0.42765256766491533
     },
     "2e6f0f37": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.16666666666667243
     },
     "53c5599b": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.06204907060610157
+      "ur": -0.4067055992928253
     },
     "a59e8f0a": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.41707317073170397
+      "ur": 0.40569105691057206
     },
     "bf2fc8ec": {
       "dl_soon": false,
@@ -52,6 +52,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "ce6e8206": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
@@ -74,7 +84,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.19020003361906068
+      "ur": 0.10547991259034056
     },
     "e18f931f": {
       "dl_soon": false,
@@ -84,7 +94,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2276688453159015
+      "ur": 0.17683369644154268
     }
   }
 }
