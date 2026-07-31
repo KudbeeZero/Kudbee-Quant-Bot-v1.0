@@ -1,31 +1,11 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 11,
-    "unrealized_r": 5.3313,
-    "winners": 5
+    "losers": 0,
+    "n": 8,
+    "unrealized_r": 5.456,
+    "winners": 4
   },
   "trades": {
-    "239fa523": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.5540540540540633
-    },
-    "29064c48": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.733624080725142
-    },
     "4b61d644": {
       "dl_soon": false,
       "health": "pending",
@@ -36,16 +16,6 @@
       "tp1_touched": false,
       "ur": null
     },
-    "703ba7c1": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.3823529411764685
-    },
     "9754db93": {
       "dl_soon": false,
       "health": "healthy",
@@ -54,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6594666666666639
+      "ur": 0.5848000000000052
     },
     "992bf84c": {
       "dl_soon": false,
@@ -64,7 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4161290322580569
+      "ur": 1.340860215053764
     },
     "9b69b33a": {
       "dl_soon": false,
@@ -78,13 +48,13 @@
     },
     "a763ddab": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8560119811724514
+      "ur": 2.215447154471568
     },
     "a7c126a3": {
       "dl_soon": false,
@@ -114,7 +84,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9616193480546812
+      "ur": 1.3149316508938127
     }
   }
 }
