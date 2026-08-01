@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 9,
-    "unrealized_r": 3.1157,
-    "winners": 6
+    "n": 8,
+    "unrealized_r": 1.8208,
+    "winners": 5
   },
   "trades": {
     "1e98694d": {
@@ -85,16 +85,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
-    },
-    "b4de9db1": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.2948717948717898
     }
   }
 }
