@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 14,
-    "unrealized_r": 16.1626,
-    "winners": 10
+    "losers": 3,
+    "n": 13,
+    "unrealized_r": 9.5705,
+    "winners": 9
   },
   "trades": {
     "1e98694d": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9247038917089673
+      "ur": 0.32064297800340125
     },
     "3f313f92": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 3.8105022831050444
+      "ur": 2.851598173516005
     },
     "48246806": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9247038917089673
+      "ur": 0.32064297800340125
     },
     "4a89ba5d": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8196544276457818
+      "ur": 1.0334773218142201
     },
     "5078de48": {
       "dl_soon": false,
@@ -54,27 +54,27 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.18159203980099278
+      "ur": 0.20149253731344371
     },
     "6029c450": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.2923211169283793
+      "ur": 1.1195462478184708
     },
     "8522fe2f": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.44032848268231406
+      "ur": -0.4569057952514844
     },
     "877ab140": {
       "dl_soon": false,
@@ -84,17 +84,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.18159203980099278
+      "ur": 0.20149253731344371
     },
     "a191e3b7": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.2923211169283793
+      "ur": 1.1195462478184708
     },
     "a8b83468": {
       "dl_soon": false,
@@ -104,47 +104,37 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.734509803921571
+      "ur": 3.9439215686274425
     },
-    "b2aa859a": {
+    "ace52a9c": {
       "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.024903487121056396
-    },
-    "b57068a6": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.44032848268231406
-    },
-    "eb8d29c0": {
-      "dl_soon": false,
-      "health": "near stop",
+      "health": "pending",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.7019801980198099
+      "ur": null
     },
-    "fadead0b": {
+    "b2aa859a": {
       "dl_soon": false,
       "health": "warning",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "AVAXUSDT",
+      "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4765588373183282
+      "ur": -0.6280931586608456
+    },
+    "b57068a6": {
+      "dl_soon": false,
+      "health": "warning",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": -0.4569057952514844
     }
   }
 }
