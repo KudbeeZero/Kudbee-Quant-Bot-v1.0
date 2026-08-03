@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 2,
-    "n": 5,
+    "n": 6,
     "unrealized_r": -1.0586,
     "winners": 0
   },
@@ -32,6 +32,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "aeb19d96": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
