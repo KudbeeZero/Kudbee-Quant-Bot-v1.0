@@ -2,8 +2,8 @@
   "agg": {
     "losers": 5,
     "n": 11,
-    "unrealized_r": -2.7372,
-    "winners": 1
+    "unrealized_r": -1.8057,
+    "winners": 3
   },
   "trades": {
     "342f0331": {
@@ -14,17 +14,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.8095238095238085
+      "ur": -0.8214285714285638
     },
     "3555b42e": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.21851851851852522
     },
     "3ca09c5b": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6116452074391966
+      "ur": 0.48933714830711206
     },
     "5e74d692": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.8095238095238085
+      "ur": -0.8214285714285638
     },
     "64eeee5a": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.8181454836131106
+      "ur": -0.7509992006394968
     },
     "c064f061": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3861788617886309
+      "ur": -0.3211382113821343
     },
     "ce22e241": {
       "dl_soon": false,
@@ -104,17 +104,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5254237288135551
+      "ur": -0.36723163841808265
     },
     "f1fd47cd": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.5686959420219971
     }
   }
 }
