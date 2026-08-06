@@ -1,22 +1,12 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 7,
-    "unrealized_r": -0.1315,
-    "winners": 2
+    "losers": 2,
+    "n": 9,
+    "unrealized_r": 1.8653,
+    "winners": 4
   },
   "trades": {
-    "0b26ef4e": {
-      "dl_soon": false,
-      "health": "pending",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": null
-    },
-    "19fefa7c": {
+    "0a7fdf39": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
@@ -26,25 +16,45 @@
       "tp1_touched": false,
       "ur": null
     },
-    "23e6e1fd": {
+    "0b26ef4e": {
+      "dl_soon": false,
+      "health": "healthy",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": 0.090807359766286
+    },
+    "19fefa7c": {
+      "dl_soon": false,
+      "health": "healthy",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": 1.2608550434201966
+    },
+    "2ff05a5e": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "BTCUSDT",
+      "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
     },
     "374f027d": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.36227909811091413
     },
     "7b4f8e67": {
       "dl_soon": false,
@@ -64,7 +74,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.35119798234551713
+      "ur": -0.4688944934846596
+    },
+    "d1a9cdd4": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "d40673ca": {
       "dl_soon": false,
@@ -74,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.14822134387350858
+      "ur": 1.273386034255576
     }
   }
 }
