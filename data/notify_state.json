@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 4,
-    "n": 9,
-    "unrealized_r": 0.071,
-    "winners": 4
+    "losers": 2,
+    "n": 8,
+    "unrealized_r": 2.6967,
+    "winners": 6
   },
   "trades": {
     "0a7fdf39": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.17614213197969442
+      "ur": 0.30879864636210413
     },
     "0b26ef4e": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5367281551110671
+      "ur": 0.5241948783188285
     },
     "26891113": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4059829059829133
+      "ur": 0.76495726495726
     },
     "7c1c3380": {
       "dl_soon": false,
@@ -44,27 +44,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2662601626016267
+      "ur": 0.35162601626016565
     },
     "9e4fc631": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
-    },
-    "c298afbb": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "AVAXUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.35119798234551713
+      "ur": 1.2506080466263587
     },
     "ce9cc5cb": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5556920556920716
+      "ur": -0.3722358722358874
     },
     "d1a9cdd4": {
       "dl_soon": false,
@@ -84,7 +74,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.26034858387799525
+      "ur": -0.16884531590413626
     },
     "d40673ca": {
       "dl_soon": false,
@@ -94,7 +84,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1469038208168638
+      "ur": 0.03754940711461238
     }
   }
 }
