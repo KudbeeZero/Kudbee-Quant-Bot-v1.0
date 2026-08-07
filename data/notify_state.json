@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
+    "losers": 1,
     "n": 8,
-    "unrealized_r": 4.4307,
-    "winners": 6
+    "unrealized_r": 4.171,
+    "winners": 7
   },
   "trades": {
     "0a7fdf39": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8627749576988253
+      "ur": 1.351099830795263
     },
     "26891113": {
       "dl_soon": false,
@@ -24,17 +24,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0042735042735
+      "ur": 0.2863247863247933
     },
     "5c2127ce": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.36341854920568367
+      "ur": 0.2307792177135598
     },
     "7c1c3380": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.08130081300813172
+      "ur": 0.1382113821138243
     },
     "97fef1e8": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.46192149970708435
+      "ur": -0.1285881663737559
     },
     "9e4fc631": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6663091471018636
+      "ur": 1.4957650721162445
     },
     "ced90c7f": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.36341854920568367
+      "ur": 0.2307792177135598
     },
     "f07db663": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0809523809523829
+      "ur": 0.5666666666666597
     }
   }
 }
