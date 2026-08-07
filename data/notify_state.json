@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 8,
-    "unrealized_r": 2.6967,
-    "winners": 6
+    "losers": 3,
+    "n": 7,
+    "unrealized_r": 2.171,
+    "winners": 4
   },
   "trades": {
     "0a7fdf39": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.30879864636210413
+      "ur": 0.394077834179354
     },
     "0b26ef4e": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5241948783188285
+      "ur": 0.7537517374608179
     },
     "26891113": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.76495726495726
+      "ur": -0.07264957264956669
     },
     "7c1c3380": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.35162601626016565
+      "ur": 0.2093495934959381
     },
     "9e4fc631": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2506080466263587
+      "ur": 1.752057218932352
     },
     "ce9cc5cb": {
       "dl_soon": false,
@@ -64,27 +64,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3722358722358874
+      "ur": -0.544226044226046
     },
     "d1a9cdd4": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.16884531590413626
-    },
-    "d40673ca": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.03754940711461238
+      "ur": -0.3213507625272304
     }
   }
 }
