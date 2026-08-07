@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 4,
-    "n": 10,
-    "unrealized_r": 2.4553,
+    "n": 9,
+    "unrealized_r": 3.6089,
     "winners": 5
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.14771573604061114
+      "ur": 0.7067681895093122
     },
     "0b26ef4e": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.0675077155040417
+      "ur": -0.14336702240441734
     },
     "19fefa7c": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2421509686038994
+      "ur": 1.7939211756847335
     },
     "2ff05a5e": {
       "dl_soon": false,
@@ -44,17 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.509924109748971
-    },
-    "374f027d": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.6352833638025576
+      "ur": 0.41185055458261605
     },
     "7b4f8e67": {
       "dl_soon": false,
@@ -64,17 +54,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2333333333333298
+      "ur": -0.25238095238094155
     },
     "7c1c3380": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.052845528455285416
     },
     "c298afbb": {
       "dl_soon": false,
@@ -84,17 +74,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.06073980664145549
+      "ur": -0.021647751155945298
     },
     "d1a9cdd4": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2298474945533756
+      "ur": -0.48910675381263646
     },
     "d40673ca": {
       "dl_soon": false,
@@ -104,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.6607378129116865
+      "ur": 1.5500658761528165
     }
   }
 }
