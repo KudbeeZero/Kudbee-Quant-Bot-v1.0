@@ -2,8 +2,8 @@
   "agg": {
     "losers": 3,
     "n": 7,
-    "unrealized_r": 2.171,
-    "winners": 4
+    "unrealized_r": 4.1482,
+    "winners": 3
   },
   "trades": {
     "0a7fdf39": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.394077834179354
+      "ur": -0.003891708967854069
     },
     "0b26ef4e": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7537517374608179
+      "ur": 1.7959926496572132
     },
     "26891113": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.07264957264956669
+      "ur": -0.19230769230768668
     },
     "7c1c3380": {
       "dl_soon": false,
@@ -44,27 +44,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2093495934959381
+      "ur": 0.1808943089430918
     },
     "9e4fc631": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.752057218932352
-    },
-    "ce9cc5cb": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.544226044226046
+      "ur": 2.7193379238055324
     },
     "d1a9cdd4": {
       "dl_soon": false,
@@ -74,7 +64,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3213507625272304
+      "ur": -0.35185185185185003
+    },
+    "e070e62d": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
