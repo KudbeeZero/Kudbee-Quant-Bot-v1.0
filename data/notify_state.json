@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
-    "n": 9,
-    "unrealized_r": 1.3851,
-    "winners": 6
+    "losers": 0,
+    "n": 8,
+    "unrealized_r": 3.9169,
+    "winners": 8
   },
   "trades": {
     "37acb9ad": {
@@ -14,7 +14,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7337962962962983
+      "ur": 1.5115740740740695
     },
     "4c731077": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.16666666666666666
+      "ur": 0.40073145245559527
     },
     "5c2127ce": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.23738875905861045
+      "ur": 0.3841205769185365
     },
     "6ec08f4f": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.23516819571867317
+      "ur": 0.5605504587156107
     },
     "833b97b7": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3604305626505012
+      "ur": 0.3919253691405782
     },
     "ced90c7f": {
       "dl_soon": false,
@@ -64,37 +64,27 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.23738875905861045
+      "ur": 0.3841205769185365
     },
     "dfd99d40": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
-    },
-    "f07db663": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.5857142857142978
+      "ur": 0.24098108299989046
     },
     "f29c066a": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.04292929292930542
     }
   }
 }
