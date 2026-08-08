@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
+    "losers": 1,
     "n": 11,
-    "unrealized_r": 2.9942,
-    "winners": 4
+    "unrealized_r": 4.1913,
+    "winners": 7
   },
   "trades": {
     "0425f431": {
@@ -14,7 +14,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1753926701570594
+      "ur": 0.26439790575916566
     },
     "37acb9ad": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4791666666666516
+      "ur": 1.462962962962957
     },
     "39e909ef": {
       "dl_soon": false,
@@ -38,13 +38,13 @@
     },
     "4fd06341": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.005469199769693276
     },
     "566b5394": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1393442622950867
+      "ur": -0.29234972677596055
     },
     "7bdc2ea0": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.781240631217517
+      "ur": 0.8289786475036559
     },
     "a9666f00": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7051365416812735
+      "ur": 0.7400023886776054
     },
     "f29c066a": {
       "dl_soon": false,
@@ -104,17 +104,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.34343434343434914
+      "ur": 0.43181818181820214
     },
     "f65eacb2": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.75
     }
   }
 }
