@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 8,
-    "unrealized_r": 1.3967,
-    "winners": 3
+    "losers": 1,
+    "n": 9,
+    "unrealized_r": 1.7548,
+    "winners": 6
   },
   "trades": {
     "37acb9ad": {
@@ -18,13 +18,13 @@
     },
     "4c731077": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.059386973180120595
     },
     "5c2127ce": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.016417628590997907
+      "ur": 0.09858839081272712
     },
     "6ec08f4f": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.1495412844036691
+      "ur": 0.11529051987768207
     },
     "833b97b7": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2669541949451376
+      "ur": 0.35923179838964725
     },
     "9e4fc631": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4940321227707711
+      "ur": 1.6189150894325748
     },
     "ced90c7f": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.016417628590997907
+      "ur": 0.09858839081272712
     },
     "f07db663": {
       "dl_soon": false,
@@ -84,7 +84,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.48095238095238296
+      "ur": -0.5952380952381063
+    },
+    "f29c066a": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
