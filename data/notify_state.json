@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 8,
-    "unrealized_r": 9.3292,
-    "winners": 5
+    "losers": 1,
+    "n": 9,
+    "unrealized_r": 8.98,
+    "winners": 6
   },
   "trades": {
     "24c82b39": {
@@ -14,7 +14,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0765857638180742
+      "ur": 0.886226120062547
+    },
+    "29fe9d26": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "78cc7d23": {
       "dl_soon": false,
@@ -24,7 +34,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.6279539641146865
+      "ur": 2.3360610280807728
     },
     "81ea5a36": {
       "dl_soon": false,
@@ -34,17 +44,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.16081871345028906
+      "ur": 0.657894736842123
     },
     "8a64fd98": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.3740359897172683
+      "ur": 2.0141388174807804
     },
     "9729744d": {
       "dl_soon": false,
@@ -54,7 +64,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7147018718235028
+      "ur": 1.6626379075245148
     },
     "c57c8c65": {
       "dl_soon": false,
@@ -64,7 +74,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.017954395976188257
+      "ur": -0.2396056609933818
     },
     "d51129a5": {
       "dl_soon": false,
@@ -84,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7147018718235028
+      "ur": 1.6626379075245148
     }
   }
 }
