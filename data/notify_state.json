@@ -1,11 +1,21 @@
 {
   "agg": {
     "losers": 1,
-    "n": 3,
+    "n": 4,
     "unrealized_r": 0.317,
     "winners": 1
   },
   "trades": {
+    "5dd53cb9": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "8396c5ac": {
       "dl_soon": false,
       "health": "warning",
