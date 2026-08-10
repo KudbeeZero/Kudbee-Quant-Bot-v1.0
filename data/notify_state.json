@@ -2,7 +2,7 @@
   "agg": {
     "losers": 4,
     "n": 9,
-    "unrealized_r": 1.2998,
+    "unrealized_r": 2.2892,
     "winners": 5
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5862695673483754
+      "ur": -0.4313894854513196
     },
     "29fe9d26": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3080808080808017
+      "ur": -0.11616161616162686
     },
     "514ee315": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3709677419354878
+      "ur": 1.0521821631878574
     },
     "531dff64": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4996231392500389
+      "ur": -0.39711701526285914
     },
     "797d60de": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2665260196906031
+      "ur": 0.07477730895450742
     },
     "81ea5a36": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8216374269006054
+      "ur": 0.33040935672515814
     },
     "8396c5ac": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2095931317655796
+      "ur": -0.042366554684579186
     },
     "9729744d": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.18055039047977223
+      "ur": 0.9094458906657222
     },
     "f875b71a": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.18055039047977223
+      "ur": 0.9094458906657222
     }
   }
 }
