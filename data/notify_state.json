@@ -2,7 +2,7 @@
   "agg": {
     "losers": 5,
     "n": 8,
-    "unrealized_r": 2.1801,
+    "unrealized_r": 0.1118,
     "winners": 3
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5363442332230992
+      "ur": -0.45278605721927057
     },
     "29fe9d26": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1565656565656588
+      "ur": 0.5909090909090874
     },
     "514ee315": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2115749525616528
+      "ur": 1.1761543327008095
     },
     "531dff64": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.42048238175993446
+      "ur": -0.5448464292443965
     },
     "797d60de": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.17463666197845004
+      "ur": -0.2796530707923259
     },
     "81ea5a36": {
       "dl_soon": false,
@@ -64,27 +64,27 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8040935672514997
+      "ur": 1.14912280701757
     },
     "9729744d": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4303334572951094
+      "ur": -0.7635428288086955
     },
     "f875b71a": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.4303334572951094
+      "ur": -0.7635428288086955
     }
   }
 }
