@@ -1,21 +1,11 @@
 {
   "agg": {
     "losers": 0,
-    "n": 10,
-    "unrealized_r": 14.9644,
-    "winners": 9
+    "n": 8,
+    "unrealized_r": 10.3004,
+    "winners": 8
   },
   "trades": {
-    "09f6150b": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": true,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.4411764705882129
-    },
     "3141ccc0": {
       "dl_soon": false,
       "health": "near TP",
@@ -24,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.503975014196491
+      "ur": 2.0269733106189722
     },
     "5220141e": {
       "dl_soon": false,
@@ -34,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5780754825698703
+      "ur": 1.223422644770969
     },
     "747df627": {
       "dl_soon": false,
@@ -44,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.706185567010318
+      "ur": 1.5137457044673617
     },
     "9fb1a81e": {
       "dl_soon": false,
@@ -54,17 +44,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.503975014196491
+      "ur": 2.0269733106189722
     },
     "b405abc6": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.7218550341484962
     },
     "b6cb17ac": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.36491079014443634
+      "ur": 0.9992919852732983
     },
     "bea1943f": {
       "dl_soon": false,
@@ -84,17 +74,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0062609147995418
-    },
-    "cf88abec": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 4.153679653679559
+      "ur": 0.2744007831108455
     },
     "d02c67af": {
       "dl_soon": false,
@@ -104,7 +84,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.706185567010318
+      "ur": 1.5137457044673617
     }
   }
 }
