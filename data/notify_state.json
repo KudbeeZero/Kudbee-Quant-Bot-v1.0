@@ -1,11 +1,21 @@
 {
   "agg": {
     "losers": 0,
-    "n": 7,
-    "unrealized_r": 10.2361,
+    "n": 10,
+    "unrealized_r": 9.0865,
     "winners": 6
   },
   "trades": {
+    "09f6150b": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "287e4054": {
       "dl_soon": false,
       "health": "near TP",
@@ -14,7 +24,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.773563218390815
+      "ur": 2.6984674329502054
+    },
+    "3141ccc0": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "747df627": {
       "dl_soon": false,
@@ -24,7 +44,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0326460481099706
+      "ur": 0.9364261168384924
+    },
+    "9fb1a81e": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "b25f8a2e": {
       "dl_soon": false,
@@ -34,7 +64,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.09410430839003797
+      "ur": 0.030612244897976777
     },
     "b9a87e6d": {
       "dl_soon": false,
@@ -44,7 +74,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9330400782013649
+      "ur": 0.33088954056697
     },
     "cf1eee83": {
       "dl_soon": false,
@@ -64,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.37012987012977
+      "ur": 4.153679653679559
     },
     "d02c67af": {
       "dl_soon": false,
@@ -74,7 +104,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0326460481099706
+      "ur": 0.9364261168384924
     }
   }
 }
