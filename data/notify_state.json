@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 1,
-    "n": 9,
-    "unrealized_r": 10.0013,
-    "winners": 7
+    "n": 7,
+    "unrealized_r": 6.1362,
+    "winners": 6
   },
   "trades": {
     "10c08c08": {
@@ -14,17 +14,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.507127882599568
-    },
-    "379c8bc6": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.4453551912568344
+      "ur": 0.11970649895177614
     },
     "5220141e": {
       "dl_soon": false,
@@ -34,7 +24,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.6996542783059794
+      "ur": 2.465715932008082
     },
     "b405abc6": {
       "dl_soon": false,
@@ -44,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1598369684952645
+      "ur": 0.7588675919806073
     },
     "b5344400": {
       "dl_soon": false,
@@ -54,7 +44,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7555205047318824
+      "ur": 0.4758149316509172
     },
     "b6cb17ac": {
       "dl_soon": false,
@@ -64,17 +54,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.4504389691305675
-    },
-    "be21a615": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.2790664127863267
+      "ur": 2.220475785896356
     },
     "e2377974": {
       "dl_soon": false,
@@ -84,17 +64,17 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5950226244343948
+      "ur": 0.20286576168928508
     },
     "fb63f35d": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.10722347629796573
     }
   }
 }
