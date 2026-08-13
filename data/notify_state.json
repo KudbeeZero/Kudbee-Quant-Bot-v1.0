@@ -1,20 +1,20 @@
 {
   "agg": {
     "losers": 3,
-    "n": 8,
-    "unrealized_r": 3.3308,
-    "winners": 5
+    "n": 9,
+    "unrealized_r": 2.5626,
+    "winners": 4
   },
   "trades": {
     "254ebd6a": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.09079923558363841
+      "ur": -0.35154177463998043
     },
     "2afc7fa6": {
       "dl_soon": false,
@@ -24,17 +24,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.13020833333333756
-    },
-    "2ca9fb03": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.5018726591760266
+      "ur": -0.16145833333334936
     },
     "5982424f": {
       "dl_soon": false,
@@ -64,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5575500897491935
+      "ur": 0.3024489399893271
     },
     "9d80477b": {
       "dl_soon": false,
@@ -74,17 +64,37 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.212418300653595
+      "ur": 0.8986928104574904
+    },
+    "9e5202be": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "LINKUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "afec63a5": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.630081300812999
+      "ur": -0.7789243277048095
+    },
+    "e98770b3": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
