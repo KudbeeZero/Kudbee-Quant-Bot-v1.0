@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
+    "losers": 2,
     "n": 13,
-    "unrealized_r": 10.846,
-    "winners": 12
+    "unrealized_r": 10.1735,
+    "winners": 11
   },
   "trades": {
     "164b0c39": {
@@ -14,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.12157809983896092
+      "ur": -0.10386473429952106
     },
     "1c16cfe7": {
       "dl_soon": false,
@@ -28,13 +28,13 @@
     },
     "3f0a4d56": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.9930849253102385
+      "ur": 2.191499775940398
     },
     "43b330a1": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.138009049773789
+      "ur": 0.7790346907994228
     },
     "453d8ab2": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9407582938388602
+      "ur": 0.5647709320694997
     },
     "5df9d208": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.42564923514762576
+      "ur": 0.45553183920312307
     },
     "88f26eed": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.13485347124274374
+      "ur": 0.523193856762247
     },
     "9d56bc47": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7592120866831336
+      "ur": 1.9333649849127612
     },
     "ac5d6a18": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.146265938069216
+      "ur": 0.176867030965392
     },
     "d394da9e": {
       "dl_soon": false,
@@ -114,27 +114,27 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.09637110578567289
+      "ur": 0.47341093232909104
     },
     "fca3cd5d": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.158536585365809
+      "ur": 1.7032520325202998
     },
     "fda09e57": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.158536585365809
+      "ur": 1.7032520325202998
     }
   }
 }
