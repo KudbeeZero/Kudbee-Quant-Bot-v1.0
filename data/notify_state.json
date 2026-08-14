@@ -1,30 +1,30 @@
 {
   "agg": {
     "losers": 3,
-    "n": 8,
-    "unrealized_r": 1.5392,
-    "winners": 4
+    "n": 10,
+    "unrealized_r": 1.482,
+    "winners": 5
   },
   "trades": {
     "0e464fc5": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.41666666666666285
+      "ur": -0.2870370370370119
     },
     "1c16cfe7": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.08558558558558452
     },
     "3f0a4d56": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.29442870578189456
+      "ur": 0.27485378429889795
     },
     "5df9d208": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.002668089647812261
+      "ur": 0.017253646389191853
     },
     "72e54dbe": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.268265704458668
+      "ur": 0.25108438311072306
     },
     "ac5d6a18": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2923497267759488
+      "ur": -0.27194899817849205
     },
     "eb182b2a": {
       "dl_soon": false,
@@ -84,7 +84,27 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.14443688329360915
+      "ur": 0.03963933310645669
+    },
+    "fca3cd5d": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "fda09e57": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
