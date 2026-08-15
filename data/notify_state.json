@@ -2,19 +2,19 @@
   "agg": {
     "losers": 1,
     "n": 4,
-    "unrealized_r": 7.9514,
-    "winners": 2
+    "unrealized_r": 7.2677,
+    "winners": 3
   },
   "trades": {
     "ad166e67": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.5849400729546792
     },
     "d817e4c3": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.15684693677322517
+      "ur": -0.022902749695000602
     },
     "dafd7d84": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.054112554112582
+      "ur": 3.352813852813864
     },
     "fef41aae": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.054112554112582
+      "ur": 3.352813852813864
     }
   }
 }
