@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
+    "losers": 0,
     "n": 5,
-    "unrealized_r": 0.3846,
-    "winners": 2
+    "unrealized_r": 1.2273,
+    "winners": 3
   },
   "trades": {
     "3b62fc61": {
@@ -14,7 +14,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.052083333333341766
+      "ur": 0.23958333333333165
     },
     "550a895d": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2699876998770886
+      "ur": 0.8210332103321667
     }
   }
 }
