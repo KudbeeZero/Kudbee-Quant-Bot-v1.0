@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 2,
-    "n": 12,
-    "unrealized_r": 3.1319,
+    "losers": 1,
+    "n": 11,
+    "unrealized_r": 3.5529,
     "winners": 9
   },
   "trades": {
@@ -105,16 +105,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.16199415936589598
-    },
-    "a5626f96": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.42097065092637953
     },
     "d0568c47": {
       "dl_soon": false,
