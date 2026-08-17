@@ -1,17 +1,37 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 5,
-    "unrealized_r": 0.3894,
+    "losers": 2,
+    "n": 8,
+    "unrealized_r": 0.9994,
     "winners": 3
   },
   "trades": {
     "306f7550": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": -0.3879456706281796
+    },
+    "8f8491fb": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "a1d986e2": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
@@ -24,17 +44,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.34442832093839476
+      "ur": -0.09912933067295286
     },
     "c642f60c": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.5445699937225408
     },
     "cab694a0": {
       "dl_soon": false,
@@ -44,7 +64,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.015587529976029822
+      "ur": 0.3177458033573234
     },
     "cd4222cc": {
       "dl_soon": false,
@@ -54,7 +74,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.02941176470586816
+      "ur": 0.6241830065359428
+    },
+    "fb0dbd0e": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
