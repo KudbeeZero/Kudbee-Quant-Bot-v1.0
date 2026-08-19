@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 4,
+    "losers": 0,
     "n": 7,
-    "unrealized_r": 0.3729,
-    "winners": 3
+    "unrealized_r": 4.1044,
+    "winners": 6
   },
   "trades": {
     "51b6fa5b": {
@@ -14,7 +14,17 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0461538461538218
+      "ur": 1.5307692307691934
+    },
+    "653bca65": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "LINKUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "702aa52d": {
       "dl_soon": false,
@@ -24,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.02453468697121919
+      "ur": 0.4509306260575055
     },
     "8c518374": {
       "dl_soon": false,
@@ -34,27 +44,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.877777777777791
-    },
-    "cb2986f5": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.7399999999999973
+      "ur": 1.5493827160493903
     },
     "fb00d3ae": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3146367956551234
+      "ur": 0.24498302783436074
     },
     "fded902b": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.1517935258092664
+      "ur": 0.16666666666664967
     },
     "fef18d64": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.369159841343431
+      "ur": 0.1616185030649665
     }
   }
 }
