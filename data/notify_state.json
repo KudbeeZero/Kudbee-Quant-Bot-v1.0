@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 11,
-    "unrealized_r": 111.7012,
-    "winners": 9
+    "unrealized_r": 95.125,
+    "winners": 10
   },
   "trades": {
     "38e1f281": {
@@ -14,7 +14,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 10.101481481481372
+      "ur": 7.425925925925842
     },
     "7eaf05d0": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 13.01170568561883
+      "ur": 11.216833890747013
     },
     "7f70675b": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 18.636570878822127
+      "ur": 16.527816120801447
     },
     "8e59d632": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 18.636570878822127
+      "ur": 16.527816120801447
     },
     "9d0e8e36": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 6.183965402528239
+      "ur": 5.146928365491208
     },
     "a36d99bc": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 11.277368905243986
+      "ur": 8.431002759889752
     },
     "cd48fa16": {
       "dl_soon": false,
@@ -84,17 +84,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7513380222107557
+      "ur": 1.1774791052013278
     },
     "e93086ae": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.13006535947712167
     },
     "f1d8b096": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 13.01170568561883
+      "ur": 11.216833890747013
     },
     "f1fad740": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 19.09053559303054
+      "ur": 17.324264443371057
     }
   }
 }
