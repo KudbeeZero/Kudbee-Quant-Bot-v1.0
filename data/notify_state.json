@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 10,
+    "n": 11,
     "unrealized_r": 111.7012,
     "winners": 9
   },
@@ -65,6 +65,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 11.277368905243986
+    },
+    "cd48fa16": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "db20db59": {
       "dl_soon": false,
