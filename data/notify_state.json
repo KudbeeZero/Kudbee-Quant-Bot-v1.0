@@ -1,21 +1,11 @@
 {
   "agg": {
     "losers": 1,
-    "n": 8,
-    "unrealized_r": 8.427,
-    "winners": 7
+    "n": 7,
+    "unrealized_r": 6.0347,
+    "winners": 6
   },
   "trades": {
-    "51b6fa5b": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.3923076923076514
-    },
     "653bca65": {
       "dl_soon": false,
       "health": "healthy",
