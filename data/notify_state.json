@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 8,
+    "n": 10,
     "unrealized_r": 15.7201,
     "winners": 5
   },
@@ -12,6 +12,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "38e1f281": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
@@ -35,6 +45,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 4.037346711259797
+    },
+    "7f70675b": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "8c518374": {
       "dl_soon": false,
