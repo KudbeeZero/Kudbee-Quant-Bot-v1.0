@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 17,
+    "n": 18,
     "unrealized_r": 27.6118,
     "winners": 15
   },
@@ -175,6 +175,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 3.0570457796852804
+    },
+    "ed722fea": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
