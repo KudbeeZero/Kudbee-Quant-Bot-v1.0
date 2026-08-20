@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 16,
-    "unrealized_r": 14.6851,
-    "winners": 14
+    "n": 17,
+    "unrealized_r": 15.6027,
+    "winners": 16
   },
   "trades": {
     "0868f21d": {
@@ -14,17 +14,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.19080459770115285
+      "ur": 0.2109195402298917
     },
     "0b852105": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.6532385466034799
     },
     "11eab7d7": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5149253731343326
+      "ur": 0.5402532790592525
     },
     "1e873a05": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5119697617559507
+      "ur": 0.2624946551327119
     },
     "205b6048": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8954131437462236
+      "ur": 1.6938273450607184
     },
     "40b6c057": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0498207885304653
+      "ur": 1.792473118279572
     },
     "5495f2d3": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8551421851614263
+      "ur": 0.5617917468462699
     },
     "54a76334": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6490770880764607
+      "ur": 0.4151598396899081
     },
     "7d0599b1": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8551421851614263
+      "ur": 0.5617917468462699
     },
     "86585b78": {
       "dl_soon": false,
@@ -104,27 +104,27 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.0079365079364964
+      "ur": 2.0714285714285596
     },
     "a0b878b0": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 1.2838551988373552
     },
     "a1c7ffcf": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.232703959419477
+      "ur": 2.0236015217697623
     },
     "a399f999": {
       "dl_soon": false,
@@ -134,7 +134,17 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6490770880764607
+      "ur": 0.4151598396899081
+    },
+    "a4717abc": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "e93086ae": {
       "dl_soon": false,
@@ -144,7 +154,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2195352214960041
+      "ur": 0.23986928104575309
     },
     "eb87606e": {
       "dl_soon": false,
@@ -154,7 +164,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7989985693848507
+      "ur": 1.599964234620897
     },
     "f91134c3": {
       "dl_soon": false,
@@ -164,7 +174,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2545327754532802
+      "ur": 1.2768479776847994
     }
   }
 }
