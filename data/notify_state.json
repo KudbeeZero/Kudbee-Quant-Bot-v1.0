@@ -1,40 +1,40 @@
 {
   "agg": {
-    "losers": 3,
+    "losers": 5,
     "n": 8,
-    "unrealized_r": 0.7593,
-    "winners": 1
+    "unrealized_r": -1.2336,
+    "winners": 2
   },
   "trades": {
     "205b6048": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.2412955488004018
     },
     "40b6c057": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "near stop",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.816845878136204
     },
     "86585b78": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.5952380952380951
     },
     "a1c7ffcf": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.25153820863274595
+      "ur": 0.016744164200840538
     },
     "d4b71541": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.08628935831009028
+      "ur": -0.2871662016739747
     },
     "db20db59": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2314439540864808
+      "ur": 1.0969075607011227
     },
     "e93086ae": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.13427741466957158
+      "ur": -0.40675381263616583
     },
     "f91134c3": {
       "dl_soon": false,
