@@ -1,8 +1,8 @@
 {
   "agg": {
-    "losers": 5,
+    "losers": 6,
     "n": 8,
-    "unrealized_r": -1.2336,
+    "unrealized_r": -0.0835,
     "winners": 2
   },
   "trades": {
@@ -14,17 +14,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2412955488004018
+      "ur": -0.011555179039106364
     },
     "40b6c057": {
       "dl_soon": false,
-      "health": "near stop",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.816845878136204
+      "ur": -0.5759856630824389
     },
     "86585b78": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5952380952380951
+      "ur": -0.40476190476190493
     },
     "a1c7ffcf": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.016744164200840538
+      "ur": 0.0732938800432086
     },
     "d4b71541": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2871662016739747
+      "ur": -0.05652982595987937
     },
     "db20db59": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.0969075607011227
+      "ur": 1.4743812983477778
     },
     "e93086ae": {
       "dl_soon": false,
@@ -74,17 +74,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.40675381263616583
+      "ur": -0.38641975308642407
     },
     "f91134c3": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.19595536959553525
     }
   }
 }
