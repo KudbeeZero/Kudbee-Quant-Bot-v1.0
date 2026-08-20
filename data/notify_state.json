@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 1,
-    "n": 16,
+    "n": 17,
     "unrealized_r": 15.9319,
     "winners": 14
   },
@@ -105,6 +105,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 1.6904761904761796
+    },
+    "a0b878b0": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "a1c7ffcf": {
       "dl_soon": false,
