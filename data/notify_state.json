@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 18,
-    "unrealized_r": 16.8816,
-    "winners": 15
+    "unrealized_r": 18.3588,
+    "winners": 17
   },
   "trades": {
     "0868f21d": {
@@ -14,7 +14,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.30344827586207485
+      "ur": 0.09827586206896972
     },
     "095f9e74": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2931196983977409
+      "ur": 0.3173107131636753
     },
     "0b852105": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2503949447077478
+      "ur": 1.184044233807269
     },
     "1de4f301": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7016985138004282
+      "ur": 0.8205944798301525
     },
     "1e873a05": {
       "dl_soon": false,
@@ -54,17 +54,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2024128649584915
+      "ur": 1.2696238858007307
     },
     "1e957d08": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.38648139425341554
     },
     "205b6048": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.4533186048958204
+      "ur": 2.507627780269428
     },
     "48099c64": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.798505296763888
+      "ur": 0.8208532868959354
     },
     "54a76334": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1469415018721563
+      "ur": 1.1509806135184708
     },
     "63935474": {
       "dl_soon": false,
@@ -104,7 +104,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.07535522944327924
+      "ur": 0.14709993011879663
     },
     "67f8d9bd": {
       "dl_soon": false,
@@ -114,7 +114,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.3380566801619502
+      "ur": 1.3078272604588428
     },
     "76e5274e": {
       "dl_soon": false,
@@ -124,17 +124,17 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6937254901960751
+      "ur": 0.6278431372548963
     },
     "947a1c74": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.6656184486373209
     },
     "a0b878b0": {
       "dl_soon": false,
@@ -144,7 +144,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.1272955476284716
+      "ur": 2.6525961157352205
     },
     "a399f999": {
       "dl_soon": false,
@@ -154,7 +154,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1469415018721563
+      "ur": 1.1509806135184708
     },
     "a4717abc": {
       "dl_soon": false,
@@ -164,7 +164,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.6566696508504872
+      "ur": 2.6232467920023783
     },
     "ebb90272": {
       "dl_soon": false,
@@ -174,7 +174,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6937254901960751
+      "ur": 0.6278431372548963
     },
     "f8c773ef": {
       "dl_soon": false,
