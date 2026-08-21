@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 17,
-    "unrealized_r": 17.3631,
-    "winners": 11
+    "n": 16,
+    "unrealized_r": 15.5939,
+    "winners": 10
   },
   "trades": {
     "03a4c6c2": {
@@ -105,16 +105,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 3.0093212971388446
-    },
-    "947a1c74": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.7691823899371126
     },
     "ad97fe74": {
       "dl_soon": false,
