@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 16,
-    "unrealized_r": 20.5095,
-    "winners": 12
+    "n": 14,
+    "unrealized_r": 11.6909,
+    "winners": 8
   },
   "trades": {
     "095f9e74": {
@@ -15,16 +15,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 1.741281809613561
-    },
-    "1de4f301": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.415074309978774
     },
     "1e957d08": {
       "dl_soon": false,
@@ -66,16 +56,6 @@
       "tp1_touched": false,
       "ur": null
     },
-    "48099c64": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.1363372514874284
-    },
     "63935474": {
       "dl_soon": false,
       "health": "near TP",
@@ -85,16 +65,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 2.1233403214535156
-    },
-    "76e5274e": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.6335947712418175
     },
     "8e703eeb": {
       "dl_soon": false,
@@ -146,15 +116,15 @@
       "tp1_touched": false,
       "ur": 0.6418394388306309
     },
-    "ebb90272": {
+    "df1d8222": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "SOLUSDT",
+      "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.6335947712418175
+      "ur": null
     },
     "f8c773ef": {
       "dl_soon": false,
@@ -165,6 +135,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 1.700466200466198
+    },
+    "fbda9f6d": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "LINKUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
