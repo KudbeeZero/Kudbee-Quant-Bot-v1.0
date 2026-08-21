@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 15,
+    "n": 17,
     "unrealized_r": 33.8876,
     "winners": 12
   },
@@ -76,12 +76,32 @@
       "tp1_touched": false,
       "ur": 2.2526640493550225
     },
+    "4d59a5cf": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "668d9e4d": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "7ede29fc": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
