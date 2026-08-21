@@ -34,9 +34,26 @@ def _bot_token() -> str | None:
     return tok or None
 
 
-def _get(method: str, token: str, **params) -> dict:
-    r = requests.get(f"{_API}/bot{token}/{method}", params=params, timeout=20)
-    return r.json() if r.ok else {}
+def _get(method: str, token: str, **params):
+    """GET a Telegram method, returning the parsed JSON body.
+
+    Always returns a dict (``{}`` on transport error) AND surfaces Telegram's own
+    error envelope via ``ok``/``description`` — callers must check ``ok`` (a proxy
+    HTML 200 or an HTTP error still parses to ``{}`` here, and Telegram returns
+    HTTP 409 with ``ok:false`` when two pollers overlap, which we must not swallow).
+    """
+    try:
+        r = requests.get(f"{_API}/bot{token}/{method}", params=params, timeout=20)
+    except Exception as exc:  # noqa: BLE001
+        return {"ok": False, "description": f"transport error: {type(exc).__name__}"}
+    body = {}
+    try:
+        body = r.json()
+    except ValueError:
+        return {"ok": False, "description": f"non-JSON response HTTP {r.status_code}"}
+    if not body.get("ok"):
+        body.setdefault("ok", False)
+    return body
 
 
 def webhook_active(token: str) -> bool:
@@ -64,6 +81,17 @@ def poll_once(*, handler=None) -> int:
         handler = handle_update
 
     resp = _get("getUpdates", token, timeout=0, allowed_updates='["message"]')
+    if resp.get("ok") is False:
+        desc = resp.get("description", "unknown error")
+        # Telegram forbids getUpdates while a webhook (or another poller) owns the
+        # connection — 409 "conflict". Stand down cleanly; the next cron retries.
+        if "conflict" in desc.lower():
+            print(f"telegram-poll: conflict ({desc}) — another poller/webhook owns "
+                  f"getUpdates; standing down this run.")
+            return 0
+        print(f"telegram-poll: getUpdates failed: {desc}")
+        return 0
+
     updates = resp.get("result") or []
     handled = 0
     last_id = None

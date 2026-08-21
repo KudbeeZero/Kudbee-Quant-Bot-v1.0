@@ -26,12 +26,14 @@ import time
 from pathlib import Path
 
 from .alert_inbox import inbox_entry, log_alert, push_inbox_entry
+from .intelligence import local_store
 from .intelligence.d1_client import d1_query
 from .journal import TradeJournal
 from .notifications import send_telegram
 from .notifications.notify import _g, format_summary
 from .review import open_trades_report
 from .scorecard import today_autopsy
+from .symbols import normalize_symbol
 from .universe import TOP_10_CRYPTO
 
 # In-memory state (single-process, single-user). Intentionally NOT persisted —
@@ -275,24 +277,33 @@ def _fmt(val) -> str:
 
 
 def cmd_levels(text: str) -> str:
-    """/levels SYMBOL — today's full TR level grid (latest row for the symbol)."""
+    """/levels SYMBOL — today's full TR level grid (latest row for the symbol).
+
+    Reads from Cloudflare D1 when provisioned; falls back to the local engine
+    snapshot (data/levels_snapshot.json, written each scan) because D1 is not yet
+    provisioned (CROSSROADS X2 / MEMORY §67)."""
     parts = text.strip().split()
     if len(parts) < 2:
-        return "Usage: /levels SYMBOL (e.g. /levels SOLUSDT)"
-    symbol = parts[1].upper()
+        return "Usage: /levels SYMBOL (e.g. /levels SOLUSDT or /levels btc)"
+    symbol = normalize_symbol(parts[1])
+    if symbol is None:
+        return f"❌ Unknown symbol '{parts[1]}'. Try e.g. /levels BTCUSDT."
 
-    try:
-        rows = d1_query("""
-            SELECT * FROM daily_levels
-            WHERE symbol = ?
-            ORDER BY recorded_at DESC LIMIT 1
-        """, [symbol])
-    except Exception as e:  # noqa: BLE001 — D1 outage must not 500 the webhook
-        return f"⚠️ Level lookup unavailable: {type(e).__name__}"
-    if not rows:
-        return f"No level data for {symbol}. Runs after the next scan."
+    row = local_store.get_levels_latest(symbol)
+    if row is None:
+        try:
+            rows = d1_query(
+                "SELECT * FROM daily_levels WHERE symbol = ? "
+                "ORDER BY recorded_at DESC LIMIT 1", [symbol])
+        except Exception:  # noqa: BLE001 — D1 outage must not 500 the webhook
+            rows = []
+        if rows:
+            row = rows[0]
+    if row is None:
+        return (f"No level data for {symbol} yet. Levels are captured on the next "
+                f"paper scan (hourly) — it needs at least one completed scan.")
 
-    r = rows[0]
+    r = row
     days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
     dow = r.get("day_of_week")
     dow_txt = days[int(dow)] if dow is not None else "—"
@@ -323,23 +334,26 @@ def cmd_levels(text: str) -> str:
 
 
 def cmd_history(text: str) -> str:
-    """/history SYMBOL — daily open + Asia H/L + PP for the last 7 days."""
+    """/history SYMBOL — daily open + Asia H/L + PP for the last 7 days.
+
+    Local-store fallback (data/levels_snapshot.json) when D1 is unprovisioned."""
     parts = text.strip().split()
     if len(parts) < 2:
         return "Usage: /history SYMBOL"
-    symbol = parts[1].upper()
+    symbol = normalize_symbol(parts[1])
+    if symbol is None:
+        return f"❌ Unknown symbol '{parts[1]}'. Try e.g. /history BTCUSDT."
 
-    try:
-        rows = d1_query("""
-            SELECT date, daily_open, asian_high, asian_low,
-                   pdh, pdl, pivot_pp, prev_day_color, day_of_week
-            FROM daily_levels
-            WHERE symbol = ?
-            GROUP BY date
-            ORDER BY date DESC LIMIT 7
-        """, [symbol])
-    except Exception as e:  # noqa: BLE001
-        return f"⚠️ History lookup unavailable: {type(e).__name__}"
+    all_rows = local_store.get_levels(symbol)
+    rows = sorted(all_rows, key=lambda r: r.get("date", ""))[-7:] if all_rows else []
+    if not rows:
+        try:
+            rows = d1_query(
+                "SELECT date, daily_open, asian_high, asian_low, pdh, pdl, "
+                "pivot_pp, prev_day_color, day_of_week FROM daily_levels "
+                "WHERE symbol = ? GROUP BY date ORDER BY date DESC LIMIT 7", [symbol])
+        except Exception:  # noqa: BLE001
+            rows = []
     if not rows:
         return f"No history for {symbol} yet."
 
@@ -359,34 +373,37 @@ def cmd_history(text: str) -> str:
 
 
 def cmd_vectors(text: str) -> str:
-    """/vectors SYMBOL — unrecovered climax candles (price magnets still open)."""
+    """/vectors SYMBOL — unrecovered climax candles (price magnets still open).
+
+    Local-store fallback (data/vectors_snapshot.json) when D1 is unprovisioned."""
     parts = text.strip().split()
     if len(parts) < 2:
         return "Usage: /vectors SYMBOL"
-    symbol = parts[1].upper()
+    symbol = normalize_symbol(parts[1])
+    if symbol is None:
+        return f"❌ Unknown symbol '{parts[1]}'. Try e.g. /vectors BTCUSDT."
 
-    try:
-        rows = d1_query("""
-            SELECT candle_type, candle_high, candle_low,
-                   body_close, days_open, candle_time
-            FROM unrecovered_vectors
-            WHERE symbol = ? AND active = 1
-            ORDER BY days_open DESC LIMIT 10
-        """, [symbol])
-    except Exception as e:  # noqa: BLE001
-        return f"⚠️ Vector lookup unavailable: {type(e).__name__}"
+    rows = local_store.get_vectors(symbol)
+    if not rows:
+        try:
+            rows = d1_query(
+                "SELECT candle_type, candle_high, candle_low, body_close, "
+                "days_open, candle_time FROM unrecovered_vectors "
+                "WHERE symbol = ? AND active = 1 ORDER BY days_open DESC LIMIT 10", [symbol])
+        except Exception:  # noqa: BLE001
+            rows = []
     if not rows:
         return f"✅ No unrecovered vectors for {symbol}."
 
     lines = [f"🧲 Unrecovered Vectors — {symbol}"]
     for r in rows:
-        icon = "🟢" if r["candle_type"] == "bull_climax" else "🔴"
-        zone = f"{_fmt(r['candle_low'])}–{_fmt(r['candle_high'])}"
+        icon = "🟢" if r.get("candle_type") == "bull_climax" else "🔴"
+        zone = f"{_fmt(r.get('candle_low'))}–{_fmt(r.get('candle_high'))}"
         days_open = r.get("days_open")
         days_txt = f"{days_open}d ago" if days_open is not None else "—"
         lines.append(
-            f"{icon} {r['candle_type']} @ {zone} | "
-            f"{days_txt} | {str(r['candle_time'])[:10]}"
+            f"{icon} {r.get('candle_type')} @ {zone} | "
+            f"{days_txt} | {str(r.get('candle_time'))[:10]}"
         )
     lines.append(f"\nTotal active: {len(rows)}")
     return "\n".join(lines)
@@ -564,9 +581,21 @@ _ADMIN_CMDS = {"/pause", "/resume", "/enable", "/disable"}
 
 
 def dispatch(text: str, chat_id: str, journal: TradeJournal | None = None) -> str:
-    """Route a '/command ...' line to its handler and return the reply text."""
+    """Route a '/command ...' line to its handler and return the reply text.
+
+    Accepts an optional ``/back`` prefix (``/back status`` == ``/status``) — the
+    owner often types it expecting a "go back / re-run" semantics; it is stripped
+    so the command still resolves instead of hitting the Unknown-command branch.
+    """
     j = journal or TradeJournal()
-    cmd = text.split()[0].lower().split("@")[0]      # tolerate /cmd@botname
+    parts = text.split()
+    if not parts:
+        return "Unknown command. Try /help."
+    cmd = parts[0].lower().split("@")[0]      # tolerate /cmd@botname
+    if cmd.startswith("/back") and len(parts) > 1:
+        # Re-route "/back status" -> "/status" (keep the rest of the line intact).
+        cmd = parts[1].lower().split("@")[0]
+        text = " ".join(parts[1:])
     if cmd in _ADMIN_CMDS and chat_id not in _admin_ids():
         return "⛔ Admin only (set TELEGRAM_ADMIN_CHAT_IDS to allow this chat)."
     table = {

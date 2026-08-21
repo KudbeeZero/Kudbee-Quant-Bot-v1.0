@@ -17,9 +17,13 @@ real money.
 """
 from __future__ import annotations
 
+import logging
+import math
 from datetime import datetime, timezone
 
 from ..journal import Prediction, TradeJournal, net_outcome_r
+
+logger = logging.getLogger(__name__)
 
 
 class DailyLossLimitReached(RuntimeError):
@@ -33,9 +37,11 @@ def realized_usd_pnl(p: Prediction) -> float:
     if p.entry is None or p.stop is None or p.entry <= 0:
         return 0.0
     net_r = net_outcome_r(p)
-    if net_r is None:
+    if net_r is None or not math.isfinite(net_r):
         return 0.0
     risk_usd = p.position_size_usd * abs(p.entry - p.stop) / p.entry
+    if not math.isfinite(risk_usd):
+        return 0.0
     return float(net_r) * risk_usd
 
 
@@ -52,13 +58,24 @@ def realized_loss_usd_today(journal: TradeJournal, *, now: datetime | None = Non
         if p.mode != "live" or p.status not in ("hit", "miss"):
             continue
         stamp = p.resolved_at or p.created_at
+        when = None
         try:
             when = datetime.fromisoformat(stamp).astimezone(timezone.utc).date()
         except (ValueError, TypeError):
-            continue
+            # FAIL-CLOSED (audit §live-bug-7): a corrupt/unparseable stamp must
+            # NOT be silently skipped — that would let a big loser evade the
+            # daily-loss cap. Treat an undateable stamp as "today" so it still
+            # counts against the limit; never let the cap under-count.
+            logger.warning(
+                "realized_loss_usd_today: unparseable stamp %r on live trade "
+                "%s — counting it as TODAY (fail-closed) against the loss cap",
+                stamp, p.id)
+            when = today
         if when != today:
             continue
         pnl = realized_usd_pnl(p)
+        if not math.isfinite(pnl):
+            continue
         if pnl < 0:
             loss += -pnl
     return loss

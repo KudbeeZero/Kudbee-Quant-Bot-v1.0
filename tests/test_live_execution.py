@@ -172,6 +172,37 @@ def test_killswitch_trips_and_blocks_new_live_orders(tmp_path):
     assert res.accepted is False and "kill-switch" in res.reason.lower()
 
 
+# --- defensive hardening regression tests (audit §live-bug-6 / §live-bug-7) --
+
+def test_live_rejects_nan_position_size(tmp_path):
+    """Audit §live-bug-6: a NaN size must be REJECTED, not placed as qty=NaN.
+    `NaN <= 0` is False, so the old guard leaked it to the venue."""
+    import math
+    j = _journal(tmp_path)
+    ex = LiveExecutor(_cfg(MAX_POSITION_SIZE_USD=100), journal=j, exchange=FakeExchange())
+    res = ex.submit(_bracket(position_size_usd=float("nan")))
+    assert res.accepted is False and "positive and finite" in res.reason
+    assert len(j.predictions) == 0
+
+def test_killswitch_counts_unparseable_stamp_as_today(tmp_path):
+    """Audit §live-bug-7: a corrupt resolved_at must NOT be skipped (fail-open).
+    It must count against TODAY's loss cap (fail-closed)."""
+    j = _journal(tmp_path)
+    p = _resolved_live_loss(3000.0)          # ~ -$300 realized
+    p.resolved_at = "not-a-real-timestamp"   # would have been `continue`d before
+    j.predictions = [p]
+    # the cap of $250 should still trip, because the bad-stamp trade counts today
+    with pytest.raises(DailyLossLimitReached):
+        check_daily_loss(j, 250.0)
+
+def test_realized_usd_pnl_guards_nonfinite_net_r():
+    """A non-finite net_outcome_r must not poison the loss sum."""
+    p = _resolved_live_loss(3000.0, outcome_r=float("inf"))
+    assert realized_usd_pnl(p) == 0.0
+    p2 = _resolved_live_loss(3000.0, outcome_r=float("nan"))
+    assert realized_usd_pnl(p2) == 0.0
+
+
 # --- poll / cancel (venue-clock fills) --------------------------------------
 
 def test_poll_marks_fill_from_venue_clock_not_bar_time(tmp_path):

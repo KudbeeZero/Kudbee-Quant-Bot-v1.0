@@ -73,8 +73,12 @@ class LiveExecutor:
         # (4) sizing — never exceed the per-position cap.
         requested = prediction.position_size_usd or self.cfg.max_position_size_usd
         size_usd = min(float(requested), self.cfg.max_position_size_usd)
-        if size_usd <= 0:
-            return self._reject(f"position size must be positive, got {size_usd}")
+        # NB: use `>` not `<=` so a non-finite (NaN/inf) size is REJECTED.
+        # `NaN <= 0` is False, so the old guard let NaN slip through to the
+        # venue as a `qty=NaN` order (audit §live-bug-6). Reject anything that
+        # is not strictly positive. (Defensive hardening only — gate stays.)  # noqa: E501
+        if not (size_usd > 0):
+            return self._reject(f"position size must be positive and finite, got {size_usd}")
         qty = size_usd / prediction.entry
         side = BUY if prediction.direction > 0 else SELL
 
