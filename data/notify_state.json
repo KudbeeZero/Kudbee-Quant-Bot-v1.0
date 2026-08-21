@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 17,
-    "unrealized_r": 22.6933,
-    "winners": 16
+    "unrealized_r": 23.9166,
+    "winners": 14
   },
   "trades": {
     "0868f21d": {
@@ -14,7 +14,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8706896551724226
+      "ur": 1.132183908045985
     },
     "095f9e74": {
       "dl_soon": false,
@@ -24,17 +24,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6350926798617678
-    },
-    "0b852105": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ADAUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.6879936808846803
+      "ur": 1.1540999057492822
     },
     "1de4f301": {
       "dl_soon": false,
@@ -46,16 +36,6 @@
       "tp1_touched": false,
       "ur": 1.0583864118896011
     },
-    "1e873a05": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.1965431042989114
-    },
     "1e957d08": {
       "dl_soon": false,
       "health": "healthy",
@@ -64,7 +44,17 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8656775003925227
+      "ur": 1.410818024807659
+    },
+    "265f6345": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "48099c64": {
       "dl_soon": false,
@@ -74,7 +64,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1144246118125016
+      "ur": 1.5938905819184253
     },
     "54a76334": {
       "dl_soon": false,
@@ -84,7 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.537506036715769
+      "ur": 1.8632691716685041
     },
     "63935474": {
       "dl_soon": false,
@@ -94,7 +84,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.858024691358017
+      "ur": 1.6667831353365874
     },
     "67f8d9bd": {
       "dl_soon": false,
@@ -104,7 +94,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7990553306342856
+      "ur": 2.018218623481789
     },
     "76e5274e": {
       "dl_soon": false,
@@ -114,7 +104,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1622222222222185
+      "ur": 1.7332026143790813
     },
     "8e703eeb": {
       "dl_soon": false,
@@ -134,7 +124,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8143256464011236
+      "ur": 1.4169811320754766
     },
     "a399f999": {
       "dl_soon": false,
@@ -144,7 +134,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.537506036715769
+      "ur": 1.8632691716685041
     },
     "a4717abc": {
       "dl_soon": false,
@@ -154,7 +144,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 3.1663682482840882
+      "ur": 3.4086839749328486
+    },
+    "d9cf869f": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "ebb90272": {
       "dl_soon": false,
@@ -164,7 +164,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1622222222222185
+      "ur": 1.7332026143790813
     },
     "f8c773ef": {
       "dl_soon": false,
@@ -174,7 +174,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2272727272727224
+      "ur": 1.863636363636361
     }
   }
 }
