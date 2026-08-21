@@ -1,21 +1,11 @@
 {
   "agg": {
     "losers": 1,
-    "n": 14,
-    "unrealized_r": 15.0581,
-    "winners": 13
+    "n": 12,
+    "unrealized_r": 10.4056,
+    "winners": 11
   },
   "trades": {
-    "03a4c6c2": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.4202247708534899
-    },
     "1e957d08": {
       "dl_soon": false,
       "health": "near TP",
@@ -25,16 +15,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 2.1977547495682157
-    },
-    "1f9ce655": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 3.2323600973236073
     },
     "265f6345": {
       "dl_soon": false,
