@@ -87,8 +87,8 @@ def record_run(*, path: Path | None = None, now: datetime | None = None) -> dict
     history.append(now.isoformat())
     history = history[-_KEEP:]
     try:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(json.dumps({"history": history}, indent=0))
+        from ..util.io import atomic_write_json
+        atomic_write_json(path, {"history": history}, indent=0)
     except OSError:
         pass
     return health

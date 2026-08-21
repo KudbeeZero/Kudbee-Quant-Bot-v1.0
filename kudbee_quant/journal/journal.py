@@ -131,8 +131,22 @@ class TradeJournal:
         self._load()
 
     def _load(self):
-        if self.path.exists():
-            self.predictions = [Prediction(**d) for d in json.loads(self.path.read_text())]
+        if not self.path.exists():
+            return
+        try:
+            rows = json.loads(self.path.read_text())
+        except (json.JSONDecodeError, OSError) as e:
+            logger.warning("TradeJournal: corrupt %s (%s) — starting empty", self.path, e)
+            return
+        # Defensive: one malformed row must not abort the whole book's load. Skip
+        # + log it so the rest of the journal still resolves (§83/§84 seam lesson).
+        kept = []
+        for d in rows:
+            try:
+                kept.append(Prediction(**d))
+            except (TypeError, ValueError) as e:
+                logger.warning("TradeJournal: skipping bad row (%s) — %s", e, d)
+        self.predictions = kept
 
     def save(self):
         """Write the full journal atomically: a crash mid-write must never
@@ -288,8 +302,17 @@ class TradeJournal:
             prev, p.status = p.status, status
             now = datetime.now(timezone.utc).isoformat()
             if status in ("hit", "miss"):
-                p.outcome_r = outcome_r
-                p.resolved_at = now
+                # Guard against a non-finite outcome_r (NaN/inf) poisoning the
+                # scorecard/API/Telegram totals (§83 "NaN passes paper-path guards").
+                # A NaN resolution is recorded as UNRESOLVED so it can't silently
+                # drag expectancy to nan; the bad window is re-evaluated next cycle.
+                if outcome_r is not None and outcome_r == outcome_r and abs(outcome_r) != float("inf"):
+                    p.outcome_r = outcome_r
+                    p.resolved_at = now
+                else:
+                    logger.warning(
+                        "check_open: %s (id=%s) resolved with non-finite outcome_r "
+                        "(%r) — left unresolved for re-evaluation", p.symbol, p.id, outcome_r)
             elif status == "open" and prev == "pending":
                 p.filled_at = p.filled_at or now   # bar time from _evaluate; now is fallback
             changed.append(p)

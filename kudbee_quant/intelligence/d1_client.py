@@ -12,11 +12,34 @@ outage must never block a scan or a Telegram reply.
 """
 from __future__ import annotations
 
+import logging
 import os
 
 import httpx
 
+log = logging.getLogger(__name__)
+
 CF_BASE = "https://api.cloudflare.com/client/v4"
+
+_WARNED_DISABLED = False
+
+
+def _warn_once_disabled() -> None:
+    """Surface (once) that D1 is unprovisioned so the silent no-op becomes visible.
+
+    Cloudflare D1 was never provisioned (CROSSROADS X2 / MEMORY §67): the account/
+    db env vars are absent, so every read/write no-ops. The local-JSON fallback
+    (intelligence/local_store.py) carries the data instead — but the gap must be
+    logged, not swallowed (§95 lesson: a recorder depending on unprovisioned infra
+    must emit a visible 'disabled' signal)."""
+    global _WARNED_DISABLED
+    if not _WARNED_DISABLED:
+        _WARNED_DISABLED = True
+        log.warning(
+            "D1 intelligence layer DISABLED — Cloudflare D1 not provisioned "
+            "(CF_ACCOUNT_ID / D1_DATABASE_ID / CF_API_TOKEN unset). Level/vector "
+            "data is served from the local-JSON fallback (data/levels_snapshot.json). "
+            "Provision D1 to re-enable the hosted store.")
 
 
 def _headers() -> dict:
@@ -24,12 +47,15 @@ def _headers() -> dict:
     if token:
         return {"Authorization": f"Bearer {token}",
                 "Content-Type": "application/json"}
+    _warn_once_disabled()
     raise RuntimeError("CF_API_TOKEN not set")
 
 
 def _url() -> str:
-    account_id = os.environ["CF_ACCOUNT_ID"]
-    db_id = os.environ["D1_DATABASE_ID"]
+    account_id = os.environ.get("CF_ACCOUNT_ID")
+    db_id = os.environ.get("D1_DATABASE_ID")
+    if not (account_id and db_id):
+        _warn_once_disabled()
     return f"{CF_BASE}/accounts/{account_id}/d1/database/{db_id}/query"
 
 

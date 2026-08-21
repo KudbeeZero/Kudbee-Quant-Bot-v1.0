@@ -112,8 +112,8 @@ def reflect(df: pd.DataFrame | None = None, write_memory: bool = True) -> dict:
         "overfit_alarms": overfit_alarms(ledger),
         "failure_rollup": failure_rollup(),
     }
-    REFLECTION_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REFLECTION_PATH.write_text(json.dumps(report, indent=2))
+    from ..util.io import atomic_write_json
+    atomic_write_json(REFLECTION_PATH, report)
     if write_memory and MEMORY_PATH.exists():
         oa = report["overfit_alarms"]
         note = (f"\n> _Reflection {report['generated_at']}_: "

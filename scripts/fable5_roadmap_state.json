@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "loop": "fable5-roadmap",
+  "last_run": null,
+  "run_count": 0,
+  "items": [
+    {"id": "F5-NAN-JOURNAL", "title": "Journal outcome_r NaN guard + defensive load", "status": "done", "owner_gate": false, "done_at": "2026-08-21", "context": "§83 NaN passes paper-path guards; journal.py check_open now rejects non-finite outcome_r and _load skips malformed rows."},
+    {"id": "F5-ATOMIC-BIAS", "title": "Crash-safe biases.json (atomic write + defensive load)", "status": "done", "owner_gate": false, "done_at": "2026-08-21", "context": "bias.py uses util.io.atomic_write_json; load skips corrupt rows."},
+    {"id": "F5-ATOMIC-REFLECTION", "title": "Crash-safe reflection.json + heartbeat.json", "status": "done", "owner_gate": false, "done_at": "2026-08-21", "context": "reflection.py + heartbeat.py use atomic_write_json."},
+    {"id": "F5-D1-DISABLED-LOG", "title": "D1 recorders log 'disabled' instead of silent no-op", "status": "done", "owner_gate": false, "done_at": "2026-08-21", "context": "d1_client warns once when unprovisioned; local_store JSON fallback carries the data (§95 lesson)."},
+    {"id": "F5-ATOMIC-OTHER", "title": "Apply atomic_write_json to remaining JSON stores (loop_agent, drawdown_guard, vector_log, scorecard cache, feature_toggles)", "status": "pending", "owner_gate": false, "context": "Seam-hardening per §83/§84: a crash mid-write must never truncate a state file. Low risk, mechanical."},
+    {"id": "F5-REASONING-LOOP", "title": "Phase 0.5 prediction->outcome learning store (reasoning_snapshot.py) + wire at signal + resolution", "status": "pending", "owner_gate": false, "context": "The original Phase 0.5 ask: capture confluence/setup rationale at signal, store outcome+MFE/MAE at resolution, as a separate read-only store. Enables the OBSERVE->PREDICT->COMPARE->LESSON loop without touching the engine."},
+    {"id": "F5-PER-SYMBOL-ISOLATION", "title": "Confirm/keep check_open per-symbol error isolation", "status": "done", "owner_gate": false, "done_at": "2026-08-21", "context": "Already shipped in N4 (§84): each prediction evaluated in its own try/except."},
+    {"id": "F5-RESEARCH-HONESTY", "title": "Research-honesty fixes (ml/cv.py fold purge, ml/labels.py decision-time features, scenarios/audit.py zero-check guard, overnight cache staleness)", "status": "pending", "owner_gate": false, "context": "§83 research-honesty machinery; safe to fix, separate PR/batch. Direction of bias known (optimistic) — must be significance-gated after."},
+    {"id": "F5-CORE-BRINKS-LOOKAHEAD", "title": "London Brinks / ny_open lookahead + AWR/AMR stub guard", "status": "blocked", "owner_gate": true, "context": "§83 core-engine: Brinks box + ny_open leak to pre-08:00 bars; changes validated core. OWNER SIGN-OFF required (X1). Do NOT auto-apply."},
+    {"id": "F5-CORE-MAKER-FILL", "title": "Maker-entry backtest must simulate fill-bar remaining range", "status": "blocked", "owner_gate": true, "context": "§83: bracket.py flatters limit-entry expectancy (entry-bar stop impossible). Validated-core change -> OWNER SIGN-OFF (X1)."},
+    {"id": "F5-LIVE-MONEY-1-5", "title": "Live-money audit items #1-#5 (venue stops, idempotency, partial fills, fill-ts, lot rounding)", "status": "blocked", "owner_gate": true, "context": "security-review-2026-07-02.md #1-#5. Money path -> OWNER SIGN-OFF (X1). Defensive #6/#7 already shipped."}
+  ]
+}

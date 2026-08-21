@@ -9,9 +9,12 @@ driving trades. Persisted to data/biases.json (git-versioned memory).
 from __future__ import annotations
 
 import json
+import logging
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+log = logging.getLogger(__name__)
 
 DEFAULT_PATH = Path("data/biases.json")
 
@@ -46,11 +49,18 @@ class BiasBook:
         self.path = Path(path)
         self.biases: list[Bias] = []
         if self.path.exists():
-            self.biases = [Bias(**d) for d in json.loads(self.path.read_text())]
+            try:
+                self.biases = [Bias(**d) for d in json.loads(self.path.read_text())]
+            except (json.JSONDecodeError, TypeError, ValueError) as e:
+                # A truncated/corrupt biases file must not abort startup; start
+                # clean and let the next save rewrite it. (Same seam-hardening
+                # lesson as the journal — §83/§84.)
+                log.warning("BiasBook: could not load %s (%s) — starting empty", path, e)
+                self.biases = []
 
     def save(self):
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps([asdict(b) for b in self.biases], indent=2))
+        from .util.io import atomic_write_json
+        atomic_write_json(self.path, [asdict(b) for b in self.biases])
 
     def set(self, symbol: str, side: str, target: float | None = None,
             days: float = 1.0, note: str = "") -> Bias:
