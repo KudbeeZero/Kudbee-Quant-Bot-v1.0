@@ -6,7 +6,7 @@
 > The thesis of this whole project, in one line: **the rules are commodity —
 > the edge is in the reasoning and the execution.**
 
-_Last updated: 2026-07-06 (§90)._
+_Last updated: 2026-08-21 (§95)._
 
 ---
 
@@ -2814,3 +2814,40 @@ one read without the full execution overlay can now add just that piece:
 
 No Python/engine/live-execution code touched — Pine-only, marketing/tooling surface.
 Direct commit to `main` (small, verified, non-risky per the streaming workflow).
+
+---
+
+## §95 · Telegram loop + data-accuracy hardening (2026-08-21)
+
+Action: the owner reported (a) the every-5-min status ping was too noisy, (b)
+`/back status` / `/back help` echoed but returned no data, (c) `/levels` `/history`
+`/vectors` always said "no data". Recon + fix:
+
+- **Root causes found:** status ping cadence was `*/5 * * * *` (paper-status.yml);
+  `dispatch` only knew `/status` so `/back …` hit the "Unknown command" branch; and
+  the three data commands queried **Cloudflare D1 which was never provisioned**
+  (CROSSROADS X2 / §67) — so they always returned empty. That D1 gap is the REAL data
+  bug, not a display one.
+- **Fixes shipped (merged to `main`, CI green 772/772, run 32444345691):**
+  - `paper-status.yml`: 5-min → **hourly** (`0 * * * *`), still `--only-if-open`.
+  - `telegram_commands.py`: `/back` prefix aliased to strip (so `/back status` ==
+    `/status`); `symbols.normalize_symbol` added so `/levels btc` → `BTCUSDT`;
+    `/levels` `/history` `/vectors` now read a **local-JSON fallback**
+    (`intelligence/local_store.py` → `data/levels_snapshot.json` / `vectors_snapshot.json`)
+    written each scan from the real engine (`build_levels` / `pvsra`), D1 still tried
+    first if ever provisioned.
+  - `telegram_poll.py` / `api.py` / `notifications/telegram.py`: honor Telegram's `ok`
+    field (a 200 with `ok:false` was wrongly "success"); poll stands down on the 409
+    "conflict" (overlapping pollers/webhook) instead of silently 0 updates; webhook
+    catches handler exceptions and ACKs (was 500 → Telegram retried forever).
+  - `notifications/notify.py`: `_g` renders NaN/inf as `?` not literal "nan".
+- **Defensive live-money guards (audit §live-bug-6 / #7) included in the same branch:**
+  `live.py` rejects non-finite size (`if not (size_usd > 0)`); `killswitch.py` counts an
+  unparseable `resolved_at` as TODAY (fail-closed) + guards non-finite PnL. These are
+  read-only on the kill-switch/size path — **no validated-core or live-execution change.**
+- **Caveat (owner decision still open):** E3 (live scan reads a half-formed candle) is
+  the highest-value strategy tweak but changes which signals fire on the live path →
+  owner sign-off, NOT shipped. Live-money audit items #1–#5 remain gated (CROSSROADS X1).
+- **Lesson:** D1 "silent no-op" recorders hid a real data gap for weeks; any recorder
+  that depends on unprovisioned infra must emit a visible "disabled" signal, not fail
+  quiet. Local-JSON fallback is the interim fix until D1 is provisioned (X2 step 3+6).
