@@ -341,7 +341,14 @@ async def telegram_webhook(request: Request) -> dict:
         body = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail="invalid JSON")
-    handle_update(body)                 # gate-1 whitelist + dispatch + reply
+    try:
+        handle_update(body)             # gate-1 whitelist + dispatch + reply
+    except Exception as exc:  # noqa: BLE001 — a crash must not 500 (Telegram retries forever)
+        # Tell the owner what failed (in Telegram) but still ACK so Telegram stops
+        # redelivering the same update in a retry loop. Never leak secrets in the text.
+        from .notifications import send_telegram
+        send_telegram(f"⚠️ Command failed: {type(exc).__name__}. The dev has been logged.")
+        return {"ok": True}
     return {"ok": True}
 
 

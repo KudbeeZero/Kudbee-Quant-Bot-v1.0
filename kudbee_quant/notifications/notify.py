@@ -60,14 +60,25 @@ def _side(p: "Prediction") -> str:
 
 
 def _g(x: float | None) -> str:
-    """Compact price format — never scientific notation on mobile."""
+    """Compact price format — never scientific notation on mobile.
+
+    A NaN/inf sneaks through as ``"nan"``/``"inf"`` on mobile (the scorecard feeds
+    this); treat any non-finite value like ``None`` so the owner never sees a
+    literal "nan" in a position ping.
+    """
     if x is None:
         return "?"
-    if abs(x) >= 1_000:
-        return f"{x:,.0f}"   # 64170 -> "64,170"  |  1735 -> "1,735"
-    if abs(x) >= 1:
-        return f"{x:.4g}"    # 591.3 -> "591.3"
-    return f"{x:.5g}"        # 0.08349 -> "0.08349"  (DOGE etc)
+    try:
+        xf = float(x)
+    except (TypeError, ValueError):
+        return "?"
+    if xf != xf or xf in (float("inf"), float("-inf")):  # NaN or inf
+        return "?"
+    if abs(xf) >= 1_000:
+        return f"{xf:,.0f}"   # 64170 -> "64,170"  |  1735 -> "1,735"
+    if abs(xf) >= 1:
+        return f"{xf:.4g}"    # 591.3 -> "591.3"
+    return f"{xf:.5g}"        # 0.08349 -> "0.08349"  (DOGE etc)
 
 
 def _book_tag(setup: str | None) -> str:

@@ -117,9 +117,18 @@ def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 1
                 json=payload,
                 timeout=timeout,
             )
-            if resp.status_code != 200:
-                log.warning("telegram sendMessage HTTP %s: %s", resp.status_code,
-                            _redact(resp.text[:200], token))
+            # Telegram returns HTTP 200 even for delivery failures (e.g. "bot was
+            # blocked by the user", "chat not found") — the real signal is the JSON
+            # ``ok`` field, so we must parse it, not trust the status code.
+            body = {}
+            try:
+                body = resp.json()
+            except ValueError:
+                pass
+            if resp.status_code != 200 or body.get("ok") is not True:
+                desc = body.get("description", resp.text[:200])
+                log.warning("telegram sendMessage HTTP %s ok=%s: %s",
+                            resp.status_code, body.get("ok"), _redact(desc, token))
                 ok = False
         except Exception as exc:  # noqa: BLE001 — never let a ping break the run
             # Redact: requests errors embed the token-bearing URL in their message.

@@ -261,6 +261,18 @@ def paper_scan(
         if (sym, interval, book) in open_keys:
             continue  # already in a paper trade on this symbol+timeframe+book
         f = build_levels(client.klines(sym, interval=interval, limit=600))
+        # Persist the engine's own level grid + unrecovered vectors to the LOCAL
+        # store (data/levels_snapshot.json / data/vectors_snapshot.json) so the
+        # owner's Telegram /levels /history /vectors commands have real data even
+        # though Cloudflare D1 is still unprovisioned (CROSSROADS X2). Defensive:
+        # never let a persistence hiccup affect the trading scan. Off the validated
+        # core — read-only snapshot written AFTER build_levels computes the frame.
+        try:
+            from .intelligence import local_store
+            local_store.persist_levels(f, sym, timeframe=interval)
+            local_store.persist_vectors(f, sym, timeframe=interval)
+        except Exception as e:  # noqa: BLE001
+            logger.warning("local_store persist skipped for %s %s: %s", sym, interval, e)
         last = confluence_score(f).iloc[-1]
         pct, direction = float(last["confluence_pct"]), float(last["direction"])
         strength = float(last["strength"])

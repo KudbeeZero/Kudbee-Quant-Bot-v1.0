@@ -1,21 +1,20 @@
-name: Paper-trade status ping (every 5 min, read-only)
+name: Paper-trade status ping (hourly, read-only)
 
-# READ-ONLY open-position reminder, MAXED to every 5 minutes (GitHub's cron floor).
-# The validated scan (paper-trade.yml) OWNS new trades, journal resolution and the
-# journal commit; this job ONLY re-sends the portfolio snapshot (notify-summary) with
-# fresh live marks — it does NOT scan, resolve, or write data/journal.json, so the
-# dense cadence can never race the bot or trade a half-formed bar. Runs with
-# --only-if-open, so it pings while you hold positions and is silent when flat.
+# READ-ONLY open-position reminder, once per hour (owner request 2026-08-21: was
+# every 5 minutes, felt too noisy). The validated scan (paper-trade.yml) OWNS new
+# trades, journal resolution and the journal commit; this job ONLY re-sends the
+# portfolio snapshot (notify-summary) with fresh live marks — it does NOT scan,
+# resolve, or write data/journal.json, so the cadence can never race the bot or
+# trade a half-formed bar. Runs with --only-if-open, so it pings while you hold
+# positions and is silent when flat.
 #
 # No-op (silent) unless the TELEGRAM_* repo secrets are set.
 
 on:
   schedule:
-    # MAXED to every 5 minutes — GitHub's smallest cron interval — so you get a
-    # "your trades are open" reminder as often as the platform allows. It's READ-ONLY
-    # (no scan/write), so the dense cadence can't race the bot or trade a half-formed
-    # bar, and it runs with --only-if-open so it stays SILENT when you're flat (no spam).
-    - cron: "*/5 * * * *"
+    # HOURLY (owner request): one "your trades are open" reminder at the top of each
+    # hour. READ-ONLY (no scan/write), --only-if-open, so silent when flat (no spam).
+    - cron: "0 * * * *"
   workflow_dispatch:           # manual run button
 
 permissions:
