@@ -1,21 +1,11 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 20,
-    "unrealized_r": 30.7405,
-    "winners": 18
+    "losers": 9,
+    "n": 17,
+    "unrealized_r": -2.9451,
+    "winners": 6
   },
   "trades": {
-    "1b58daf8": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.26881822537114375
-    },
     "339fcdd5": {
       "dl_soon": false,
       "health": "pending",
@@ -28,13 +18,13 @@
     },
     "36abb907": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 3.2207678883071496
+      "ur": 0.5942408376963337
     },
     "3a47ce4d": {
       "dl_soon": false,
@@ -54,157 +44,137 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.862180265222759
+      "ur": 0.254329929658445
     },
     "6642cae3": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.1354166666666647
-    },
-    "6c29bd9f": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.13086348841661075
+      "ur": 0.13020833333333268
     },
     "a330e428": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.0189592812973967
+      "ur": -0.18288414420721377
     },
     "a6ea3c96": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2110034433372863
+      "ur": -1.009918639729402
     },
     "a89039e3": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.114745586708199
+      "ur": -0.511768778123913
     },
     "ad08d883": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.1354166666666647
+      "ur": 0.13020833333333268
     },
     "af98befe": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2110034433372863
+      "ur": -1.009918639729402
     },
     "b4321417": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8224314502808048
+      "ur": -0.2989208236978293
     },
     "bce139ad": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.0189592812973967
+      "ur": -0.18288414420721377
     },
     "c1a170d8": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.9963707426019113
+      "ur": 0.432439977666113
     },
     "c1bfb4ca": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8224314502808048
-    },
-    "cf983cd2": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.13086348841661075
+      "ur": -0.2989208236978293
     },
     "dffdd141": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.9963707426019113
+      "ur": 0.432439977666113
     },
     "fd2b7b87": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.114745586708199
+      "ur": -0.511768778123913
     },
     "fd854a30": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near stop",
       "status": "pending",
-      "stop_touched": false,
+      "stop_touched": true,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.5291970802919646
+      "ur": -0.9120032441200329
     }
   }
 }
