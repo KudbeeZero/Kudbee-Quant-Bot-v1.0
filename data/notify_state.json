@@ -1,7 +1,7 @@
 {
   "agg": {
     "losers": 0,
-    "n": 17,
+    "n": 20,
     "unrealized_r": 14.1632,
     "winners": 15
   },
@@ -106,6 +106,16 @@
       "tp1_touched": false,
       "ur": 1.333333333333332
     },
+    "af98befe": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "b4321417": {
       "dl_soon": false,
       "health": "healthy",
@@ -115,6 +125,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.8696729435084246
+    },
+    "bce139ad": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "c1a170d8": {
       "dl_soon": false,
@@ -175,6 +195,16 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 1.2473174108688099
+    },
+    "fd854a30": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
