@@ -1,11 +1,21 @@
 {
   "agg": {
     "losers": 0,
-    "n": 5,
-    "unrealized_r": 0.7701,
+    "n": 9,
+    "unrealized_r": 1.8153,
     "winners": 3
   },
   "trades": {
+    "1d467fa5": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "41713088": {
       "dl_soon": false,
       "health": "healthy",
@@ -14,7 +24,27 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.010539915680673015
+      "ur": 0.2713858289133664
+    },
+    "894c2512": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "a6b30fe4": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "b0a75a6f": {
       "dl_soon": false,
@@ -24,7 +54,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5522404371584692
+      "ur": 1.086739526411656
     },
     "cbe26521": {
       "dl_soon": false,
@@ -34,7 +64,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.2072735385988442
+      "ur": 0.4571619812583697
     },
     "cf04d7e0": {
       "dl_soon": false,
@@ -52,6 +82,16 @@
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "e88dbcf1": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
