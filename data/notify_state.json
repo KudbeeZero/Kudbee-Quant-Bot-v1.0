@@ -1,70 +1,30 @@
 {
   "agg": {
-    "losers": 6,
-    "n": 6,
-    "unrealized_r": -2.2596,
+    "losers": 2,
+    "n": 2,
+    "unrealized_r": -0.9627,
     "winners": 0
   },
   "trades": {
-    "23f0f135": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.5677347394037677
-    },
-    "29191b9a": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "SOLUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.2395775941230443
-    },
     "41713088": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.22745818033455903
-    },
-    "bb7e07cd": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.5677347394037677
+      "ur": -0.5359037127702988
     },
     "cbe26521": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.07072735385987909
-    },
-    "f1351763": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.586374288583864
+      "ur": -0.4268183846497044
     }
   }
 }
