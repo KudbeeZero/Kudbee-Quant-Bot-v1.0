@@ -84,7 +84,8 @@ def _split(text: str, limit: int = _MAX_LEN) -> list[str]:
 
 
 def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 10.0,
-                  parse_mode: str | None = None, disable_notification: bool = False) -> bool:
+                   parse_mode: str | None = None, disable_notification: bool = False,
+                   bot_token: str | None = None, chat_id: str | None = None) -> bool:
     """Deliver ``text`` to the configured chat. Returns True iff fully delivered.
 
     No-ops (returns False) when not configured. Splits over-long messages and
@@ -93,17 +94,24 @@ def send_telegram(text: str, *, disable_preview: bool = True, timeout: float = 1
     ``parse_mode`` (e.g. ``"HTML"``) is forwarded to Telegram only when set, so the
     default call is byte-identical to before. ``disable_notification=True`` delivers
     the message silently (no buzz) — used for low-priority "FYI" pings like skips.
+    
+    ``bot_token`` and ``chat_id`` can override the environment defaults for per-call
+    credential routing (e.g., trade notifications to a specific chat).
     """
-    if not telegram_enabled():
-        return False
     import requests  # local import: keeps module import cheap + test-friendly
 
-    token, chat_id = _token(), _chat_id()
+    # Use provided credentials, fall back to environment
+    token = bot_token or _token()
+    cid = chat_id or _chat_id()
+    
+    if not token or not cid:
+        return False
+    
     url = _API.format(token=token)
     ok = True
     for chunk in _split(text):
         payload = {
-            "chat_id": chat_id,
+            "chat_id": cid,
             "text": chunk,
             "disable_web_page_preview": disable_preview,
         }
