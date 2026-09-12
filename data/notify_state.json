@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 2,
-    "unrealized_r": 0.0,
-    "winners": 0
+    "unrealized_r": 0.1014,
+    "winners": 1
   },
   "trades": {
     "c42ba52c": {
@@ -18,13 +18,13 @@
     },
     "dc5a977a": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.10136539032353689
     }
   }
 }
