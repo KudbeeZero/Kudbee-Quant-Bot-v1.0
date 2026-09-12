@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 6,
-    "unrealized_r": 0.677,
+    "unrealized_r": 0.7683,
     "winners": 2
   },
   "trades": {
@@ -34,7 +34,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.33933130991953664
+      "ur": 0.3878932408344107
     },
     "cc0a850d": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.33763728109229824
+      "ur": 0.3803799346987112
     }
   }
 }
