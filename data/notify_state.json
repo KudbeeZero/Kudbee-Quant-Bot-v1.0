@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 1,
+    "losers": 3,
     "n": 11,
-    "unrealized_r": 7.7392,
-    "winners": 8
+    "unrealized_r": 2.4898,
+    "winners": 5
   },
   "trades": {
     "0124f4fa": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4778861788617925
+      "ur": 0.5445528455284584
     },
     "040358b7": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.579269035533007
+      "ur": 0.6881962774957865
     },
     "2c7b6eee": {
       "dl_soon": false,
@@ -44,17 +44,17 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4749372453530132
+      "ur": 0.9946199201573565
     },
     "451f2944": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.11581371213594503
+      "ur": -0.4944217422325907
     },
     "504a692a": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.41439839365589504
+      "ur": -0.10878618246988675
     },
     "5c1218ec": {
       "dl_soon": false,
@@ -74,17 +74,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.579269035533007
-    },
-    "5eea4a50": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.3556366585563646
+      "ur": 0.6881962774957865
     },
     "920a7e4d": {
       "dl_soon": false,
@@ -104,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4851500789889451
+      "ur": -0.1960505529226005
     },
     "98b4c28e": {
       "dl_soon": false,
@@ -114,7 +104,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9681440443213339
+      "ur": 0.37349953831948424
+    },
+    "efcdfdd0": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "SOLUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
