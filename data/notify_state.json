@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 7,
-    "unrealized_r": 6.8938,
-    "winners": 4
+    "unrealized_r": 3.5234,
+    "winners": 3
   },
   "trades": {
     "0124f4fa": {
@@ -36,6 +36,16 @@
       "tp1_touched": false,
       "ur": 1.2475034755070225
     },
+    "504a692a": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BTCUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "5c1218ec": {
       "dl_soon": false,
       "health": "pending",
@@ -65,16 +75,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.6837488457987123
-    },
-    "fbe3f5df": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "XRPUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 3.3703820983744817
     }
   }
 }
