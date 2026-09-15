@@ -4,6 +4,6 @@
   "session_brief": false,
   "signal_cards": false,
   "skip_reporter": false,
-  "weekly_digest": false,
+  "weekly_digest": true,
   "weekly_recap": false
 }
