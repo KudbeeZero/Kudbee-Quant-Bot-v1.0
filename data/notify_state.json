@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 1,
-    "n": 12,
-    "unrealized_r": 9.3942,
-    "winners": 11
+    "n": 11,
+    "unrealized_r": 8.2672,
+    "winners": 10
   },
   "trades": {
     "22addafa": {
@@ -115,16 +115,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.9976090014064674
-    },
-    "f2a8edf9": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.1269877466630318
     }
   }
 }
