@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 9,
-    "unrealized_r": 19.1853,
+    "unrealized_r": 23.1942,
     "winners": 9
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8246301131418706
+      "ur": 1.230780388743834
     },
     "3de88901": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4800995024875589
+      "ur": 0.42437810945273546
     },
     "3edc5c9f": {
       "dl_soon": false,
@@ -34,27 +34,27 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.1015136558078464
+      "ur": 2.5621915103652584
     },
     "444f0c42": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.920134760206102
+      "ur": 2.4306381292112564
     },
     "707a0806": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.664257415140797
+      "ur": 2.125977085341036
     },
     "afded9b7": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.20114942528736
+      "ur": 1.8218390804597704
     },
     "b5061a10": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.664257415140797
+      "ur": 2.125977085341036
     },
     "fb2673ae": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.481170632024556
+      "ur": 4.943909242770762
     },
     "fd5bb541": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 4.848124669836262
+      "ur": 5.528526148969917
     }
   }
 }
