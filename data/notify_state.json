@@ -2,8 +2,8 @@
   "agg": {
     "losers": 0,
     "n": 9,
-    "unrealized_r": 9.4397,
-    "winners": 8
+    "unrealized_r": 8.6558,
+    "winners": 9
   },
   "trades": {
     "3edc5c9f": {
@@ -14,17 +14,17 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.7379072063178733
+      "ur": 1.4289239881540075
     },
     "688a3f6d": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.136363636363642
+      "ur": 1.5
     },
     "6e3b946c": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.5258899676375253
+      "ur": 1.9185544768068943
     },
     "707a0806": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1290823428632468
+      "ur": 0.7603062426383972
     },
     "8d83c737": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4999999999999964
+      "ur": 0.8333333333333275
     },
     "afded9b7": {
       "dl_soon": false,
@@ -74,17 +74,17 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1290823428632468
+      "ur": 0.7603062426383972
     },
     "d8e95faa": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.19519303107685795
     },
     "fd5bb541": {
       "dl_soon": false,
@@ -94,7 +94,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.8618594823032288
+      "ur": 0.8396724775488698
     }
   }
 }
