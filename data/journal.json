@@ -58809,7 +58809,7 @@
     "note": "Auto confluence-R long scalp: 50% confluence (strength 5). LIMIT 1.116 (retrace 0.25 ATR from 1.121), stop 1.084, target 1.21 (3.0R, maker).",
     "created_at": "2026-09-18T04:51:04.486942+00:00",
     "id": "8d83c737",
-    "status": "pending",
+    "status": "cancelled",
     "resolved_at": null,
     "entry": 1.11575,
     "stop": 1.08425,
