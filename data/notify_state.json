@@ -1,20 +1,20 @@
 {
   "agg": {
     "losers": 0,
-    "n": 7,
-    "unrealized_r": 16.2235,
-    "winners": 7
+    "n": 5,
+    "unrealized_r": 14.7714,
+    "winners": 5
   },
   "trades": {
     "135b7b45": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.7831447635625126
+      "ur": 2.3923701769654793
     },
     "3de88901": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.22935323383084383
+      "ur": 0.6611940298507399
     },
     "444f0c42": {
       "dl_soon": false,
@@ -34,37 +34,17 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.18648434403488
-    },
-    "707a0806": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.5457222400685136
+      "ur": 3.3240190249702746
     },
     "afded9b7": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "near TP",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.729885057471268
-    },
-    "b5061a10": {
-      "dl_soon": false,
-      "health": "near TP",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BNBUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 2.5457222400685136
+      "ur": 2.1206896551724133
     },
     "fb2673ae": {
       "dl_soon": false,
@@ -74,7 +54,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 5.203206344572611
+      "ur": 6.2730907085746255
     }
   }
 }
