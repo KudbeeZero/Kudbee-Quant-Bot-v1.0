@@ -1,21 +1,11 @@
 {
   "agg": {
-    "losers": 5,
-    "n": 15,
-    "unrealized_r": 2.8507,
+    "losers": 3,
+    "n": 13,
+    "unrealized_r": 4.1005,
     "winners": 10
   },
   "trades": {
-    "0119a81d": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.6463942047789226
-    },
     "2a07caa5": {
       "dl_soon": false,
       "health": "healthy",
@@ -24,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.20091044978936828
+      "ur": 0.24276396249490267
     },
     "3292b57f": {
       "dl_soon": false,
@@ -34,7 +24,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.025108670784708773
+      "ur": 0.018130862502865264
     },
     "385b0a83": {
       "dl_soon": false,
@@ -44,7 +34,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4837793998377944
+      "ur": 1.233982157339824
     },
     "4dfa45d6": {
       "dl_soon": false,
@@ -54,17 +44,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.025108670784708773
-    },
-    "7483ac5f": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.6463942047789226
+      "ur": 0.018130862502865264
     },
     "768fe8da": {
       "dl_soon": false,
@@ -74,7 +54,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6801510248112195
+      "ur": 1.0818770226537193
     },
     "781a6e35": {
       "dl_soon": false,
@@ -84,7 +64,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.36862442040184723
+      "ur": 0.20273055126223213
     },
     "85e015a4": {
       "dl_soon": false,
@@ -94,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.002202643171806248
+      "ur": -0.018355359765049022
     },
     "b3b4f92a": {
       "dl_soon": false,
@@ -104,7 +84,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.27911646586345595
+      "ur": 0.03172690763052661
     },
     "db5d9a2a": {
       "dl_soon": false,
@@ -114,7 +94,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.38481007086581387
+      "ur": 0.2677274527928297
     },
     "e4f1b30f": {
       "dl_soon": false,
@@ -124,7 +104,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9464135021096992
+      "ur": 1.3392405063291053
     },
     "ef21ec80": {
       "dl_soon": false,
@@ -134,7 +114,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.38481007086581387
+      "ur": 0.2677274527928297
     },
     "efe87400": {
       "dl_soon": false,
@@ -144,7 +124,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.002202643171806248
+      "ur": -0.018355359765049022
     },
     "ff4f4c49": {
       "dl_soon": false,
@@ -154,7 +134,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5392927308447887
+      "ur": -0.5667976424361454
     }
   }
 }
