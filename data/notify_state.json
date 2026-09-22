@@ -6,12 +6,12 @@
     "winners": 0
   },
   "trades": {
-    "19bc357e": {
+    "9e0e3a88": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "XRPUSDT",
+      "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
