@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 3,
-    "unrealized_r": 0.3726,
+    "unrealized_r": 0.643,
     "winners": 1
   },
   "trades": {
@@ -34,7 +34,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.37264367816092037
+      "ur": 0.6429885057471264
     }
   }
 }
