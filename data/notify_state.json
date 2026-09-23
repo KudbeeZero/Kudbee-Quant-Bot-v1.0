@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 2,
-    "n": 8,
-    "unrealized_r": 0.5616,
+    "n": 10,
+    "unrealized_r": 0.7456,
     "winners": 1
   },
   "trades": {
@@ -24,7 +24,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.06642131090080457
+      "ur": -0.05169996494917635
+    },
+    "396bc0ff": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "6fbbb566": {
       "dl_soon": false,
@@ -54,7 +64,17 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.06642131090080457
+      "ur": -0.05169996494917635
+    },
+    "8964c217": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "9e0e3a88": {
       "dl_soon": false,
@@ -64,7 +84,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6944827586206912
+      "ur": 0.8489655172413855
     },
     "a9103309": {
       "dl_soon": false,
