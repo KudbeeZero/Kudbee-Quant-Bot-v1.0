@@ -1,9 +1,30 @@
 {
   "agg": {
     "losers": 0,
-    "n": 0,
+    "n": 2,
     "unrealized_r": 0.0,
     "winners": 0
   },
-  "trades": {}
+  "trades": {
+    "60e62ea7": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "b64a53b3": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    }
+  }
 }
