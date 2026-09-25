@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 4,
+    "losers": 3,
     "n": 8,
-    "unrealized_r": -0.3181,
-    "winners": 3
+    "unrealized_r": -0.4993,
+    "winners": 5
   },
   "trades": {
     "16329bf9": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.015482093663912025
+      "ur": 0.07410468319559305
     },
     "29bc1429": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3061728395061602
+      "ur": -0.5185185185185086
     },
     "5b6b1044": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3928128872366798
+      "ur": -0.47087980173482086
     },
     "60e62ea7": {
       "dl_soon": false,
@@ -44,17 +44,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.031213191990580733
+      "ur": 0.10070671378091509
     },
     "9db1036c": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.25802469135802086
+      "ur": -0.3370370370370313
     },
     "b64a53b3": {
       "dl_soon": false,
@@ -64,17 +64,17 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.45093062605752915
+      "ur": 0.41934574168076577
     },
     "bfa95f42": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": 0.17472190257000414
     },
     "d349297e": {
       "dl_soon": false,
@@ -84,7 +84,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.20373765149200576
+      "ur": 0.0583053264079849
     }
   }
 }
