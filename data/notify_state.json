@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 3,
-    "n": 8,
-    "unrealized_r": -0.4993,
+    "n": 10,
+    "unrealized_r": 1.1433,
     "winners": 5
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.07410468319559305
+      "ur": 0.21294765840220348
     },
     "29bc1429": {
       "dl_soon": false,
@@ -24,17 +24,17 @@
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.5185185185185086
+      "ur": -0.48395061728394423
     },
     "5b6b1044": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.47087980173482086
+      "ur": -0.22800495662949638
     },
     "60e62ea7": {
       "dl_soon": false,
@@ -44,17 +44,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.10070671378091509
+      "ur": 0.36454652532390674
     },
     "9db1036c": {
       "dl_soon": false,
-      "health": "warning",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.3370370370370313
+      "ur": -0.28765432098765154
     },
     "b64a53b3": {
       "dl_soon": false,
@@ -64,7 +64,27 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.41934574168076577
+      "ur": 0.7509870276367704
+    },
+    "b7e77e3e": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "ADAUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "b8c14877": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "bfa95f42": {
       "dl_soon": false,
@@ -74,7 +94,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.17472190257000414
+      "ur": 0.45665515918680627
     },
     "d349297e": {
       "dl_soon": false,
@@ -84,7 +104,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.0583053264079849
+      "ur": 0.3577248192280282
     }
   }
 }
