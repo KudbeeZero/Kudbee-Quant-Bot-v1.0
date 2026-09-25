@@ -1,6 +1,6 @@
 {
   "daily_recap": true,
-  "live_tracker": false,
+  "live_tracker": true,
   "session_brief": false,
   "signal_cards": false,
   "skip_reporter": false,
