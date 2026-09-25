@@ -1,20 +1,30 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 12,
-    "unrealized_r": 16.5274,
-    "winners": 10
+    "losers": 1,
+    "n": 14,
+    "unrealized_r": 11.9812,
+    "winners": 9
   },
   "trades": {
+    "244c9b10": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
     "29bc1429": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "BNBUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.04567901234567945
+      "ur": -0.39629629629628566
     },
     "384c8c24": {
       "dl_soon": false,
@@ -24,7 +34,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.24518518518518
+      "ur": 0.3879012345678985
     },
     "3c604186": {
       "dl_soon": false,
@@ -44,7 +54,7 @@
       "symbol": "DOGEUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.1598513011152407
+      "ur": 0.8215613382899607
     },
     "60e62ea7": {
       "dl_soon": false,
@@ -54,7 +64,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.617785630153117
+      "ur": 1.1560659599528817
+    },
+    "6f0cda99": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "XRPUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "9db1036c": {
       "dl_soon": false,
@@ -64,7 +84,7 @@
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8654320987654285
+      "ur": 1.253086419753087
     },
     "a6a93dcd": {
       "dl_soon": false,
@@ -84,7 +104,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.0459672870840344
+      "ur": 1.6985335589396502
     },
     "b7e77e3e": {
       "dl_soon": false,
@@ -94,7 +114,7 @@
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.9716981132075424
+      "ur": 1.4874213836477996
     },
     "b8c14877": {
       "dl_soon": false,
@@ -104,7 +124,7 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.777169334456618
+      "ur": 2.1009547879809123
     },
     "bfa95f42": {
       "dl_soon": false,
@@ -114,7 +134,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.9039125431530506
+      "ur": 1.74549290372075
     },
     "d349297e": {
       "dl_soon": false,
@@ -124,7 +144,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.8947448823709099
+      "ur": 1.7264996435482165
     }
   }
 }
