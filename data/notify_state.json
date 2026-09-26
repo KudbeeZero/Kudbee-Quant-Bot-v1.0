@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 8,
-    "unrealized_r": 0.5422,
-    "winners": 5
+    "losers": 4,
+    "n": 6,
+    "unrealized_r": -1.0853,
+    "winners": 2
   },
   "trades": {
     "0252c260": {
@@ -14,27 +14,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6245283018868012
-    },
-    "0815e3c1": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.7777777777777799
+      "ur": 0.025786163522016195
     },
     "3e0c03f1": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.01790006325110967
+      "ur": -0.40006325110689267
     },
     "9798147b": {
       "dl_soon": false,
@@ -44,27 +34,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.39081011847582314
-    },
-    "aa2c5fc7": {
-      "dl_soon": false,
-      "health": "near stop",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.7777777777777799
+      "ur": -0.10828263421923413
     },
     "d2026b3c": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2041420118343211
+      "ur": -0.6696252465483282
     },
     "dd98ae6e": {
       "dl_soon": false,
@@ -74,17 +54,17 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9050632911392433
+      "ur": 0.40295358649788865
     },
     "f37d0a69": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.36355475763015277
+      "ur": -0.33602633153800876
     }
   }
 }
