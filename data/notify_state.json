@@ -1,8 +1,8 @@
 {
   "agg": {
     "losers": 1,
-    "n": 4,
-    "unrealized_r": 4.844,
+    "n": 6,
+    "unrealized_r": 4.8424,
     "winners": 3
   },
   "trades": {
@@ -14,27 +14,37 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.4111111111111143
+      "ur": 1.4843137254901995
     },
     "384c8c24": {
       "dl_soon": false,
-      "health": "near TP",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "SOLUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 2.2476543209876527
+      "ur": 1.8051851851851823
     },
     "6f0cda99": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.2648499693815092
+      "ur": -0.4020208205756275
+    },
+    "9798147b": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "LINKUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     },
     "bfa95f42": {
       "dl_soon": false,
@@ -44,7 +54,17 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.450134253931722
+      "ur": 1.9549290372075196
+    },
+    "dd98ae6e": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "DOTUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
     }
   }
 }
