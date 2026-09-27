@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 7,
-    "unrealized_r": 4.1084,
+    "unrealized_r": 2.6723,
     "winners": 7
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.6245283018868012
+      "ur": 0.5188679245283065
     },
     "3e0c03f1": {
       "dl_soon": false,
@@ -24,7 +24,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.3437697659709091
+      "ur": 0.2658444022770436
     },
     "9798147b": {
       "dl_soon": false,
@@ -34,7 +34,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4326502294802026
+      "ur": 0.18758672216885464
     },
     "bebd9702": {
       "dl_soon": false,
@@ -44,7 +44,7 @@
       "symbol": "BTCUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.2214054946156094
+      "ur": 0.7328078724394069
     },
     "d2026b3c": {
       "dl_soon": false,
@@ -54,7 +54,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.15877712031558386
+      "ur": 0.0719921104536496
     },
     "dd98ae6e": {
       "dl_soon": false,
@@ -64,7 +64,7 @@
       "symbol": "DOTUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.9050632911392433
+      "ur": 0.816455696202531
     },
     "f37d0a69": {
       "dl_soon": false,
@@ -74,7 +74,7 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.4222022740873687
+      "ur": 0.0786953919808428
     }
   }
 }
