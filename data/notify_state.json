@@ -1,9 +1,9 @@
 {
   "agg": {
     "losers": 0,
-    "n": 7,
-    "unrealized_r": 2.6723,
-    "winners": 7
+    "n": 5,
+    "unrealized_r": 1.6682,
+    "winners": 5
   },
   "trades": {
     "0252c260": {
@@ -26,16 +26,6 @@
       "tp1_touched": false,
       "ur": 0.2658444022770436
     },
-    "9798147b": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "LINKUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.18758672216885464
-    },
     "bebd9702": {
       "dl_soon": false,
       "health": "healthy",
@@ -55,16 +45,6 @@
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": 0.0719921104536496
-    },
-    "dd98ae6e": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOTUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 0.816455696202531
     },
     "f37d0a69": {
       "dl_soon": false,
