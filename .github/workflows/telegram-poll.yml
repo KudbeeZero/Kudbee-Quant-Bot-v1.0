@@ -24,7 +24,7 @@ name: Telegram command polling (no-server slash commands)
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "0 */4 * * *"
   workflow_dispatch:
 
 permissions:
