@@ -21,10 +21,11 @@ name: Telegram command polling (no-server slash commands)
 #
 # Latency is the cron interval (GitHub cron is best-effort — expect ~10-20 min).
 # Silent no-op without the TELEGRAM_* secrets.
+# Updated 2026-09-29: schedule reduced from every 10 minutes to every 4 hours.
 
 on:
   schedule:
-    - cron: "0 */4 * * *"
+    - cron: "0 */4 * * *"  # Runs at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC
   workflow_dispatch:
 
 permissions:
