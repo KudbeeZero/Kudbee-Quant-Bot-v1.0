@@ -17,19 +17,13 @@ name: Forward paper-trade (confluence-R)
 
 on:
   schedule:
-    # FOUR attempts/hour (every 15 min). GitHub's cron is best-effort and silently
-    # drops/delays many scheduled runs (observed: ~6 of 18 hourly runs fired, 15-40
-    # min late), which is why Telegram alerts only arrived on manual triggers. More
-    # independent attempts => higher chance at least one lands each hour. The
-    # per-(symbol,timeframe,book) dedup makes a re-scan idempotent for OPENS (no
-    # duplicate trades); it just also resolves trades and re-sends the summary sooner.
-    # The run heartbeat (record-run below) makes any remaining drops VISIBLE in the
-    # summary. For rock-solid timing, deploy the external Cloudflare Worker cron —
-    # see cloudflare/trade-bot-cron (the bulletproof fix).
-    - cron: "5 * * * *"        # primary, ~5 min after the hour
-    - cron: "20 * * * *"       # +15
-    - cron: "35 * * * *"       # +30 (original backup)
-    - cron: "50 * * * *"       # +45
+    # Reduced from 4 attempts/hour (every 15 min) to 1 attempt every 4 hours.
+    # Running at 00:00, 04:00, 08:00, 12:00, 16:00, 20:00 UTC to save resources.
+    # GitHub's cron is best-effort (observed: ~6 of 18 hourly runs fired, 15-40 min late);
+    # the per-(symbol,timeframe,book) dedup keeps re-scans idempotent for OPENS (no
+    # duplicate trades). For rock-solid timing, the external Cloudflare Worker cron
+    # (cloudflare/trade-bot-cron) provides the bulletproof alternative.
+    - cron: "0 */4 * * *"      # every 4 hours
   workflow_dispatch:           # manual run button
 
 permissions:
