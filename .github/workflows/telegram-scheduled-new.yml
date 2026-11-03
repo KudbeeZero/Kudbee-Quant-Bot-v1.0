@@ -1,4 +1,4 @@
-name: Telegram scheduled notifications
+name: Telegram scheduled notifications (new)
 
 # Cron-driven Telegram features (live tracker, session briefs, weekly digest). Each
 # emitter SELF-GATES on its feature toggle (env TELEGRAM_*_ENABLED or the committed
