@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
       - name: Send heartbeat with trading summary
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
@@ -21,17 +18,11 @@ jobs:
           if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
             echo "Missing secrets"; exit 1
           fi
-          SUMMARY=$(python - <<'PY'
-import json, datetime
-d=json.load(open('data/journal.json'))
-res=[x for x in d if x.get('status') in ('hit','miss')]
-n=len(res)
-s=sum((x.get('outcome_r') or 0) for x in res)
-openn=sum(1 for x in d if x.get('status')=='open')
-print(f"Kudbee heartbeat {datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')} | resolved={n} open={openn} sumR={s:.2f}")
-PY
-)
+          N=$(jq '[.[] | select(.status=="hit" or .status=="miss")] | length' data/journal.json)
+          S=$(jq '[.[] | select(.status=="hit" or .status=="miss") | (.outcome_r // 0)] | add' data/journal.json)
+          O=$(jq '[.[] | select(.status=="open")] | length' data/journal.json)
+          MSG="Kudbee heartbeat $(date -u +'%Y-%m-%d %H:%M UTC') | resolved=${N} open=${O} sumR=${S}"
           curl -sS -X POST "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/sendMessage" \
             -d chat_id="$TELEGRAM_CHAT_ID" \
-            -d text="$SUMMARY" \
+            -d text="$MSG" \
             -d disable_web_page_preview=true
