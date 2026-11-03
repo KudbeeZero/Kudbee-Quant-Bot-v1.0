@@ -15,7 +15,7 @@ GH_REPO = "Kudbee-Quant-Bot-v1.0"
 # paper-status.yml is the read-only open-position reminder (silent when flat) — listing
 # it here gives that reminder the same reliable Cloudflare backstop, not just GitHub's
 # best-effort */5 cron. (Back-compat: the Worker also accepts the old WORKFLOW_FILE.)
-WORKFLOW_FILES = "paper-trade.yml,paper-status.yml"
+WORKFLOW_FILES = "paper-trade-confluence.yml,paper-status-ping.yml"
 GH_REF = "main"
 
 # Optional: set TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID as Worker SECRETS (not vars) to get
