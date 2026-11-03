@@ -2,16 +2,10 @@ name = "kudbee-trade-bot-cron"
 main = "src/worker.js"
 compatibility_date = "2024-11-01"
 
-# Fires 2 minutes BEFORE each of the 4 GitHub cron attempts (:05/:20/:35/:50).
-# Cloudflare Cron Triggers are reliable — this guarantees the workflow_dispatch
-# lands even when GitHub's own scheduler silently drops/delays the run.
-# 4 triggers/hour x 24h = 96 Worker invocations/day — well within free tier.
+# Fires every hour on the hour to dispatch paper-trade.yml + paper-status.yml.
 [triggers]
 crons = [
-  "3 * * * *",
-  "18 * * * *",
-  "33 * * * *",
-  "48 * * * *",
+  "0 * * * *",
 ]
 
 [vars]
