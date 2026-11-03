@@ -1,0 +1,47 @@
+name: Paper-trade status ping (hourly, read-only)
+
+# READ-ONLY open-position reminder, once per hour (owner request 2026-08-21: was
+# every 5 minutes, felt too noisy). The validated scan (paper-trade.yml) OWNS new
+# trades, journal resolution and the journal commit; this job ONLY re-sends the
+# portfolio snapshot (notify-summary) with fresh live marks — it does NOT scan,
+# resolve, or write data/journal.json, so the cadence can never race the bot or
+# trade a half-formed bar. Runs with --only-if-open, so it pings while you hold
+# positions and is silent when flat.
+#
+# No-op (silent) unless the TELEGRAM_* repo secrets are set.
+
+on:
+  schedule:
+    # HOURLY (owner request): one "your trades are open" reminder at the top of each
+    # hour. READ-ONLY (no scan/write), --only-if-open, so silent when flat (no spam).
+    - cron: "0 * * * *"
+  workflow_dispatch:           # manual run button
+
+permissions:
+  contents: read               # read-only: this job never commits
+
+concurrency:
+  group: paper-status
+  cancel-in-progress: false
+
+jobs:
+  status-ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip                 # cache deps so the every-5-min job is cheap/fast
+
+      - name: Install deps
+        run: pip install -q -r requirements.txt
+
+      - name: Telegram status snapshot (read-only)
+        # Recomputes open-trade marks live and sends the portfolio snapshot.
+        # Reads the journal committed by the last hourly run; writes nothing.
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python -m kudbee_quant.cli notify-summary --only-if-open || true
