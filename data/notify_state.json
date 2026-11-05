@@ -2,7 +2,7 @@
   "agg": {
     "losers": 0,
     "n": 1,
-    "unrealized_r": 0.1615,
+    "unrealized_r": 0.1703,
     "winners": 1
   },
   "trades": {
@@ -14,7 +14,7 @@
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.16152810913318383
+      "ur": 0.17030647825289685
     }
   }
 }
