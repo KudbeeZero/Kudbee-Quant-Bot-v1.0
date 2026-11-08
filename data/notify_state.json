@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 3,
-    "n": 8,
-    "unrealized_r": 3.2513,
-    "winners": 3
+    "losers": 2,
+    "n": 5,
+    "unrealized_r": 0.2394,
+    "winners": 2
   },
   "trades": {
     "02e2f287": {
@@ -14,47 +14,27 @@
       "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.18406402226862284
+      "ur": 0.46868475991647024
     },
     "0e780c75": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ADAUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
-    },
-    "46359320": {
-      "dl_soon": false,
-      "health": "warning",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "BTCUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": -0.4976488495671986
-    },
-    "6adb0bad": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.8349436392914624
+      "ur": -0.1423841059602737
     },
     "7007d655": {
       "dl_soon": false,
-      "health": "healthy",
+      "health": "warning",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": -0.24890867819100748
+      "ur": -0.5148768988999136
     },
     "997d3731": {
       "dl_soon": false,
@@ -64,24 +44,14 @@
       "symbol": "LINKUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.5120000000000003
+      "ur": 0.4279999999999976
     },
-    "c43a503c": {
-      "dl_soon": false,
-      "health": "healthy",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "DOGEUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": 1.8349436392914624
-    },
-    "eddf8f51": {
+    "c7290dd4": {
       "dl_soon": false,
       "health": "pending",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "AVAXUSDT",
+      "symbol": "XRPUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
       "ur": null
