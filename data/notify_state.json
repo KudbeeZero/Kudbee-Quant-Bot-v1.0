@@ -1,9 +1,9 @@
 {
   "agg": {
-    "losers": 0,
+    "losers": 1,
     "n": 1,
-    "unrealized_r": 0.0894,
-    "winners": 1
+    "unrealized_r": -0.2391,
+    "winners": 0
   },
   "trades": {
     "c4ee8c37": {
@@ -14,7 +14,7 @@
       "symbol": "AVAXUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 0.08937198067633052
+      "ur": -0.23913043478260507
     }
   }
 }
