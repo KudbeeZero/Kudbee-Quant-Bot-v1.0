@@ -1,9 +1,30 @@
 {
   "agg": {
     "losers": 0,
-    "n": 0,
+    "n": 2,
     "unrealized_r": 0.0,
     "winners": 0
   },
-  "trades": {}
+  "trades": {
+    "1b85fbcb": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "AVAXUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    },
+    "4c8b6c68": {
+      "dl_soon": false,
+      "health": "pending",
+      "status": "pending",
+      "stop_touched": false,
+      "symbol": "BNBUSDT",
+      "tp1_filled": false,
+      "tp1_touched": false,
+      "ur": null
+    }
+  }
 }
