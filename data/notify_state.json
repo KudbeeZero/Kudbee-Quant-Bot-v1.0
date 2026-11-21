@@ -1,40 +1,30 @@
 {
   "agg": {
-    "losers": 0,
-    "n": 3,
-    "unrealized_r": 1.5708,
-    "winners": 1
+    "losers": 2,
+    "n": 2,
+    "unrealized_r": -0.5753,
+    "winners": 0
   },
   "trades": {
     "703986b6": {
       "dl_soon": false,
-      "health": "pending",
+      "health": "healthy",
       "status": "pending",
       "stop_touched": false,
       "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": null
+      "ur": -0.2876458867065193
     },
     "8e41ec51": {
-      "dl_soon": false,
-      "health": "pending",
-      "status": "pending",
-      "stop_touched": false,
-      "symbol": "ETHUSDT",
-      "tp1_filled": false,
-      "tp1_touched": false,
-      "ur": null
-    },
-    "f6df1f90": {
       "dl_soon": false,
       "health": "healthy",
       "status": "pending",
       "stop_touched": false,
-      "symbol": "LINKUSDT",
+      "symbol": "ETHUSDT",
       "tp1_filled": false,
       "tp1_touched": false,
-      "ur": 1.5708399088199296
+      "ur": -0.2876458867065193
     }
   }
 }
